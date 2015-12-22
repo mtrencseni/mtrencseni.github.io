@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="I review Luigi, an execution framework for writing data pipes in Python code. It supports task-task dependencies, it has a simple central scheduler with an HTTP API and an extensive library of helpers for building data pipes for Hadoop, AWS, Mysql etc. It was written by Spotify for internal use and open sourced in 2012. A number of companies use it, such as Foursquare, Stripe, Asana." />
+<meta name="keywords" content="data, etl, workflow, luigi">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="Luigi review"/>
+<meta property="og:description" content="I review Luigi, an execution framework for writing data pipes in Python code. It supports task-task dependencies, it has a simple central scheduler with an HTTP API and an extensive library of helpers for building data pipes for Hadoop, AWS, Mysql etc. It was written by Spotify for internal use and open sourced in 2012. A number of companies use it, such as Foursquare, Stripe, Asana."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/luigi.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2015-12-20 00:00:00+01:00"/>
+<meta property="article:modified_time" content="2015-12-22 00:00:00+01:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data"/>
+<meta property="article:tag" content="data"/>
+<meta property="article:tag" content="etl"/>
+<meta property="article:tag" content="workflow"/>
+<meta property="article:tag" content="luigi"/>
+<meta property="og:image" content="">  <title>Bytepawn &ndash; Luigi review</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="https://github.com/mtrencseni" target="_blank">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni" target="_blank">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1" target="_blank">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+        <li><a class="sc-You can add links in your config file" href="#" target="_blank"><i class="fa fa-You can add links in your config file"></i></a></li>
+        <li><a class="sc-Another social link" href="#" target="_blank"><i class="fa fa-Another social link"></i></a></li>
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="luigi">Luigi review</h1>
+    <p>Posted on Sun 20 December 2015 in <a href="/category/data.html">Data</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>Luigi is an execution framework for writing data pipes in Python code. It supports task-task dependencies, it has a simple central scheduler with an HTTP API and an extensive library of helpers for building data pipes for Hadoop, AWS, Mysql etc. It was written by Spotify for internal use and open sourced in 2012. A number of companies use it, such as Foursquare, Stripe, Asana.</p>
+<h2>Execution</h2>
+<p>Suppose that part of your ETL process is to take some data A, apply transformation X on it, and save it as Y. In Luigi, you would write a <code>.py</code> file which contains a class X, which derives from class Task. X would have three methods: <code>require(), run(), and output()</code>.</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">class</span> <span class="nc">X</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">requires</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+</pre></div>
+</td></tr></table>
+
+<p>Then you execute luigi and pass this <code>.py</code> file to it. When given a Task, luigi:</p>
+<ol>
+<li>Calls the <code>output()</code> method, which returns one or more objects deriving from class <code>Target</code>. A <code>Target</code> is something which has an <code>exists()</code> method which returns either <code>True</code> or <code>False</code>. Luigi calls <code>exists()</code> on all the targets to see whether this task needs to be run. If all return <code>True</code>, luigi will flag this task as <code>DONE</code> and never call <code>run()</code>.
+   If at least one of the output targets returned <code>False</code>, this job needs to be run. Luigi then calls the <code>requires()</code> method to see what other tasks need to first run for this task to run successfully. <code>requires()</code> returns one or more objects deriving from class <code>Task</code>, and recursively performs this process for all those.
+   Note: When returning, luigi checks whether the output targets of the required tasks really exists. This is encapsulated in the <code>complete()</code> method, the default implementation just calls <code>exists()</code> on all targets returned by <code>output()</code>; the method can optionally be overridden in the derived <code>Target</code> class. The purpose of <code>complete()</code> is to make sure <code>run()</code> was successful, because if a required target’s <code>run()</code> didn’t raise a Python exception but didn’t actually produce the output needed, then <code>run()</code> shouldn’t be called. In this case the required task is re-run.</li>
+<li>Luigi calls the <code>run()</code> method and sets the task status to <code>DONE</code> if no exceptions Python were raised.
+   Note: <code>run()</code> can also dynamically <code>yield</code> dependencies tasks.</li>
+</ol>
+<h2>Local and central scheduler</h2>
+<p>When luigi is launched and a task is given to it a worker object is created. Workers need to talk to a scheduler, which manages the dependency graph of tasks and tells workers what to do. So when the local worker object is created, it can either:</p>
+<ol>
+<li>Create a local scheduler in the process, or</li>
+<li>Connect to a remote scheduler using the HTTP API. This is the default.</li>
+</ol>
+<p><em>Local scheduler:</em> The local scheduler can be used by passing <code>--local-scheduler</code> to the luigi runtime. When running with the local scheduler, the algorithm given above is run recursively, and then luigi exits. This is usually only used for testing and debugging purposes.</p>
+<p><em>Central scheduler:</em> More interesting is the central scheduler. The central scheduler is a separate <code>luigid</code> Python Tornado app that workers can talk to over HTTP. It performs two tasks: scheduling of tasks based on the dependency graph and serving a simple web dashboard on port 8082 (default). Note that the central scheduler:</p>
+<ol>
+<li>Doesn’t see or execute the <code>Task</code> objects or code, hence it never sees or checks whether targets exist; this is always performed by workers.</li>
+<li>The task is identified by the:<ul>
+<li>Python name of the class; in the example above it’s X.</li>
+<li>The values of the parameters passed to the task, eg. <code>day=2015-12-01</code>.</li>
+</ul>
+</li>
+</ol>
+<p>Parameters are member variables in the <code>Task</code> objects which derive from class <code>Parameter</code>, eg.:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">class</span> <span class="nc">X</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">):</span>
+    <span class="n">day</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">DateParameter</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">())</span>
+    <span class="o">...</span>
+</pre></div>
+</td></tr></table>
+
+<p>By specifying <code>significant=False</code> in the <code>Parameter</code> constructor, we can tell Luigi not to treat it as part of the task signature.</p>
+<p>The worker builds the local dependency graph and then uploads it to the central scheduler, and then asks the central scheduler what it should do. The central scheduler potentially receives dependency graphs from several workers, and merges them, assuming tasks with the same name (and parameter values) uploaded from different workers are the same (generate the same <code>output()</code> targets, contain the same <code>run()</code> logic, etc).</p>
+<p>Given the dependency graph, the central scheduler then tells workers to start running tasks. A worker can only run tasks that it uploaded to the central scheduler, because those are the tasks that that Python process loaded. So workers are not generic workers, they can only work on the tasks that they were started with!</p>
+<p>Given a dependency graph, the scheduler will tell workers to run tasks that have no dependencies. By default, the order is non-deterministic. However, tasks can specify a priority, which is taken into account by the scheduler, and tasks with higher priority run first. The default priority is 0. Example:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">class</span> <span class="nc">X</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">priority</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="o">&lt;</span><span class="n">something</span><span class="o">&gt;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+</pre></div>
+</td></tr></table>
+
+<p>Because priorities are in code, the worker must evaluate them and pass it on to the central scheduler.</p>
+<h2>Local parallelism</h2>
+<p>More than 1 worker thread can be created by passing <code>--workers N</code> to luigi. This is registered to the central scheduler, and if possible N tasks are run in parallel by one worker.
+So there are multiple levels of parallelism in Luigi:
+1. Multiple workers
+2. Multiple threads in workers
+3. Each task can have further parallelism, eg. a Hadoop MR job.</p>
+<h2>Managing a library of tasks</h2>
+<p>What if we’re managing a library of 100s or 1000s of ETL jobs? While I haven’t used Luigi for this, it seems that the basic building blocks are:</p>
+<ol>
+<li>Python import statements: our jobs are distributed into different <code>.py</code> files, so we need to <code>import</code> them to use them in <code>requires()</code>.</li>
+<li><code>WrapperTask</code> objects: these are special sink tasks which don’t have an output, they just require other tasks to be run.</li>
+</ol>
+<p>This part puts a lot of work on the user of Luigi:
+1. If we create a new task and forget to add it to the sink task, it won’t be executed unless it’s a dependency for something else that is.
+2. If we refactor a job (eg. rename the task class, change parameters), we have to search and replace all references in subsequent <code>requires()</code> methods. Since Python isn’t a statically linked language, this has to be done textually or by trial and error.
+3. If running workers on separate machines, it’s our job to synchronize the library of <code>.py</code> files (eg. using <code>git</code> and <code>cron</code> jobs to sync very often). If there are different versions with with different logic, chaos ensues. But even so it’s dangerous, since a local, uncommitted change to a task can be submitted to the central scheduler.</p>
+<h2>Date parameters</h2>
+<p>In an ETL system, most tasks will have a date(time) parameter which tells the code which day/hour to run the scripts for. For example, a Daily Active User (DAU) script computes the number of unique DAUs for a given day. Because this is such a common use-case, Luigi has a number of helper classes for dealing with date parameters:</p>
+<ul>
+<li><a href="http://luigi.readthedocs.org/en/stable/api/luigi.parameter.html#luigi.parameter.DateParameter">DateParameter</a></li>
+<li><a href="http://luigi.readthedocs.org/en/stable/api/luigi.parameter.html#luigi.parameter.MonthParameter">MonthParameter</a></li>
+<li><a href="http://luigi.readthedocs.org/en/stable/api/luigi.parameter.html#luigi.parameter.YearParameter">YearParameter</a></li>
+<li><a href="http://luigi.readthedocs.org/en/stable/api/luigi.parameter.html#luigi.parameter.DateHourParameter">DateHourParameter</a></li>
+<li><a href="http://luigi.readthedocs.org/en/stable/api/luigi.parameter.html#luigi.parameter.DateMinuteParameter">DateMinuteParameter</a></li>
+<li><a href="http://luigi.readthedocs.org/en/stable/api/luigi.parameter.html#luigi.parameter.DateIntervalParameter">DateIntervalParameter</a></li>
+</ul>
+<p>Often tasks have to be re-run for a number of days. One way to do this is to call luigi repeatedly from the command line. Or we can use the built in <code>RangeDailyBase</code> (also <code>RangeHourlyBase</code>) helpers:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span class="c"># instead of calling this repeatedly:</span>
+    <span class="c"># luigi task Task --date 2015-01-XX</span>
+<span class="c"># do this:</span>
+<span class="nv">$ </span>luigi --module task RangeDailyBase --of Task --start 2015-01-01 --stop 2015-01-31
+</pre></div>
+</td></tr></table>
+
+<p>The name of the date parameter of the task can be specified with <code>--param_name==</code>.</p>
+<p>When passed in a large number of dates (as an interval), the <code>RangeXBase</code> classes will instantiate a task object for each date and call <code>complete()</code> to check whether that task needs to be run. This can be very slow, eg. if each one creates a database connection and then closes it down.
+There are two optimization classes <code>RangeDaily</code> and <code>RangeHourly</code> that solve this problem. These are used just like the two <code>Base</code> versions from the command line. But instead of instantiating many tasks which potentially don’t have to be run, they assume and call the task’s <code>bulk_complete()</code> classmethod to get a list of dates which have to be run. So the user has to implement a <code>bulk_complete()</code> to use <code>RangeDaily</code> and <code>RangeHourly</code>.</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span class="nv">$ </span>luigi --module task RangeDaily --of Task --start 2015-01-01 --stop 2015-01-31
+</pre></div>
+</td></tr></table>
+
+<p>Note: it seems Luigi doesn’t support bulk running of parameter intervals.</p>
+<h2>Scheduling</h2>
+<p>Most ETL systems have jobs which need to run every hour or every day. Luigi doesn’t have a concept of calendar scheduling, this is up to the user. The recommended method by the authors is to create sink tasks and run them from <code>cron</code> when the external input files (eg. raw log files) are likely to be available.</p>
+<p>Rescheduling failed tasks is influenced by the following parameters in central scheduler’s <code>luigi.cfg</code>:</p>
+<ul>
+<li><code>retry-delay</code>: when to re-schedule, default 900 seconds</li>
+<li><code>remove-delay</code>: how long the central scheduler keeps tasks around that have no stakeholder; a stakeholder is a worker who uploaded that task</li>
+<li><code>disable-hard-timeout</code>: if a task fails again after this much time, it is disabled for good</li>
+</ul>
+<p>On the worker’s <code>luigi.cfg</code>:</p>
+<ul>
+<li><code>worker-keep-alive</code>: you probably need to set this to true, so workers will stay alive when they run out of jobs to run, as long as they have some pending job waiting to be run. Otherwise workers will disconnect from the central scheduler and exit if there’s nothing to do, even if there are tasks which will be scheduled a few minutes from now.</li>
+<li><code>retry-external-tasks</code>: If true, incomplete external tasks (i.e. tasks where the <code>run()</code> method is <code>NotImplemented</code>) will be retested for completion while Luigi is running. This means that if external dependencies are satisfied after a workflow has started, any tasks dependent on that resource will be eligible for running.</li>
+</ul>
+<p>The central scheduler has a feature called task history. This logs task completion to a database, and exposes it on the dashboard.</p>
+<p>For tasks where the output is a database table, Luigi needs to keep track of successful inserts. It uses a special marker table for this (set with <code>marker-table</code> in <code>luigi.cfg</code> default name is <code>table_updates</code>). When a task finishes whose target is a database table, an entry is created in the marker table with the task’s <code>task_id</code> (its name and parameter values). When the target’s <code>exists()</code> method is called, this marker table is called to check whether the task has been run (the <code>task_id</code> is passed by the task to the <code>Target</code> in its constructor).</p>
+<h2>Resources</h2>
+<p>Resources can be used to introduce limits on task parallelism. For example, suppose we never want to run more than 10 mysql tasks, or we never want to run more than 3 instances of the hourly job <code>count_users</code>.</p>
+<p>Luigi has resources for this: they are declared in the <code>luigi.cfg</code> file of the scheduler:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre><span class="p">[</span><span class="n">resources</span><span class="p">]</span>
+<span class="n">mysql</span><span class="p">:</span> <span class="mi">10</span>
+<span class="n">count_users</span><span class="p">:</span> <span class="mi">3</span>
+</pre></div>
+</td></tr></table>
+
+<p>Resource use is given in the resources property of the task object in the Python code, like:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span class="n">resources</span> <span class="o">=</span> <span class="p">{</span><span class="err">“</span><span class="n">mysql</span><span class="err">”</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span> <span class="c"># using 2 mysql connections in this task</span>
+</pre></div>
+</td></tr></table>
+
+<h2>Contrib stuff</h2>
+<p>Luigi has an impressive library of stock <code>Target</code> and <code>Task</code> classes, each with lots of functionality baked in as helper methods. This is the big reason why I think Luigi is popular and why I would consider using it.</p>
+<p>Luigi has task and target classes which support:</p>
+<ul>
+<li>Google Bigquery</li>
+<li>Hadoop jobs</li>
+<li>Hive queries</li>
+<li>Pig queries</li>
+<li>Scalding jobs</li>
+<li>Spark jobs</li>
+<li>Postgresql, Redshift, Mysql tables</li>
+<li>and more… </li>
+</ul>
+<h2>Source code and tests</h2>
+<p>I spent a fair amount of time digging through the Luigi Python source code. It’s pretty clean Python code with a lot of tests. It’s pretty easy to understand and extend.</p>
+<h2>Sample cases</h2>
+<p>Trying it out on a free cloud9 Docker instance:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="nv">$ </span>pip install tornado <span class="c"># luigi uses the tornado web server</span>
+<span class="nv">$ </span><span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:/home/ubuntu/workspace/luigi/bin
+<span class="nv">$ </span><span class="nb">export </span><span class="nv">PYTHONPATH</span><span class="o">=</span>/home/ubuntu/workspace/luigi:.
+<span class="nv">$ </span>luigid
+2015-12-19 14:18:08,492 luigi-interface<span class="o">[</span>11022<span class="o">]</span> INFO: Loaded <span class="o">[]</span>
+2015-12-19 14:18:08,494 luigi.server<span class="o">[</span>11022<span class="o">]</span> INFO: No prior state file exists at /var/lib/luigi-server/state.pickle. Starting with clean slate
+2015-12-19 14:18:08,497 luigi.server<span class="o">[</span>11022<span class="o">]</span> INFO: Scheduler starting up
+</pre></div>
+</td></tr></table>
+
+<p>Other terminal, this is the default Luigi sample to try:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5</pre></div></td><td class="code"><div class="highlight"><pre><span class="nv">$ </span><span class="nb">cd </span>luigi/examples
+<span class="nv">$ </span>luigi --module top_artists AggregateArtists --date-interval 2012-06
+<span class="c"># does the job, creates files locally!</span>
+<span class="nv">$ </span>luigi --module top_artists AggregateArtists --date-interval 2012-06
+<span class="c"># notices files are there, doesn’t do anything</span>
+</pre></div>
+</td></tr></table>
+
+<p>Let’s play around with Luigi. Let’s create this x.py:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">luigi</span>
+
+<span class="k">class</span> <span class="nc">X</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">WrapperTask</span><span class="p">):</span>
+    <span class="n">task_namespace</span> <span class="o">=</span> <span class="s">&#39;examples&#39;</span>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Running X&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">requires</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">Bar</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Bar</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">):</span>
+    <span class="n">task_namespace</span> <span class="o">=</span> <span class="s">&#39;examples&#39;</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">IntParameter</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Bar </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">num</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">()</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s">&#39;w&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Bar touched </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">())</span>
+    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">luigi</span><span class="o">.</span><span class="n">LocalTarget</span><span class="p">(</span><span class="s">&#39;/tmp/bar/</span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">num</span><span class="p">)</span>
+</pre></div>
+</td></tr></table>
+
+<p>And run it like:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span class="nv">$ </span>luigi --module x examples.X
+</pre></div>
+</td></tr></table>
+
+<p>This will create an X task and 10 Bar tasks. The 10 bar tasks will touch <code>/tmp/bar/…</code> and that’s it.
+Let’s delete the tmp files, and create a similarly named y.py, with identical X and Bar tasks, except X renamed to Y. Let’s launch two workers, one with x and one with y. Notice that the central scheduler will merge the dependency graphs and treat the Bar tasks coming from the different workers/codes as the same, because their <code>task_id</code> (class name plus parameters) are identical. It’s a bit weird, but this is how Luigi works. Another thing you’ll notice is that at the end of the execution, one of X and Y will actually be unfinished (not green on the dashboard). This is because the workers are run without worker-keep-alive. So the first worker who finishes its tasks and is waiting for the other worker to finish the last Bar will exit (it’s got nothing to do). If that worker was eg. the x worker, then task X is not going to be run by anyone! if we turn on <code>--worker-keep-alive</code> in the command-line, this oddity goes away.</p>
+<h2>Conclusion</h2>
+<p>When designing an ETL framework, I would make (and have made) different design decisions compared to Luigi. But if I were tasked with creating a new ETL framework from scratch (eg. at a new company), <em>I would definitely consider using Luigi</em>. There is simply too much useful stuff there to ignore (and re-implement).
+<strong>However, I would expect to:</strong></p>
+<ol>
+<li>Find unexpected and painful behaviour in Luigi.</li>
+<li>Write significant scaffolding code to make it useful:<ol>
+<li>Syncing the task library to different workers</li>
+<li>Scheduling series of tasks</li>
+<li>Monitoring</li>
+<li>Alerting</li>
+<li>Dashboard for the ETL datasets and jobs (see below)</li>
+</ol>
+</li>
+</ol>
+<p><strong>Downsides of Luigi:</strong></p>
+<ol>
+<li>Sometimes unexpected behaviour: for example, a wrapper task can reach DONE status without ever running the <code>run()</code> method depending on non-deterministic execution order.</li>
+<li>The biggest downside to Luigi is that ETL jobs are specified as programmatic Python Task objects and not given is some sort of DSL. This means no external tool can reasonably/easily parse a library of tasks and extract dependency information, which would be useful for generating documentation of the ETL system.</li>
+<li>The web dashboard of the central scheduler is basically useless.</li>
+</ol>
+<h2>Links, talks</h2>
+<ul>
+<li><a href="https://github.com/spotify/luigi">Github</a></li>
+<li><a href="http://luigi.readthedocs.org/en/stable/index.html">Docs</a></li>
+<li><a href="https://github.com/spotify/luigi#who-uses-luigi">Slides from Luigi users</a></li>
+</ul>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/data.html">data</a>
+      <a href="/tag/etl.html">etl</a>
+      <a href="/tag/workflow.html">workflow</a>
+      <a href="/tag/luigi.html">luigi</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Luigi review",
+  "headline": "Luigi review",
+  "datePublished": "2015-12-20 00:00:00+01:00",
+  "dateModified": "2015-12-22 00:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/luigi.html",
+  "description": "I review Luigi, an execution framework for writing data pipes in Python code. It supports task-task dependencies, it has a simple central scheduler with an HTTP API and an extensive library of helpers for building data pipes for Hadoop, AWS, Mysql etc. It was written by Spotify for internal use and open sourced in 2012. A number of companies use it, such as Foursquare, Stripe, Asana."
+}
+</script></body>
+</html>

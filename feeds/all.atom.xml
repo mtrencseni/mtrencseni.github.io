@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn</title><link href="/" rel="alternate"></link><link href="/feeds/all.atom.xml" rel="self"></link><id>/</id><updated>2015-12-22T00:00:00+01:00</updated><entry><title>Luigi review</title><link href="/luigi.html" rel="alternate"></link><updated>2015-12-22T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:,2015-12-20:luigi.html</id><summary type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;Luigi is an execution framework for writing data pipes in Python code. It supports task-task dependencies, it has a simple central scheduler with an HTTP API and an extensive library of helpers for building data pipes for Hadoop, AWS, Mysql etc. It was written by Spotify for internal use and open sourced in 2012. A number of companies use it, such as Foursquare, Stripe, Asana.&lt;/p&gt;
+&lt;h2&gt;Execution&lt;/h2&gt;
+&lt;p&gt;Suppose that part of your ETL process is to take some data A, apply transformation X on it, and save it as Y. In Luigi, you would write a &lt;code&gt;.py&lt;/code&gt; file which contains a class X, which derives from class Task. X would have three methods: &lt;code&gt;require(), run(), and output()&lt;/code&gt;.&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3
+4&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;X&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;luigi&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Task&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;requires&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="o"&gt;...&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="o"&gt;...&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;output&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="o"&gt;...&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;Then you execute luigi and pass this &lt;code&gt;.py&lt;/code&gt; file to it. When given a Task, luigi:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Calls the &lt;code&gt;output()&lt;/code&gt; method, which returns one or more objects deriving from class &lt;code&gt;Target&lt;/code&gt;. A &lt;code&gt;Target&lt;/code&gt; is something which has an &lt;code&gt;exists()&lt;/code&gt; method which returns either &lt;code&gt;True&lt;/code&gt; or &lt;code&gt;False&lt;/code&gt;. Luigi calls &lt;code&gt;exists()&lt;/code&gt; on all the targets to see whether this task needs to be run. If all return &lt;code&gt;True&lt;/code&gt;, luigi will flag this task as &lt;code&gt;DONE&lt;/code&gt; and never call &lt;code&gt;run()&lt;/code&gt;.
+   If at least one of the output targets returned &lt;code&gt;False&lt;/code&gt;, this job needs to be run. Luigi then calls the &lt;code&gt;requires()&lt;/code&gt; method to see what other tasks need to first run for this task to run successfully. &lt;code&gt;requires()&lt;/code&gt; returns one or more objects deriving from class &lt;code&gt;Task&lt;/code&gt;, and recursively performs this process for all those.
+   Note: When returning, luigi checks whether the output targets of the required tasks really exists. This is encapsulated in the &lt;code&gt;complete()&lt;/code&gt; method, the default implementation just calls &lt;code&gt;exists()&lt;/code&gt; on all targets returned by &lt;code&gt;output()&lt;/code&gt;; the method can optionally be overridden in the derived &lt;code&gt;Target&lt;/code&gt; class. The purpose of &lt;code&gt;complete()&lt;/code&gt; is to make sure &lt;code&gt;run()&lt;/code&gt; was successful, because if a required target’s &lt;code&gt;run()&lt;/code&gt; didn’t raise a Python exception but didn’t actually produce the output needed, then &lt;code&gt;run()&lt;/code&gt; shouldn’t be called. In this case the required task is re-run.&lt;/li&gt;
+&lt;li&gt;Luigi calls the &lt;code&gt;run()&lt;/code&gt; method and sets the task status to &lt;code&gt;DONE&lt;/code&gt; if no exceptions Python were raised.
+   Note: &lt;code&gt;run()&lt;/code&gt; can also dynamically &lt;code&gt;yield&lt;/code&gt; dependencies tasks.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;Local and central scheduler&lt;/h2&gt;
+&lt;p&gt;When luigi is launched and a task is given to it a worker object is created. Workers need to talk to a scheduler, which manages the dependency graph of tasks and tells workers what to do. So when the local worker object is created, it can either:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Create a local scheduler in the process, or&lt;/li&gt;
+&lt;li&gt;Connect to a remote scheduler using the HTTP API. This is the default.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;em&gt;Local scheduler:&lt;/em&gt; The local scheduler can be used by passing &lt;code&gt;--local-scheduler&lt;/code&gt; to the luigi runtime. When running with the local scheduler, the algorithm given above is run recursively, and then luigi exits. This is usually only used for testing and debugging purposes.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Central scheduler:&lt;/em&gt; More interesting is the central scheduler. The central scheduler is a separate &lt;code&gt;luigid&lt;/code&gt; Python Tornado app that workers can talk to over HTTP. It performs two tasks: scheduling of tasks based on the dependency graph and serving a simple web dashboard on port 8082 (default). Note that the central scheduler:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Doesn’t see or execute the &lt;code&gt;Task&lt;/code&gt; objects or code, hence it never sees or checks whether targets exist; this is always performed by workers.&lt;/li&gt;
+&lt;li&gt;The task is identified by the:&lt;ul&gt;
+&lt;li&gt;Python name of the class; in the example above it’s X.&lt;/li&gt;
+&lt;li&gt;The values of the parameters passed to the task, eg. &lt;code&gt;day=2015-12-01&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Parameters are member variables in the &lt;code&gt;Task&lt;/code&gt; objects which derive from class &lt;code&gt;Parameter&lt;/code&gt;, eg.:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;X&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;luigi&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Task&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;day&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;luigi&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;DateParameter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;datetime&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;date&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;today&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+    &lt;span class="o"&gt;...&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;By specifying &lt;code&gt;significant=False&lt;/code&gt; in the &lt;code&gt;Parameter&lt;/code&gt; constructor, we can tell Luigi not to treat it as part of the task signature.&lt;/p&gt;
+&lt;p&gt;The worker builds the local dependency graph and then uploads it to the central scheduler, and then asks the central scheduler what it should do. The central scheduler potentially receives dependency graphs from several workers, and merges them, assuming tasks with the same name (and parameter values) uploaded from different workers are the same (generate the same &lt;code&gt;output()&lt;/code&gt; targets, contain the same &lt;code&gt;run()&lt;/code&gt; logic, etc).&lt;/p&gt;
+&lt;p&gt;Given the dependency graph, the central scheduler then tells workers to start running tasks. A worker can only run tasks that it uploaded to the central scheduler, because those are the tasks that that Python process loaded. So workers are not generic workers, they can only work on the tasks that they were started with!&lt;/p&gt;
+&lt;p&gt;Given a dependency graph, the scheduler will tell workers to run tasks that have no dependencies. By default, the order is non-deterministic. However, tasks can specify a priority, which is taken into account by the scheduler, and tasks with higher priority run first. The default priority is 0. Example:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3
+4
+5
+6
+7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;X&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;luigi&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Task&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="nd"&gt;@property&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;priority&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;something&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
+        &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;Because priorities are in code, the worker must evaluate them and pass it on to the central scheduler.&lt;/p&gt;
+&lt;h2&gt;Local parallelism&lt;/h2&gt;
+&lt;p&gt;More than 1 worker thread can be created by passing &lt;code&gt;--workers N&lt;/code&gt; to luigi. This is registered to the central scheduler, and if possible N tasks are run in parallel by one worker.
+So there are multiple levels of parallelism in Luigi:
+1. Multiple workers
+2. Multiple threads in workers
+3. Each task can have further parallelism, eg. a Hadoop MR job.&lt;/p&gt;
+&lt;h2&gt;Managing a library of tasks&lt;/h2&gt;
+&lt;p&gt;What if we’re managing a library of 100s or 1000s of ETL jobs? While I haven’t used Luigi for this, it seems that the basic building blocks are:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Python import statements: our jobs are distributed into different &lt;code&gt;.py&lt;/code&gt; files, so we need to &lt;code&gt;import&lt;/code&gt; them to use them in &lt;code&gt;requires()&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;WrapperTask&lt;/code&gt; objects: these are special sink tasks which don’t have an output, they just require other tasks to be run.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;This part puts a lot of work on the user of Luigi:
+1. If we create a new task and forget to add it to the sink task, it won’t be executed unless it’s a dependency for something else that is.
+2. If we refactor a job (eg. rename the task class, change parameters), we have to search and replace all references in subsequent &lt;code&gt;requires()&lt;/code&gt; methods. Since Python isn’t a statically linked language, this has to be done textually or by trial and error.
+3. If running workers on separate machines, it’s our job to synchronize the library of &lt;code&gt;.py&lt;/code&gt; files (eg. using &lt;code&gt;git&lt;/code&gt; and &lt;code&gt;cron&lt;/code&gt; jobs to sync very often). If there are different versions with with different logic, chaos ensues. But even so it’s dangerous, since a local, uncommitted change to a task can be submitted to the central scheduler.&lt;/p&gt;
+&lt;h2&gt;Date parameters&lt;/h2&gt;
+&lt;p&gt;In an ETL system, most tasks will have a date(time) parameter which tells the code which day/hour to run the scripts for. For example, a Daily Active User (DAU) script computes the number of unique DAUs for a given day. Because this is such a common use-case, Luigi has a number of helper classes for dealing with date parameters:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://luigi.readthedocs.org/en/stable/api/luigi.parameter.html#luigi.parameter.DateParameter"&gt;DateParameter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://luigi.readthedocs.org/en/stable/api/luigi.parameter.html#luigi.parameter.MonthParameter"&gt;MonthParameter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://luigi.readthedocs.org/en/stable/api/luigi.parameter.html#luigi.parameter.YearParameter"&gt;YearParameter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://luigi.readthedocs.org/en/stable/api/luigi.parameter.html#luigi.parameter.DateHourParameter"&gt;DateHourParameter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://luigi.readthedocs.org/en/stable/api/luigi.parameter.html#luigi.parameter.DateMinuteParameter"&gt;DateMinuteParameter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://luigi.readthedocs.org/en/stable/api/luigi.parameter.html#luigi.parameter.DateIntervalParameter"&gt;DateIntervalParameter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Often tasks have to be re-run for a number of days. One way to do this is to call luigi repeatedly from the command line. Or we can use the built in &lt;code&gt;RangeDailyBase&lt;/code&gt; (also &lt;code&gt;RangeHourlyBase&lt;/code&gt;) helpers:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3
+4&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;# instead of calling this repeatedly:&lt;/span&gt;
+    &lt;span class="c"&gt;# luigi task Task --date 2015-01-XX&lt;/span&gt;
+&lt;span class="c"&gt;# do this:&lt;/span&gt;
+&lt;span class="nv"&gt;$ &lt;/span&gt;luigi --module task RangeDailyBase --of Task --start 2015-01-01 --stop 2015-01-31
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;The name of the date parameter of the task can be specified with &lt;code&gt;--param_name==&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;When passed in a large number of dates (as an interval), the &lt;code&gt;RangeXBase&lt;/code&gt; classes will instantiate a task object for each date and call &lt;code&gt;complete()&lt;/code&gt; to check whether that task needs to be run. This can be very slow, eg. if each one creates a database connection and then closes it down.
+There are two optimization classes &lt;code&gt;RangeDaily&lt;/code&gt; and &lt;code&gt;RangeHourly&lt;/code&gt; that solve this problem. These are used just like the two &lt;code&gt;Base&lt;/code&gt; versions from the command line. But instead of instantiating many tasks which potentially don’t have to be run, they assume and call the task’s &lt;code&gt;bulk_complete()&lt;/code&gt; classmethod to get a list of dates which have to be run. So the user has to implement a &lt;code&gt;bulk_complete()&lt;/code&gt; to use &lt;code&gt;RangeDaily&lt;/code&gt; and &lt;code&gt;RangeHourly&lt;/code&gt;.&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;luigi --module task RangeDaily --of Task --start 2015-01-01 --stop 2015-01-31
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;Note: it seems Luigi doesn’t support bulk running of parameter intervals.&lt;/p&gt;
+&lt;h2&gt;Scheduling&lt;/h2&gt;
+&lt;p&gt;Most ETL systems have jobs which need to run every hour or every day. Luigi doesn’t have a concept of calendar scheduling, this is up to the user. The recommended method by the authors is to create sink tasks and run them from &lt;code&gt;cron&lt;/code&gt; when the external input files (eg. raw log files) are likely to be available.&lt;/p&gt;
+&lt;p&gt;Rescheduling failed tasks is influenced by the following parameters in central scheduler’s &lt;code&gt;luigi.cfg&lt;/code&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;retry-delay&lt;/code&gt;: when to re-schedule, default 900 seconds&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;remove-delay&lt;/code&gt;: how long the central scheduler keeps tasks around that have no stakeholder; a stakeholder is a worker who uploaded that task&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;disable-hard-timeout&lt;/code&gt;: if a task fails again after this much time, it is disabled for good&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;On the worker’s &lt;code&gt;luigi.cfg&lt;/code&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;worker-keep-alive&lt;/code&gt;: you probably need to set this to true, so workers will stay alive when they run out of jobs to run, as long as they have some pending job waiting to be run. Otherwise workers will disconnect from the central scheduler and exit if there’s nothing to do, even if there are tasks which will be scheduled a few minutes from now.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;retry-external-tasks&lt;/code&gt;: If true, incomplete external tasks (i.e. tasks where the &lt;code&gt;run()&lt;/code&gt; method is &lt;code&gt;NotImplemented&lt;/code&gt;) will be retested for completion while Luigi is running. This means that if external dependencies are satisfied after a workflow has started, any tasks dependent on that resource will be eligible for running.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The central scheduler has a feature called task history. This logs task completion to a database, and exposes it on the dashboard.&lt;/p&gt;
+&lt;p&gt;For tasks where the output is a database table, Luigi needs to keep track of successful inserts. It uses a special marker table for this (set with &lt;code&gt;marker-table&lt;/code&gt; in &lt;code&gt;luigi.cfg&lt;/code&gt; default name is &lt;code&gt;table_updates&lt;/code&gt;). When a task finishes whose target is a database table, an entry is created in the marker table with the task’s &lt;code&gt;task_id&lt;/code&gt; (its name and parameter values). When the target’s &lt;code&gt;exists()&lt;/code&gt; method is called, this marker table is called to check whether the task has been run (the &lt;code&gt;task_id&lt;/code&gt; is passed by the task to the &lt;code&gt;Target&lt;/code&gt; in its constructor).&lt;/p&gt;
+&lt;h2&gt;Resources&lt;/h2&gt;
+&lt;p&gt;Resources can be used to introduce limits on task parallelism. For example, suppose we never want to run more than 10 mysql tasks, or we never want to run more than 3 instances of the hourly job &lt;code&gt;count_users&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Luigi has resources for this: they are declared in the &lt;code&gt;luigi.cfg&lt;/code&gt; file of the scheduler:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;resources&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;mysql&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;
+&lt;span class="n"&gt;count_users&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;Resource use is given in the resources property of the task object in the Python code, like:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;resources&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="err"&gt;“&lt;/span&gt;&lt;span class="n"&gt;mysql&lt;/span&gt;&lt;span class="err"&gt;”&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="c"&gt;# using 2 mysql connections in this task&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;h2&gt;Contrib stuff&lt;/h2&gt;
+&lt;p&gt;Luigi has an impressive library of stock &lt;code&gt;Target&lt;/code&gt; and &lt;code&gt;Task&lt;/code&gt; classes, each with lots of functionality baked in as helper methods. This is the big reason why I think Luigi is popular and why I would consider using it.&lt;/p&gt;
+&lt;p&gt;Luigi has task and target classes which support:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Google Bigquery&lt;/li&gt;
+&lt;li&gt;Hadoop jobs&lt;/li&gt;
+&lt;li&gt;Hive queries&lt;/li&gt;
+&lt;li&gt;Pig queries&lt;/li&gt;
+&lt;li&gt;Scalding jobs&lt;/li&gt;
+&lt;li&gt;Spark jobs&lt;/li&gt;
+&lt;li&gt;Postgresql, Redshift, Mysql tables&lt;/li&gt;
+&lt;li&gt;and more… &lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Source code and tests&lt;/h2&gt;
+&lt;p&gt;I spent a fair amount of time digging through the Luigi Python source code. It’s pretty clean Python code with a lot of tests. It’s pretty easy to understand and extend.&lt;/p&gt;
+&lt;h2&gt;Sample cases&lt;/h2&gt;
+&lt;p&gt;Trying it out on a free cloud9 Docker instance:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3
+4
+5
+6
+7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;pip install tornado &lt;span class="c"&gt;# luigi uses the tornado web server&lt;/span&gt;
+&lt;span class="nv"&gt;$ &lt;/span&gt;&lt;span class="nb"&gt;export &lt;/span&gt;&lt;span class="nv"&gt;PATH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$PATH&lt;/span&gt;:/home/ubuntu/workspace/luigi/bin
+&lt;span class="nv"&gt;$ &lt;/span&gt;&lt;span class="nb"&gt;export &lt;/span&gt;&lt;span class="nv"&gt;PYTHONPATH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/home/ubuntu/workspace/luigi:.
+&lt;span class="nv"&gt;$ &lt;/span&gt;luigid
+2015-12-19 14:18:08,492 luigi-interface&lt;span class="o"&gt;[&lt;/span&gt;11022&lt;span class="o"&gt;]&lt;/span&gt; INFO: Loaded &lt;span class="o"&gt;[]&lt;/span&gt;
+2015-12-19 14:18:08,494 luigi.server&lt;span class="o"&gt;[&lt;/span&gt;11022&lt;span class="o"&gt;]&lt;/span&gt; INFO: No prior state file exists at /var/lib/luigi-server/state.pickle. Starting with clean slate
+2015-12-19 14:18:08,497 luigi.server&lt;span class="o"&gt;[&lt;/span&gt;11022&lt;span class="o"&gt;]&lt;/span&gt; INFO: Scheduler starting up
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;Other terminal, this is the default Luigi sample to try:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3
+4
+5&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;&lt;span class="nb"&gt;cd &lt;/span&gt;luigi/examples
+&lt;span class="nv"&gt;$ &lt;/span&gt;luigi --module top_artists AggregateArtists --date-interval 2012-06
+&lt;span class="c"&gt;# does the job, creates files locally!&lt;/span&gt;
+&lt;span class="nv"&gt;$ &lt;/span&gt;luigi --module top_artists AggregateArtists --date-interval 2012-06
+&lt;span class="c"&gt;# notices files are there, doesn’t do anything&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;Let’s play around with Luigi. Let’s create this x.py:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;time&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;luigi&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;X&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;luigi&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;WrapperTask&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;task_namespace&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;examples&amp;#39;&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Running X&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;requires&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="n"&gt;Bar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Bar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;luigi&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Task&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;task_namespace&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;examples&amp;#39;&lt;/span&gt;
+    &lt;span class="n"&gt;num&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;luigi&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;IntParameter&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Bar &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;num&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sleep&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;w&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;close&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Bar touched &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;output&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;luigi&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;LocalTarget&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;/tmp/bar/&lt;/span&gt;&lt;span class="si"&gt;%d&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;num&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;And run it like:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;luigi --module x examples.X
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;This will create an X task and 10 Bar tasks. The 10 bar tasks will touch &lt;code&gt;/tmp/bar/…&lt;/code&gt; and that’s it.
+Let’s delete the tmp files, and create a similarly named y.py, with identical X and Bar tasks, except X renamed to Y. Let’s launch two workers, one with x and one with y. Notice that the central scheduler will merge the dependency graphs and treat the Bar tasks coming from the different workers/codes as the same, because their &lt;code&gt;task_id&lt;/code&gt; (class name plus parameters) are identical. It’s a bit weird, but this is how Luigi works. Another thing you’ll notice is that at the end of the execution, one of X and Y will actually be unfinished (not green on the dashboard). This is because the workers are run without worker-keep-alive. So the first worker who finishes its tasks and is waiting for the other worker to finish the last Bar will exit (it’s got nothing to do). If that worker was eg. the x worker, then task X is not going to be run by anyone! if we turn on &lt;code&gt;--worker-keep-alive&lt;/code&gt; in the command-line, this oddity goes away.&lt;/p&gt;
+&lt;h2&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;When designing an ETL framework, I would make (and have made) different design decisions compared to Luigi. But if I were tasked with creating a new ETL framework from scratch (eg. at a new company), &lt;em&gt;I would definitely consider using Luigi&lt;/em&gt;. There is simply too much useful stuff there to ignore (and re-implement).
+&lt;strong&gt;However, I would expect to:&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Find unexpected and painful behaviour in Luigi.&lt;/li&gt;
+&lt;li&gt;Write significant scaffolding code to make it useful:&lt;ol&gt;
+&lt;li&gt;Syncing the task library to different workers&lt;/li&gt;
+&lt;li&gt;Scheduling series of tasks&lt;/li&gt;
+&lt;li&gt;Monitoring&lt;/li&gt;
+&lt;li&gt;Alerting&lt;/li&gt;
+&lt;li&gt;Dashboard for the ETL datasets and jobs (see below)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;Downsides of Luigi:&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Sometimes unexpected behaviour: for example, a wrapper task can reach DONE status without ever running the &lt;code&gt;run()&lt;/code&gt; method depending on non-deterministic execution order.&lt;/li&gt;
+&lt;li&gt;The biggest downside to Luigi is that ETL jobs are specified as programmatic Python Task objects and not given is some sort of DSL. This means no external tool can reasonably/easily parse a library of tasks and extract dependency information, which would be useful for generating documentation of the ETL system.&lt;/li&gt;
+&lt;li&gt;The web dashboard of the central scheduler is basically useless.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;Links, talks&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/spotify/luigi"&gt;Github&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://luigi.readthedocs.org/en/stable/index.html"&gt;Docs&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/spotify/luigi#who-uses-luigi"&gt;Slides from Luigi users&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</summary><category term="data"></category><category term="etl"></category><category term="workflow"></category><category term="luigi"></category></entry><entry><title>Cargo Cult Data</title><link href="/cargo-cult-data.html" rel="alternate"></link><updated>2015-12-22T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:,2015-01-26:cargo-cult-data.html</id><summary type="html">&lt;h2&gt;Cargo cult science&lt;/h2&gt;
+&lt;p&gt;&lt;a href="https://en.wikipedia.org/wiki/Richard_Feynman"&gt;R. P. Feynman&lt;/a&gt; was a Nobel-prize winning physicist who coined the term &lt;a href="https://en.wikipedia.org/wiki/Cargo_cult_science"&gt;cargo cult science&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;In Feynman's words:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;In the South Seas there is a cargo cult of people. During the [second world] war they saw airplanes land with lots of good materials, and they want the same thing to happen now [after the Americans left]. So they've arranged to imitate things like runways, to put fires along the sides of the runways, to make a wooden hut for a man to sit in, with two wooden pieces on his head like headphones and bars of bamboo sticking out like antennas—he's the controller—and they wait for the airplanes to land. They're doing everything right. The form is perfect. It looks exactly the way it looked before. But it doesn't work. No airplanes land. So I call these things cargo cult science, because they follow all the apparent precepts and forms of scientific investigation, but they're missing something essential, because the planes don't land.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Feynman cautioned that to avoid becoming cargo cult scientists, researchers must avoid fooling themselves, be willing to question and doubt their own theories and their own results, and investigate possible flaws in a theory or an experiment. He recommended that researchers adopt an unusually high level of honesty which is rarely encountered in everyday life, and gave examples from advertising, politics, and behavioral psychology to illustrate the everyday dishonesty which should be unacceptable in science.&lt;/p&gt;
+&lt;h2&gt;Cargo cult data&lt;/h2&gt;
+&lt;p&gt;The same idea applies to data. Cargo cult data is when you're collecting and looking at data when making decisions, but you're only following the forms of scientific investigation and missing the essentials, so it doesn't work. &lt;em&gt;So in the end you're like the natives of the South Seas, and the planes don't land for you either.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Signs that you're doing cargo cult data:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;you don't have standardized logging across your products&lt;/li&gt;
+&lt;li&gt;you routinely break your logging and have holes in your dataset&lt;/li&gt;
+&lt;li&gt;you don't have standardized KPIs across your products and company&lt;/li&gt;
+&lt;li&gt;you're not A/B testing all your releases&lt;/li&gt;
+&lt;li&gt;you don't have explicit hypothesis for your experiments&lt;/li&gt;
+&lt;li&gt;you don't know what statistical power is&lt;/li&gt;
+&lt;li&gt;you confuse statistical significance and magnitude of change&lt;/li&gt;
+&lt;li&gt;you're using online forms to evaluate A/B tests&lt;/li&gt;
+&lt;li&gt;you stop A/B tests as soon as they're statistically significant (=peeking)&lt;/li&gt;
+&lt;li&gt;you're not tracking your experiments and their outcomes historically&lt;/li&gt;
+&lt;li&gt;you don't know what standard deviation (=confuse signal and noise)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;There are no easy answers how to avoid cargo cult data, just as there are no easy answers how to avoid cargo cult science. If you are thinking about this as a company, your best bet is to hire smart mathematicians or physicist for your data team and listen to what they say. Personally, it's a matter of understand statistics and being disciplined in your work. Fortunately there are &lt;a href="https://www.coursera.org/specializations/jhu-data-science"&gt;great courses on Coursera&lt;/a&gt;, &lt;a href="http://www.amazon.com/s/ref=dp_byline_sr_book_1?ie=UTF8&amp;amp;text=Allen+B.+Downey&amp;amp;search-alias=books&amp;amp;field-author=Allen+B.+Downey&amp;amp;sort=relevancerank"&gt;great books on Amazon&lt;/a&gt; and a &lt;a href="https://en.wikipedia.org/wiki/A/B_testing"&gt;wealth of information available online&lt;/a&gt;.&lt;/p&gt;</summary><category term="data"></category></entry></feed>
