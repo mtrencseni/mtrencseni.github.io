@@ -62,7 +62,7 @@
     <h2>Introduction</h2>
 <p>Luigi is an execution framework for writing data pipes in Python code. It supports task-task dependencies, it has a simple central scheduler with an HTTP API and an extensive library of helpers for building data pipes for Hadoop, AWS, Mysql etc. It was written by Spotify for internal use and open sourced in 2012. A number of companies use it, such as Foursquare, Stripe, Asana.</p>
 <h2>Execution</h2>
-<p>Suppose that part of your ETL process is to take some data A, apply transformation X on it, and save it as Y. In Luigi, you would write a <code>.py</code> file which contains a class X, which derives from class Task. X would have three methods: <code>require(), run(), and output()</code>.</p>
+<p>Suppose that part of your ETL process is to take some data A, apply transformation X on it, and save it as Y. In Luigi, you would write a <code>.py</code> file which contains a class X, which derives from class <code>Task</code>. X would have three methods: <code>require(), run(), and output()</code>.</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
@@ -73,12 +73,13 @@
 </pre></div>
 </td></tr></table>
 
-<p>Then you execute luigi and pass this <code>.py</code> file to it. When given a Task, luigi:</p>
+<p>Then you execute luigi and pass this <code>.py</code> file to it, like <code>luigi --module x X</code> if the file name is <code>x.py</code>. When given a <code>Task</code>, luigi:</p>
 <ol>
-<li>Calls the <code>output()</code> method, which returns one or more objects deriving from class <code>Target</code>. A <code>Target</code> is something which has an <code>exists()</code> method which returns either <code>True</code> or <code>False</code>. Luigi calls <code>exists()</code> on all the targets to see whether this task needs to be run. If all return <code>True</code>, luigi will flag this task as <code>DONE</code> and never call <code>run()</code>.
-   If at least one of the output targets returned <code>False</code>, this job needs to be run. Luigi then calls the <code>requires()</code> method to see what other tasks need to first run for this task to run successfully. <code>requires()</code> returns one or more objects deriving from class <code>Task</code>, and recursively performs this process for all those.
-   Note: When returning, luigi checks whether the output targets of the required tasks really exists. This is encapsulated in the <code>complete()</code> method, the default implementation just calls <code>exists()</code> on all targets returned by <code>output()</code>; the method can optionally be overridden in the derived <code>Target</code> class. The purpose of <code>complete()</code> is to make sure <code>run()</code> was successful, because if a required target’s <code>run()</code> didn’t raise a Python exception but didn’t actually produce the output needed, then <code>run()</code> shouldn’t be called. In this case the required task is re-run.</li>
-<li>Luigi calls the <code>run()</code> method and sets the task status to <code>DONE</code> if no exceptions Python were raised.
+<li>Calls the <code>output()</code> method, which returns one or more objects deriving from class <code>Target</code>. A <code>Target</code> is something which has an <code>exists()</code> method which returns either <code>True</code> or <code>False</code>. Luigi calls <code>exists()</code> on all the targets to see whether they exist. If all return <code>True</code>, luigi will flag this task as <code>DONE</code> and never call <code>run()</code>.
+   If at least one of the output targets returned <code>False</code>, this job needs to be run.</li>
+<li>Luigi then calls the <code>requires()</code> method to see what other tasks need to first run for this task to run successfully. <code>requires()</code> returns one or more objects deriving from class <code>Task</code>, and recursively performs this process for all those.
+   Note: after returning, luigi checks whether the output targets of the required tasks really exists. This is encapsulated in the <code>complete()</code> method, the default implementation just calls <code>exists()</code> on all targets returned by <code>output()</code>; the method can optionally be overridden in the derived <code>Target</code> class. The purpose of <code>complete()</code> is to make sure <code>run()</code> was successful, because if a required target’s <code>run()</code> didn’t raise a Python exception but didn’t actually produce the output needed, then <code>run()</code> shouldn’t be called. In this case the required task is re-run.</li>
+<li>Luigi calls the <code>run()</code> method and sets the task status to <code>DONE</code> if no Python exceptions were raised.
    Note: <code>run()</code> can also dynamically <code>yield</code> dependencies tasks.</li>
 </ol>
 <h2>Local and central scheduler</h2>
