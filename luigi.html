@@ -83,7 +83,7 @@
    Note: <code>run()</code> can also dynamically <code>yield</code> dependencies tasks.</li>
 </ol>
 <h2>Local and central scheduler</h2>
-<p>When luigi is launched and a task is given to it a worker object is created. Workers need to talk to a scheduler, which manages the dependency graph of tasks and tells workers what to do. So when the local worker object is created, it can either:</p>
+<p>When luigi is launched and a task is given to it a <code>Worker</code> object is created. Workers need to talk to a <code>Scheduler</code>, which manages the dependency graph of tasks and tells workers what to do. So when the local worker object is created, it can either:</p>
 <ol>
 <li>Create a local scheduler in the process, or</li>
 <li>Connect to a remote scheduler using the HTTP API. This is the default.</li>
@@ -91,8 +91,8 @@
 <p><em>Local scheduler:</em> The local scheduler can be used by passing <code>--local-scheduler</code> to the luigi runtime. When running with the local scheduler, the algorithm given above is run recursively, and then luigi exits. This is usually only used for testing and debugging purposes.</p>
 <p><em>Central scheduler:</em> More interesting is the central scheduler. The central scheduler is a separate <code>luigid</code> Python Tornado app that workers can talk to over HTTP. It performs two tasks: scheduling of tasks based on the dependency graph and serving a simple web dashboard on port 8082 (default). Note that the central scheduler:</p>
 <ol>
-<li>Doesn’t see or execute the <code>Task</code> objects or code, hence it never sees or checks whether targets exist; this is always performed by workers.</li>
-<li>The task is identified by the:<ul>
+<li>Doesn’t see or execute the <code>Task</code> object's code, hence it never sees or checks whether targets exist; this is always performed by workers.</li>
+<li>The task is identified by its signature:<ul>
 <li>Python name of the class; in the example above it’s X.</li>
 <li>The values of the parameters passed to the task, eg. <code>day=2015-12-01</code>.</li>
 </ul>
@@ -108,9 +108,9 @@
 </td></tr></table>
 
 <p>By specifying <code>significant=False</code> in the <code>Parameter</code> constructor, we can tell Luigi not to treat it as part of the task signature.</p>
-<p>The worker builds the local dependency graph and then uploads it to the central scheduler, and then asks the central scheduler what it should do. The central scheduler potentially receives dependency graphs from several workers, and merges them, assuming tasks with the same name (and parameter values) uploaded from different workers are the same (generate the same <code>output()</code> targets, contain the same <code>run()</code> logic, etc).</p>
+<p>The worker builds the local dependency graph and then uploads it to the central scheduler. Then it asks the central scheduler what it should do. The central scheduler potentially receives dependency graphs from several workers, and merges them, assuming tasks with the same name (and parameter values) uploaded from different workers are the same (generate the same <code>output()</code> targets, contain the same <code>run()</code> logic, etc).</p>
 <p>Given the dependency graph, the central scheduler then tells workers to start running tasks. A worker can only run tasks that it uploaded to the central scheduler, because those are the tasks that that Python process loaded. So workers are not generic workers, they can only work on the tasks that they were started with!</p>
-<p>Given a dependency graph, the scheduler will tell workers to run tasks that have no dependencies. By default, the order is non-deterministic. However, tasks can specify a priority, which is taken into account by the scheduler, and tasks with higher priority run first. The default priority is 0. Example:</p>
+<p>Given a dependency graph, the scheduler will tell workers to run tasks that have no dependencies. By default, the order is non-deterministic. However, tasks can specify a priority, tasks with higher priority run first. The default priority is 0. Example:</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
@@ -133,17 +133,17 @@
 So there are multiple levels of parallelism in Luigi:
 1. Multiple workers
 2. Multiple threads in workers
-3. Each task can have further parallelism, eg. a Hadoop MR job.</p>
+3. Each task can have further parallelism, eg. a Hadoop MapReduce job.</p>
 <h2>Managing a library of tasks</h2>
 <p>What if we’re managing a library of 100s or 1000s of ETL jobs? While I haven’t used Luigi for this, it seems that the basic building blocks are:</p>
 <ol>
-<li>Python import statements: our jobs are distributed into different <code>.py</code> files, so we need to <code>import</code> them to use them in <code>requires()</code>.</li>
+<li>Python <code>import</code> statements: our jobs are distributed into different <code>.py</code> files, so we need to <code>import</code> them to use them in <code>requires()</code>.</li>
 <li><code>WrapperTask</code> objects: these are special sink tasks which don’t have an output, they just require other tasks to be run.</li>
 </ol>
 <p>This part puts a lot of work on the user of Luigi:
-1. If we create a new task and forget to add it to the sink task, it won’t be executed unless it’s a dependency for something else that is.
-2. If we refactor a job (eg. rename the task class, change parameters), we have to search and replace all references in subsequent <code>requires()</code> methods. Since Python isn’t a statically linked language, this has to be done textually or by trial and error.
-3. If running workers on separate machines, it’s our job to synchronize the library of <code>.py</code> files (eg. using <code>git</code> and <code>cron</code> jobs to sync very often). If there are different versions with with different logic, chaos ensues. But even so it’s dangerous, since a local, uncommitted change to a task can be submitted to the central scheduler.</p>
+1. If we create a new task and forget to add it to the sink task, it won’t be executed (unless it’s a dependency for something else).
+2. If we refactor a job (eg. rename the task class, change parameters), we have to search and replace all references in subsequent <code>requires()</code> methods. Since Python isn’t a statically typed language, this has to be done by hand.
+3. If running workers on separate machines, it’s our job to synchronize the library of <code>.py</code> files (eg. using <code>git</code> and <code>cron</code> jobs to sync very often). Different versions of tasks with different logic or local, uncommitted changes propagating to the central scheduler will lead to hard to find bugs and data corruption.</p>
 <h2>Date parameters</h2>
 <p>In an ETL system, most tasks will have a date(time) parameter which tells the code which day/hour to run the scripts for. For example, a Daily Active User (DAU) script computes the number of unique DAUs for a given day. Because this is such a common use-case, Luigi has a number of helper classes for dealing with date parameters:</p>
 <ul>
@@ -166,31 +166,31 @@ So there are multiple levels of parallelism in Luigi:
 </td></tr></table>
 
 <p>The name of the date parameter of the task can be specified with <code>--param_name==</code>.</p>
-<p>When passed in a large number of dates (as an interval), the <code>RangeXBase</code> classes will instantiate a task object for each date and call <code>complete()</code> to check whether that task needs to be run. This can be very slow, eg. if each one creates a database connection and then closes it down.
+<p>When we pass in a large number of dates (as an interval), the <code>RangeXBase</code> classes will instantiate a task object for each date and call <code>complete()</code> to check whether that task needs to be run. This can be very slow, eg. if each one creates a database connection and then closes it down.
 There are two optimization classes <code>RangeDaily</code> and <code>RangeHourly</code> that solve this problem. These are used just like the two <code>Base</code> versions from the command line. But instead of instantiating many tasks which potentially don’t have to be run, they assume and call the task’s <code>bulk_complete()</code> classmethod to get a list of dates which have to be run. So the user has to implement a <code>bulk_complete()</code> to use <code>RangeDaily</code> and <code>RangeHourly</code>.</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span class="nv">$ </span>luigi --module task RangeDaily --of Task --start 2015-01-01 --stop 2015-01-31
 </pre></div>
 </td></tr></table>
 
-<p>Note: it seems Luigi doesn’t support bulk running of parameter intervals.</p>
+<p>Note: it seems Luigi doesn’t support bulk <em>running</em> of parameter intervals.</p>
 <h2>Scheduling</h2>
 <p>Most ETL systems have jobs which need to run every hour or every day. Luigi doesn’t have a concept of calendar scheduling, this is up to the user. The recommended method by the authors is to create sink tasks and run them from <code>cron</code> when the external input files (eg. raw log files) are likely to be available.</p>
-<p>Rescheduling failed tasks is influenced by the following parameters in central scheduler’s <code>luigi.cfg</code>:</p>
+<p>Rescheduling failed tasks is influenced by the following parameters in the central scheduler’s <code>luigi.cfg</code>:</p>
 <ul>
 <li><code>retry-delay</code>: when to re-schedule, default 900 seconds</li>
 <li><code>remove-delay</code>: how long the central scheduler keeps tasks around that have no stakeholder; a stakeholder is a worker who uploaded that task</li>
 <li><code>disable-hard-timeout</code>: if a task fails again after this much time, it is disabled for good</li>
 </ul>
-<p>On the worker’s <code>luigi.cfg</code>:</p>
+<p>In the worker’s <code>luigi.cfg</code>:</p>
 <ul>
 <li><code>worker-keep-alive</code>: you probably need to set this to true, so workers will stay alive when they run out of jobs to run, as long as they have some pending job waiting to be run. Otherwise workers will disconnect from the central scheduler and exit if there’s nothing to do, even if there are tasks which will be scheduled a few minutes from now.</li>
 <li><code>retry-external-tasks</code>: If true, incomplete external tasks (i.e. tasks where the <code>run()</code> method is <code>NotImplemented</code>) will be retested for completion while Luigi is running. This means that if external dependencies are satisfied after a workflow has started, any tasks dependent on that resource will be eligible for running.</li>
 </ul>
 <p>The central scheduler has a feature called task history. This logs task completion to a database, and exposes it on the dashboard.</p>
-<p>For tasks where the output is a database table, Luigi needs to keep track of successful inserts. It uses a special marker table for this (set with <code>marker-table</code> in <code>luigi.cfg</code> default name is <code>table_updates</code>). When a task finishes whose target is a database table, an entry is created in the marker table with the task’s <code>task_id</code> (its name and parameter values). When the target’s <code>exists()</code> method is called, this marker table is called to check whether the task has been run (the <code>task_id</code> is passed by the task to the <code>Target</code> in its constructor).</p>
+<p>For tasks where the output is a database table, Luigi needs to keep track of successful inserts. It uses a special marker table for this (set with <code>marker-table</code> in <code>luigi.cfg</code>, default name is <code>table_updates</code>). When a task finishes whose target is a database table, an entry is created in the marker table with the task’s <code>task_id</code> (its name and parameter values). When the target’s <code>exists()</code> method is called, this marker table is queried to check whether the task has been run (the <code>task_id</code> is passed by the task to the <code>Target</code> in its constructor).</p>
 <h2>Resources</h2>
 <p>Resources can be used to introduce limits on task parallelism. For example, suppose we never want to run more than 10 mysql tasks, or we never want to run more than 3 instances of the hourly job <code>count_users</code>.</p>
-<p>Luigi has resources for this: they are declared in the <code>luigi.cfg</code> file of the scheduler:</p>
+<p>Resources are declared in the <code>luigi.cfg</code> file of the scheduler:</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3</pre></div></td><td class="code"><div class="highlight"><pre><span class="p">[</span><span class="n">resources</span><span class="p">]</span>
@@ -206,7 +206,7 @@ There are two optimization classes <code>RangeDaily</code> and <code>RangeHourly
 
 <h2>Contrib stuff</h2>
 <p>Luigi has an impressive library of stock <code>Target</code> and <code>Task</code> classes, each with lots of functionality baked in as helper methods. This is the big reason why I think Luigi is popular and why I would consider using it.</p>
-<p>Luigi has task and target classes which support:</p>
+<p>Luigi has <code>Task</code> and <code>Target</code> classes which support:</p>
 <ul>
 <li>Google Bigquery</li>
 <li>Hadoop jobs</li>
@@ -218,9 +218,9 @@ There are two optimization classes <code>RangeDaily</code> and <code>RangeHourly
 <li>and more… </li>
 </ul>
 <h2>Source code and tests</h2>
-<p>I spent a fair amount of time digging through the Luigi Python source code. It’s pretty clean Python code with a lot of tests. It’s pretty easy to understand and extend.</p>
+<p>I spent a fair amount of time digging through the Luigi Python source code. It’s pretty clean Python code with a lot of tests. Code size is about 18KLOC plus 16KLOC tests. It’s pretty easy to understand and extend.</p>
 <h2>Sample cases</h2>
-<p>Trying it out on a free cloud9 Docker instance:</p>
+<p>Trying it out on a free <a href="http://c9.io">cloud9</a> Docker instance:</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
@@ -237,7 +237,7 @@ There are two optimization classes <code>RangeDaily</code> and <code>RangeHourly
 </pre></div>
 </td></tr></table>
 
-<p>Other terminal, this is the default Luigi sample to try:</p>
+<p>In another terminal, this is the default Luigi sample to try:</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
@@ -300,10 +300,10 @@ There are two optimization classes <code>RangeDaily</code> and <code>RangeHourly
 </pre></div>
 </td></tr></table>
 
-<p>This will create an X task and 10 Bar tasks. The 10 bar tasks will touch <code>/tmp/bar/…</code> and that’s it.
-Let’s delete the tmp files, and create a similarly named y.py, with identical X and Bar tasks, except X renamed to Y. Let’s launch two workers, one with x and one with y. Notice that the central scheduler will merge the dependency graphs and treat the Bar tasks coming from the different workers/codes as the same, because their <code>task_id</code> (class name plus parameters) are identical. It’s a bit weird, but this is how Luigi works. Another thing you’ll notice is that at the end of the execution, one of X and Y will actually be unfinished (not green on the dashboard). This is because the workers are run without worker-keep-alive. So the first worker who finishes its tasks and is waiting for the other worker to finish the last Bar will exit (it’s got nothing to do). If that worker was eg. the x worker, then task X is not going to be run by anyone! if we turn on <code>--worker-keep-alive</code> in the command-line, this oddity goes away.</p>
+<p>This will create an <code>X</code> task and 10 <code>Bar</code> tasks. The 10 <code>Bar</code> tasks will touch <code>/tmp/bar/…</code> and that’s it.
+Let’s delete the tmp files, and create a similarly named y.py, with identical <code>X</code> and <code>Bar</code> tasks, except <code>X</code> renamed to <code>Y</code>. Let’s launch two workers, one with x and one with y. Notice that the central scheduler will merge the dependency graphs and treat the <code>Bar</code> tasks coming from the different workers/codes as the same, because their <code>task_id</code> (class name plus parameters) are identical. It’s a bit weird, but this is how Luigi works. Another thing you’ll notice is that at the end of the execution, one of <code>X</code> and <code>Y</code> will be unfinished (not green on the dashboard). This is because the workers are run without <code>--worker-keep-alive</code>. So the first worker who finishes its tasks and is waiting for the other worker to finish the last <code>Bar</code> will exit (it’s got nothing to do). If that worker was eg. the x worker, then task <code>X</code> is not going to be run by anyone! if we turn on <code>--worker-keep-alive</code> in the command-line, this oddity goes away.</p>
 <h2>Conclusion</h2>
-<p>When designing an ETL framework, I would make (and have made) different design decisions compared to Luigi. But if I were tasked with creating a new ETL framework from scratch (eg. at a new company), <em>I would definitely consider using Luigi</em>. There is simply too much useful stuff there to ignore (and re-implement).
+<p>When designing an ETL framework, I would make (and have made) different design decisions compared to Luigi. But if I were tasked with creating a new ETL framework from scratch (eg. at a new company), I would definitely consider using Luigi. There is simply too much useful stuff there to ignore (and re-implement).
 <strong>However, I would expect to:</strong></p>
 <ol>
 <li>Find unexpected and painful behaviour in Luigi.</li>
@@ -318,8 +318,8 @@ Let’s delete the tmp files, and create a similarly named y.py, with identical 
 </ol>
 <p><strong>Downsides of Luigi:</strong></p>
 <ol>
-<li>Sometimes unexpected behaviour: for example, a wrapper task can reach DONE status without ever running the <code>run()</code> method depending on non-deterministic execution order.</li>
-<li>The biggest downside to Luigi is that ETL jobs are specified as programmatic Python Task objects and not given is some sort of DSL. This means no external tool can reasonably/easily parse a library of tasks and extract dependency information, which would be useful for generating documentation of the ETL system.</li>
+<li>Sometimes unexpected behaviour: for example, a wrapper task can reach <code>DONE</code> status without ever running the <code>run()</code> method depending on non-deterministic execution order.</li>
+<li>The biggest downside to Luigi is that ETL jobs are specified as programmatic Python Task objects and not given is some sort of DSL. This means no external tool can reasonably/easily parse a library of tasks and extract dependency information, which would be useful for eg. generating documentation of the ETL system. Also, analysts have to learn Python.</li>
 <li>The web dashboard of the central scheduler is basically useless.</li>
 </ol>
 <h2>Links, talks</h2>
