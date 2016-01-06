@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="Airflow is a workflow scheduler written by Airbnb. It supports defining tasks and dependencies as Python code, executing and scheduling them, and distributing tasks across worker nodes. It supports calendar scheduling (hourly/daily jobs, also visualized on the web dashboard), so it can be used as a starting point for traditional ETL. It has a nice web dashboard for seeing current and past task state, querying the history and making changes to metadata such as connection strings." />
+<meta name="keywords" content="data, etl, workflow, airflow">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="Airflow review"/>
+<meta property="og:description" content="Airflow is a workflow scheduler written by Airbnb. It supports defining tasks and dependencies as Python code, executing and scheduling them, and distributing tasks across worker nodes. It supports calendar scheduling (hourly/daily jobs, also visualized on the web dashboard), so it can be used as a starting point for traditional ETL. It has a nice web dashboard for seeing current and past task state, querying the history and making changes to metadata such as connection strings."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/airflow.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-01-06 00:00:00+01:00"/>
+<meta property="article:modified_time" content="2016-01-06 00:00:00+01:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data"/>
+<meta property="article:tag" content="data"/>
+<meta property="article:tag" content="etl"/>
+<meta property="article:tag" content="workflow"/>
+<meta property="article:tag" content="airflow"/>
+<meta property="og:image" content="">  <title>Bytepawn &ndash; Airflow review</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="https://github.com/mtrencseni" target="_blank">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni" target="_blank">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1" target="_blank">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+        <li><a class="sc-You can add links in your config file" href="#" target="_blank"><i class="fa fa-You can add links in your config file"></i></a></li>
+        <li><a class="sc-Another social link" href="#" target="_blank"><i class="fa fa-Another social link"></i></a></li>
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="airflow">Airflow review</h1>
+    <p>Posted on Wed 06 January 2016 in <a href="/category/data.html">Data</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>Airflow is a workflow scheduler written by Airbnb. It supports defining tasks and dependencies as Python code, executing and scheduling them, and distributing tasks across worker nodes. It supports calendar scheduling (hourly/daily jobs, also visualized on the web dashboard), so it can be used as a starting point for traditional ETL. It has a nice web dashboard for seeing current and past task state, querying the history and making changes to metadata such as connection strings.
+I wrote this after my <a href="/luigi.html">Luigi review</a>, so I make comparisons to Luigi throughout the article.</p>
+<h2>Architecture</h2>
+<p>Airflow is designed to store and persist its state in a relational database such as Mysql or Postgresql. It uses <a href="http://www.sqlalchemy.org/">SQLAlchemy</a> for abstracting away the choice of and querying the database. As such much of the logic is implemented as database calls.
+It would be fair to call the core of Airflow “an SQLAlchemy app”. This allows for very clean separation of high-level functionality, such as persisting the state itself (done by the database itself), and scheduling, web dashboard, etc.</p>
+<p>Similarly to Luigi, workflows are specified as a DAG of tasks in Python code. But there are many differences. Luigi knows that tasks operate on targets (datasets, files) and includes this abstraction; eg. it checks the existence of targets when deciding whether to run a task (if all output targets exists, there’s no need to run the task). This concept is missing from Airflow, it never checks for the existence of targets to decide whether to run a task. Like in Luigi, tasks depend on each other (and not on datasets). Unlike Luigi, Airflow supports the concept of calendar scheduling, ie. you can specify that a DAG should run every hour or every day, and the Airflow scheduler process will execute it. Unlike Luigi, Airflow supports shipping the task’s code around to different nodes using <code>pickle</code>, ie. Python binary serialization.</p>
+<p>Airflow also has a webserver which shows dashboards and lets users edit metadata like connection strings to data sources. Since everything is stored in the database, the web server component of Airflow is an independent <a href="http://gunicorn.org/">gunicorn</a> process which reads and writes the database.</p>
+<h2>Execution</h2>
+<p>In Airflow, the unit of execution is a <code>Task</code>. DAG’s are made up of tasks, one <code>.py</code> file is a DAG. <a href="http://pythonhosted.org/airflow/tutorial.html">See tutorial.</a> Although you can tell Airflow to execute just one task, the common thing to do is to load a DAG, or all DAGs in a subdirectory. Airflow loads the <code>.py</code> file and looks for instances of class <code>DAG</code>. DAGs are identified by the textual <code>dag_id</code> given to them in the <code>.py</code> file. This is important, because this is used to identify the DAG (and it’s hourly/daily instances) throughout Airflow; changing the <code>dag_id</code> will break dependencies in the state!</p>
+<p>The DAG contains the first date when these tasks should (have been) run (called <code>start_date</code>), the recurrence interval if any (called <code>schedule_interval</code>), and whether the subsequent runs should depend on each other (called <code>depends_on_past</code>). Airflow will interleave slow running DAG instances, ie. it will start the next hour’s jobs even if the last hour hasn’t completed, as long as dependencies permit and overlap limits permit. An instance of a <code>DAG</code>, eg. one that is running for 2016-01-01 06:00:00 is called a <code>DAGRun</code>. A <code>DAGRun</code> is identified by the id of the DAG postfixed by the <code>execution_date</code> (not when it’s running, ie. not <code>now()</code>).</p>
+<p>Tasks, like DAGs are also identified by a textual id. Internally, instances of tasks are instances of <code>TaskInstance</code>, identified by the task’s <code>task_id</code> plus the <code>execution_date</code>.</p>
+<p>The tasks in a DAG may define dependencies on other tasks using <code>set_upstream()</code> and <code>set_downstream()</code>. Airflow will raise an exception when it finds cycles in the DAG.</p>
+<p>A task is a parameterized operator. Airflow provides many types of operators, such as <code>BashOperator</code> for executing a bash script, <code>HiveOperator</code> for executing Hive queries, and so on. All these operators derive from <code>BaseOperator</code>. In line with Airflow being “an SQLAlchemy app”, <code>BaseOperator</code> is derived from SQLAlquemy's <code>Base</code> class, so objects can be pushed to the database; this pattern happens throughout Airflow. Operators don’t actually contain the database specific API calls (eg. for Hive or Mysql); this logic is contained in hooks, eg. class <code>HiveCliHook</code>. All hooks are derived from class <code>BaseHook</code>, a common interface for connecting and executing queries. So, whereas Luigi has one <code>Target</code> class (and subclasses), in Airflow this logic is distributed into operators and hooks.</p>
+<p>There are 3 main type of operators (all three use the same hook classes to accomplish their job):</p>
+<ol>
+<li><strong>Sensor:</strong> Waits for events to happen. This could be a file appearing in HDFS, the existence of a Hive partition, or waiting for an arbitrary MySQL query to return a row.</li>
+<li><strong>Remote Execution:</strong> Triggers an operation in a remote system. This could be an HQL statement in Hive, a Pig script, a map reduce job, a stored procedure in Oracle or a Bash script to run.</li>
+<li><strong>Data transfers:</strong> Move data from one system to another. Push data from Hive to MySQL, from a local file to HDFS, from Postgres to Oracle, or anything of that nature.</li>
+</ol>
+<p>The most interesting are sensors. They allow tasks to depend on special “sensor tasks”, which are actually files or datasets. A sensor let’s you specify how often it should be checked (default 1 minute), and when it should time out (default 1 week). These are all derived from class <code>BaseSensorOperator</code>. There is a special sensor called <code>ExternalTaskSensor</code>, which lets a task depend on another task (specified by a <code>dag_id</code> and a <code>task_id</code> and <code>execution_date</code>) in another DAG, since this is not supported “by default”. <code>ExternalTaskSensor</code> actually just checks what the specified record looks like in the Airflow state database.</p>
+<p>All operators have a <code>trigger_rule</code> argument which defines the rule by which the generated task get triggered. The default value for <code>trigger_rule</code> is <code>all_success</code> and can be defined as “trigger this task when all directly upstream tasks have succeeded. Others are: <code>all_failed</code>, <code>all_done</code>, <code>one_failed</code>, <code>one_success</code>.</p>
+<h2>Scheduling and executors</h2>
+<p>Recap: Airflow supports calendar scheduling (hour/daily tasks). Each such run is an instance of a DAG (internally, a <code>DAGRun</code> object), with tasks and their dependencies. As mentioned previously, DAGs can depend on their previous runs (<code>depends_on_past</code>), and additionally, specific task dependencies across DAGs is possible with the <code>ExternalTaskSensor</code> operator. The maximum number of DAG runs to allow per DAG can be limited with <code>max_active_runs_per_dag</code> in <code>airflow.cfg</code>.</p>
+<p>When running Luigi, we have to specify what sort of executor to use in <code>airflow.cfg</code>: <code>SequentialExecutor</code>, <code>LocalExecutor</code> or <code>CeleryExecutor</code>; all three derive from <code>BaseExecutor</code>. The sequential executor runs locally in a single process/thread, and waits for each task to finish before starting the next one; it should only be used for testing/debugging. The <code>LocalExecutor</code> also runs tasks locally, but spawns a new process for each one using <code>subprocess.popen()</code> to run a new <code>bash</code>; the maximum number of processes can be configured with <code>parallelism</code> in <code>airflow.cfg</code>. Inside the <code>bash</code>, it runs an <code>airflow</code>, parameterized to just run the a given <code>dag_id</code> <code>task_id</code> <code>execution_date</code> combination using the <code>airflow</code> run command line parametrization. The python code belonging to the task is read back from the database (where it was stored by the scheduler using <code>pickle</code>). The <code>CeleryExecutor</code> works similarly, except the job is pushed inside a distributed <a href="http://www.celeryproject.org/">celery</a> queue.</p>
+<p>When running Airflow, internally a number of jobs are created. A job is a long running something that handles running  smaller units of work; all jobs derive from <code>BaseJob</code>. There is <code>SchedulerJob</code>, which manages a single DAG (creates DAG runs, task instances, manages priorities),  <code>BackfillJob</code> for backfilling a specific DAG, and <code>LocalTaskJob</code> when running a specific <code>dag_id</code> <code>task_id</code> <code>execution_date</code> combination (as requested by the <code>LocalExecutor</code> or the <code>CeleryExecutor</code>).</p>
+<p>When running the airflow scheduler, the <code>SchedulerJob</code> supports loading DAGs from a folder: in this case, new code added/changed is automatically detected and loaded. This is very convenient, because new code just has to be placed on the production server, and it’s automatically picked up by Airflow.</p>
+<p>So in Airflow there is no need to start worker processes: workers are spawned as subprocesses by the <code>LocalExecutor</code> or remotely by celery. Also, more than one scheduler/executor/main process can run, sitting on the main database. When running tasks, Airflow creates a lock in the database to make sure tasks aren’t run twice by schedulers; other parallelism is enforced by unique database keys (eg. only one <code>dag_id</code> <code>execution_date</code> combination allowed to avoid schedulers creating multiple <code>DAGRun</code> copies). <em>Note: I’m not sure what the point would be of running several schedulers, other than redundancy, and whether this truly works without hiccups; the TODO file includes this todo item: “Distributed scheduler”.</em></p>
+<p>Airflow supports pools to limit parallelism of certain types of tasks (eg. limit number of bash jobs, limit number of Hive connections); this is similar to Luigi resources. Priorities are also supported: The default <code>priority_weight</code> is 1, and can be bumped to any number. When sorting the queue to evaluate which task should be executed next, Airflow uses the <code>priority_weight</code>, summed up with all of the <code>priority_weight</code> values from tasks downstream from this task.</p>
+<p>Airflow supports heartbeats. Each job will update a heartbeat entry in the database. If a job hasn’t updated it’s heartbeat for a while, it’s assumed that it has failed and it’s state is set to <code>SHUTDOWN</code> in the database. This also allows for any job to be killed externally, regardless of who is running it or on which machine it is running. <em>Note: I’m not sure how this works, because from my reading of the code, the actual termination of the process that didn’t send the heartbeat should be performed by the process itself; but if it stuck or blocked and didn’t send a heartbeat, then how will it notice it should shut itself down?</em></p>
+<h2>Other interesting features</h2>
+<p><strong>SLAs:</strong> Service Level Agreements, or time by which a task or DAG should have succeeded, can be set at a task level as a timedelta. If one or many instances have not succeeded by that time, an alert email is sent detailing the list of tasks that missed their SLA. The event is also recorded in the database and made available in the web UI under Browse -&gt; Missed SLAs where events can be analyzed and documented.</p>
+<p><strong>XCom:</strong> XComs let tasks exchange messages, allowing more nuanced forms of control and shared state. The name is an abbreviation of “cross-communication”. XComs are principally defined by a key, value, and timestamp, but also track attributes like the task/DAG that created the XCom and when it should become visible. Any object that can be pickled can be used as an XCom value, so users should make sure to use objects of appropriate size. XComs can be “pushed” (sent) or “pulled” (received). When a task pushes an XCom, it makes it generally available to other tasks. Tasks can push XComs at any time by calling the <code>xcom_push()</code> method. In addition, if a task returns a value (either from its Operator’s <code>execute()</code> method, or from a <code>PythonOperator</code>’s <code>python_callable()</code> function), then an XCom containing that value is automatically pushed. Tasks call <code>xcom_pull()</code> to retrieve XComs, optionally applying filters based on criteria like key, source <code>task_id</code>s, and source <code>dag_id</code>. By default, <code>xcom_pull()</code> filters for the keys that are automatically given to XComs when they are pushed by being returned from execute functions (as opposed to XComs that are pushed manually).</p>
+<p><strong>Variables:</strong> Variables are a generic way to store and retrieve arbitrary content or settings as a simple key value store within Airflow. Variables can be listed, created, updated and deleted from the UI (Admin -&gt; Variables) or from code. While your pipeline code definition and most of your constants and variables should be defined in code and stored in source control, it can be useful to have some variables or configuration items accessible and modifiable through the UI.</p>
+<h2>Contrib stuff</h2>
+<p>Like Luigi, Airflow has an impressive library of stock operator classes:</p>
+<ul>
+<li>Bash</li>
+<li>Mysql</li>
+<li>Postgresql</li>
+<li>MSSQL</li>
+<li>Hive</li>
+<li>Presto</li>
+<li>HDFS</li>
+<li>S3</li>
+<li>HTTP sensor</li>
+<li>and many more...
+Redshift is currently not supported.</li>
+</ul>
+<h2>Source code and tests</h2>
+<p>The main codebase is ~21,000 LOC (python, js, html), plus  about ~1,200 lines of unit test code.
+Other Python libraries used on the server side:</p>
+<ul>
+<li><a href="http://www.sqlalchemy.org/">SQLAlchemy</a></li>
+<li><a href="http://jinja.pocoo.org/">Jinja</a> for templating (why, if we’re using Python code to define jobs anyway?)</li>
+<li><a href="http://gunicorn.org/">Gunicorn</a> and <a href="http://flask.pocoo.org/">Flask</a> for HTTP</li>
+<li><a href="https://pypi.python.org/pypi/dill">Dill</a> for pickling</li>
+<li><a href="https://tox.readthedocs.org">Tox</a> for testing
+and many more...</li>
+</ul>
+<h2>Conclusion</h2>
+<p>Airflow’s design decisions are very close to my heart: the fact that it’s an SQLAlchemy app make managing state, restarting the daemon, or running more in parallel very easy.  It has lots of contrib stuff baked in, so it’s easy to get started. The dashboard is very nice, and also shows historic runs nicely color-coded. If I were to build a new ETL system, I would definitely consider using Airflow (over Luigi, since Airflow has many more features out of the box).</p>
+<p>What I don’t like about Airflow:</p>
+<ol>
+<li>Apart from special sensor operators, doesn’t deal with files/datasets as inputs/outputs of tasks directly. This I find an odd design decision, as it leads to some complications:<ul>
+<li>The state database stores the state of tasks, not the datasets; if the state database is lost, it’s hard to restore the historic state of the ETL, even if all the datasets are there. It’s better to separate datasets and tasks, and represent the historic state of ETL using the state of the datasets</li>
+<li>It’s harder to deal with tasks that appear to finish correctly, but don’t actually produce output, or good output. In the Airflow architecture this problem only shows up later, when a task downstream (hopefully) errors out. This can happen eg. if a bash script forgets to set -e.</li>
+</ul>
+</li>
+<li>I think it’d be better if workers could be started independently, and picked up tasks scheduled by a central scheduler; instead Airflow starts workers centrally.</li>
+<li>Still a work in progress, not many tests, probably will run into bugs in production. Also see the end of <a href="https://medium.com/handy-tech/airflow-tips-tricks-and-pitfalls-9ba53fba14eb#.lzfjq4wx9">this blog post</a>, they restart the Airflow process pretty often because of some bug.</li>
+<li>Personally, I'm still not convinced that the ETL-job-as-code is the right way to go.</li>
+</ol>
+<h2>Links, talks</h2>
+<ul>
+<li><a href="https://github.com/airbnb/airflow">Github</a></li>
+<li><a href="https://airflow.readthedocs.org">Docs</a></li>
+<li><a href="https://github.com/airbnb/airflow#links">Slides from Airflow users</a></li>
+</ul>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/data.html">data</a>
+      <a href="/tag/etl.html">etl</a>
+      <a href="/tag/workflow.html">workflow</a>
+      <a href="/tag/airflow.html">airflow</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Airflow review",
+  "headline": "Airflow review",
+  "datePublished": "2016-01-06 00:00:00+01:00",
+  "dateModified": "2016-01-06 00:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/airflow.html",
+  "description": "Airflow is a workflow scheduler written by Airbnb. It supports defining tasks and dependencies as Python code, executing and scheduling them, and distributing tasks across worker nodes. It supports calendar scheduling (hourly/daily jobs, also visualized on the web dashboard), so it can be used as a starting point for traditional ETL. It has a nice web dashboard for seeing current and past task state, querying the history and making changes to metadata such as connection strings."
+}
+</script></body>
+</html>
