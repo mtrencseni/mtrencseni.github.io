@@ -12,11 +12,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="" />
 <meta name="author" content="Marton Trencseni" />
-<meta name="description" content="Make a simple blog with Github pages and Pelican." />
+<meta name="description" content="Make a simple blog with Github Pages and Pelican." />
 <meta name="keywords" content="blog, pelican">
 <meta property="og:site_name" content="Bytepawn"/>
 <meta property="og:title" content="How to make a blog like this"/>
-<meta property="og:description" content="Make a simple blog with Github pages and Pelican."/>
+<meta property="og:description" content="Make a simple blog with Github Pages and Pelican."/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="/how-to-make-a-blog-like-this.html"/>
 <meta property="og:type" content="article"/>
@@ -58,12 +58,12 @@
   <div>
     <p>Getting your own blog like this is really easy, no server hosting nedded. There are two ingredients:</p>
 <ul>
-<li>Github pages</li>
+<li>Github Pages</li>
 <li>the Pelican static blog generator</li>
 </ul>
-<h2>Github pages</h2>
+<h2>Github Pages</h2>
 <p>Suppose your username on github is mtrencseni. Create a repo called <code>mtrencseni.github.io</code>. Here's mine: <a href="https://github.com/mtrencseni/mtrencseni.github.io">https://github.com/mtrencseni/mtrencseni.github.io</a>. Anything you put in there will be served up at <a href="http://mtrencseni.github.io">http://mtrencseni.github.io</a>. Try it out for youself, put in an index.html containing <code>Hello world</code>.</p>
-<h2>Your own domain name with Github pages</h2>
+<h2>Your own domain name with Github Pages</h2>
 <p>I wanted to use my existing domain name <code>bytepawn.com</code>. Github is so nice, they support this. Put a file called <code>CNAME</code> into your repo. Here's mine: <a href="https://github.com/mtrencseni/mtrencseni.github.io/blob/master/CNAME">https://github.com/mtrencseni/mtrencseni.github.io/blob/master/CNAME</a></p>
 <p>This tells Github to expect requests for this domain. What's left is to tell your DNS provider to use Github. (My registrar is Internet.bs, so much better than Godaddy.) Create an A record that points to <code>192.30.252.153</code>, this is a Github IP address. That's it. For <code>bytepawn.com</code> it looks like this:</p>
 <div class="highlight"><pre><span class="nv">$ </span>dig bytepawn.com
@@ -118,13 +118,13 @@ Fortunately, there's a ton of free themes for Pelican at <a href="http://www.pel
 I picked <a href="https://github.com/alexandrevicenzi/Flex">Flex</a>, and did some very minor customization on it.
 Getting Pelican to use a theme is simple: put a line like <code>THEME = 'flex'</code> into your <code>pelicanconf.py</code>, where <code>flex</code> is the directory containing the theme you picked. Here is mine: <a href="https://github.com/mtrencseni/blog/blob/master/pelicanconf.py">https://github.com/mtrencseni/blog/blob/master/pelicanconf.py</a></p>
 <h2>Putting it all together</h2>
-<p>I have a repo <a href="https://github.com/mtrencseni/blog">https://github.com/mtrencseni/blog</a> which contains the source of the blog. It's a copy of pelican, with my articles in the <code>content</code> directory, and a (customized) copy of the flex theme in the <code>flex</code> directory.</p>
-<p>I use pelican to generate the static output, and then that gets pushed to <a href="https://github.com/mtrencseni/mtrencseni.github.io">https://github.com/mtrencseni/mtrencseni.github.io</a></p>
+<p>I have a repo <a href="https://github.com/mtrencseni/blog">https://github.com/mtrencseni/blog</a> which contains the source of the blog. It's a copy of Pelican, with my articles in the <code>content</code> directory, and a (customized) copy of the flex theme in the <code>flex</code> directory.</p>
+<p>I use Pelican to generate the static output, and then that gets pushed to <a href="https://github.com/mtrencseni/mtrencseni.github.io">https://github.com/mtrencseni/mtrencseni.github.io</a></p>
 <p>I customized the Makefile to automate this. Here's mine: <a href="https://github.com/mtrencseni/blog/blob/master/Makefile">https://github.com/mtrencseni/blog/blob/master/Makefile</a>. It contains targets for <code>clean</code>, <code>output</code>, <code>preview</code> and <code>publish</code>. <code>preview</code> uses the built in Python webserver to serve up the static site on localhost:8080 for testing. <code>publish</code> git commits to the <code>mtrencseni.github.io</code> repo. </p>
 <p>That's it. You can get up an running within a day.</p>
 <h2>Links</h2>
 <ul>
-<li><a href="https://pages.github.com/">Github pages</a></li>
+<li><a href="https://pages.github.com/">Github Pages</a></li>
 <li><a href="https://help.github.com/articles/setting-up-a-custom-domain-with-github-pages/">Custom domain with Github pages</a></li>
 <li><a href="http://stackoverflow.com/questions/9082499/custom-domain-for-github-project-pages">Stackoverflow help on custom domain setup</a></li>
 <li><a href="http://docs.getpelican.com">Pelican</a></li>
@@ -158,7 +158,7 @@ Getting Pelican to use a theme is simple: put a line like <code>THEME = 'flex'</
   },
   "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
   "url": "/how-to-make-a-blog-like-this.html",
-  "description": "Make a simple blog with Github pages and Pelican."
+  "description": "Make a simple blog with Github Pages and Pelican."
 }
 </script></body>
 </html>
