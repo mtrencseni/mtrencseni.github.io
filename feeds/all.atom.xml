@@ -1,5 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn</title><link href="/" rel="alternate"></link><link href="/feeds/all.atom.xml" rel="self"></link><id>/</id><updated>2016-01-06T00:00:00+01:00</updated><entry><title>Airflow review</title><link href="/airflow.html" rel="alternate"></link><updated>2016-01-06T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:,2016-01-06:airflow.html</id><summary type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn</title><link href="/" rel="alternate"></link><link href="/feeds/all.atom.xml" rel="self"></link><id>/</id><updated>2016-01-07T00:00:00+01:00</updated><entry><title>How to make a blog like this</title><link href="/how-to-make-a-blog-like-this.html" rel="alternate"></link><updated>2016-01-07T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:,2016-01-07:how-to-make-a-blog-like-this.html</id><summary type="html">&lt;p&gt;Getting your own blog like this is really easy, no server hosting nedded. There are two ingredients:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Github pages&lt;/li&gt;
+&lt;li&gt;the Pelican static blog generator&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Github pages&lt;/h2&gt;
+&lt;p&gt;Suppose your username on github is mtrencseni. Create a repo called &lt;code&gt;mtrencseni.github.io&lt;/code&gt;. Here's mine: &lt;a href="https://github.com/mtrencseni/mtrencseni.github.io"&gt;https://github.com/mtrencseni/mtrencseni.github.io&lt;/a&gt;. Anything you put in there will be served up at &lt;a href="http://mtrencseni.github.io"&gt;http://mtrencseni.github.io&lt;/a&gt;. Try it out for youself, put in an index.html containing &lt;code&gt;Hello world&lt;/code&gt;.&lt;/p&gt;
+&lt;h2&gt;Your own domain name with Github pages&lt;/h2&gt;
+&lt;p&gt;I wanted to use my existing domain name &lt;code&gt;bytepawn.com&lt;/code&gt;. Github is so nice, they support this. Put a file called &lt;code&gt;CNAME&lt;/code&gt; into your repo. Here's mine: &lt;a href="https://github.com/mtrencseni/mtrencseni.github.io/blob/master/CNAME"&gt;https://github.com/mtrencseni/mtrencseni.github.io/blob/master/CNAME&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;This tells Github to expect requests for this domain. What's left is to tell your DNS provider to use Github. (My registrar is Internet.bs, so much better than Godaddy.) Create an A record that points to &lt;code&gt;192.30.252.153&lt;/code&gt;, this is a Github IP address. That's it. For &lt;code&gt;bytepawn.com&lt;/code&gt; it looks like this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;dig bytepawn.com
+
+&lt;span class="p"&gt;;&lt;/span&gt; &amp;lt;&amp;lt;&amp;gt;&amp;gt; DiG 9.9.5-3ubuntu0.5-Ubuntu &amp;lt;&amp;lt;&amp;gt;&amp;gt; bytepawn.com
+&lt;span class="p"&gt;;;&lt;/span&gt; global options: +cmd
+&lt;span class="p"&gt;;;&lt;/span&gt; Got answer:
+&lt;span class="p"&gt;;;&lt;/span&gt; -&amp;gt;&amp;gt;HEADER&lt;span class="s"&gt;&amp;lt;&amp;lt;- opco&lt;/span&gt;de: QUERY, status: NOERROR, id: 34353
+&lt;span class="p"&gt;;;&lt;/span&gt; flags: qr rd ra&lt;span class="p"&gt;;&lt;/span&gt; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+&lt;span class="p"&gt;;;&lt;/span&gt; OPT PSEUDOSECTION:
+&lt;span class="p"&gt;;&lt;/span&gt; EDNS: version: 0, flags:&lt;span class="p"&gt;;&lt;/span&gt; udp: 512
+&lt;span class="p"&gt;;;&lt;/span&gt; QUESTION SECTION:
+&lt;span class="p"&gt;;&lt;/span&gt;bytepawn.com.                  IN      A
+
+&lt;span class="p"&gt;;;&lt;/span&gt; ANSWER SECTION:
+bytepawn.com.           &lt;span class="m"&gt;600&lt;/span&gt;     IN      A       192.30.252.153
+
+&lt;span class="p"&gt;;;&lt;/span&gt; Query &lt;span class="nb"&gt;time&lt;/span&gt;: &lt;span class="m"&gt;19&lt;/span&gt; msec
+&lt;span class="p"&gt;;;&lt;/span&gt; SERVER: 172.17.0.1#53&lt;span class="o"&gt;(&lt;/span&gt;172.17.0.1&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;;;&lt;/span&gt; WHEN: Thu Jan &lt;span class="m"&gt;07&lt;/span&gt; 21:36:09 UTC 2016
+&lt;span class="p"&gt;;;&lt;/span&gt; MSG SIZE  rcvd: 57
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Generating a static blog&lt;/h2&gt;
+&lt;p&gt;Github will serve static content from your repo, it doesn't run any scripts.
+So you need to use a static site generator and serve up the generated pages.
+Fortunately, there are many.
+The two biggest ones are &lt;a href="https://jekyllrb.com/"&gt;Jekyll&lt;/a&gt; for Rubyists and &lt;a href="http://docs.getpelican.com"&gt;Pelican&lt;/a&gt; for Pythonistas.
+I'm a Python guy, so I use Pelican.
+The &lt;a href="http://docs.getpelican.com/en/3.6.3/quickstart.html"&gt;Pelican quickstart doc&lt;/a&gt; explains how to generate an empty blog. Basically:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;pip install pelican markdown
+&lt;span class="nv"&gt;$ &lt;/span&gt;&lt;span class="nb"&gt;cd &lt;/span&gt;blog
+&lt;span class="c"&gt;### this is https://github.com/mtrencseni/blog locally&lt;/span&gt;
+&lt;span class="nv"&gt;$ &lt;/span&gt;pelican-quickstart
+&lt;span class="nv"&gt;$ &lt;/span&gt;vi contents/my-first-article.md
+&lt;span class="c"&gt;### see the docs what an article should look like&lt;/span&gt;
+&lt;span class="nv"&gt;$ &lt;/span&gt;pelican content
+&lt;span class="c"&gt;### generates static files in the `output` dir&lt;/span&gt;
+&lt;span class="nv"&gt;$ &lt;/span&gt;cp -R ouput/* ../mtrencseni.github.io
+&lt;span class="nv"&gt;$ &lt;/span&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; ../mtrencseni.github.io
+&lt;span class="nv"&gt;$ &lt;/span&gt;git add * &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; git commit -m &lt;span class="s2"&gt;&amp;quot;Working :)&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; git push
+&lt;span class="c"&gt;### it&amp;#39;s live!&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Simply copy the contents of Pelican's &lt;code&gt;output&lt;/code&gt; directory into &lt;code&gt;mtrencseni.github.io&lt;/code&gt;, and that's it.&lt;/p&gt;
+&lt;h2&gt;Getting a theme for Pelican&lt;/h2&gt;
+&lt;p&gt;The default theme is kind of crappy looking.
+Fortunately, there's a ton of free themes for Pelican at &lt;a href="http://www.pelicanthemes.com/"&gt;http://www.pelicanthemes.com/&lt;/a&gt;. Here's the github repo for all those themes: &lt;a href="https://github.com/getpelican/pelican-themes"&gt;https://github.com/getpelican/pelican-themes&lt;/a&gt;.
+I picked &lt;a href="https://github.com/alexandrevicenzi/Flex"&gt;Flex&lt;/a&gt;, and did some very minor customization on it.
+Getting Pelican to use a theme is simple: put a line like &lt;code&gt;THEME = 'flex'&lt;/code&gt; into your &lt;code&gt;pelicanconf.py&lt;/code&gt;, where &lt;code&gt;flex&lt;/code&gt; is the directory containing the theme you picked. Here is mine: &lt;a href="https://github.com/mtrencseni/blog/blob/master/pelicanconf.py"&gt;https://github.com/mtrencseni/blog/blob/master/pelicanconf.py&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;Putting it all together&lt;/h2&gt;
+&lt;p&gt;I have a repo &lt;a href="https://github.com/mtrencseni/blog"&gt;https://github.com/mtrencseni/blog&lt;/a&gt; which contains the source of the blog. It's a copy of pelican, with my articles in the &lt;code&gt;content&lt;/code&gt; directory, and a (customized) copy of the flex theme in the &lt;code&gt;flex&lt;/code&gt; directory.&lt;/p&gt;
+&lt;p&gt;I use pelican to generate the static output, and then that gets pushed to &lt;a href="https://github.com/mtrencseni/mtrencseni.github.io"&gt;https://github.com/mtrencseni/mtrencseni.github.io&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;I customized the Makefile to automate this. Here's mine: &lt;a href="https://github.com/mtrencseni/blog/blob/master/Makefile"&gt;https://github.com/mtrencseni/blog/blob/master/Makefile&lt;/a&gt;. It contains targets for &lt;code&gt;clean&lt;/code&gt;, &lt;code&gt;output&lt;/code&gt;, &lt;code&gt;preview&lt;/code&gt; and &lt;code&gt;publish&lt;/code&gt;. &lt;code&gt;preview&lt;/code&gt; uses the built in Python webserver to serve up the static site on localhost:8080 for testing. &lt;code&gt;publish&lt;/code&gt; git commits to the &lt;code&gt;mtrencseni.github.io&lt;/code&gt; repo. &lt;/p&gt;
+&lt;p&gt;That's it. You can get up an running within a day.&lt;/p&gt;
+&lt;h2&gt;Links&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://pages.github.com/"&gt;Github pages&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://help.github.com/articles/setting-up-a-custom-domain-with-github-pages/"&gt;Custom domain with Github pages&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://stackoverflow.com/questions/9082499/custom-domain-for-github-project-pages"&gt;Stackoverflow help on custom domain setup&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://docs.getpelican.com"&gt;Pelican&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.pelicanthemes.com/"&gt;Pelican themes&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</summary><category term="blog"></category><category term="pelican"></category></entry><entry><title>Airflow review</title><link href="/airflow.html" rel="alternate"></link><updated>2016-01-06T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:,2016-01-06:airflow.html</id><summary type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;Airflow is a workflow scheduler written by Airbnb. It supports defining tasks and dependencies as Python code, executing and scheduling them, and distributing tasks across worker nodes. It supports calendar scheduling (hourly/daily jobs, also visualized on the web dashboard), so it can be used as a starting point for traditional ETL. It has a nice web dashboard for seeing current and past task state, querying the history and making changes to metadata such as connection strings.
 I wrote this after my &lt;a href="/luigi.html"&gt;Luigi review&lt;/a&gt;, so I make comparisons to Luigi throughout the article.&lt;/p&gt;
 &lt;h2&gt;Architecture&lt;/h2&gt;
