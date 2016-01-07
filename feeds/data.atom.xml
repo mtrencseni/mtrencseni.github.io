@@ -80,7 +80,7 @@ and many more...&lt;/li&gt;
 &lt;/ul&gt;</summary><category term="data"></category><category term="etl"></category><category term="workflow"></category><category term="airflow"></category></entry><entry><title>Luigi review</title><link href="/luigi.html" rel="alternate"></link><updated>2015-12-22T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:,2015-12-20:luigi.html</id><summary type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;Luigi is an execution framework for writing data pipes in Python code. It supports task-task dependencies, it has a simple central scheduler with an HTTP API and an extensive library of helpers for building data pipes for Hadoop, AWS, Mysql etc. It was written by Spotify for internal use and open sourced in 2012. A number of companies use it, such as Foursquare, Stripe, Asana.&lt;/p&gt;
 &lt;h2&gt;Execution&lt;/h2&gt;
-&lt;p&gt;Suppose that part of your ETL process is to take some data A, apply transformation X on it, and save it as Y. In Luigi, you would write a &lt;code&gt;.py&lt;/code&gt; file which contains a class X, which derives from class &lt;code&gt;Task&lt;/code&gt;. X would have three methods: &lt;code&gt;require(), run(), and output()&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Suppose that part of your ETL process is to take some data A, apply transformation X on it, and save it as Y. In Luigi, you would write a &lt;code&gt;.py&lt;/code&gt; file which contains a class X, which derives from class &lt;code&gt;Task&lt;/code&gt;. X would have three methods: &lt;code&gt;requires(), run(), and output()&lt;/code&gt;.&lt;/p&gt;
 &lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
 3

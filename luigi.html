@@ -40,7 +40,6 @@
       <p></p>
       <nav>
         <ul class="list">
-          <li><a href="/" target="_blank">home</a></li>
           <li><a href="https://github.com/mtrencseni" target="_blank">github</a></li>
           <li><a href="https://www.linkedin.com/in/mtrencseni" target="_blank">linkedin</a></li>
           <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1" target="_blank">arxiv</a></li>
@@ -61,7 +60,7 @@
     <h2>Introduction</h2>
 <p>Luigi is an execution framework for writing data pipes in Python code. It supports task-task dependencies, it has a simple central scheduler with an HTTP API and an extensive library of helpers for building data pipes for Hadoop, AWS, Mysql etc. It was written by Spotify for internal use and open sourced in 2012. A number of companies use it, such as Foursquare, Stripe, Asana.</p>
 <h2>Execution</h2>
-<p>Suppose that part of your ETL process is to take some data A, apply transformation X on it, and save it as Y. In Luigi, you would write a <code>.py</code> file which contains a class X, which derives from class <code>Task</code>. X would have three methods: <code>require(), run(), and output()</code>.</p>
+<p>Suppose that part of your ETL process is to take some data A, apply transformation X on it, and save it as Y. In Luigi, you would write a <code>.py</code> file which contains a class X, which derives from class <code>Task</code>. X would have three methods: <code>requires(), run(), and output()</code>.</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
