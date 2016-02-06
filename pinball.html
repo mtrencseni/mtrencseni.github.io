@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="Pinball is an ETL tool written by Pinterest. Like Airflow, it supports defining tasks and dependencies as Python code, executing and scheduling them, and distributing tasks across worker nodes. It supports calendar scheduling (hourly/daily jobs, also visualized on the web dashboard). Unfortunately, I found Pinball has very little documentation, very few recent commits in the Github repo and few meaningful answers to Github issues by maintainers, while it's architecture is complicated and undocumented." />
+<meta name="keywords" content="data, etl, workflow, pinball">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="Pinball review"/>
+<meta property="og:description" content="Pinball is an ETL tool written by Pinterest. Like Airflow, it supports defining tasks and dependencies as Python code, executing and scheduling them, and distributing tasks across worker nodes. It supports calendar scheduling (hourly/daily jobs, also visualized on the web dashboard). Unfortunately, I found Pinball has very little documentation, very few recent commits in the Github repo and few meaningful answers to Github issues by maintainers, while it's architecture is complicated and undocumented."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/pinball.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-02-06 00:00:00+01:00"/>
+<meta property="article:modified_time" content="2016-02-06 00:00:00+01:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data"/>
+<meta property="article:tag" content="data"/>
+<meta property="article:tag" content="etl"/>
+<meta property="article:tag" content="workflow"/>
+<meta property="article:tag" content="pinball"/>
+<meta property="og:image" content="">  <title>Bytepawn &ndash; Pinball review</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="pinball">Pinball review</h1>
+    <p>Posted on Sat 06 February 2016 in <a href="/category/data.html">Data</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p><a href="https://github.com/pinterest/pinball">Pinball</a> is Pinterest’s open sourced workflow manager / ETL system. It supports defining several workflows (DAGs) consisting of jobs, and dependencies within jobs. Workflows are defined using a combination of declarative-style Python dictionary objects (like JSON) and Python code referenced in these objects. Pinball comes with a dashboard for checking currently running and past workflows.</p>
+<p>This review will be shorter than the previous <a href="/luigi.html">Luigi</a> and <a href="/airflow.html">Airflow</a> reviews, because Pinball turned out to be not very interesting to me for the following reasons:</p>
+<ul>
+<li>Very little <a href="https://github.com/pinterest/pinball#installation">documentation</a></li>
+<li>Very <a href="https://github.com/pinterest/pinball/commits/master">few recent commits</a> in the Github repo</li>
+<li>Very <a href="https://github.com/pinterest/pinball/issues?utf8=%E2%9C%93&amp;q=is%3Aissue">few meaningful answers</a> to Github issues from the maintainers</li>
+<li>Complicated and undocumented architecture</li>
+</ul>
+<p>Unfortunately <code>pip install pinball</code> doesn’t work and <a href="https://github.com/pinterest/pinball/issues/9">the maintainers don’t care</a>, so I didn't invest time in actually trying out Pinball, I just read the source code. Since this review is short and opinionated, I recommend also reading the Pinterest posts:</p>
+<ul>
+<li><a href="https://engineering.pinterest.com/blog/pinball-building-workflow-management">Pinball: Building workflow management</a></li>
+<li><a href="https://engineering.pinterest.com/blog/open-sourcing-pinball">Open-sourcing Pinball</a></li>
+</ul>
+<h2>Architecture</h2>
+<p>Pinball has a modularized architecture. There are 5 modules:</p>
+<ol>
+<li>Master (sits on the DB)</li>
+<li>Scheduler (also accessed DB)</li>
+<li>Worker (also accessed DB)</li>
+<li>UI web server (also accessed DB)</li>
+<li>Command-line</li>
+</ol>
+<p>The master module sits on top of a <a href="https://www.mysql.com/">Mysql</a> database (no others supported) and uses <a href="https://www.djangoproject.com/">Django</a> for ORM. The master exposes a synchronization token API using <a href="https://thrift.apache.org/">Thrift</a> to the other modules, and that’s all the master does. I think this is an unnecessary layer of abstraction; the Airflow design decision is better: everybody sees the DB and uses that to communicate, get <a href="https://en.wikipedia.org/wiki/ACID">ACID</a> for free; no need to define and maintain an API, no need for Thrift. In the blog post, they say <em>“component-wise design allows for easy alterations”</em>, eg. you could write a different scheduler implementation. But:</p>
+<ul>
+<li>Who’d ever want to write a different scheduler implementation? I'm using an opensource project to avoid writing my own ETL system.</li>
+<li>You can change the code in other architectures as well as long as it’s modularized.</li>
+</ul>
+<p>Moving on, the other daemon modules are the scheduler, the worker and the UI web server. The scheduler performs calendar scheduling of workflows. The workers actually execute individual jobs.</p>
+<p>An important piece of the Pinball architecture are tokens. Tokens are basically records, and the collection of all tokens is the system state. Unfortunately the different sort of tokens are not documented, and since Python is dynamic, there’s also no usable documentation in the code (eg. a header file in C++). Tokens have a <code>data</code> member, and Python objects are pickled and stored there on the fly as the state.
+At first when I read the blog posts and code, I saw <a href="https://github.com/pinterest/pinball/blob/master/pinball_system.png">this diagram</a> and <a href="https://engineering.pinterest.com/sites/default/files/article/fields/field_image/tumblr_inline_mzxiegqh5c1s1gqll.png">then this</a>, and I thought that only the master accesses the database, and the scheduler and workers don’t, everything goes through the master using tokens. But actually that’s not true, I think the architecture is  everybody accesses the database for reads (as an optimization), but only the master writes to the database. This seems like a leaky abstraction, and again it’s not clear why the modules can’t use the DB to communicate state, why the need for Thrift. Relevant parts from the <a href="https://engineering.pinterest.com/blog/pinball-building-workflow-management">blog post</a>:</p>
+<blockquote>
+<p>Every state (token) change goes through the master and gets committed to the persistent store before the worker request returns… workers can read archived tokens directly from the persistent storage, bypassing the master, greatly improving system scalability.</p>
+</blockquote>
+<p>An interesting design decision is separation of workflow description, which is given in Python dictionaries, and the actual job codes. <a href="https://github.com/pinterest/pinball/tree/master/pinball_ext/examples">See example here.</a> It’s a bit wierd that the workflow references the actual job using a string. I think this is because many modules load the workflow (eg. scheduler), but only the workers actually load the jobs.</p>
+<h2>Contrib stuff</h2>
+<p>Pinball has contrib stuff for the following job types:</p>
+<ul>
+<li>Bash</li>
+<li>Python</li>
+<li>S3 (also EMR)</li>
+<li>Hadoop, Hive</li>
+<li><a href="https://www.qubole.com/">Qubole</a> (a data processing platform-as-a-service Pinterest uses)</li>
+</ul>
+<p>There are no connectors to Postgres, Mysql, Redshift, Presto or any SQL databases.</p>
+<h2>Source code and tests</h2>
+<p>The main codebase is ~18,000 LOC (python), plus about ~7,000 lines of unit test code. Other Python libraries used on the server side:</p>
+<ul>
+<li><a href="https://www.djangoproject.com/">Django</a></li>
+<li><a href="https://thrift.apache.org/">Thrift</a> for RPC</li>
+<li><a href="https://tox.readthedocs.org/">Tox</a> for testing</li>
+<li>and a few more…</li>
+</ul>
+<p>I think it’s cool that Pinball doesn’t have many library dependencies; for a Python project, it barely has any.</p>
+<h2>Conclusions</h2>
+<p>If I had to build an ETL system from scratch today, I would not use Pinball. It’s not documented, not a lot of commits, can't find other users, and I'm suspicious of the architecture. I would use Airflow.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/data.html">data</a>
+      <a href="/tag/etl.html">etl</a>
+      <a href="/tag/workflow.html">workflow</a>
+      <a href="/tag/pinball.html">pinball</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Pinball review",
+  "headline": "Pinball review",
+  "datePublished": "2016-02-06 00:00:00+01:00",
+  "dateModified": "2016-02-06 00:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/pinball.html",
+  "description": "Pinball is an ETL tool written by Pinterest. Like Airflow, it supports defining tasks and dependencies as Python code, executing and scheduling them, and distributing tasks across worker nodes. It supports calendar scheduling (hourly/daily jobs, also visualized on the web dashboard). Unfortunately, I found Pinball has very little documentation, very few recent commits in the Github repo and few meaningful answers to Github issues by maintainers, while it's architecture is complicated and undocumented."
+}
+</script></body>
+</html>
