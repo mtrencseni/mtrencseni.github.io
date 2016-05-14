@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="I read this book on my first vacation after I started working at Facebook and thus became a semi-regular Hack/HHVM user. I highly recommend reading (parts of) it. But not to learn Hack/PHP, which is irrelevant to most people. Instead, it’s to learn about how Facebook improved it’s www codebase and performance without rewriting the old PHP code in one big effort, and thus avoided the famous Second-system effect." />
+<meta name="keywords" content="books, programming, hhvm, brooks">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="Hack, HHVM and avoiding the Second-system effect"/>
+<meta property="og:description" content="I read this book on my first vacation after I started working at Facebook and thus became a semi-regular Hack/HHVM user. I highly recommend reading (parts of) it. But not to learn Hack/PHP, which is irrelevant to most people. Instead, it’s to learn about how Facebook improved it’s www codebase and performance without rewriting the old PHP code in one big effort, and thus avoided the famous Second-system effect."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/hack-hhvm-second-system-effect.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-05-14 00:00:00+02:00"/>
+<meta property="article:modified_time" content="2016-05-14 00:00:00+02:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Books"/>
+<meta property="article:tag" content="books"/>
+<meta property="article:tag" content="programming"/>
+<meta property="article:tag" content="hhvm"/>
+<meta property="article:tag" content="brooks"/>
+<meta property="og:image" content="">  <title>Bytepawn &ndash; Hack, HHVM and avoiding the Second-system effect</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="hack-hhvm-second-system-effect">Hack, HHVM and avoiding the Second-system effect</h1>
+    <p>Posted on Sat 14 May 2016 in <a href="/category/books.html">Books</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>I read <a href="http://www.amazon.com/Hack-HHVM-Programming-Productivity-Breaking/dp/1491920874">Hack &amp; HHVM—Programming Productivity without Breaking Things</a> on my first vacation after I started working at Facebook and thus became a semi-regular Hack/HHVM user. I highly recommend reading (parts of) it. But not to learn Hack/PHP, which is irrelevant to most people. Instead, it’s to learn about how Facebook improved it’s www codebase and performance without rewriting the old PHP code in one big effort, and thus avoided the famous <em>Second-system effect</em>.</p>
+<p><img alt="Hack &amp; HHVM book" src="http://akamaicovers.oreilly.com/images/0636920037194/cat.gif" title="Hack &amp; HHVM book" /></p>
+<h2>Second-system effect</h2>
+<p>The second system effect was first described by Fred Brooks in <a href="https://en.wikipedia.org/wiki/The_Mythical_Man-Month">The Mythical Man Month</a>, based on his experiences managing operating system software development at IBM in the early 1960s:</p>
+<blockquote>
+<p>The second-system effect proposes that, when an architect designs a second system, it is the most dangerous system they will ever design, because they will tend to incorporate all of the additions they originally did not add to the first system due to inherent time constraints. Thus, when embarking on a second system, an engineer should be mindful that they are susceptible to over-engineering it.</p>
+</blockquote>
+<p>Let me offer a more modern description: version 1.0 of the product/app/software is successful. Over time the programmers realize that, knowing what they know now, they could do a much better job. Meanwhile, the technology landscape changes, it'd be nice to take advantage of the shiny new architectures, languages, frameworks available. So the team embarks on the quest to ship 2.0―a rewrite. Inevitably, even good teams will over-engineer, and the result will be a technological and project management mess. 2.0 projects like this miss their original ship dates by several years. Once it does ship, it’s buggy and slow, because unlike 1.0 it has no fine-tuning, since it hasn't seen the light of real-world usage yet. So several more years go by until 2.0 is also fine-tuned. At this point the new set of programmers―the cohort who joined after 1.0―can repeat the Second-system effect with 3.0, which for them will be the new 2.0. Rinse, repeat.</p>
+<p>I think within this book is a nice little lesson about how to avoid the Second-system effect. The book doesn't actually mention the Second-system effect, and I'm not implying anything about the history of the main www codebase at Facebook. I'm not saying that Facebook specifically did this to avoid the Second-system effect. It's just a lesson that I think can be extracted from the design decisions explained in the book.</p>
+<h2>PHP, Hack, HHVM</h2>
+<p>The story here is that Facebook started out as a PHP codebase. Over time the product became very successful, which meant that it was:</p>
+<ul>
+<li>very large (1M+ LOC)</li>
+<li>serving a large number of users</li>
+<li>being worked on by a large number of engineers</li>
+</ul>
+<p>So there was a desire to:</p>
+<ul>
+<li>speed it up so it can serve more users per node</li>
+<li>make it easier for engineers to work on the code</li>
+</ul>
+<p>I think that for many programmers (including yours truly) the instinctive reaction would have been to say "PHP sucks, it's slow and unsafe, let's rewrite the www codebase in a real programming language like Java and run on the JVM". What's interesting is that Facebook did not do this; Facebook did not discard PHP.</p>
+<p>Instead, Facebook decided to improve the layer below the application code to improve overall performance, and write new code in a way which takes advantage of the features of the improved layer (and very slowly deprecate old code). The "layer" here is actually many things:</p>
+<ol>
+<li>Hack, a language like PHP, but much nicer</li>
+<li>a static type-checker for Hack</li>
+<li>HHVM, a runtime for Hack (and also regular PHP)</li>
+</ol>
+<p>Two notes are in order here:</p>
+<ul>
+<li>Historically, there was something called <a href="https://en.wikipedia.org/wiki/HipHop_for_PHP">HPHPc</a> before HHVM. It was a PHP-to-C++ compiler, but it’s no longer being used at Facebook.</li>
+<li>Hack and HHVM did not come about as a result of a committee sitting down, identifying the problem, scoping out the solutions, and picking one. They originated (both HPHPc and the Hack language) from <a href="https://www.facebook.com/hackathon">Hackathons</a>, an integral part of Facebook engineering culture, where individual engineers were attacking problems they thought are promising and important.</li>
+</ul>
+<p>My favorite features of Hack/HHVM:</p>
+<ul>
+<li>very fast</li>
+<li>100% interoperability with regular PHP code (eg. existing code)</li>
+<li><a href="https://docs.hhvm.com/hack/types/introduction">types</a> (can also run regular PHP code in untyped mode)</li>
+<li>the <a href="https://docs.hhvm.com/hack/typechecker/introduction">type-checker</a> is very fast, millisecond response time even is very large codebases since it maintains state</li>
+<li><a href="https://docs.hhvm.com/hack/generics/introduction">generics</a>, <a href="https://docs.hhvm.com/hack/lambdas/introduction">lambdas</a>, etc.</li>
+<li><a href="https://docs.hhvm.com/hack/async/introduction">async/await keyword for cooperative multitasking</a>: this is very cool and worth reading up on. Essentially it's language/runtime level support for (single-threaded) event-driven architecture (epoll, kqueue, Completion Ports), so you don't have to explicitly manage the state like we did in the plain old C++ <a href="https://github.com/scalien/scaliendb">ScalienDB codebase</a>.</li>
+<li><a href="https://docs.hhvm.com/hack/XHP/introduction">XHP</a>: the way to do www rendering safely (in the xss sense) in Hack, with language level support for XHTML and custom modules (eg. a Comments box)</li>
+</ul>
+<h2>Lesson learned</h2>
+<p>So the interesting lesson here is that a possible way out of the Second-system effect is to start improving the environment (language, runtime, frameworks, etc.) of the main codebase instead of rewriting the main codebase. I certainly don't think this is the solution, in many cases it cannot be applied, but it's something to keep in mind as a design pattern. Some of the challenges of this approach:</p>
+<ul>
+<li>You need a couple of really smart people who can design and implement a new language that's backwards compatible with existing code.</li>
+<li>You need to put sustained effort into it afterwards, keeping it mostly compatible with the standard version of the language.</li>
+<li>Every new engineer will need time to ramp up using the new language.</li>
+</ul>
+<p>Another interesting aspect of this is the investment needed. Rewriting the whole application codebase is an all-in project, with all (or much) of the engineering team working on it. I assert that changing out the layers below and around it can be accomplished by a smaller, focused team, iteratively. It's a smaller bet. Writing HHVM was certainly a smaller effort than rewriting all of Facebook in Java would have been! Having said that, an organizational/management note: I do think you need a fairly large group of people to generate enough ideas (and Hackathon projects) so that some really good and impactful ones come out of it.</p>
+<h2>Conclusion</h2>
+<p>I will conclude this post with my personal impressions: working with Hack/HHVM is very pleasant. The type checker holds your hand all the way, so it feels much nicer/safer than eg. writing Python. The syntax is a bit unfortunate in places, but overall it’s a non-issue for me. I'd consider using Hack/HHVM for personal projects or a startup. It's completely open source, so anybody can use it for their projects.</p>
+<p>Thanks to <a href="https://github.com/zsol">Zsolt Dollenstein</a> for reviewing this blog post and giving valuable suggestions.</p>
+<p>Links:</p>
+<ul>
+<li><a href="http://hhvm.com/">HHVM main site</a></li>
+<li><a href="https://www.facebook.com/hhvm/">HHVM Facebook page</a></li>
+<li><a href="https://github.com/facebook/hhvm">HHVM on Github</a></li>
+<li><a href="https://blog.engineyard.com/2014/hhvm-hack">A series of posts about Hack/HHVM from 2014</a></li>
+<li>If you find Hack interesting, check out <a href="http://flowtype.org/">Flow, a static type checker for Javascript, by Facebook</a>.</li>
+</ul>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/books.html">books</a>
+      <a href="/tag/programming.html">programming</a>
+      <a href="/tag/hhvm.html">hhvm</a>
+      <a href="/tag/brooks.html">brooks</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Hack, HHVM and avoiding the Second-system effect",
+  "headline": "Hack, HHVM and avoiding the Second-system effect",
+  "datePublished": "2016-05-14 00:00:00+02:00",
+  "dateModified": "2016-05-14 00:00:00+02:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/hack-hhvm-second-system-effect.html",
+  "description": "I read this book on my first vacation after I started working at Facebook and thus became a semi-regular Hack/HHVM user. I highly recommend reading (parts of) it. But not to learn Hack/PHP, which is irrelevant to most people. Instead, it’s to learn about how Facebook improved it’s www codebase and performance without rewriting the old PHP code in one big effort, and thus avoided the famous Second-system effect."
+}
+</script></body>
+</html>
