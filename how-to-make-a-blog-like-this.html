@@ -66,26 +66,26 @@
 <h2>Your own domain name with Github Pages</h2>
 <p>I wanted to use my existing domain name <code>bytepawn.com</code>. Github is so nice, they support this. Put a file called <code>CNAME</code> into your repo. Here's mine: <a href="https://github.com/mtrencseni/mtrencseni.github.io/blob/master/CNAME">https://github.com/mtrencseni/mtrencseni.github.io/blob/master/CNAME</a></p>
 <p>This tells Github to expect requests for this domain. What's left is to tell your DNS provider to use Github. (My registrar is Internet.bs, so much better than Godaddy.) Create an A record that points to <code>192.30.252.153</code>, this is a Github IP address. That's it. For <code>bytepawn.com</code> it looks like this:</p>
-<div class="highlight"><pre><span class="nv">$ </span>dig bytepawn.com
+<div class="highlight"><pre><span></span>$ dig bytepawn.com
 
-<span class="p">;</span> &lt;&lt;&gt;&gt; DiG 9.9.5-3ubuntu0.5-Ubuntu &lt;&lt;&gt;&gt; bytepawn.com
+<span class="p">;</span> &lt;&lt;&gt;&gt; DiG <span class="m">9</span>.9.5-3ubuntu0.5-Ubuntu &lt;&lt;&gt;&gt; bytepawn.com
 <span class="p">;;</span> global options: +cmd
 <span class="p">;;</span> Got answer:
-<span class="p">;;</span> -&gt;&gt;HEADER<span class="s">&lt;&lt;- opco</span>de: QUERY, status: NOERROR, id: 34353
-<span class="p">;;</span> flags: qr rd ra<span class="p">;</span> QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+<span class="p">;;</span> -&gt;&gt;HEADER<span class="s">&lt;&lt;- opco</span>de: QUERY, status: NOERROR, id: <span class="m">34353</span>
+<span class="p">;;</span> flags: qr rd ra<span class="p">;</span> QUERY: <span class="m">1</span>, ANSWER: <span class="m">1</span>, AUTHORITY: <span class="m">0</span>, ADDITIONAL: <span class="m">1</span>
 
 <span class="p">;;</span> OPT PSEUDOSECTION:
-<span class="p">;</span> EDNS: version: 0, flags:<span class="p">;</span> udp: 512
+<span class="p">;</span> EDNS: version: <span class="m">0</span>, flags:<span class="p">;</span> udp: <span class="m">512</span>
 <span class="p">;;</span> QUESTION SECTION:
 <span class="p">;</span>bytepawn.com.                  IN      A
 
 <span class="p">;;</span> ANSWER SECTION:
-bytepawn.com.           <span class="m">600</span>     IN      A       192.30.252.153
+bytepawn.com.           <span class="m">600</span>     IN      A       <span class="m">192</span>.30.252.153
 
-<span class="p">;;</span> Query <span class="nb">time</span>: <span class="m">19</span> msec
-<span class="p">;;</span> SERVER: 172.17.0.1#53<span class="o">(</span>172.17.0.1<span class="o">)</span>
-<span class="p">;;</span> WHEN: Thu Jan <span class="m">07</span> 21:36:09 UTC 2016
-<span class="p">;;</span> MSG SIZE  rcvd: 57
+<span class="p">;;</span> Query time: <span class="m">19</span> msec
+<span class="p">;;</span> SERVER: <span class="m">172</span>.17.0.1#53<span class="o">(</span><span class="m">172</span>.17.0.1<span class="o">)</span>
+<span class="p">;;</span> WHEN: Thu Jan <span class="m">07</span> <span class="m">21</span>:36:09 UTC <span class="m">2016</span>
+<span class="p">;;</span> MSG SIZE  rcvd: <span class="m">57</span>
 </pre></div>
 
 
@@ -96,18 +96,18 @@ Fortunately, there are many.
 The two biggest ones are <a href="https://jekyllrb.com/">Jekyll</a> for Rubyists and <a href="http://docs.getpelican.com">Pelican</a> for Pythonistas.
 I'm a Python guy, so I use Pelican.
 The <a href="http://docs.getpelican.com/en/3.6.3/quickstart.html">Pelican quickstart doc</a> explains how to generate an empty blog. Basically:</p>
-<div class="highlight"><pre><span class="nv">$ </span>pip install pelican markdown
-<span class="nv">$ </span><span class="nb">cd </span>blog
-<span class="c">### this is https://github.com/mtrencseni/blog locally</span>
-<span class="nv">$ </span>pelican-quickstart
-<span class="nv">$ </span>vi contents/my-first-article.md
-<span class="c">### see the docs what an article should look like</span>
-<span class="nv">$ </span>pelican content
-<span class="c">### generates static files in the `output` dir</span>
-<span class="nv">$ </span>cp -R ouput/* ../mtrencseni.github.io
-<span class="nv">$ </span><span class="nb">cd</span> ../mtrencseni.github.io
-<span class="nv">$ </span>git add * <span class="o">&amp;&amp;</span> git commit -m <span class="s2">&quot;Working :)&quot;</span> <span class="o">&amp;&amp;</span> git push
-<span class="c">### it&#39;s live!</span>
+<div class="highlight"><pre><span></span>$ pip install pelican markdown
+$ <span class="nb">cd</span> blog
+<span class="c1">### this is https://github.com/mtrencseni/blog locally</span>
+$ pelican-quickstart
+$ vi contents/my-first-article.md
+<span class="c1">### see the docs what an article should look like</span>
+$ pelican content
+<span class="c1">### generates static files in the `output` dir</span>
+$ cp -R ouput/* ../mtrencseni.github.io
+$ <span class="nb">cd</span> ../mtrencseni.github.io
+$ git add * <span class="o">&amp;&amp;</span> git commit -m <span class="s2">&quot;Working :)&quot;</span> <span class="o">&amp;&amp;</span> git push
+<span class="c1">### it&#39;s live!</span>
 </pre></div>
 
 
