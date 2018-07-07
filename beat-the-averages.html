@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="When working with averages, we have to be careful. There are pitfalls lurking to pollute our statistics and results reported." />
+<meta name="keywords" content="data, statistics">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="Beat the averages"/>
+<meta property="og:description" content="When working with averages, we have to be careful. There are pitfalls lurking to pollute our statistics and results reported."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/beat-the-averages.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2018-07-07 00:00:00+02:00"/>
+<meta property="article:modified_time" content="2018-07-07 00:00:00+02:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data"/>
+<meta property="article:tag" content="data"/>
+<meta property="article:tag" content="statistics"/>
+<meta property="og:image" content="">  <title>Bytepawn &ndash; Beat the averages</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="beat-the-averages">Beat the averages</h1>
+    <p>Posted on Sat 07 July 2018 in <a href="/category/data.html">Data</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p><em>The numbers in this article are made up, but the lessons come from real life.</em></p>
+<p>When doing Data Science, we almost always report averages. This is natural, because it stands for a simple model that everybody can understand. For example, in the delivery business, a topline metric is Deliveries per Driver (DPD), the average deliveries made per driver per day. This is a simple model the CEO can also remember: if our fleet is performing at DPD = 40, and we have 1,000 drivers, we can make 40,000 deliveries per day.</p>
+<p>When working with averages, we have to be careful though: there are pitfalls lurking to pollute our statistics and results reported. It is important to note that there is nothing wrong with averages themselves, we just have to be careful with them. I don’t believe that for most reporting purposes averages should or can be replaced (eg. by reporting the median), it is simply the job of the Data Science team to make sure the metrics make sense.</p>
+<h2>Outliers</h2>
+<p>When we say that our DPD is 40 and we have 1,000 drivers, the natural inclination (even for data people) is to <em>imagine</em> 1,000 equivalent drivers, each performing exactly 1,000 deliveries every day. But we know that the world isn’t this simple. Things like driver performance tend to follow some more interesting distribution. The simplest thing we can imagine is that it follows a normal distribution. The plot below shows a normal distribution, the mean (green) and median (red) coincide. Gauss is happy.</p>
+<p><img src="/images/averages-1.png" alt="Probability distribution" style="width: 650px;"/></p>
+<p>But almost always there are outliers. In the case of drivers, there are various special circumstances which can cause a driver to have very low or very high DPD. For example, maybe the driver got sick, interrupted his route and went home early. Below is a the same distribution as above, with some stragglers introduced. We can see that this shifts the mean (green) down.</p>
+<p><img src="/images/averages-2.png" alt="Probability distribution" style="width: 650px;"/></p>
+<p>The shift in the mean is important, because it signals that something is going on: a bunch of our drivers got sick and went home early. Maybe tomorrow they are not coming to work. So monitoring both the average and median is important to detect and understand deviations.</p>
+<p>Apart from the median, which is also called the 50th percentile, checking out the bottom and top percentiles is also very helpful. Below is the same two plots, with p10 and p90 also showing in red.</p>
+<p><img src="/images/averages-3.png" alt="Probability distribution" style="width: 325px;"/></p>
+<p><img src="/images/averages-4.png" alt="Probability distribution" style="width: 325px;"/></p>
+<p>Something really useful happened! After we introduced the stragglers, the p10 dropped from about 27 to about 8!</p>
+<p>In general, showing percentiles is a useful technique, but as the example above shows, they can dramatically speed up detection of interesting events. In real life work, looking at distribution doesn’t happen on a daily basis, but a timeseries showing the historic DPD can also show p10, median and p50, and can show such events. The chart below shows such a made-up example, showing p10, p50 and p90 in red, the average in green, for the last 30 days for the fleet. On the 25th day a flu started spreading between our drivers, introducing the stragglers as shown in the distribution above. The mean and the median separate somewhat, but the p10 gives it away.
+It’s worth showing all four lines, at least on internal, debug dashboards.</p>
+<p><img src="/images/averages-5.png" alt="Probability distribution" style="width: 650px;"/></p>
+<p>It’s worth noting the outliers can come from another source too: data bugs. Another good trick is to periodically examine low and high performers in a table, attached to the bottom of the internal report/dashboard.</p>
+<p>Finally, outlier/anomaly detection can also be automated, for example Facebook does this internally for various metrics.</p>
+<p>It’s important to automate at least the visualization of these in a debug dasboard (even if anomaly detection is not running), because in the long-run, Data Scientists will forget to check manually (export and plot in ipython takes time).</p>
+<h2>Several populations</h2>
+<p>Another reason averages can be polluted is because of multiple populations. (Outliers can also be thoughtof as a population.) In the delivery business, it is not uncommon to have many separate fleets of drivers, for different purposes. For example, we may have a B2C and a C2C fleet. Another distinction is cars vs bikes. Uber could have a fleet for passengers and a totally separaste fleet for UberEats. Below is a (made-up) distribution that’s actually two fleets, a C2C fleet performing at DPD=20 and a B2C one at DPD=40.</p>
+<p><img src="/images/averages-6.png" alt="Probability distribution" style="width: 650px;"/></p>
+<p>In cases like this, reporting on the blended mean (or any other statistic) may or may not be a mistake. For example, if country X has a B2C and a C2C fleet, while country Y only has a B2C fleet, then the reporting just on country-wise DPD will be weird, because for country X the C2C fleet will pull the DPD down. But this doesn’t mean that the Ops team in country X is performing better, in fact it’s possible their B2C fleet is outperforming country Y’s.</p>
+<h2>Skewed distributions</h2>
+<p>Sometimes distributions are not symmetric, they can be lopsided. In this case the median, mode (the most frequent outcome, the maximum of the distribution) and mean can be at different locations, which is often unintuitive for people. This isn’t a problem wrt the mean, but it’s good to know. The lognormal distribution is one such example:</p>
+<p><img src="/images/averages-7.png" alt="Probability distribution" style="width: 650px;"/></p>
+<h2>Percentage instead of mean</h2>
+<p>Sometimes, when building a metric, the mean is not a good choice. Let’s take page or app load times an an example. Suppose we measure the average pageload time in miliseconds, and we see that it is 4,200ms, too high. After rolling out changes, it goes down to 3,700ms. However, 3,700 is still too high. Does that mean the rollout didn’t make a dent?</p>
+<p>In situations like this, it makes sense to bake the goal into the metric. Suppose our goal is 2,000ms, which we deem pleasant from a UX perspective. Then a better way to define the metric is % of pageloads that are within 2,000ms. If it was 57% before, and 62% after the rollout, it’s more natural to understand what happens: an additional 5% of people now have a pleasant experience when loading our page. If there are 1,000,000 users per month, we impacted 50,000 users per month with the rollout. Not bad.</p>
+<p>Another big advantage of using percentages like this is that it’s more resilient to outliers. While the mean could be polluted by outliers (users on slow connections, bots, data bugs), in the % it will be “just” a constant additive factor.</p>
+<h2>Ratios instead of means</h2>
+<p>Our delivery business also has C2C, ie. people can call a driver and send a package to another person, in real time. For example, if my partner is at the airport, but they forgot their passport at home, I can use the C2C app to fetch a car and send her the passport in an envelope. As such, the C2C app has standard metrics such as Daily Active Users (DAU) and Monthly Active Users (MAU). These are topline metrics, but we also need a metric which expresses how often people use the product. One way to do it using means would be to count, for each user, how many days they were DAU of the last 28 days. Suppose we call this Average DAU, and it’s 5.2. This is not that hard to understand, but could still be confusing. For example, people always forget the definition of a metric, in this case they would forget if the metric is 28 and 30 day (or 7?) based. Also, increments like this don’t feel natural, for example a +1% increment corresponds to +0.28 active days or 6.72 hours.</p>
+<p>A better metric is simply to divide DAU per MAU, this is a common metric also used inside Facebook. This feels more natural: if we are honest with ourselves, a user is essentially a MAU, because somebody who hasn’t used the product for 28 days is probably not coming back. Thinking like this DAU/MAU is a very natural metric: it is the % of users who use the product daily. (Depending on the product, the denominator could be WAU or MAU or quarterly acives). </p>
+<h2>Daily variations</h2>
+<p>Suppose our fleet’s average DPD is 40. Looking at driver X, his DPD yesterday was 29. Is he a low performer? Our first intuition might be to ask what the standard deviation of the fleet is, and then argue that this value is not “significantly” off. Suppose it is 10. But from a business perspective, this in itself doesn’t help: if the COO wants to improve DPD and is looking for low performing drivers to cut, cutting at mean minus one sigma may be valid from a business perspective.</p>
+<p>However, it’s possible that our drivers have significant daily variation in their performance. It’s possible that this driver has a DPD of 29 before, but the previous day it was 47, and their historic average is actually 42. Always compare averages to averages. In this case, compare the fleet’s average DPD over a long enough timeframe (probably at least 28 days) to the driver’s average DPD in the same 28 days. That is a more fair comparison to make, because it smooths daily variation. Of course, remember what was said here, for example don’t count days when the driver was sick, compare him to his own fleet, and also look at percentiles. </p>
+<h2>In summary</h2>
+<ol>
+<li>Using averages is okay most of the time.</li>
+<li>Reporting on medians is probably not feasible in a business/product setting.</li>
+<li>Instead, make sure the average is meaningful.</li>
+<li>Watch out for outliers.</li>
+<li>Check median/p10/p90 and distributions regularly.</li>
+<li>Prune/separate outliers.</li>
+<li>Split up populations, etc. to make sure the reported average (or median) is a meaningful number.</li>
+<li>Outliers can be real outliers, or issues in the data (eg. Self Pickup as a driver)</li>
+<li>Often there are two or more populations making up the distribution, and the average is not a meaningful number (example: B2C vs C2C fleet DPD for drivers).</li>
+<li>Sometimes the population is homogeneous, but the distribution is skewed to one side or bimodal, in this case the average is intuitively misleading.</li>
+<li>Sometimes, using %s instead of averages makes a better metric (example: Scheduling Accuracy vs Average Scheduling Error).</li>
+<li>Sometimes, using a ratio instead of averages makes a better metric (example: DAU/MAU vs average number of DAUs in the last 28 days).</li>
+<li>Be careful when comparing daily snapshots and averages, there may be significant daily variation in performance.</li>
+</ol>
+<p>We use <a href="https://aws.amazon.com/emr/">EMR</a> to get a Hadoop instance, with S3 as the backing storage. We actually don’t use the Hive query engine or MapReduce. We just use <a href="http://hadoop.apache.org/">Hadoop</a> as a metadata store (table definitions) for <a href="https://prestodb.io/">Presto</a>. Each EMR node also runs a Presto worker. Right now we use 1+4 nodes, with plans to scale it out to ~10.</p>
+<p>The data warehouse (DWH) philosophy is again based on the Facebook design pattern. We use flat tables, no fact/dimension tables; usually you can look at a table and see a complete picture. This makes the tables very usable and allows us to move fast, for example writing quick queries against tables is easy because it doesn’t require a lot of JOINs to get readable strings.</p>
+<p><img src="/images/flat-table.png" alt="Flat DWH table" style="width: 650px;"/></p>
+<p>The other major design pattern from Facebook is the idea of daily partitioned tables. This is a feature available on Hive, and not really practical on eg. <a href="https://aws.amazon.com/redshift/">Redshift</a>. Essentially we store (complete) daily, write-once slices of each table, which are generated by daily jobs. The partitions are called <code>ds</code> at Facebook and logically show up as a column of the table, and you’ll find plenty of references to it if you read the <a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual">Hive docs</a> (because Hive was written at Facebook). Physically, these are essentially directories, each one holding the data files for that day’s data. We use S3, so in our case it looks something like <code>s3://dwh-bucket/&lt;table&gt;/&lt;ds&gt;/&lt;data_files&gt;</code>. For example, <code>s3://dwh-bucket/company_metrics/2018-03-01/datafile</code>. For technical reasons, when importing data from our production (Postgresql) database, we use .csv, for later computed warehouse tables we use <a href="https://orc.apache.org/">ORC</a>.</p>
+<p>The advantage of this is that we have a complete history of the data warehouse going back as far as we’d like (old partitions can be deleted from a script after the desired retention period expires). There’s two ways to use <code>ds</code> partitions, cumulative and events: each partition can store a complete copy of its data up to that day (cumulative), or each partition just stores that day’s worth of (event) data. For aggregate tables, it’s usually the first, for raw event tables, it’s usually the second. For example, our <code>company_metrics</code> has complete cumulative data in each <code>ds</code>, while our <code>driver_telemetry</code> table has just that day’s worth of telemetry events. The advantage of this is that if something breaks, there’s almost never a big problem; we can always refer to yesterday’s data, and get away with it. Data will never be unavailable, it may just be late. Also, if there’s ever a question why a number changed, it’s easy to see what the reported number was a month ago (by examining that day’s <code>ds</code> partition).</p>
+<p>We use <a href="https://airflow.apache.org/">Airflow</a> for data piping, which is loosely based on <a href="http://www.asiliconvalleyinsider.com/asiliconvalleyinsider/Blog_A_Silicon_Valley_Insider/Entries/2016/5/1_Data_Engineering_%40_Facebook.html">Facebook’s Dataswarm system</a>. Airflow allows us to write jobs as Directed Acyclic Graphs (DAGs) of tasks, with each task getting something useful done, like a database <code>INSERT</code>. In Airflow, each DAG has a schedule, which uses the <a href="https://airflow.apache.org/scheduler.html">cron format</a>, so it can be daily, hourly, or just run every Wednesday at 3:15PM. On each of these runs, Airflow creates an instance of the DAG (identified by the timestamp), and executes the tasks, taking into account the dependencies between them. We have 2 types of DAGs: imports, for importing tables from the production database to the DWH, and compute jobs, which take existing (imported or computed) tables and make a new, more useful table. Fundamentally, each table is its own DAG.</p>
+<p>This poses a question: how do we make sure that a table’s DAG only runs once another table that is required (eg. it’s used in the <code>FROM</code> part) is available (the latest <code>ds</code> is available). This is accomplished with having special sensor tasks, which continuously check something (in this case whether a table’s partition is there), and only succeed if the check succeed; until then these “wait” tasks block the DAG from executing. For example, this is what a typical DAG looks like:</p>
+<p><img src="/images/warehouse-dag.png" alt="Warehouse DAG" style="width: 650px;"/></p>
+<p>There are two waits (one for a table called <code>deliveries</code>, one for this table but yesterday’s <code>ds</code> partition, which is a kind of self-dependency), there is a <code>create</code> task which creates the table in case it doesn’t exist, the <code>drop_partition</code> drops the partition in case it already exists (in case we’re re-running the job), the <code>insert</code> does the actual <code>INSERT INTO … SELECT ... FROM ...</code>, and then some useful views are created (eg. for a table called <code>company_metrics</code>, the view task creates a view called <code>company_metrics_latest</code>, which points to the latest <code>ds</code> partition).</p>
+<p>DAGs for import jobs are simpler:</p>
+<p><img src="/images/import-dag.png" alt="Import DAG" style="width: 650px;"/></p>
+<p>The <code>s3copy</code> is the task which dumps the table from the production Postgresql into a local file and then copies it to S3, to the appropriate path. The <code>notice</code> lets Hive now that we “manually” created a new partition on the backing storage, and triggers the metadata store to re-scan for new partitions by issuing <code>MSCK REPAIR TABLE &lt;table&gt;</code>. (The <code>notice</code> in the upper DAG is actually not required, since it’s a Presto job.)</p>
+<p>Airflow creates daily instances (for daily jobs) of these DAGs, and has a very helpful view to show progress/completion.</p>
+<p><img src="/images/dag-runs.png" alt="Warehouse DAG" style="width: 650px;"/></p>
+<p>The UI also allows for tasks to be cleared, re-run, etc.</p>
+<p><img src="/images/task-actions.png" alt="Task actions" style="width: 650px;"/></p>
+<p>Each DAG is implemented as Python code, in our case one <code>.py</code> file per DAG. Most of these DAGs are highly repetitive, so we wrote a small library to save us time. For example, since we’re importing from a Postresql database, which is itself a relational database, it’s enough to say which table we want to import, our scripts figure out what the source table’s schema is, it knows how to map Postgresql types to Hive types, handle column names which are not allowed on Hive, etc. This makes importing a table as easy as:</p>
+<p><img src="/images/import-code.png" alt="Import code" style="width: 650px;"/></p>
+<p>All the logic is contained in the <code>dag_import_erp_table()</code> function, which is re-used for all imports.</p>
+<p>We wrote similar helper functions for our common warehouse jobs, which take existing tables to build a new, more useful one. We specify the name of the output table, the <code>schedule_interval</code>, the Hive columns (which is used to generate the <code>CREATE TABLE</code> task), and the Presto <code>SELECT</code> query, which will be placed after the <code>INSERT</code> part in the insert task. Note the use of the <code>wait::</code> prefix in the <code>FROM</code> part. The helper functions automatically parses out these and generates wait tasks for these tables. A number of other such features were added to make it easy, fast and convenient to write jobs, without having to go outside the use of these helper functions. The <code>{{ ds }}</code> macro will be replaced by the Airflow runtime with the proper ds, like <code>2018-02-20</code>.</p>
+<p><img src="/images/warehouse-code.png" alt="Warehouse code" style="width: 650px;"/></p>
+<p>Right how we have around 50 jobs, about half are “real” computations, the rest are imports. At this point we are able to move really fast: writing a new job and deploying it to production takes about an hour, and new joiners can ramp up quickly. Because we use Presto/Hive on top of S3 (versus <a href="https://medium.com/airbnb-engineering/data-infrastructure-at-airbnb-8adfb34f169c">Airbnb runs their own Hadoop cluster</a>) this introduced some low-level difficulties, so we had to write our own Operators, for example a PrestoOperator. Overall this code, plus the helper code is about 1-2k LOC, so it wasn’t too much work. To be fair, we never hit any data size problems, since compared to the capabilities of these tools, we have "small data". Our biggest tables are ~100M rows (these are part of 10-way <code>JOINs</code>), but Hive/Presto can easily handle this with zero tuning. We expect to grow 10x within a year, but we expect that naive linear scaling will suffice.</p>
+<p>Maintaining a staging data warehouse is not practical in our experience, but maintaining a staging Airflow instance is practical and useful. This is because of Airflow’s brittle execution model: DAG’s <code>.py</code> files are executed by the main webserver/scheduler process, and if there’s a syntax error then bad things happen, for example certain webserver pages don’t load. So it’s best to make sure that scripts deployed to the production Airflow instance are already working. So we set up a second, staging Airflow instance, which writes to the same data warehouse, (we have only one) but has its own internal state. Our production Airflow instance runs on two EC2 nodes. One for the webserver and the scheduler, one for the workers. The staging runs on a third, all 3 components on the same host.</p>
+<p>Overall, getting here was fast, mostly because:</p>
+<ol>
+<li>the database components (Hive, Presto) were open sourced by Facebook</li>
+<li>Amazon runs them for us as part of EMR</li>
+<li>we don't have to manage storage because of S3</li>
+<li>other former Facebook engineers built Airflow and Airbnb open sourced it</li>
+<li>because of the common background (Facebook) everything made sense.</li>
+</ol>
+<p>Having said that, Airflow still feels very “beta”. It’s not hard to “confuse” it, where it behaves in weird ways, pages don’t load, etc. For example, if a DAG’s structure changes too much, Airflow seems to get confused and exceptions are thrown; for cases like this we wrote a custom scripts which wipes Airflow’s memory of this DAG completely (we didn’t find a way to do this with the provided CLI or UI). But, once we understood how it works and learned its quirks, we found a way to use it for our use-case. This process took about 1-2 months. We now rarely run into Airflow issues, perhaps once a month.</p>
+<p>The limits of this architecture is that it's very batch-y. For "real-time" jobs, we use hourly or 15-minute jobs to get frequent updates, but we apply manual filters on data size to make these run fast(er). Overall, this is inconvenient, and won't scale very well, eventually we'll have to look at other technologies for this use-case. Overall, we feel this is inconveniance/limitation/techdebt is a small price to pay for all the high-level product and business impact that we were able to deliver with this architecture.</p>
+<p>Airflow is now under Apache incubation, with lots of development activity, so it will surely get even better in the coming years. Going with Airflow was a bet that payed off, and we expect that Airflow will become the defacto open source ETL tool, if it’s not already that.</p>
+<p>In the next part about Fetchr's Data Science Infra, I’ll talk about how we use Superset for dashboarding and SQL.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/data.html">data</a>
+      <a href="/tag/statistics.html">statistics</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Beat the averages",
+  "headline": "Beat the averages",
+  "datePublished": "2018-07-07 00:00:00+02:00",
+  "dateModified": "2018-07-07 00:00:00+02:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/beat-the-averages.html",
+  "description": "When working with averages, we have to be careful. There are pitfalls lurking to pollute our statistics and results reported."
+}
+</script></body>
+</html>
