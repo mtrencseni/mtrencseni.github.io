@@ -98,14 +98,18 @@ It’s worth showing all four lines, at least on internal, debug dashboards.</p>
 <p>However, it’s possible that our drivers have significant daily variation in their performance. It’s possible that this driver had a DPD of 29 yesterday, but the previous day it was 47, and their historic average is actually 42. Always compare averages to averages. In this case, compare the fleet’s average DPD over a long enough timeframe (probably at least 28 days) to the driver’s average DPD in the same 28 days. That is a more fair comparison to make, because it smooths daily variation. Of course, remember what was said here, for example don’t count days when the driver was sick, and compare him to his own fleet. </p>
 <h2>In summary</h2>
 <ol>
-<li>Using averages is okay most of the time.</li>
+<li>Using averages is okay most of the time.<ul>
 <li>Reporting on medians is probably not feasible in a business/product setting.</li>
 <li>Instead, make sure the average is meaningful.</li>
-<li>Watch out for outliers.</li>
+</ul>
+</li>
+<li>Watch out for outliers.<ul>
 <li>Check median/p10/p90 and distributions regularly.</li>
 <li>Prune/separate outliers.</li>
 <li>Split up populations (B2C/C2C, car/bike), etc. to make sure the reported average (or median) is a meaningful number.</li>
 <li>Outliers can be real outliers, or issues in the data (eg. Self Pickup as a driver)</li>
+</ul>
+</li>
 <li>Sometimes the population is homogeneous, but the distribution is skewed to one side or bimodal, in this case the average may be intuitively misleading.</li>
 <li>Sometimes, using %s instead of averages makes a better metric (Pageloads within 2000ms vs Average Pageload time).</li>
 <li>Sometimes, using a ratio instead of averages makes a better metric (example: DAU/MAU vs average number of DAUs in the last 28 days).</li>
