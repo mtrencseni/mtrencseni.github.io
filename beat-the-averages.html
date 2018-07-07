@@ -67,8 +67,12 @@
 <p><img src="/images/averages-2.png" alt="Probability distribution" style="width: 650px;"/></p>
 <p>The shift in the mean is important, because it signals that something is going on: a bunch of our drivers got sick and went home early. Maybe tomorrow they are not coming to work. So monitoring both the average and median is important to detect and understand deviations.</p>
 <p>Apart from the median, which is also called the 50th percentile, checking out the bottom and top percentiles is also very helpful. Below is the same two plots, with p10 and p90 also showing in red.</p>
-<p><img src="/images/averages-3.png" alt="Probability distribution" style="width: 325px;"/></p>
-<p><img src="/images/averages-4.png" alt="Probability distribution" style="width: 325px;"/></p>
+<div>
+<img src="/images/averages-3.png" alt="Probability distribution" style="width: 325px;"/>
+
+<img src="/images/averages-4.png" alt="Probability distribution" style="width: 325px;"/>
+</div>
+
 <p>Something really useful happened! After we introduced the stragglers, the p10 dropped from about 27 to about 8!</p>
 <p>In general, showing percentiles is a useful technique, but as the example above shows, they can dramatically speed up detection of interesting events. In real life work, looking at distribution doesn’t happen on a daily basis, but a timeseries showing the historic DPD can also show p10, median and p50, and can show such events. The chart below shows such a made-up example, showing p10, p50 and p90 in red, the average in green, for the last 30 days for the fleet. On the 25th day a flu started spreading between our drivers, introducing the stragglers as shown in the distribution above. The mean and the median separate somewhat, but the p10 gives it away.
 It’s worth showing all four lines, at least on internal, debug dashboards.</p>
