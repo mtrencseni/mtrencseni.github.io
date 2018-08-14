@@ -15,7 +15,7 @@
 <meta name="description" content="A description of our Analytics+ML cluster running on AWS, using Presto, Airflow and Superset." />
 <meta name="keywords" content="data, etl, workflow, airflow, fetchr, model, ml">
 <meta property="og:site_name" content="Bytepawn"/>
-<meta property="og:title" content="Fetchr Data Science Infra (2018 August Update)"/>
+<meta property="og:title" content="Fetchr Data Science Infra"/>
 <meta property="og:description" content="A description of our Analytics+ML cluster running on AWS, using Presto, Airflow and Superset."/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="/fetchr-data-science-infra.html"/>
@@ -31,7 +31,7 @@
 <meta property="article:tag" content="fetchr"/>
 <meta property="article:tag" content="model"/>
 <meta property="article:tag" content="ml"/>
-<meta property="og:image" content="">  <title>Bytepawn &ndash; Fetchr Data Science Infra (2018 August Update)</title>
+<meta property="og:image" content="">  <title>Bytepawn &ndash; Fetchr Data Science Infra</title>
 </head>
 <body>
   <aside>
@@ -57,7 +57,7 @@
 
 <article>
   <header>
-    <h1 id="fetchr-data-science-infra">Fetchr Data Science Infra (2018 August Update)</h1>
+    <h1 id="fetchr-data-science-infra">Fetchr Data Science Infra</h1>
     <p>Posted on Tue 14 August 2018 in <a href="/category/data.html">Data</a></p>
   </header>
   <div>
@@ -68,16 +68,22 @@
 <p>Architecture:</p>
 <ul>
 <li>S3 buckets (all data lives here)</li>
-<li>two Presto clusters</li>
+<li>two Presto clusters<ul>
 <li>5 node Presto cluster for ETL and dashboards</li>
 <li>5 node Presto cluster for analytics queries</li>
-<li>Airflow</li>
+</ul>
+</li>
+<li>Airflow<ul>
 <li>scheduler + webserver</li>
 <li>worker</li>
 <li>staging</li>
-<li>Superset</li>
+</ul>
+</li>
+<li>Superset<ul>
 <li>1 node for dashboarding</li>
 <li>1 node for analytics queries</li>
+</ul>
+</li>
 <li>Jupyter host (Machine Learning notebooks)</li>
 <li>2 node ML prediction cluster (blue+green)</li>
 </ul>
@@ -103,8 +109,8 @@
 {
   "@context": "http://schema.org",
   "@type": "BlogPosting",
-  "name": "Fetchr Data Science Infra (2018 August Update)",
-  "headline": "Fetchr Data Science Infra (2018 August Update)",
+  "name": "Fetchr Data Science Infra",
+  "headline": "Fetchr Data Science Infra",
   "datePublished": "2018-08-14 00:00:00+02:00",
   "dateModified": "2018-08-14 00:00:00+02:00",
   "author": {
