@@ -12,9 +12,9 @@
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;Airflow&lt;ul&gt;
-&lt;li&gt;scheduler + webserver&lt;/li&gt;
-&lt;li&gt;worker&lt;/li&gt;
-&lt;li&gt;staging&lt;/li&gt;
+&lt;li&gt;1 node for scheduler + webserver&lt;/li&gt;
+&lt;li&gt;1 node for workers&lt;/li&gt;
+&lt;li&gt;1 node for staging&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;Superset&lt;ul&gt;
