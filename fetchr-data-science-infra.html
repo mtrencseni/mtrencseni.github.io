@@ -87,6 +87,13 @@
 <li>Jupyter host (Machine Learning notebooks)</li>
 <li>2 node ML prediction cluster (blue+green)</li>
 </ol>
+<h2>S3</h2>
+<p>As before, all data lives on S3, whether it's data imported from our production databases or data produced by the ETL. Data imported is stored in flat CSV files, whereas DWH tables produces by Airflow running Presto jobs are stored in ORC format (like at Facebook).</p>
+<p>We continue to use the <code>ds</code> partitioned Data Warehouse architecture. This means that every night the ETL imports a fresh copy of all production tables into a new ds partition, like <code>ds=2018-08-01</code>, and all subsequent tables are also "re-created" in a new partition. Because all tables are backed on S3, this is also mirrored in our S3 path hierarchy. For example, the backing files for our main <code>company_metrics</code> table are divided like this:</p>
+<p><img src="/images/company_metrics_s3.png" alt="A table on S3." style="width: 650px;"/></p>
+<p>It's a fair question whether this is wasteful and slow? After all, we just imported all these tables last night, do we need to re-import the whole dataset again? Surely not everything has changed. As the company and our data volume grew, the nightly import actually started becoming quite slow, so we were forced to optimize this: for our big tables, now we import the (historic tail) once a week, and on a daily basis we only import data on orders that we received in the last ~5 months. This ensures our ETL finishes on time every night.</p>
+<h2>Presto</h2>
+<h2>Airflow</h2>
   </div>
   <div class="tag-cloud">
     <p>
