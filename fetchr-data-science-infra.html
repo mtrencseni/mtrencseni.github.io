@@ -88,7 +88,7 @@
 <li>2 node ML prediction cluster (blue+green)</li>
 </ol>
 <h2>S3</h2>
-<p>As before, all data lives on S3, whether it's data imported from our production databases or data produced by the ETL. Data imported is stored in flat CSV files, whereas DWH tables produces by Airflow running Presto jobs are stored in ORC format (like at Facebook). EMR/EC2 nodes never store data.</p>
+<p>As before, all data lives on S3, whether it's data imported from our production databases or data produced by the ETL. Data imported is stored in flat CSV files, whereas DWH tables produced by Airflow running Presto jobs are stored in ORC format (like at Facebook). EMR/EC2 nodes never store data.</p>
 <p>We continue to use the <code>ds</code> partitioned Data Warehouse architecture. This means that every night the ETL imports a fresh copy of all production tables into a new ds partition, like <code>ds=2018-08-01</code>, and all subsequent tables are also re-created in a new partition. Because all tables are backed on S3, this is also mirrored in our S3 path hierarchy. For example, the backing files for our main <code>company_metrics</code> table are divided like this:</p>
 <p><img src="/images/company_metrics_s3.png" alt="A table on S3." style="width: 650px;"/></p>
 <p>When querying, we always specify the <code>ds</code> like <code>WHERE ds='2018-08-13'</code>, otherwise we're looking at multiple copies of the table. This is cumbersome, so for most of our tables, the Airflow jobs create a <code>xyz_latest</code> view that just points to the latest partition, like <code>CREATE OR REPLACE VIEW xyz_latest AS SELECT * FROM xyz WHERE ds = '{{ ds }}'</code>. This way analysts can usually just query the <code>_latest</code> and not think about it.</p>
