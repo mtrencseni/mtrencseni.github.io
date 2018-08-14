@@ -64,9 +64,9 @@
     <h2>Introduction</h2>
 <p>This is a quick follow-up to my <a href="http://bytepawn.com/fetchr-airflow.html#fetchr-airflow">previous post describing the Fetchr Data Science infra and philosophy</a>. The platform has expanded quite a bit in the last 6 months, and I'm currently approaching the end of the first year at Fetchr, so it's a good time to post an update.</p>
 <p>The basic principles behind our infrastructure have not changed, but we have scaled it out horizontally in key functionalities, and we've added a small ML model prediction cluster. As of today, the cluster is about 20 nodes and looks like this:</p>
-<p><img src="/images/fetchr-data-science-infra-update.png" alt="Fetchr Data Science Infra" style="width: 650px;"/></p>
+<p><img src="/images/fetchr-data-science-infra-update.png" alt="Fetchr Data Science Infra" style="width: 800px;"/></p>
 <p>Architecture:</p>
-<ul>
+<ol>
 <li>S3 buckets (all data lives here)</li>
 <li>two Presto clusters<ul>
 <li>5 node Presto cluster for ETL and dashboards</li>
@@ -86,7 +86,7 @@
 </li>
 <li>Jupyter host (Machine Learning notebooks)</li>
 <li>2 node ML prediction cluster (blue+green)</li>
-</ul>
+</ol>
   </div>
   <div class="tag-cloud">
     <p>
