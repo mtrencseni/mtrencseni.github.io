@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="A description of our Analytics+ML cluster running on AWS, using Presto, Airflow and Superset." />
+<meta name="keywords" content="data, etl, workflow, airflow, fetchr, model, ml">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="Fetchr Data Science Infra (2018 August Update)"/>
+<meta property="og:description" content="A description of our Analytics+ML cluster running on AWS, using Presto, Airflow and Superset."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/fetchr-data-science-infra.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2018-08-14 00:00:00+02:00"/>
+<meta property="article:modified_time" content="2018-08-14 00:00:00+02:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data"/>
+<meta property="article:tag" content="data"/>
+<meta property="article:tag" content="etl"/>
+<meta property="article:tag" content="workflow"/>
+<meta property="article:tag" content="airflow"/>
+<meta property="article:tag" content="fetchr"/>
+<meta property="article:tag" content="model"/>
+<meta property="article:tag" content="ml"/>
+<meta property="og:image" content="">  <title>Bytepawn &ndash; Fetchr Data Science Infra (2018 August Update)</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="fetchr-data-science-infra">Fetchr Data Science Infra (2018 August Update)</h1>
+    <p>Posted on Tue 14 August 2018 in <a href="/category/data.html">Data</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>This is a quick follow-up to my <a href="http://bytepawn.com/fetchr-airflow.html#fetchr-airflow">previous post describing the Fetchr Data Science infra and philosophy</a>. The platform has expanded quite a bit in the last 6 months, and I'm currently approaching the end of the first year at Fetchr, so it's a good time to post an update.</p>
+<p>The basic principles behind our infrastructure have not changed, but we have scaled it out horizontally in key functionalities, and we've added a small ML model prediction cluster. As of today, the cluster is about 20 nodes and looks like this:</p>
+<p><img src="/images/fetchr-data-science-infra-update.png" alt="Fetchr Data Science Infra" style="width: 650px;"/></p>
+<p>Architecture:</p>
+<ul>
+<li>S3 buckets (all data lives here)</li>
+<li>two Presto clusters</li>
+<li>5 node Presto cluster for ETL and dashboards</li>
+<li>5 node Presto cluster for analytics queries</li>
+<li>Airflow</li>
+<li>scheduler + webserver</li>
+<li>worker</li>
+<li>staging</li>
+<li>Superset</li>
+<li>1 node for dashboarding</li>
+<li>1 node for analytics queries</li>
+<li>Jupyter host (Machine Learning notebooks)</li>
+<li>2 node ML prediction cluster (blue+green)</li>
+</ul>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/data.html">data</a>
+      <a href="/tag/etl.html">etl</a>
+      <a href="/tag/workflow.html">workflow</a>
+      <a href="/tag/airflow.html">airflow</a>
+      <a href="/tag/fetchr.html">fetchr</a>
+      <a href="/tag/model.html">model</a>
+      <a href="/tag/ml.html">ml</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Fetchr Data Science Infra (2018 August Update)",
+  "headline": "Fetchr Data Science Infra (2018 August Update)",
+  "datePublished": "2018-08-14 00:00:00+02:00",
+  "dateModified": "2018-08-14 00:00:00+02:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/fetchr-data-science-infra.html",
+  "description": "A description of our Analytics+ML cluster running on AWS, using Presto, Airflow and Superset."
+}
+</script></body>
+</html>

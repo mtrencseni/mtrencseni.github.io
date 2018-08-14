@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Data</title><link href="/" rel="alternate"></link><link href="/feeds/data.atom.xml" rel="self"></link><id>/</id><updated>2018-07-07T00:00:00+02:00</updated><entry><title>Beat the averages</title><link href="/beat-the-averages.html" rel="alternate"></link><published>2018-07-07T00:00:00+02:00</published><updated>2018-07-07T00:00:00+02:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2018-07-07:/beat-the-averages.html</id><summary type="html">&lt;p&gt;When working with averages, we have to be careful. There are pitfalls lurking to pollute our statistics and results reported.&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Data</title><link href="/" rel="alternate"></link><link href="/feeds/data.atom.xml" rel="self"></link><id>/</id><updated>2018-08-14T00:00:00+02:00</updated><entry><title>Fetchr Data Science Infra (2018 August Update)</title><link href="/fetchr-data-science-infra.html" rel="alternate"></link><published>2018-08-14T00:00:00+02:00</published><updated>2018-08-14T00:00:00+02:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2018-08-14:/fetchr-data-science-infra.html</id><summary type="html">&lt;p&gt;A description of our Analytics+ML cluster running on AWS, using Presto, Airflow and Superset.&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;This is a quick follow-up to my &lt;a href="http://bytepawn.com/fetchr-airflow.html#fetchr-airflow"&gt;previous post describing the Fetchr Data Science infra and philosophy&lt;/a&gt;. The platform has expanded quite a bit in the last 6 months, and I'm currently approaching the end of the first year at Fetchr, so it's a good time to post an update.&lt;/p&gt;
+&lt;p&gt;The basic principles behind our infrastructure have not changed, but we have scaled it out horizontally in key functionalities, and we've added a small ML model prediction cluster. As of today, the cluster is about 20 nodes and looks like this:&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/fetchr-data-science-infra-update.png" alt="Fetchr Data Science Infra" style="width: 650px;"/&gt;&lt;/p&gt;
+&lt;p&gt;Architecture:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;S3 buckets (all data lives here)&lt;/li&gt;
+&lt;li&gt;two Presto clusters&lt;/li&gt;
+&lt;li&gt;5 node Presto cluster for ETL and dashboards&lt;/li&gt;
+&lt;li&gt;5 node Presto cluster for analytics queries&lt;/li&gt;
+&lt;li&gt;Airflow&lt;/li&gt;
+&lt;li&gt;scheduler + webserver&lt;/li&gt;
+&lt;li&gt;worker&lt;/li&gt;
+&lt;li&gt;staging&lt;/li&gt;
+&lt;li&gt;Superset&lt;/li&gt;
+&lt;li&gt;1 node for dashboarding&lt;/li&gt;
+&lt;li&gt;1 node for analytics queries&lt;/li&gt;
+&lt;li&gt;Jupyter host (Machine Learning notebooks)&lt;/li&gt;
+&lt;li&gt;2 node ML prediction cluster (blue+green)&lt;/li&gt;
+&lt;/ul&gt;</content><category term="data"></category><category term="etl"></category><category term="workflow"></category><category term="airflow"></category><category term="fetchr"></category><category term="model"></category><category term="ml"></category></entry><entry><title>Beat the averages</title><link href="/beat-the-averages.html" rel="alternate"></link><published>2018-07-07T00:00:00+02:00</published><updated>2018-07-07T00:00:00+02:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2018-07-07:/beat-the-averages.html</id><summary type="html">&lt;p&gt;When working with averages, we have to be careful. There are pitfalls lurking to pollute our statistics and results reported.&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;&lt;em&gt;The numbers in this article are made up, but the lessons come from real life.&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;When doing Data Science, we almost always report averages. This is natural, because it stands for a simple model that everybody can understand. For example, in the delivery business, a topline metric is Deliveries per Driver (DPD), the average deliveries made per driver per day. This is a simple model the CEO can also remember: if our fleet is performing at DPD = 40, and we have 1,000 drivers, we make 40,000 deliveries per day. Being able to multiply two topline numbers and get a third one is a good thing.&lt;/p&gt;
 &lt;p&gt;When working with averages, we have to be careful though: there are pitfalls lurking to pollute our statistics and results reported. It is important to note that &lt;strong&gt;there is nothing wrong with averages themselves, we just have to be careful with them&lt;/strong&gt;. I don’t believe that for most reporting purposes averages should or can be replaced (eg. by reporting the median), it is simply the job of the Data Science team to make sure the metrics make sense.&lt;/p&gt;
