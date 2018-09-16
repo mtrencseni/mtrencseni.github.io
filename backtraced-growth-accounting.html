@@ -62,12 +62,14 @@
 <p>Previously I wrote two articles about data infra and data engineering at Fetchr. This time I want to move up the stack and talk about a simple piece of metrics engineering that proved to be very impactful: Growth Accounting and Backtraced Growth Accounting.</p>
 <h2>Standard Growth Accounting</h2>
 <p>Let’s start with Growth Accounting, a standard framework for understanding user lifecycles and churn in the SaaS world. I’ve implemented and ran Growth Accounting in previous jobs, but really grasped the importance (and how to do it properly) during my time at Facebook.</p>
-<p>The basic framework of Growth Accounting is to assign a state to every object, every day. The possible states are:
-<em> New
-</em> Retained
-<em> Churned
-</em> Stale
-* Resurrected</p>
+<p>The basic framework of Growth Accounting is to assign a state to every object, every day. The possible states are:</p>
+<ul>
+<li>New</li>
+<li>Retained</li>
+<li>Churned</li>
+<li>Stale</li>
+<li>Resurrected</li>
+</ul>
 <p>First, what is an ‘object’? An object can be anything, like a FB user, a FB group, a Prezi presentation or a Fetchr client company. The second part of Growth Accounting is determining which actions (or lack of them) lead to state transitions. For a user, actions are usually any activity, for a group is any activity in the group, for a Prezi it may be views. The third part of Growth Accounting is fixing the time horizon; this is usually either 1 day (Daily Growth Accounting), 7 days (Weekly) or 28 days (Monthly).</p>
 <p>So, before Growth Accounting, we need to decide the:
   - object
