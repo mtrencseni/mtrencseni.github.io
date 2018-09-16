@@ -71,50 +71,66 @@
 <li>Resurrected</li>
 </ul>
 <p>First, what is an ‘object’? An object can be anything, like a FB user, a FB group, a Prezi presentation or a Fetchr client company. The second part of Growth Accounting is determining which actions (or lack of them) lead to state transitions. For a user, actions are usually any activity, for a group is any activity in the group, for a Prezi it may be views. The third part of Growth Accounting is fixing the time horizon; this is usually either 1 day (Daily Growth Accounting), 7 days (Weekly) or 28 days (Monthly).</p>
-<p>So, before Growth Accounting, we need to decide the:
-  - object
-  - actions
-  - time horizon</p>
-<p>The most common use-case for Growth Accounting is users, on a monthly basis, so I’ll stick to that example in the first part:
-  - object = users
-  - actions = any activity by user
-  - time horizon = 28 days</p>
-<p>Growth Accounting then says:
-  - a user is a Monthly Active User (MAU) if they had any activity in the last 28 days
-  - run the below state transitions daily to get the user’s Monthly Growth Accounting state:</p>
+<p>So, before Growth Accounting, we need to decide the:</p>
+<ul>
+<li>object</li>
+<li>actions</li>
+<li>time horizon</li>
+</ul>
+<p>The most common use-case for Growth Accounting is users, on a monthly basis, so I’ll stick to that example in the first part:</p>
+<ul>
+<li>object = users</li>
+<li>actions = any activity by user</li>
+<li>time horizon = 28 days</li>
+</ul>
+<p>Growth Accounting then says:</p>
+<ul>
+<li>a user is a Monthly Active User (MAU) if they had any activity in the last 28 days</li>
+<li>run the below state transitions daily to get the user’s Monthly Growth Accounting state:</li>
+</ul>
 <p><img src="/images/ga_state_transitions.png" alt="Growth Accounting State Transitions" style="width: 650px;"/></p>
 <p>The same state transition table works for Daily Growth Accounting by replacing MAU with DAU (Daily Active User), and Weekly Growth Accounting by replacing MAU with WAU (Weekly Active User).</p>
-<p>Some notes:
-  - users are in the New state for only one day (the first), irrespective of whether Growth Accounting is Daily/Weekly/Monthly
-  - users are in the Churned state for only one day, irrespective of whether Growth Accounting is Daily/Weekly/Monthly
-  - users are in the Resurrected state for only one day (the first active after a period of inactivity), irrespective of whether Growth Accounting is Daily/Weekly/Monthly
-  - inactive users end up in the Stale state (when speaking, we tend to say ‘churned users’, but stale is a more accurate term)
-  - continuosly active users end up in the Retained state
-  - the two states where users bulk up are Retained and Stale</p>
-<p>The point of doing Growth Accounting is to count every day the number of New, Retained, etc. users (plus Net New, see below) and put the counts on a time series chart (perhaps a stacked one), and look at it every day. What this usually shows:
-  - every product churns out users, so Churned will be non-zero
-  - almost every product churns out a lot of users, so Stale will monotonically increase
-  - if Churn increases, that’s potentially bad, or the product is just growing
-  - if the product is healthy, Retained should increase
-  - The Growth Accounting equation is:</p>
+<p>Some notes:</p>
+<ul>
+<li>users are in the New state for only one day (the first), irrespective of whether Growth Accounting is Daily/Weekly/Monthly</li>
+<li>users are in the Churned state for only one day, irrespective of whether Growth Accounting is Daily/Weekly/Monthly</li>
+<li>users are in the Resurrected state for only one day (the first active after a period of inactivity), irrespective of whether Growth Accounting is Daily/Weekly/Monthly</li>
+<li>inactive users end up in the Stale state (when speaking, we tend to say ‘churned users’, but stale is a more accurate term)</li>
+<li>continuosly active users end up in the Retained state</li>
+<li>the two states where users bulk up are Retained and Stale</li>
+</ul>
+<p>The point of doing Growth Accounting is to count every day the number of New, Retained, etc. users (plus Net New, see below) and put the counts on a time series chart (perhaps a stacked one), and look at it every day. What this usually shows:</p>
+<ul>
+<li>every product churns out users, so Churned will be non-zero</li>
+<li>almost every product churns out a lot of users, so Stale will monotonically increase</li>
+<li>if Churn increases, that’s potentially bad, or the product is just growing</li>
+<li>if the product is healthy, Retained should increase</li>
+<li>The Growth Accounting equation is:</li>
+</ul>
 <p><code>Net New = New + Resurrected - Churned</code></p>
 <ul>
 <li>if Net New &gt; 0, that’s good, the MAU count (or DAU or WAU) is increasing</li>
 <li>if Net New &lt; 0, that’s bad, the MAU count is decreasing, the product is slowly “dying”</li>
 </ul>
-<p>Some comments about the Monthly, Weekly, Daily bit:
-  - When doing Monthly Growth Account, 1 day of activity is enough to make the user MAU for 28 subsequent days (first they will be New or Resurrected, then Retained for 27 days, then Churned for one day and then Stale, assuming they’re not active again):
-  New/Resurrected (1st day) → Retained (2..28) → Churned (29) → Stale (30th day)
-  - When doing Daily Growth Accounting, 1 day of activity will make the user DAU for one day, the state transitions will be quick:
-  New/Resurrected  (1st day) → Churned (2) → Stale (3rd day)</p>
+<p>Some comments about the Monthly, Weekly, Daily bit:</p>
+<ul>
+<li>When doing Monthly Growth Account, 1 day of activity is enough to make the user MAU for 28 subsequent days (first they will be New or Resurrected, then Retained for 27 days, then Churned for one day and then Stale, assuming they’re not active again):
+New/Resurrected (1st day) → Retained (2..28) → Churned (29) → Stale (30th day)</li>
+<li>When doing Daily Growth Accounting, 1 day of activity will make the user DAU for one day, the state transitions will be quick:
+New/Resurrected  (1st day) → Churned (2) → Stale (3rd day)</li>
+</ul>
 <p>Usually it makes sense to run all three (D/M/W) and keep tabs on all of them. DAU and WAU respond quicker to problems (with MAU, if there’s a problem, people won’t enter Churned for 28 days after the last activity), but are also more volatile.</p>
-<p>As discussed in the introduction Growth Accounting as a framework can be separated from the object and activity definition, and can be run for different time periods. So it makes sense to write it as a modular script that can be reused by plugging in whatever object/action definition. Thinking about tables, Growth Accounting needs as an input just 2 columns:
-  - day: a date
-  - id: the id of the object
-A row like (day, id) simply means that object with id was active on that day. That’s it. Given this table, a starting date, and a choice of D/W/M, a Growth Accounting framework can generate the output:
-  - day
-  - id
-  - state: the growth accounting state of the object with id on day</p>
+<p>As discussed in the introduction Growth Accounting as a framework can be separated from the object and activity definition, and can be run for different time periods. So it makes sense to write it as a modular script that can be reused by plugging in whatever object/action definition. Thinking about tables, Growth Accounting needs as an input just 2 columns:</p>
+<ul>
+<li>day: a date</li>
+<li>id: the id of the object</li>
+</ul>
+<p>A row like (day, id) simply means that object with id was active on that day. That’s it. Given this table, a starting date, and a choice of D/W/M, a Growth Accounting framework can generate the output:</p>
+<ul>
+<li>day</li>
+<li>id</li>
+<li>state: the growth accounting state of the object with id on day</li>
+</ul>
 <p>We use Airflow, our Growth Accounting framework is baked into a function <code>dag_growth_accounting()</code>, and it’s parameterized like:</p>
 <p><img src="/images/ga_client.png" alt="B2C Client Growth Accounting" style="width: 650px;"/></p>
 <p>This is the definition of our B2C Client Growth Accounting pipeline. The resulting table is <code>client_growth_accounting_28d</code>, the first day for which states are generated is <code>2017-07-01</code> (on that day every object with activity is New), it’s Monthly Growth Accounting, and activity is when we make a delivery for a client. Day is not an explicit column here, the <code>events_table</code> is used as a sub-select in the script for every day when Growth Accounting runs.</p>
@@ -127,9 +143,11 @@ A row like (day, id) simply means that object with id was active on that day. Th
 <p>The challenge we faced at Fetchr is that standard Growth Accounting treats every object the same. One user equals another user, one churned user equals another churned user, and so on. There is no concept of a “more valuable user”.</p>
 <p>But when doing Growth Accounting for our B2C client companies, this is not true. If Client X gives us 5,000 deliveries per day, and Client Y gives us 10 deliveries per day, then if Client X churns, that’s a big deal, but Client Y is less important than Client X.</p>
 <p>There are various ways to go about this. One possibility is to use the standard Growth Accounting count charts, but weigh each object by their “activity weight”. For example, in our case, we could weigh each client by the number of deliveries they gave us in the last 28 days. But then how do we weigh them once they churn and then become stale? In the end we did not go down this route.</p>
-<p>We chose a relatively simple approach, which works well for us:
-  - Picture #1: Show Standard Growth Accounting charts to show how clients behave, with each client being weighted equally
-  - Picture #2: Also show our historic B2C deliveries, with each delivery (from Client X) colored according to Client X’s current (today’s) Growth Accounting state, historically, all the way back. This “backtracing” is what gives the name of Backtraced Growth Accounting.</p>
+<p>We chose a relatively simple approach, which works well for us:</p>
+<ul>
+<li>Picture #1: Show Standard Growth Accounting charts to show how clients behave, with each client being weighted equally</li>
+<li>Picture #2: Also show our historic B2C deliveries, with each delivery (from Client X) colored according to Client X’s current (today’s) Growth Accounting state, historically, all the way back. This “backtracing” is what gives the name of Backtraced Growth Accounting.</li>
+</ul>
 <p><img src="/images/ga_picture1.png" alt="Standard Growth Accounting" style="width: 650px;"/>
 <center>Standard Growth Accounting for clients on synthetic data (Picture #1).</center></p>
 <p><img src="/images/ga_picture_2.png" alt="Backtraced Growth Accounting" style="width: 650px;"/>
@@ -138,17 +156,21 @@ A row like (day, id) simply means that object with id was active on that day. Th
 <center>The same view, percentage-wise split (Picture #2). This is what I call a sciccor chart.</center></p>
 <p><img src="/images/ga_read_off.png" alt="Backtraced Growth Accounting" style="width: 650px;"/>
 <center>We can read off what our order-wise “retention” is from a year ago on this synthetic dataset.</center></p>
-<p>How to read the “scissor chart” above:
-  - Today, all deliveries are Retained ( if we made a delivery in the last 28 days for a client, that client is Monthly Active, so they will be Retained or Resurrected)
-  - As we go back in time, more and more deliveries are “colored” Stale, because they are for clients that don't use us anymore (no delivery in the last 28 days), so they are Stale
-  - Going back in time it's easy to read off what % of deliveries were for companies that have already churned out
-  - Whales churning/retaining is easy to read off: going backward in time, at the point where a whale churned there will be a jump in Stale deliveries (when they stopped using us)</p>
+<p>How to read the “scissor chart” above:</p>
+<ul>
+<li>Today, all deliveries are Retained ( if we made a delivery in the last 28 days for a client, that client is Monthly Active, so they will be Retained or Resurrected)</li>
+<li>As we go back in time, more and more deliveries are “colored” Stale, because they are for clients that don't use us anymore (no delivery in the last 28 days), so they are Stale</li>
+<li>Going back in time it's easy to read off what % of deliveries were for companies that have already churned out</li>
+<li>Whales churning/retaining is easy to read off: going backward in time, at the point where a whale churned there will be a jump in Stale deliveries (when they stopped using us)</li>
+</ul>
 <p>The big risk of this Picture #2 is that it hides onboarding problems: if a lot of clients come on, try us out by giving us low volume and then leave, it will not dramatically impact such a weighted view. That's not a problem though, that's why we also look Standard Growth Accounting (Picture #1).</p>
-<p>Backtraced Growth Accounting like this also makes sense for more common SaaS use-cases:
-  - Color (state ↔ color) historic pageviews, message sends, document creates, time spent by the current GA state of the user
-  - Color views of a document by the current GA state of the document
-  - Color posts in a group by the current GA state of the groupcument (eg. a Prezi)
-  - Color deliveries made by a driver by whether the driver is still active with the company (eg. at Fetchr or Uber)</p>
+<p>Backtraced Growth Accounting like this also makes sense for more common SaaS use-cases:</p>
+<ul>
+<li>Color (state ↔ color) historic pageviews, message sends, document creates, time spent by the current GA state of the user</li>
+<li>Color views of a document by the current GA state of the document</li>
+<li>Color posts in a group by the current GA state of the groupcument (eg. a Prezi)</li>
+<li>Color deliveries made by a driver by whether the driver is still active with the company (eg. at Fetchr or Uber)</li>
+</ul>
 <p>The Backtraced Growth Accounting picture has become a standard part of our thinking when it comes to client retention, but as the examples above show it can also be useful in other product and business settings. Implementing a framework is simple and fun, it can be deployed repeatedly (we run it for both B2C and C2C use-cases), it’s a relatively easy way to get insight and have top-level impact.</p>
 <p>At Fetchr, implementing Growth Accounting and Backtraced Growth Accounting had a major impact on our B2C thinking. Before this, other teams ran one-off analysis with arbitrary cuts on (if client X gives us Y orders, but next month they give us 0.6 * Y, then...), which could be tuned to give any desired answer. Standardized Growth Accounting as described in this article gives a clear, parameter-free picture of both our client-wise and order-wise retention. For us, it showed the business is healthy and growing. The Growth Accouting charts today are on CxOs dashboards and are also presented to investors to explain our B2C business.</p>
   </div>
