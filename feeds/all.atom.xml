@@ -69,22 +69,14 @@ A row like (day, id) simply means that object with id was active on that day. Th
 &lt;p&gt;We chose a relatively simple approach, which works well for us:
   - Picture #1: Show Standard Growth Accounting charts to show how clients behave, with each client being weighted equally
   - Picture #2: Also show our historic B2C deliveries, with each delivery (from Client X) colored according to Client X’s current (today’s) Growth Accounting state, historically, all the way back. This “backtracing” is what gives the name of Backtraced Growth Accounting.&lt;/p&gt;
-&lt;p&gt;&lt;center&gt;
-&lt;img src="/images/ga_picture1.png" alt="Standard Growth Accounting" style="width: 650px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Standard Growth Accounting for clients on synthetic data (Picture #1).
-&lt;/center&gt;&lt;/p&gt;
-&lt;p&gt;&lt;center&gt;
-&lt;img src="/images/ga_picture_2.png" alt="Backtraced Growth Accounting" style="width: 650px;"/&gt;&lt;/p&gt;
-&lt;p&gt;The order-wise view on synthetic data (Picture #2).
-&lt;/center&gt;&lt;/p&gt;
-&lt;p&gt;&lt;center&gt;
-&lt;img src="/images/ga_picture_2_pct.png" alt="Backtraced Growth Accounting" style="width: 650px;"/&gt;&lt;/p&gt;
-&lt;p&gt;The same view, percentage-wise split (Picture #2). This is what I call a sciccor chart.
-&lt;/center&gt;&lt;/p&gt;
-&lt;p&gt;&lt;center&gt;
-&lt;img src="/images/ga_read_off.png" alt="Backtraced Growth Accounting" style="width: 650px;"/&gt;&lt;/p&gt;
-&lt;p&gt;We can read off what our order-wise “retention” is from a year ago on this synthetic dataset:
-&lt;/center&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/ga_picture1.png" alt="Standard Growth Accounting" style="width: 650px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;center&gt;Standard Growth Accounting for clients on synthetic data (Picture #1).&lt;/center&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/ga_picture_2.png" alt="Backtraced Growth Accounting" style="width: 650px;"/&gt;&lt;/p&gt;
+&lt;p&gt;The order-wise view on synthetic data (Picture #2).&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/ga_picture_2_pct.png" alt="Backtraced Growth Accounting" style="width: 650px;"/&gt;&lt;/p&gt;
+&lt;p&gt;The same view, percentage-wise split (Picture #2). This is what I call a sciccor chart.&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/ga_read_off.png" alt="Backtraced Growth Accounting" style="width: 650px;"/&gt;&lt;/p&gt;
+&lt;p&gt;We can read off what our order-wise “retention” is from a year ago on this synthetic dataset:&lt;/p&gt;
 &lt;p&gt;How to read the “scissor chart” above:
   - Today, all deliveries are Retained ( if we made a delivery in the last 28 days for a client, that client is Monthly Active, so they will be Retained or Resurrected)
   - As we go back in time, more and more deliveries are “colored” Stale, because they are for clients that don't use us anymore (no delivery in the last 28 days), so they are Stale
