@@ -89,8 +89,7 @@
 &lt;li&gt;Picture #1: Show Standard Growth Accounting charts to show how clients behave, with each client being weighted equally&lt;/li&gt;
 &lt;li&gt;Picture #2: Also show our historic B2C deliveries, with each delivery (from Client X) colored according to Client X’s current (today’s) Growth Accounting state, historically, all the way back. This “backtracing” is what gives the name of Backtraced Growth Accounting.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src="/images/ga_picture1.png" alt="Standard Growth Accounting" style="width: 650px; padding-bottom: 10px; margin-bottom:0px;"/&gt;
-&lt;center&gt;Standard Growth Accounting for clients on synthetic data (Picture #1).&lt;/center&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/ga_picture1.png" alt="Standard Growth Accounting" style="width: 650px; padding-bottom: 10px; margin-bottom:0px;"/&gt;Standard Growth Accounting for clients on synthetic data (Picture #1).&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/ga_picture_2.png" alt="Backtraced Growth Accounting" style="width: 650px;"/&gt;
 &lt;center&gt;The order-wise view on synthetic data (Picture #2).&lt;/center&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/ga_picture_2_pct.png" alt="Backtraced Growth Accounting" style="width: 650px;"/&gt;
