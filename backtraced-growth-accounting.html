@@ -115,9 +115,9 @@
 <p>Some comments about the Monthly, Weekly, Daily bit:</p>
 <ul>
 <li>When doing Monthly Growth Account, 1 day of activity is enough to make the user MAU for 28 subsequent days (first they will be New or Resurrected, then Retained for 27 days, then Churned for one day and then Stale, assuming they’re not active again):
-New/Resurrected (1st day) → Retained (2..28) → Churned (29) → Stale (30th day)</li>
+<code>New/Resurrected (1st day) → Retained (2..28) → Churned (29) → Stale (30th day)</code></li>
 <li>When doing Daily Growth Accounting, 1 day of activity will make the user DAU for one day, the state transitions will be quick:
-New/Resurrected  (1st day) → Churned (2) → Stale (3rd day)</li>
+<code>New/Resurrected  (1st day) → Churned (2) → Stale (3rd day)</code></li>
 </ul>
 <p>Usually it makes sense to run all three (D/M/W) and keep tabs on all of them. DAU and WAU respond quicker to problems (with MAU, if there’s a problem, people won’t enter Churned for 28 days after the last activity), but are also more volatile.</p>
 <p>As discussed in the introduction Growth Accounting as a framework can be separated from the object and activity definition, and can be run for different time periods. So it makes sense to write it as a modular script that can be reused by plugging in whatever object/action definition. Thinking about tables, Growth Accounting needs as an input just 2 columns:</p>
