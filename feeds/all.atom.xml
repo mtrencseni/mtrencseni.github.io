@@ -111,8 +111,8 @@
 &lt;p&gt;Backtraced Growth Accounting like this also makes sense for more common SaaS use-cases:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Color (state ↔ color) historic pageviews, message sends, document creates, time spent by the current GA state of the user&lt;/li&gt;
-&lt;li&gt;Color views of a document by the current GA state of the document&lt;/li&gt;
-&lt;li&gt;Color posts in a group by the current GA state of the groupcument (eg. a Prezi)&lt;/li&gt;
+&lt;li&gt;Color views of a document by the current GA state of the document (eg. a Prezi)&lt;/li&gt;
+&lt;li&gt;Color posts in a group by the current GA state of the group (eg. a FB group)&lt;/li&gt;
 &lt;li&gt;Color deliveries made by a driver by whether the driver is still active with the company (eg. at Fetchr or Uber)&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;The Backtraced Growth Accounting picture has become a standard part of our thinking when it comes to client retention, but as the examples above show it can also be useful in other product and business settings. Implementing a framework is simple and fun, it can be deployed repeatedly (we run it for both B2C and C2C use-cases), it’s a relatively easy way to get insight and have top-level impact.&lt;/p&gt;
