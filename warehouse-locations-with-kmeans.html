@@ -85,17 +85,17 @@
 <p>We can also compute the average distance with out actual, current KSA warehouse locations, and see how good a job the Operations staff did picking them out. Running this analysis with different N, also showing actual warehouse locations, this is what the average distance curve might look like:</p>
 <p><img src="/images/wh_dist_1.png" alt="" style="width: 650px;"/></p>
 <p>This (the real version of this) shows us:</p>
-<ul>
+<ol>
 <li>How much average distance we could gain by keeping the number of hubs constant, but if we had optimal locations (move down vertically from blue cross to red line)</li>
 <li>How many warehouses we could close and remain at the same average distance (move left from the blue cross to the red line)</li>
 <li>Our Operations staff did a good job, our current warehouse locations are pretty good.</li>
-</ul>
+</ol>
 <p>Thinking it through, it’s obvious that the average distance will not converge to some non-zero value, it will go to zero as N (the number of warehouse locations) approaches infinity (the number of input points), since in theory we can achieve zero average distance by placing a warehouse next to each delivery location. The next best thing to check is the “derivative” of this line, ie. how much distance we “gain” (well, lose), if we add +1 warehouse. From this we will see at which N we get the biggest gains, and where the gains level off.</p>
 <p><img src="/images/wh_dist_2.png" alt="" style="width: 650px;"/></p>
 <p>Here we can see that initially we gain a lot, then at some N our gains even out (but are non-zero). Then, a higher N the gains drop further. These are interesting points to investigate further.</p>
 <p>With these same tools, we can also investigate the question of “delivery radius”. Delivery companies often have no-service zones, where they don’t accept packages, because they can’t efficiently (=profitably) service these areas. Or, these areas are serviced, but only once or twice a week. To get a feel for this, we took our actual warehouse locations, and put a circle of radius R kilometers around them. We investigaged, as a function of the R cut-off:</p>
 <ol>
-<li>What percentage of orders lie outside of R? (this is essentially just the distance distribution of deliveries to the closest warehouse locations)</li>
+<li>What percentage of orders lie outside of R?</li>
 <li>If we throw out these outliers and re-run k-means, how much average distance do we gain?</li>
 </ol>
 <p>For us, it turns out we can make a strong argument: there is a given R for which we only cut off a very low percent of orders, but we gain a lot of average distance!</p>
