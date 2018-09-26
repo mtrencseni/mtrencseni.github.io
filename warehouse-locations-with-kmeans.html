@@ -59,17 +59,17 @@
   <div>
     <h2>Introduction</h2>
 <p>Sometimes, the seven gods of data science, <a href="https://en.wikipedia.org/wiki/Blaise_Pascal">Pascal</a>, <a href="https://en.wikipedia.org/wiki/Carl_Friedrich_Gauss">Gauss</a>, <a href="https://en.wikipedia.org/wiki/Thomas_Bayes">Bayes</a>, <a href="https://en.wikipedia.org/wiki/Sim%C3%A9on_Denis_Poisson">Poisson</a>, <a href="https://en.wikipedia.org/wiki/Andrey_Markov">Markov</a>, <a href="https://en.wikipedia.org/wiki/Claude_Shannon">Shannon</a>  and <a href="https://en.wikipedia.org/wiki/Ronald_Fisher">Fisher</a>, all wake up in a good mood, and things just work out. Recently we had such an occurence at Fetchr: the Operational Excellence team posed the following question: <i>if we could pick our KSA (=Kingdom of Saudi Arabia) warehouse locations, where would be put them? What is the ideal number of warehouses, and, what does ideal even mean? Also, what should our “delivery radius” be?</i></p>
-<p>Btw. for those of us ignorant of Middle Eastern geography, some facts about KSA:</p>
+<p>Btw. for those of us ignorant of Middle East geography, some facts about KSA:</p>
 <ul>
 <li>the biggest country in the Middle East</li>
 <li>about 6x as big as Germany (a “big” European country), with 0.4x of the population</li>
 <li>about 25x as big as UAE (where Dubai, Fetchr’s HQ is)</li>
 <li>about 24x as big as Hungary (my home)</li>
 <li>responsible for 13% of the world’s oil production</li>
-<li>e-commerce is exploding there, lots of people are ordering stuff online</li>
+<li>e-commerce is exploding, lots of people are ordering stuff online</li>
 </ul>
 <p><img src="/images/ksa_map.png" alt="KSA map" style="width: 650px;"/></p>
-<p><i>Note: One of the difficulties of the Data Science / Analytics field is that usually good work contains sensitive product/business information, so it's hard to talk about it. So a lot of blog posts end up being about infrastructure and tooling. I will describe this fun little project as well as I can without giving away sensitive information. In some parts I will use synthetic data and in cases where the information is public/discoverable ("Fetchr has a warehouse in Riyadh"), I will just show the real thing.</i></p>
+<p><i>Note: I will describe this fun little project as best as I can without giving away sensitive information. In some parts I will use synthetic data and in cases where the information is public/discoverable ("Fetchr has a warehouse in Riyadh"), I will just show the real thing.</i></p>
 <h2>Metrics and k-means</h2>
 <p>The first question is, what is “good” here? What are “good” warehouse locations? We need to find a metric to minimize/maximize. This is pretty straightforward: we need to find warehouse locations, and for each order, we assign it to the nearest warehouse (we assume it would dispatch from there), and we calculate the distance. The goal is then to find warehouse locations which minimizes the average distance across all orders.</p>
 <p>We can write this out as a (naive) algorithm:</p>
