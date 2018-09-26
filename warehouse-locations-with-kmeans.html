@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="Sometimes, the seven gods of data science, Pascal, Gauss, Bayes, Poisson, Markov, Shannon and Fisher, all wake up in a good mood, and things just work out. Recently we had such an occurence at Fetchr: the Operational Excellence team posed the following question: if we could pick our Saudi warehouse locations, where would be put them? What is the ideal number of warehouses, and, what does ideal even mean? Also, what should our “delivery radius” be?" />
+<meta name="keywords" content="data, data-science, metrics">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="Warehouse locations with k-means"/>
+<meta property="og:description" content="Sometimes, the seven gods of data science, Pascal, Gauss, Bayes, Poisson, Markov, Shannon and Fisher, all wake up in a good mood, and things just work out. Recently we had such an occurence at Fetchr: the Operational Excellence team posed the following question: if we could pick our Saudi warehouse locations, where would be put them? What is the ideal number of warehouses, and, what does ideal even mean? Also, what should our “delivery radius” be?"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/warehouse-locations-with-kmeans.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2018-09-26 00:00:00+02:00"/>
+<meta property="article:modified_time" content="2018-09-26 00:00:00+02:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data"/>
+<meta property="article:tag" content="data"/>
+<meta property="article:tag" content="data-science"/>
+<meta property="article:tag" content="metrics"/>
+<meta property="og:image" content="">  <title>Bytepawn &ndash; Warehouse locations with k-means</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="warehouse-locations-with-kmeans">Warehouse locations with k-means</h1>
+    <p>Posted on Wed 26 September 2018 in <a href="/category/data.html">Data</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>Sometimes, the seven gods of data science, <a href="https://en.wikipedia.org/wiki/Blaise_Pascal">Pascal</a>, <a href="https://en.wikipedia.org/wiki/Carl_Friedrich_Gauss">Gauss</a>, <a href="https://en.wikipedia.org/wiki/Thomas_Bayes">Bayes</a>, <a href="https://en.wikipedia.org/wiki/Sim%C3%A9on_Denis_Poisson">Poisson</a>, <a href="https://en.wikipedia.org/wiki/Andrey_Markov">Markov</a>, <a href="https://en.wikipedia.org/wiki/Claude_Shannon">Shannon</a>  and <a href="https://en.wikipedia.org/wiki/Ronald_Fisher">Fisher</a>, all wake up in a good mood, and things just work out. Recently we had such an occurence at Fetchr: the Operational Excellence team posed the following question: if we could pick our KSA (=Kingdom of Saudi Arabia) warehouse locations, where would be put them? What is the ideal number of warehouses, and, what does ideal even mean? Also, what should our “delivery radius” be?</p>
+<p>Btw. for those of us ignorant of Middle Eastern geography, some facts about KSA:</p>
+<ul>
+<li>the biggest country in the Middle East</li>
+<li>about 6x as big as Germany (a “big” European country), with 0.4x of the population</li>
+<li>about 25x as big as UAE (where Dubai, Fetchr’s HQ is)</li>
+<li>about 24x as big as Hungary (my home)</li>
+<li>responsible for 13% of the world’s oil production</li>
+<li>e-commerce is exploding there, lots of people are ordering stuff online</li>
+</ul>
+<p><img src="/images/ksa_map.png" alt="KSA map" style="width: 650px;"/></p>
+<p><strong>Note: One of the difficulties of the Data Science / Analytics field is that usually good work contains sensitive product/business information, so it's hard to talk about it. So a lot of blog posts end up being about infrastructure and tooling. I will describe this fun little project as well as I can without giving away sensitive information. In some parts I will use synthetic data and in cases where the information is public/discoverable ("Fetchr has a warehouse in Riyadh"), I will just show the real thing.</strong></p>
+<h2>Metrics and k-means</h2>
+<p>The first question is, what is “good” here? What are “good” warehouse locations? We need to find a metric to minimize/maximize. This is pretty straightforward: we need to find warehouse locations, and for each order, we assign it to the nearest warehouse (we assume it would dispatch from there), and we calculate the distance. The goal is then to find warehouse locations which minimizes the average distance across all orders.</p>
+<p>We can write this out as a (naive) algorithm:</p>
+<p><img src="/images/avg_distance.png" alt="Code for avg_distance()" style="width: 650px;"/></p>
+<p>Given this choice of metric, we can evaluate a set of warehouse locations, and compare it to another.</p>
+<p>The next question is, how do we actually pick the warehouse locations? Putting aside the question of how many warehouse locations we should have, assuming we know we want N locations, there is an algorithm just for this: <a href="https://en.wikipedia.org/wiki/K-means_clustering">k-means clustering</a>. You give k-means a set of points and a parameter N, and it returns the best N cluster centroid locations which minimizes the average distance to the nearest centroid. (This problem is actually NP-hard, so k-means returns an approximation of the solution.) At Fetchr we are standardized on Python and <a href="http://scikit-learn.org/stable/">scikit-learn</a>, so we used SKL’s excellent k-means implementation; it’s just 2 lines of code:</p>
+<p><img src="/images/skl_kmeans.png" alt="k-means in scikit-learn" style="width: 650px;"/></p>
+<h2>Analysis</h2>
+<p>The next question is, how do we pick N, the number of warehouses? There are other clustering algorithms such as <a href="https://en.wikipedia.org/wiki/DBSCAN">DBSCAN</a> that do not depend on N as an input, and tell you the best N as an output. But there is no free lunch, so even with DBSCAN you have to specifiy an epsilon parameter as an input, and it uses that epsilon to tell apart “core” and “noise” points, with clusters being dense “core” regions surrounded by sparse “noise” regions. So DBSCAN is also not parameter-free. To keep things parameter-free and simple to interpret, we just ran k-means from <code>N = 1 .. N_max</code> for a large <code>N_max</code>, and plot the average distance achieved for each N, and hope it’s possible to read off the “best value”. Later we will see that being able to vary N is actually a good thing, because we can get easy-to-interpret insights from it. So k-means it is.</p>
+<p>Thinking it through, it’s obvious that the average distance will not converge to some non-zero value, it will go to zero as N (the number of warehouse locations) approaches infinity (the number of input points), since in theory we can achieve zero average distance by placing a warehouse next to each delivery location. The next best thing to check is the “derivative” of this line, ie. how much distance we “gain” (well, lose), if we add +1 warehouse. From this we will see at which N we get the biggest gains, and where the gains level off.</p>
+<p>We can also compute the average distance with out actual, current KSA warehouse locations, and see how good a job the Operations staff did picking them out. Running this analysis with different N, also showing actual warehouse locations, this is what the average distance curve actually looks like (axes removed on purpose):</p>
+<p><img src="/images/wh_dist_1.png" alt="" style="width: 650px;"/></p>
+<p>This (the real version of this) shows us:</p>
+<ul>
+<li>How much average distance we could gain by keeping the number of hubs constant, but if we had optimal locations (move down vertically from blue cross to red line)</li>
+<li>How many warehouses we could close and remain at the same average distance (move left from the blue cross to the red line)</li>
+<li>Our Operations staff did a good job, our current warehouse locations are pretty good.</li>
+</ul>
+<p>As mentioned above, we can also look at the “derivative” of this line, to help us pick a good N. Here we can see that initially we gain a lot, then at some N our gains even out (but are non-zero). Then, a higher N the gains drop further. These are interesting points to investigate further.</p>
+<p><img src="/images/wh_dist_2.png" alt="" style="width: 650px;"/></p>
+<p>With these same tools, we can also investigate the question of “delivery radius”. Delivery companies often have no-service zones, where they don’t accept packages, because they can’t efficiently (=profitably) service these areas. Or, these areas are services, but only once or twice a week. To get a feel for this, we took our actual warehouse locations, and put a circle of radius R kilometers around them. We investigaged, as a function of the R cut-off:</p>
+<ol>
+<li>What percentage of orders lie outside of R? (this is essentially just the distance distribution of deliveries to the closest warehouse locations)</li>
+<li>If we throw out these outliers and re-run k-means, how much average distance do we gain?</li>
+</ol>
+<p>For us, it turns out we can make a strong argument: there is a given R for which we only cut off a very low percent of orders, but we gain a lot of average distance!</p>
+<p><img src="/images/wh_dist_3.png" alt="" style="width: 650px;"/></p>
+<p>This also shows that by performing both optimizations (distance cut-off and k-means) we can actually gain a lot of efficiency; moving from the blue cross to the green line is significant.</p>
+<p>For more on outliers and outlier detection, see my previous post <a href="http://bytepawn.com/beat-the-averages.html#beat-the-averages">Beat the averages</a>.</p>
+<h2>Locations</h2>
+<p>So far our analysis has been very quantitative, in that we looked at plots and curves. We can also look at the actual recommended locations (latitude, longitude) on a map. As a starting point, we look at the k-means recommended warehouse locations when running at <code>N = N_actual</code>, here we expect the recommended locations to resemble our actuals; this is a sanity check on k-means. And it actually works out! For example, k-means correctly places warehouses in the center of the biggest KSA cities (eg. Riyadh, Jeddah, etc, where all medium-to-large delivery companies like Fetchr must have warehouses).</p>
+<p><img src="/images/wh_locations.png" alt="" style="width: 650px;"/>
+<center>Red is actual, yellow is k-means at N = N_actual.</center></p>
+<p>The interesting thing happens as we start to decrease N; essentially k-means starts finding more optimal configurations and/or recommends to merge/close warehouses:</p>
+<p><img src="/images/wh_locations.png" alt="" style="width: 650px;"/>
+<center>Red is actual, yellow is k-means at N &lt; N_actual.</center></p>
+<p>As we decrease N (the number of warehouses), it essentially makes recommendations, like <strong>“if you want to decrease the warehouse locations, join these 2, and try to place the new one in the middle”.</strong> In real life this may or may not be feasible, because the middle may be just desert :)</p>
+<h2>Conclusion and impact</h2>
+<p>This analysis was not a prescriptive (“rent N warehouses here”), it’s a discussion starter for our operations (warehouse locations) and business (service areas). For this reason, we can get away with using as-the-crow-flies distances instead of proper road routed distances. But still, based on this, we were able to make a good N recommendation for number of warehouses (less than actual) and locations, and we learned that our actual warehouse locations are not too bad. We also investigated delivery radius and found that if we cut orders R distance away from a warehouse, we only cut X% of orders, but average distance drops significantly, by Y%.</p>
+<p>As a bonus, a few weeks later the seven gods of data science smiled on us again. It turns out there is a very similar logistics problem to picking warehouse locations: pickup locations, where customers can go and self-pickup their packages. Another Operations manager came to us and asked, “What are the best pickup locations in Riyadh? How many should we even have?”. We were able to re-use the same analytical framework, only this time running it on just Riyadh city data. The same analysis says, at our density, with our distribution of deliveries: "put the first 5 pickup locations into central Riyadh, and the next one into Al Muzahimiyah, the next one into..."</p>
+<p><img src="/images/pickup_locations_riyadh.png" alt="" style="width: 650px;"/></p>
+<p>It’s interesting that all examples on the k-means Wikipedia page are cases where the distance metric is synthetic (vector quantization, image recognition, NLP). In this beautiful logistics use-case the distance is physical Euclidian, the real thing. It’s amazing how an old-school algorithm like k-means can deliver so much impact in unexpected places!</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/data.html">data</a>
+      <a href="/tag/data-science.html">data-science</a>
+      <a href="/tag/metrics.html">metrics</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Warehouse locations with k-means",
+  "headline": "Warehouse locations with k-means",
+  "datePublished": "2018-09-26 00:00:00+02:00",
+  "dateModified": "2018-09-26 00:00:00+02:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/warehouse-locations-with-kmeans.html",
+  "description": "Sometimes, the seven gods of data science, Pascal, Gauss, Bayes, Poisson, Markov, Shannon and Fisher, all wake up in a good mood, and things just work out. Recently we had such an occurence at Fetchr: the Operational Excellence team posed the following question: if we could pick our Saudi warehouse locations, where would be put them? What is the ideal number of warehouses, and, what does ideal even mean? Also, what should our “delivery radius” be?"
+}
+</script></body>
+</html>
