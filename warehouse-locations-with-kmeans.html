@@ -101,10 +101,10 @@
 <p>For more on outliers and outlier detection, see my previous post <a href="http://bytepawn.com/beat-the-averages.html#beat-the-averages">Beat the averages</a>.</p>
 <h2>Locations</h2>
 <p>So far our analysis has been very quantitative, in that we looked at plots and curves. We can also look at the actual recommended locations (latitude, longitude) on a map. As a starting point, we look at the k-means recommended warehouse locations when running at <code>N = N_actual</code>, here we expect the recommended locations to resemble our actuals; this is a sanity check on k-means. And it actually works out! For example, k-means correctly places warehouses in the center of the biggest KSA cities (eg. Riyadh, Jeddah, etc, where all medium-to-large delivery companies like Fetchr must have warehouses).</p>
-<p><img src="/images/wh_locations.png" alt="" style="width: 650px;"/>
+<p><img src="/images/wh_locations_1.png" alt="" style="width: 650px;"/>
 <center>Red is actual, yellow is k-means at N = N_actual.</center></p>
 <p>The interesting thing happens as we start to decrease N; essentially k-means starts finding more optimal configurations and/or recommends to merge/close warehouses:</p>
-<p><img src="/images/wh_locations.png" alt="" style="width: 650px;"/>
+<p><img src="/images/wh_locations_2.png" alt="" style="width: 650px;"/>
 <center>Red is actual, yellow is k-means at N &lt; N_actual.</center></p>
 <p>As we decrease N (the number of warehouses), it essentially makes recommendations, like <strong>“if you want to decrease the warehouse locations, join these 2, and try to place the new one in the middle”.</strong> In real life this may or may not be feasible, because the middle may be just desert :)</p>
 <h2>Conclusion and impact</h2>
