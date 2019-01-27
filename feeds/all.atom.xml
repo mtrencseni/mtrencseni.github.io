@@ -4,11 +4,11 @@
 &lt;p&gt;&lt;img src="/images/ml-share.png" alt="Share of ML scheduled versus Call center scheduled deliveries" style="width: 800px;"/&gt;&lt;/p&gt;
 &lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;In Europe of the US, addresses is not something we think about a lot. My address in Hungary is, for example:&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;1114 Budapest, Szabolcska Mihaly u. 7&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;em&gt;1114 Budapest, Szabolcska Mihaly u. 7&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;Here “u.” stands for “utca”, which means “street”. 1114 is my zip code in Hungary. Sometimes I’m lazy and I shorten it, like:&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;1114 BP, Szabolcska 7&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;em&gt;1114 BP, Szabolcska 7&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;In the US, it’s customary to write it out in a different order and “street” is dropped:&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;7 Szabolcska Mihaly, Budapest, 1114&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;em&gt;7 Szabolcska Mihaly, Budapest, 1114&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;If I open Google Maps (in an incognito window), I can enter either of the three, and it will point me to the precise (latitude, longitude) of my apartment, which happens to be (47.476117, 19.044950).&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/szabolcska7.png" alt="Szabolcska Mihaly u. 7" style="width: 800px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Why does this work? In the US and Europe, the following all hold:&lt;/p&gt;
