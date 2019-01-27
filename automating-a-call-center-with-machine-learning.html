@@ -70,7 +70,7 @@
 <p>In the US, it’s customary to write it out in a different order and “street” is dropped:</p>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;<em>7 Szabolcska Mihaly, Budapest, 1114</em></p>
 <p>If I open Google Maps (in an incognito window), I can enter either of the three, and it will point me to the precise (latitude, longitude) of my apartment, which happens to be (47.476117, 19.044950).</p>
-<p><img src="/images/szabolcska7.png" alt="Szabolcska Mihaly u. 7" style="width: 800px;"/></p>
+<p><img src="/images/szabolcska7.png" alt="Szabolcska Mihaly u. 7" style="width: 650px;"/></p>
 <p>Why does this work? In the US and Europe, the following all hold:</p>
 <ul>
 <li>zip codes exist and everybody uses them</li>
@@ -83,7 +83,7 @@
 </ul>
 <p>In the Middle East, the above do not hold. For example, in the United Arab Emirates (UAE), there are no zip codes. There are street names, but which street a building falls on is often ambiguous. Also, streets have many names, official and slang, english and arabic. Often, people don’t know their streets. For example, I live in a hotel in Dubai, and I don’t know which street it’s on (80% of people in Dubai are expats). Sometimes buildings have a street number, sometimes not; sometimes people know the number, most often not. There are large areas of the most developed city in the region, Dubai, where Gogole Maps doesn’t know street names or numbers. In Saudi Arabia (KSA, Kingdom of S.A.), the biggest market for deliveries, there are zip codes, but people don’t use them when giving their addresses. Many times people don’t even give their street name as an address, instead they give an area name (which is itself ambiguous) and building name (“Princess Tower”) or a commercial name “near Burger King in Al Barsha, next to SZR” ("SZR" stands for "Sheikh Zayed Road", it's a 2x8 lane super-highway in Dubai). This is the situation in cities like Dubai or Riyadh; in remote areas, in the desert, resolving locations is even harder.</p>
 <p><em>Note: Interestingly, a few years ago the UAE government created a system to identify buildings called Makani codes, which is a 10 digit number. Every building in the UAE has a Makani code, and every building must have a plaque showing the Makani code. Unfortunately, very few people know their building’s Makani code; it’s not used is practice (eg. I don’t know my hotel’s Makani code). Also, there is no free public API which maps from a Makani code to the (latitude, longitude).</em></p>
-<p><img src="/images/makani.jpg" alt="Makani numbers" style="width: 800px;"/></p>
+<p><img src="/images/makani.jpg" alt="Makani numbers" style="width: 650px;"/></p>
 <p>Here are some "complete" UAE and KSA addresses Fetchr delivered to in the past (changed capitalization to improve readability:</p>
 <ul>
 <li><em>Near to Safeer Mall, Khuzam</em></li>
@@ -122,7 +122,7 @@
 <li>etc.</li>
 </ul>
 <p>After a lot of experimentation, I wasn’t satisfied with the overall performance of the models. However, after weeks of working with the data, I realized that I can try something pretty simple “by hand”. I usually look at Dubai data, and I noticed a lot of addresses include the area name, which is pretty unambigious, for example “Jumeirah Village Circle” or “Jumeirah Village Triangle”.</p>
-<p><img src="/images/jvt.png" alt="JVT and JVC" style="width: 800px;"/></p>
+<p><img src="/images/jvt.png" alt="JVT and JVC" style="width: 650px;"/></p>
 <p>I knew that these areas were served by the same driver, because I’ve been out with him several times to understand what happens on the ground. So if the service returns the middle of the area as a (latitude, longitude) for those addresses, it’ll get dispatched by the correct driver. I also knew that this is a good enough first step, because drivers call customers before delivery anyway to check if the customer is at home and to <strong>finalize location</strong>. So I spent a day looking at Google Maps and OSM and simply wrote out a few hundred rules by hand, and then wrote a simple model which essentially does substring checking. I then put it into production for a few orders / day. A few days later I evaluated the delivery performance, and saw that while it’s not excellent, it’s not that bad. (I later removed this manual model from production, the ML version is much better).</p>
 <p>So the question was, how do I make this better, and generalize it? I noticed this pattern while looking at the data, clearly there’s more patterns like this in the data, let’s get the machine to learn it. This is what we did: there’s a backend component, which looks at all our historic deliveries, and finds good rules, the production service then just uses these rules (details omitted on purpose).</p>
 <h2>Knobs to turn</h2>
@@ -143,7 +143,7 @@
 <li><strong>Scheduling channel splits, model splits</strong>: also a daily metric, it shows what % of dispatches came from which scheduling channel (call center, ML, self-scheduling, etc.), and specifically for the ML channel, what % came from which model.</li>
 <li><strong>Conversion:</strong> of all orders passed to the ML model for coordinate prediction, what % do we return a coordinate (instead of <code>NO_PREDICTION</code>)</li>
 </ul>
-<p><img src="/images/ml-conversion.png" alt="ML Conversion%" style="width: 800px;"/></p>
+<p><img src="/images/ml-conversion.png" alt="ML Conversion%" style="width: 650px;"/></p>
 <h2>Conclusion</h2>
 <p>The delivery coordinate prediction service has been a great success at Fetchr. The version currently in production is relatively simple, easy to understand and tunable. Adding exceptions is easy. There are lots of improvement opportunities in the current models themselves, ordering of models based on features, and of course making more complex models. Our goal is to go further up and toward the right in (coverage, accuracy) space!</p>
   </div>
