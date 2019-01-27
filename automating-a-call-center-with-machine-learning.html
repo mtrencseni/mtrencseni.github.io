@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="Over a period of 6 months, we rolled out a Machine Learning model to predict a customer’s delivery (latitude, longitude). During the 2018 holiday peak, this ML model handled most of Fetchr’s order scheduling. We estimate the annualized impact to be around $3-5m from potential cost-savings of call center personnel." />
+<meta name="keywords" content="fetchr, machine-learning, call-center">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="Automating a Call Center with Machine Learning"/>
+<meta property="og:description" content="Over a period of 6 months, we rolled out a Machine Learning model to predict a customer’s delivery (latitude, longitude). During the 2018 holiday peak, this ML model handled most of Fetchr’s order scheduling. We estimate the annualized impact to be around $3-5m from potential cost-savings of call center personnel."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/automating-a-call-center-with-machine-learning.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2019-01-27 00:00:00+01:00"/>
+<meta property="article:modified_time" content="2019-01-27 00:00:00+01:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Machine Learning"/>
+<meta property="article:tag" content="fetchr"/>
+<meta property="article:tag" content="machine-learning"/>
+<meta property="article:tag" content="call-center"/>
+<meta property="og:image" content="/images/ml-share.png"/>
+
+  <title>Bytepawn &ndash; Automating a Call Center with Machine Learning</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="automating-a-call-center-with-machine-learning">Automating a Call Center with Machine Learning</h1>
+    <p>Posted on Sun 27 January 2019 in <a href="/category/machine-learning.html">Machine Learning</a></p>
+  </header>
+  <div>
+    <h2>Impact</h2>
+<p>Over a period of 6 months, we rolled out a Machine Learning model to predict a customer’s delivery (latitude, longitude). During the 2018 holiday peak, this ML model handled most of Fetchr’s order scheduling. We estimate the annualized impact to be around $3-5m from potential cost-savings of call center personnel.</p>
+<p><img src="/images/ml-share.png" alt="Share of ML scheduled versus Call center scheduled deliveries" style="width: 800px;"/></p>
+<h2>Introduction</h2>
+<p>In Europe of the US, addresses is not something we think about a lot. My address in Hungary is, for example:</p>
+<div class="highlight"><pre><span></span>`1114 Budapest, Szabolcska Mihaly u. 7`
+</pre></div>
+
+
+<p>Here “u.” stands for “utca”, which means “street”. 1114 is my zip code in Hungary. Sometimes I’m lazy and I shorten it, like:</p>
+<div class="highlight"><pre><span></span>`1114 BP, Szabolcska 7`
+</pre></div>
+
+
+<p>In the US, it’s customary to write it out in a different order and “street” is dropped:</p>
+<div class="highlight"><pre><span></span>`7 Szabolcska Mihaly, Budapest, 1114`
+</pre></div>
+
+
+<p>If I open Google Maps (in an incognito window), I can enter either of the three, and it will point me to the precise (latitude, longitude) of my apartment, which happens to be (47.476117, 19.044950).</p>
+<p><img src="/images/szabolcska7.png" alt="Szabolcska Mihaly u. 7" style="width: 800px;"/></p>
+<p>Why does this work? In the US and Europe, the following all hold:</p>
+<ul>
+<li>zip codes exist and everybody uses them</li>
+<li>address formats are reasonably standardized</li>
+<li>most people know what their address is (“my zip code is 1114”)</li>
+<li>most people know how to write out their addresses</li>
+<li>companies like Google have a known database of addresses (and maps)</li>
+<li>companies like Google have an incentive to make services like Google Maps work</li>
+<li>web shops can enforce address formats, eg. can force the user to select from known zip codes, street names in those zip codes, etc.</li>
+</ul>
+<p>In the Middle East, the above do not hold. For example, in the United Arab Emirates (UAE), there are no zip codes. There are street names, but which street a building falls on is often ambiguous. Also, streets have many names, official and slang, english and arabic. Often, people don’t know their streets. For example, I live in a hotel in Dubai, and I don’t know which street it’s on (80% of people in Dubai are expats). Sometimes buildings have a street number, sometimes not; sometimes people know the number, most often not. There are large areas of the most developed city in the region, Dubai, where Gogole Maps doesn’t know street names or numbers. In Saudi Arabia, the biggest market for deliveries, there are zip codes, but people don’t use them when giving their addresses. Many times people don’t even give their street name as an address, instead they give an area name (which is itself ambiguous) and building name (“Princess Tower”) or a commercial name “near Burger King in Al Barsha, next to SZR” ("SZR" stands for "Sheikh Zayed Road", it's a 2x8 lane super-highway in Dubai). This is the situation in cities like Dubai or Riyadh; in remote areas, in the desert, resolving locations is even harder.</p>
+<p><em>Note: Interestingly, a few years ago the UAE government created a system to identify buildings called Makani codes, which is a 10 digit number. Every building in the UAE has a Makani code, and every building must have a plaque showing the Makani code. Unfortunately, very few people know their building’s Makani code; it’s not used is practice (eg. I don’t know my hotel’s Makani code). Also, there is no free public API which maps from a Makani code to the (latitude, longitude).</em></p>
+<p><img src="/images/makani.jpg" alt="Makani numbers" style="width: 800px;"/></p>
+<p>Here are some "complete" UAE and KSA addresses Fetchr delivered to in the past (changed capitalization to improve readability:</p>
+<ul>
+<li><em>Near to Safeer Mall, Khuzam</em></li>
+<li><em>Greece Cluster, Building Greece 05 Shop 04, International City, Dubai</em></li>
+<li><em>B1 136 Al Falah City</em></li>
+<li><em>Near by Emirates NBD, Nad Al Sheba, Dubai</em></li>
+<li><em>Mazaya Business Avenue - 21st floor - Gardian</em></li>
+<li><em>Batha Near Al Rajhi Building near Al Electron Building</em></li>
+<li><em>I work at Royal Green Golf &amp; Country Club</em></li>
+<li><em>My home is near by colors street for car decoration in Jeddah</em></li>
+<li><em>Saudi Arabia</em></li>
+<li><em>Villa, King Khalid street, Down Town</em></li>
+</ul>
+<p>Google Maps or Open Street Maps doesn’t help here.</p>
+<p>So why do delivery companies even accept packages with such addresses? Where do these packages come from? And most importantly, how do delivery companies in the Middle East actually manage to deliver these packages?</p>
+<p>The answer to the first two questions is “business”. Most deliveries are B2C deliveries: a customer goes to a web shop, buys an iphone, and then gets it delivered to his address. The web shop collects the address during the checkout funnel. Every day, the delivery company shows up at the web shop’s warehouse and collects all orders in bulk (10-100s packages), and tries to deliver them, usually the next day. Individual orders are not examined; the delivery company just accepts all of them, and is happy to get this business from the web shop. A recent phenomenon is the resurgence of the <a href="https://en.wikipedia.org/wiki/Silk_Road">Silk Road</a>, this time on the Internet: chinese e-commerce giants (think Amazon) have opened their web shops to Middle Eastern customers, who love to buy inexpensive products from China, and get it delivered to their doorstep (in this case, the delivery company picks it up all the way in a chinese warehouse). The chinese webshop checkout funnel has no idea what a proper address in UAE or KSA looks like, so any free text is accepted!</p>
+<p>The trick to a successful delivery in this region is the phone number! Unlike in the US or Europe, where an address is enough, here the <strong>phone number is king</strong>; no package is accepted without the customer’s phone number. By default, delivery companies assume that the address is not good enough, and instead rely on calling the customer to figure out where to go. That’s why delivery companies have large call centers: the call center agent calls the customer, and tries to figure out where to send the package. The agent drops a pin on Google Maps during and based on the conversation with the customer, and then the package is dispatched to that (latitude, longitude). This is called <strong>scheduling</strong>, the goal here is to figure out the spacetime coordinates of the delivery: (latitude, longitude, day, time), but we’ll ignore the (day, time) here.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/fetchr.html">fetchr</a>
+      <a href="/tag/machine-learning.html">machine-learning</a>
+      <a href="/tag/call-center.html">call-center</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Automating a Call Center with Machine Learning",
+  "headline": "Automating a Call Center with Machine Learning",
+  "datePublished": "2019-01-27 00:00:00+01:00",
+  "dateModified": "2019-01-27 00:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/automating-a-call-center-with-machine-learning.html",
+  "description": "Over a period of 6 months, we rolled out a Machine Learning model to predict a customer’s delivery (latitude, longitude). During the 2018 holiday peak, this ML model handled most of Fetchr’s order scheduling. We estimate the annualized impact to be around $3-5m from potential cost-savings of call center personnel."
+}
+</script></body>
+</html>

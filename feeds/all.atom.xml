@@ -1,5 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn</title><link href="/" rel="alternate"></link><link href="/feeds/all.atom.xml" rel="self"></link><id>/</id><updated>2019-01-09T00:00:00+01:00</updated><entry><title>5 things that happened in Data Science in 2018</title><link href="/five-things-2018-data-science.html" rel="alternate"></link><published>2019-01-09T00:00:00+01:00</published><updated>2019-01-09T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2019-01-09:/five-things-2018-data-science.html</id><summary type="html">&lt;p&gt;2018 was a hot year for Data Science and AI. Here we picked out 5 highlights, which in our opinion shaped the field in the past year.&lt;/p&gt;</summary><content type="html">&lt;p&gt;2018 was a hot year for Data Science and AI. Here we picked out 5 highlights, which in our opinion shaped the field in the past year.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn</title><link href="/" rel="alternate"></link><link href="/feeds/all.atom.xml" rel="self"></link><id>/</id><updated>2019-01-27T00:00:00+01:00</updated><entry><title>Automating a Call Center with Machine Learning</title><link href="/automating-a-call-center-with-machine-learning.html" rel="alternate"></link><published>2019-01-27T00:00:00+01:00</published><updated>2019-01-27T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2019-01-27:/automating-a-call-center-with-machine-learning.html</id><summary type="html">&lt;p&gt;Over a period of 6 months, we rolled out a Machine Learning model to predict a customer’s delivery (latitude, longitude). During the 2018 holiday peak, this ML model handled most of Fetchr’s order scheduling. We estimate the annualized impact to be around $3-5m from potential cost-savings of call center personnel.&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Impact&lt;/h2&gt;
+&lt;p&gt;Over a period of 6 months, we rolled out a Machine Learning model to predict a customer’s delivery (latitude, longitude). During the 2018 holiday peak, this ML model handled most of Fetchr’s order scheduling. We estimate the annualized impact to be around $3-5m from potential cost-savings of call center personnel.&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/ml-share.png" alt="Share of ML scheduled versus Call center scheduled deliveries" style="width: 800px;"/&gt;&lt;/p&gt;
+&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;In Europe of the US, addresses is not something we think about a lot. My address in Hungary is, for example:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;`1114 Budapest, Szabolcska Mihaly u. 7`
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Here “u.” stands for “utca”, which means “street”. 1114 is my zip code in Hungary. Sometimes I’m lazy and I shorten it, like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;`1114 BP, Szabolcska 7`
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;In the US, it’s customary to write it out in a different order and “street” is dropped:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;`7 Szabolcska Mihaly, Budapest, 1114`
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;If I open Google Maps (in an incognito window), I can enter either of the three, and it will point me to the precise (latitude, longitude) of my apartment, which happens to be (47.476117, 19.044950).&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/szabolcska7.png" alt="Szabolcska Mihaly u. 7" style="width: 800px;"/&gt;&lt;/p&gt;
+&lt;p&gt;Why does this work? In the US and Europe, the following all hold:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;zip codes exist and everybody uses them&lt;/li&gt;
+&lt;li&gt;address formats are reasonably standardized&lt;/li&gt;
+&lt;li&gt;most people know what their address is (“my zip code is 1114”)&lt;/li&gt;
+&lt;li&gt;most people know how to write out their addresses&lt;/li&gt;
+&lt;li&gt;companies like Google have a known database of addresses (and maps)&lt;/li&gt;
+&lt;li&gt;companies like Google have an incentive to make services like Google Maps work&lt;/li&gt;
+&lt;li&gt;web shops can enforce address formats, eg. can force the user to select from known zip codes, street names in those zip codes, etc.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In the Middle East, the above do not hold. For example, in the United Arab Emirates (UAE), there are no zip codes. There are street names, but which street a building falls on is often ambiguous. Also, streets have many names, official and slang, english and arabic. Often, people don’t know their streets. For example, I live in a hotel in Dubai, and I don’t know which street it’s on (80% of people in Dubai are expats). Sometimes buildings have a street number, sometimes not; sometimes people know the number, most often not. There are large areas of the most developed city in the region, Dubai, where Gogole Maps doesn’t know street names or numbers. In Saudi Arabia, the biggest market for deliveries, there are zip codes, but people don’t use them when giving their addresses. Many times people don’t even give their street name as an address, instead they give an area name (which is itself ambiguous) and building name (“Princess Tower”) or a commercial name “near Burger King in Al Barsha, next to SZR” ("SZR" stands for "Sheikh Zayed Road", it's a 2x8 lane super-highway in Dubai). This is the situation in cities like Dubai or Riyadh; in remote areas, in the desert, resolving locations is even harder.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Note: Interestingly, a few years ago the UAE government created a system to identify buildings called Makani codes, which is a 10 digit number. Every building in the UAE has a Makani code, and every building must have a plaque showing the Makani code. Unfortunately, very few people know their building’s Makani code; it’s not used is practice (eg. I don’t know my hotel’s Makani code). Also, there is no free public API which maps from a Makani code to the (latitude, longitude).&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/makani.jpg" alt="Makani numbers" style="width: 800px;"/&gt;&lt;/p&gt;
+&lt;p&gt;Here are some "complete" UAE and KSA addresses Fetchr delivered to in the past (changed capitalization to improve readability:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;Near to Safeer Mall, Khuzam&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Greece Cluster, Building Greece 05 Shop 04, International City, Dubai&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;B1 136 Al Falah City&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Near by Emirates NBD, Nad Al Sheba, Dubai&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Mazaya Business Avenue - 21st floor - Gardian&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Batha Near Al Rajhi Building near Al Electron Building&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;I work at Royal Green Golf &amp;amp; Country Club&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;My home is near by colors street for car decoration in Jeddah&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Saudi Arabia&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Villa, King Khalid street, Down Town&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Google Maps or Open Street Maps doesn’t help here.&lt;/p&gt;
+&lt;p&gt;So why do delivery companies even accept packages with such addresses? Where do these packages come from? And most importantly, how do delivery companies in the Middle East actually manage to deliver these packages?&lt;/p&gt;
+&lt;p&gt;The answer to the first two questions is “business”. Most deliveries are B2C deliveries: a customer goes to a web shop, buys an iphone, and then gets it delivered to his address. The web shop collects the address during the checkout funnel. Every day, the delivery company shows up at the web shop’s warehouse and collects all orders in bulk (10-100s packages), and tries to deliver them, usually the next day. Individual orders are not examined; the delivery company just accepts all of them, and is happy to get this business from the web shop. A recent phenomenon is the resurgence of the &lt;a href="https://en.wikipedia.org/wiki/Silk_Road"&gt;Silk Road&lt;/a&gt;, this time on the Internet: chinese e-commerce giants (think Amazon) have opened their web shops to Middle Eastern customers, who love to buy inexpensive products from China, and get it delivered to their doorstep (in this case, the delivery company picks it up all the way in a chinese warehouse). The chinese webshop checkout funnel has no idea what a proper address in UAE or KSA looks like, so any free text is accepted!&lt;/p&gt;
+&lt;p&gt;The trick to a successful delivery in this region is the phone number! Unlike in the US or Europe, where an address is enough, here the &lt;strong&gt;phone number is king&lt;/strong&gt;; no package is accepted without the customer’s phone number. By default, delivery companies assume that the address is not good enough, and instead rely on calling the customer to figure out where to go. That’s why delivery companies have large call centers: the call center agent calls the customer, and tries to figure out where to send the package. The agent drops a pin on Google Maps during and based on the conversation with the customer, and then the package is dispatched to that (latitude, longitude). This is called &lt;strong&gt;scheduling&lt;/strong&gt;, the goal here is to figure out the spacetime coordinates of the delivery: (latitude, longitude, day, time), but we’ll ignore the (day, time) here.&lt;/p&gt;</content><category term="fetchr"></category><category term="machine-learning"></category><category term="call-center"></category></entry><entry><title>5 things that happened in Data Science in 2018</title><link href="/five-things-2018-data-science.html" rel="alternate"></link><published>2019-01-09T00:00:00+01:00</published><updated>2019-01-09T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2019-01-09:/five-things-2018-data-science.html</id><summary type="html">&lt;p&gt;2018 was a hot year for Data Science and AI. Here we picked out 5 highlights, which in our opinion shaped the field in the past year.&lt;/p&gt;</summary><content type="html">&lt;p&gt;2018 was a hot year for Data Science and AI. Here we picked out 5 highlights, which in our opinion shaped the field in the past year.&lt;/p&gt;
 &lt;h2&gt;OpenAI Five achieves human-level DOTA team gameplay&lt;/h2&gt;
 &lt;p&gt;OpenAI has started to achieve professional-level 1v1 playback in 2017, but 2018 was the year when team gameplay became human level. In DOTA, two teams of 5 players (or bots) battle for domination of resources on a map and try to kill each other off. OpenAI uses Reinforcement Learning with an LSTM network and self-play for learning, playing 180 years against itself every day on 256 GPUs and 128,000 CPU cores.&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/dota.png" alt="OpenAI Five" style="width: 800px;"/&gt;&lt;/p&gt;
