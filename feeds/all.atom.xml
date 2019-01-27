@@ -52,10 +52,12 @@
 &lt;p&gt;What about non-repeat customers? Can we know where to go just based on the address?&lt;/p&gt;
 &lt;p&gt;Initially we tried a lot of things, too many to detail here. Broadly:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;instead of predicting the (latitude, longitude), use a more coarse grained geographic division of zones (eg. divide Dubai into a few 100 polygons), and try to predict the correct zone; here we tried various approaches:&lt;/li&gt;
+&lt;li&gt;instead of predicting the (latitude, longitude), use a more coarse grained geographic division of zones (eg. divide Dubai into a few 100 polygons), and try to predict the correct zone; here we tried various approaches:&lt;ul&gt;
 &lt;li&gt;building a separate model for each zone&lt;/li&gt;
 &lt;li&gt;building one city-level model with multiple outputs&lt;/li&gt;
 &lt;li&gt;decision tree and other models on feature vectors constructed from bag-of-words models, TF-IDF, etc.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
 &lt;li&gt;use raw OpenStreetMaps (OSM) data, extracting “sites”, and matching to that&lt;/li&gt;
 &lt;li&gt;mixing-and-matching the above two&lt;/li&gt;
 &lt;li&gt;various string tokenization and matching approaches&lt;/li&gt;

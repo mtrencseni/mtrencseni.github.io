@@ -112,10 +112,12 @@
 <p>What about non-repeat customers? Can we know where to go just based on the address?</p>
 <p>Initially we tried a lot of things, too many to detail here. Broadly:</p>
 <ul>
-<li>instead of predicting the (latitude, longitude), use a more coarse grained geographic division of zones (eg. divide Dubai into a few 100 polygons), and try to predict the correct zone; here we tried various approaches:</li>
+<li>instead of predicting the (latitude, longitude), use a more coarse grained geographic division of zones (eg. divide Dubai into a few 100 polygons), and try to predict the correct zone; here we tried various approaches:<ul>
 <li>building a separate model for each zone</li>
 <li>building one city-level model with multiple outputs</li>
 <li>decision tree and other models on feature vectors constructed from bag-of-words models, TF-IDF, etc.</li>
+</ul>
+</li>
 <li>use raw OpenStreetMaps (OSM) data, extracting “sites”, and matching to that</li>
 <li>mixing-and-matching the above two</li>
 <li>various string tokenization and matching approaches</li>
