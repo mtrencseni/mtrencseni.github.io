@@ -91,22 +91,22 @@
 
 <p>It’s a good exercise to play around with this. Set a specific <strong>A</strong> and <strong>b</strong>, print things out, try other dimensions, etc.</p>
 <h2>Discussion</h2>
-<p><strong>How is this related to neural networks?</strong></p>
-<p>Imagine <strong>A</strong> as a bitmap image, and <strong>b</strong> as some sort of multi-classification (probability) output, and <strong>x</strong> are the weights. We’re trying to get the neural network to learn the classification, in this trivial example, where the training set size is 1. Note that in real machine learning scenarios, the loss function (potential surface) is in a higher dimensional space and has several minima; the goal is not to find the global optimum (untractable), just a good enough local one (gets the job done).</p>
+<p><strong>How is this related to neural networks?</strong><br/>
+Imagine <strong>A</strong> as a bitmap image, and <strong>b</strong> as some sort of multi-classification (probability) output, and <strong>x</strong> are the weights. We’re trying to get the neural network to learn the classification, in this trivial example, where the training set size is 1. Note that in real machine learning scenarios, the loss function (potential surface) is in a higher dimensional space and has several minima; the goal is not to find the global optimum (untractable), just a good enough local one (gets the job done).</p>
 <p><img src="/images/potential-surface.PNG" alt="Potential surface" style="width: 300px;"/></p>
 <p><strong>How do we know what step_size should be? How do we know when to stop?</strong></p>
 <p>In this case, because the loss function we’re optimizing is quadratic, we can get away with a fixed step_size, as the gradient will get smaller as we approach the optimum (the solution). In more complicated deep neural network scanarios (where the step size is called the learning rate), there are strategies on how to gradually decay the step size. In general, if the step size is too small, we waste a lot of time far away from the solution. If it’s too big, we jump around the optimum and may never converge. See also <a href="https://towardsdatascience.com/learning-rate-schedules-and-adaptive-learning-rate-methods-for-deep-learning-2c8f433990d1">Learning Rate Schedules and Adaptive Learning Rate Methods for Deep Learning</a>.</p>
 <p><img src="/images/learning-rate.PNG" alt="Learning rate" style="width: 300px;"/></p>
-<p><strong>What should the stopping condition be?</strong></p>
-<p>In this toy example, the <code>step_size</code> is set smaller than <code>stop_loss</code>, so it can converge on the optimum below the accepted loss. If you would set the <code>stop_loss</code> to be much smaller than the step size, you will see that it never stops, it will jump around the optimum (left side of above picture).</p>
-<p><strong>What exactly is the quantity <code>x.grad.data</code>?</strong></p>
-<p>It stored the gradient of the loss function we called backward() on, with respect to the variable, in this case <strong>x</strong>. So in the dim=1 case it’s just <strong>dL/dx</strong>. Note that since <strong>x</strong> is the only independent variable here, the partial derivative is the total derivative. If we had multiple independent variables, we'd have to add the partial derivates to get the <a href="https://en.wikipedia.org/wiki/Total_derivative">total derivative</a>.</p>
-<p><strong>What if we use the L1 norm as the loss function?</strong></p>
-<p>To use the L1 norm, set <code>p=1</code> in the code. The L1 norm in <code>dim=1</code> is the <strong>abs()</strong> function, so it’s derivative is piecewise constant. In this case the slope is <strong>+- ||A||</strong>.</p>
+<p><strong>What should the stopping condition be?</strong><br/>
+In this toy example, the <code>step_size</code> is set smaller than <code>stop_loss</code>, so it can converge on the optimum below the accepted loss. If you would set the <code>stop_loss</code> to be much smaller than the step size, you will see that it never stops, it will jump around the optimum (left side of above picture).</p>
+<p><strong>What exactly is the quantity <code>x.grad.data</code>?</strong><br/>
+It stored the gradient of the loss function we called backward() on, with respect to the variable, in this case <strong>x</strong>. So in the dim=1 case it’s just <strong>dL/dx</strong>. Note that since <strong>x</strong> is the only independent variable here, the partial derivative is the total derivative. If we had multiple independent variables, we'd have to add the partial derivates to get the <a href="https://en.wikipedia.org/wiki/Total_derivative">total derivative</a>.</p>
+<p><strong>What if we use the L1 norm as the loss function?</strong><br/>
+To use the L1 norm, set <code>p=1</code> in the code. The L1 norm in <code>dim=1</code> is the <strong>abs()</strong> function, so it’s derivative is piecewise constant. In this case the slope is <strong>+- ||A||</strong>.</p>
 <p><img src="/images/l1-norm.PNG" alt="L1 norm" style="width: 300px;"/></p>
 <p>This is “less nice” than the L2 norm for this simple case, because the gradient doesn’t vanish as the solution approaches the optimum. The solution is more likely to overshoot the optimum and oscillate. In this case this toy example is not representative of machine learning: real-world training sets often contain outliers, and L1 is more robust against outliers than L2.</p>
-<p><strong>What happens if we run this on the GPU vs CPU?</strong></p>
-<p>To turn on the GPU, put this line at the top:</p>
+<p><strong>What happens if we run this on the GPU vs CPU?</strong><br/>
+To turn on the GPU, put this line at the top:</p>
 <script src="https://gist.github.com/mtrencseni/ae8c2b405025c21a63c6562d8dc7dcff.js"></script>
 
 <p>On my computer, this is significantly slower on the GPU than the CPU, because copying such a small problem to the GPU creates a time overhead which is not worth it. This toy example is too small to demonstrate how GPUs speed deep learning.</p>
