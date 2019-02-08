@@ -80,7 +80,7 @@
 <p>We then tell PyTorch to do a backward pass and compute the gradients:</p>
 <script src="https://gist.github.com/mtrencseni/4583fdf66ea02a4d4756103c734074c5.js"></script>
 
-<p>At this point, PyTorch will have compute the gradient for <strong>x</strong>, stored in <code>x.grad.data</code>. What this means is “adjust <strong>x</strong> in this direction, by this much, to decrease the loss function, given what <strong>x</strong> is right now”. Now we just need to introduce a step size to control our speed of descent, and actually adjust <strong>x</strong>:</p>
+<p>At this point, PyTorch will have computed the gradient for <strong>x</strong>, stored in <code>x.grad.data</code>. What this means is “adjust <strong>x</strong> in this direction, by this much, to decrease the loss function, given what <strong>x</strong> is right now”. Now we just need to introduce a step size to control our speed of descent, and actually adjust <strong>x</strong>:</p>
 <script src="https://gist.github.com/mtrencseni/c1929a58684b2962c4008b24564b48a0.js"></script>
 
 <p>Almost done. We just need to set <code>step_size</code>, put this in a for loop, and figure out when to stop it:</p>

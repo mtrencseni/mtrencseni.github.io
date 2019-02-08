@@ -22,7 +22,7 @@
 &lt;p&gt;We then tell PyTorch to do a backward pass and compute the gradients:&lt;/p&gt;
 &lt;script src="https://gist.github.com/mtrencseni/4583fdf66ea02a4d4756103c734074c5.js"&gt;&lt;/script&gt;
 
-&lt;p&gt;At this point, PyTorch will have compute the gradient for &lt;strong&gt;x&lt;/strong&gt;, stored in &lt;code&gt;x.grad.data&lt;/code&gt;. What this means is “adjust &lt;strong&gt;x&lt;/strong&gt; in this direction, by this much, to decrease the loss function, given what &lt;strong&gt;x&lt;/strong&gt; is right now”. Now we just need to introduce a step size to control our speed of descent, and actually adjust &lt;strong&gt;x&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;At this point, PyTorch will have computed the gradient for &lt;strong&gt;x&lt;/strong&gt;, stored in &lt;code&gt;x.grad.data&lt;/code&gt;. What this means is “adjust &lt;strong&gt;x&lt;/strong&gt; in this direction, by this much, to decrease the loss function, given what &lt;strong&gt;x&lt;/strong&gt; is right now”. Now we just need to introduce a step size to control our speed of descent, and actually adjust &lt;strong&gt;x&lt;/strong&gt;:&lt;/p&gt;
 &lt;script src="https://gist.github.com/mtrencseni/c1929a58684b2962c4008b24564b48a0.js"&gt;&lt;/script&gt;
 
 &lt;p&gt;Almost done. We just need to set &lt;code&gt;step_size&lt;/code&gt;, put this in a for loop, and figure out when to stop it:&lt;/p&gt;
