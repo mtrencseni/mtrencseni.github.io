@@ -104,7 +104,7 @@ It stored the gradient of the loss function we called backward() on, with respec
 <p><strong>What if we use the L1 norm as the loss function?</strong><br/>
 To use the L1 norm, set <code>p=1</code> in the code. The L1 norm in <code>dim=1</code> is the <strong>abs()</strong> function, so it’s derivative is piecewise constant. In this case the slope is <strong>+-   ‖A  ‖</strong>.</p>
 <p><img src="/images/l1-norm.PNG" alt="L1 norm" style="width: 300px;"/></p>
-<p>This is “less nice” than the L2 norm for this simple case, because the gradient doesn’t vanish as the solution approaches the optimum. The solution is more likely to overshoot the optimum and oscillate. In this case this toy example is not representative of machine learning: real-world training sets often contain outliers, and L1 is more robust against outliers than L2.</p>
+<p>This is “less nice” than the L2 norm for this simple case, because the gradient doesn’t vanish as the solution approaches the optimum. The solution is more likely to overshoot the optimum and oscillate.</p>
 <p><strong>What happens if we run this on the GPU vs CPU?</strong><br/>
 To turn on the GPU, put this line at the top:</p>
 <script src="https://gist.github.com/mtrencseni/ae8c2b405025c21a63c6562d8dc7dcff.js"></script>
