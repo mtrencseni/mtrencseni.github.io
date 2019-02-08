@@ -28,7 +28,7 @@
 &lt;p&gt;Almost done. We just need to set &lt;code&gt;step_size&lt;/code&gt;, put this in a for loop, and figure out when to stop it:&lt;/p&gt;
 &lt;script src="https://gist.github.com/mtrencseni/3e1b3d47f55fdb5a54518312d298940a.js"&gt;&lt;/script&gt;
 
-&lt;p&gt;Let’s stop it when the loss is smaller than &lt;code&gt;stop_loss&lt;/code&gt;, and put an upper bound on the number of iterations:&lt;/p&gt;
+&lt;p&gt;Let’s stop it when the loss is smaller than &lt;code&gt;stop_loss&lt;/code&gt;, and put an upper bound on the number of iterations. Putting it all together:&lt;/p&gt;
 &lt;script src="https://gist.github.com/mtrencseni/d6be2e6b35f100be1a92e6726f5210c2.js"&gt;&lt;/script&gt;
 
 &lt;p&gt;It’s a good exercise to play around with this. Set a specific &lt;strong&gt;A&lt;/strong&gt; and &lt;strong&gt;b&lt;/strong&gt;, print things out, try other dimensions, etc.&lt;/p&gt;
