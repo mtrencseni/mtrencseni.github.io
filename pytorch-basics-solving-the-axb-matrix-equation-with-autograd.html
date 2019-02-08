@@ -89,7 +89,7 @@
 <p>Let’s stop it when the loss is smaller than <code>stop_loss</code>, and put an upper bound on the number of iterations. Putting it all together:</p>
 <script src="https://gist.github.com/mtrencseni/d6be2e6b35f100be1a92e6726f5210c2.js"></script>
 
-<p>It’s a good exercise to play around with this. Set a specific <strong>A</strong> and <strong>b</strong>, print things out, try other dimensions, etc.</p>
+<p>It’s a good exercise to play around with this. Set a specific <strong>A</strong> and <strong>b</strong>, print things out, try other dimensions, use numpy to get the inverse and compare the solutions, etc.</p>
 <h2>Discussion</h2>
 <p><strong>How is this related to neural networks?</strong><br/>
 Imagine <strong>A</strong> as a bitmap image, and <strong>b</strong> as some sort of multi-classification (probability) output, and <strong>x</strong> are the weights. We’re trying to get the neural network to learn the classification, in this trivial example, where the training set size is 1. Note that in real machine learning scenarios, the loss function (potential surface) is in a higher dimensional space and has several minima; the goal is not to find the global optimum (untractable), just a good enough local one (gets the job done).</p>

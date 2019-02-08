@@ -31,7 +31,7 @@
 &lt;p&gt;Let’s stop it when the loss is smaller than &lt;code&gt;stop_loss&lt;/code&gt;, and put an upper bound on the number of iterations. Putting it all together:&lt;/p&gt;
 &lt;script src="https://gist.github.com/mtrencseni/d6be2e6b35f100be1a92e6726f5210c2.js"&gt;&lt;/script&gt;
 
-&lt;p&gt;It’s a good exercise to play around with this. Set a specific &lt;strong&gt;A&lt;/strong&gt; and &lt;strong&gt;b&lt;/strong&gt;, print things out, try other dimensions, etc.&lt;/p&gt;
+&lt;p&gt;It’s a good exercise to play around with this. Set a specific &lt;strong&gt;A&lt;/strong&gt; and &lt;strong&gt;b&lt;/strong&gt;, print things out, try other dimensions, use numpy to get the inverse and compare the solutions, etc.&lt;/p&gt;
 &lt;h2&gt;Discussion&lt;/h2&gt;
 &lt;p&gt;&lt;strong&gt;How is this related to neural networks?&lt;/strong&gt;&lt;br/&gt;
 Imagine &lt;strong&gt;A&lt;/strong&gt; as a bitmap image, and &lt;strong&gt;b&lt;/strong&gt; as some sort of multi-classification (probability) output, and &lt;strong&gt;x&lt;/strong&gt; are the weights. We’re trying to get the neural network to learn the classification, in this trivial example, where the training set size is 1. Note that in real machine learning scenarios, the loss function (potential surface) is in a higher dimensional space and has several minima; the goal is not to find the global optimum (untractable), just a good enough local one (gets the job done).&lt;/p&gt;
