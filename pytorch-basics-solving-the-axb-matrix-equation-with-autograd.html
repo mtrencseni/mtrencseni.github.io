@@ -68,7 +68,7 @@
 <p>How can we use <a href="https://pytorch.org/docs/stable/autograd.html">PyTorch and autograd</a> to solve it? We can use it to approximate the solution: start with some random <strong>x<sub>0</sub></strong>, compute the vector <strong>A x<sub>0</sub> - b</strong>, take the norm <strong>L =  ‖ A x<sub>0</sub> - b   ‖</strong>, and use gradient descent to find a next, better <strong>x<sub>1</sub></strong> vector so that it’s closer to the real solution <strong>x<sub>s</sub></strong>. They key idea is that for <strong>x=x<sub>s</sub></strong>, the norm <strong>L =     ‖ A x<sub>s</sub> - b   ‖ = 0</strong>, it vanishes. So we want to minimize <strong>L</strong>. This <strong>L</strong> is called the loss function in such optimization problems.</p>
 <p>Let’s start with the standard L2 norm:</p>
 <p><img src="/images/l2-definition.PNG" alt="L2 norm definition" style="width: 150px;"/></p>
-<p>This will result in a standard parabolic loss function, where we will converge on the minimum.</p>
+<p>This will result in a parabolic loss function, where we will converge to the minimum.</p>
 <p><img src="/images/parabola2d.PNG" alt="L2 norm parabola" style="width: 300px;"/></p>
 <h2>Code</h2>
 <p>This is what the PyTorch code for setting up <strong>A, x</strong> and <strong>b</strong> looks like. We initialize <strong>A</strong> and <strong>b</strong> to random:</p>
