@@ -47,7 +47,7 @@ It's the gradient of the loss function we called backward() on, with respect to 
 To use the L1 norm, set &lt;code&gt;p=1&lt;/code&gt; in the code. The L1 norm in &lt;code&gt;dim=1&lt;/code&gt; is the &lt;strong&gt;abs()&lt;/strong&gt; function, so it’s derivative is piecewise constant. In this case the slope is &lt;strong&gt;+-   ‖A  ‖&lt;/strong&gt;.&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/l1-norm.PNG" alt="L1 norm" style="width: 300px;"/&gt;&lt;/p&gt;
 &lt;p&gt;This is “less nice” than the L2 norm for this simple case, because the gradient doesn’t vanish as the solution approaches the optimum. The solution is more likely to overshoot the optimum and oscillate.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;What happens if we run this on the GPU vs CPU?&lt;/strong&gt;&lt;br/&gt;
+&lt;p&gt;&lt;strong&gt;What happens if we run this on the GPU?&lt;/strong&gt;&lt;br/&gt;
 To turn on the GPU, put this line at the top:&lt;/p&gt;
 &lt;script src="https://gist.github.com/mtrencseni/ae8c2b405025c21a63c6562d8dc7dcff.js"&gt;&lt;/script&gt;
 
