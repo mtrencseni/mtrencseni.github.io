@@ -74,7 +74,7 @@
 <p>This is what the PyTorch code for setting up <strong>A, x</strong> and <strong>b</strong> looks like. We initialize <strong>A</strong> and <strong>b</strong> to random:</p>
 <script src="https://gist.github.com/mtrencseni/d0f65883f2be329cac1ec390869d02e0.js"></script>
 
-<p>We set <code>requires_grad</code> is set to <code>False</code> for <strong>A</strong> and <strong>b</strong>. These are constants in this scenario, their gradient is zero. <strong>x</strong> is the variable which we will compute gradients for, so we set <code>requires_grad = True</code>.</p>
+<p>We set <code>requires_grad</code> to <code>False</code> for <strong>A</strong> and <strong>b</strong>. These are constants in this scenario, their gradient is zero. <strong>x</strong> is the variable which we will compute gradients for, so we set <code>requires_grad = True</code>.</p>
 <script src="https://gist.github.com/mtrencseni/a232e345680f17f0c00ce816036308f1.js"></script>
 
 <p>We then tell PyTorch to do a backward pass and compute the gradients:</p>

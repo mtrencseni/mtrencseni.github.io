@@ -16,7 +16,7 @@
 &lt;p&gt;This is what the PyTorch code for setting up &lt;strong&gt;A, x&lt;/strong&gt; and &lt;strong&gt;b&lt;/strong&gt; looks like. We initialize &lt;strong&gt;A&lt;/strong&gt; and &lt;strong&gt;b&lt;/strong&gt; to random:&lt;/p&gt;
 &lt;script src="https://gist.github.com/mtrencseni/d0f65883f2be329cac1ec390869d02e0.js"&gt;&lt;/script&gt;
 
-&lt;p&gt;We set &lt;code&gt;requires_grad&lt;/code&gt; is set to &lt;code&gt;False&lt;/code&gt; for &lt;strong&gt;A&lt;/strong&gt; and &lt;strong&gt;b&lt;/strong&gt;. These are constants in this scenario, their gradient is zero. &lt;strong&gt;x&lt;/strong&gt; is the variable which we will compute gradients for, so we set &lt;code&gt;requires_grad = True&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;We set &lt;code&gt;requires_grad&lt;/code&gt; to &lt;code&gt;False&lt;/code&gt; for &lt;strong&gt;A&lt;/strong&gt; and &lt;strong&gt;b&lt;/strong&gt;. These are constants in this scenario, their gradient is zero. &lt;strong&gt;x&lt;/strong&gt; is the variable which we will compute gradients for, so we set &lt;code&gt;requires_grad = True&lt;/code&gt;.&lt;/p&gt;
 &lt;script src="https://gist.github.com/mtrencseni/a232e345680f17f0c00ce816036308f1.js"&gt;&lt;/script&gt;
 
 &lt;p&gt;We then tell PyTorch to do a backward pass and compute the gradients:&lt;/p&gt;
