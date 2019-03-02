@@ -25,7 +25,7 @@
 <meta property="article:author" content="/author/marton-trencseni.html">
 <meta property="article:section" content="Python"/>
 <meta property="article:tag" content="python"/>
-<meta property="og:image" content=""/>
+<meta property="og:image" content="/images/rxe.PNG"/>
 
   <title>Bytepawn &ndash; rxe: literate and composable regular expressions</title>
 </head>
@@ -57,26 +57,7 @@
     <p>Posted on Sat 02 March 2019 in <a href="/category/python.html">Python</a></p>
   </header>
   <div>
-    <div class="highlight"><pre><span></span># regex pattern
-pattern = r&#39;[\w.%+-]+@[\w.-]+\.[a-zA-Z]{2,6}&#39;
-
-# equivalent rxe code
-username = rxe.one_or_more(rxe.set([rxe.alphanumeric(), &#39;.&#39;, &#39;%&#39;, &#39;+&#39;, &#39;-&#39;]))
-domain = (rxe
-    .one_or_more(rxe.set([rxe.alphanumeric(), &#39;.&#39;, &#39;-&#39;]))
-    .literal(&#39;.&#39;)
-    .at_least_at_most(2, 6, rxe.set([rxe.range(&#39;a&#39;, &#39;z&#39;), rxe.range(&#39;A&#39;, &#39;Z&#39;)]))
-)
-email = (rxe
-    .exactly(1, username)
-    .literal(&#39;@&#39;)
-    .exactly(1, domain)
-)
-</pre></div>
-
-
-<p>Image: /images/rxe.PNG</p>
-<h2>Introduction</h2>
+    <h2>Introduction</h2>
 <p><code>rxe</code> is a thin wrapper around Python's <code>re</code> module (see <a href="https://docs.python.org/2/library/re.html">official re docs</a>). The various <code>rxe</code> functions are wrappers around corresponding <code>re</code> patterns. For example, <code>rxe.digit().one_or_more('a').whitespace()</code> corresponds to <code>\da+\s</code>. Because <code>rxe</code> uses parentheses but wants to avoid unnamed groups, the internal (equivalent) representation is actually <code>\d(?:a)+\s</code>. This pattern can always be retrieved with <code>get_pattern()</code>.</p>
 <h2>Motivation</h2>
 <p>Suppose you want to parse geo coordinates from a string, like <code>(&lt;latitude&gt;,&lt;longitude&gt;)</code>, where each is a decimal. The raw regular expression would look like <code>\(\d+\.\d\+,\d+\.\d\+)</code>. This is hard to read and maintain for the next guy, and diffs will be hard to understand and verify.</p>
