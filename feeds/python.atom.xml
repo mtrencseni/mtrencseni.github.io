@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Python</title><link href="/" rel="alternate"></link><link href="/feeds/python.atom.xml" rel="self"></link><id>/</id><updated>2019-03-02T00:00:00+01:00</updated><entry><title>rxe: literate and composable regular expressions</title><link href="/rxe-literate-and-composable-regular-expressions.html" rel="alternate"></link><published>2019-03-02T00:00:00+01:00</published><updated>2019-03-02T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2019-03-02:/rxe-literate-and-composable-regular-expressions.html</id><summary type="html">&lt;p&gt;&lt;code&gt;rxe&lt;/code&gt; is a thin wrapper around Python's &lt;code&gt;re&lt;/code&gt; module (see &lt;a href="https://docs.python.org/2/library/re.html"&gt;official re docs&lt;/a&gt;). The various &lt;code&gt;rxe&lt;/code&gt; functions are wrappers around corresponding &lt;code&gt;re&lt;/code&gt; patterns. For example, &lt;code&gt;rxe.digit().one_or_more('a').whitespace()&lt;/code&gt; corresponds to &lt;code&gt;\da+\s&lt;/code&gt;. Because &lt;code&gt;rxe&lt;/code&gt; uses parentheses but wants to avoid unnamed groups, the internal (equivalent) representation is actually &lt;code&gt;\d(?:a)+\s&lt;/code&gt;. This pattern can always be retrieved with &lt;code&gt;get_pattern()&lt;/code&gt;.&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;rxe&lt;/code&gt; is a thin wrapper around Python's &lt;code&gt;re&lt;/code&gt; module (see &lt;a href="https://docs.python.org/2/library/re.html"&gt;official re docs&lt;/a&gt;). The various &lt;code&gt;rxe&lt;/code&gt; functions are wrappers around corresponding &lt;code&gt;re&lt;/code&gt; patterns. For example, &lt;code&gt;rxe.digit().one_or_more('a').whitespace()&lt;/code&gt; corresponds to &lt;code&gt;\da+\s&lt;/code&gt;. Because &lt;code&gt;rxe&lt;/code&gt; uses parentheses but wants to avoid unnamed groups, the internal (equivalent) representation is actually &lt;code&gt;\d(?:a)+\s&lt;/code&gt;. This pattern can always be retrieved with &lt;code&gt;get_pattern()&lt;/code&gt;.&lt;/p&gt;
+&lt;h2&gt;Motivation&lt;/h2&gt;
+&lt;p&gt;Suppose you want to parse geo coordinates from a string, like &lt;code&gt;(&amp;lt;latitude&amp;gt;,&amp;lt;longitude&amp;gt;)&lt;/code&gt;, where each is a decimal. The raw regular expression would look like &lt;code&gt;\(\d+\.\d\+,\d+\.\d\+)&lt;/code&gt;. This is hard to read and maintain for the next guy, and diffs will be hard to understand and verify.&lt;/p&gt;
+&lt;p&gt;With rx, you can write:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;decimal&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rxe&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;one_or_more&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rxe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;digit&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;literal&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;.&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;one_or_more&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rxe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;digit&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;coord&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rxe&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;literal&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;(&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;exactly&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;decimal&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;literal&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;,&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;exactly&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;decimal&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;literal&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;)&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Note how rxe allows the &lt;code&gt;decimal&lt;/code&gt; regex to be re-used in the &lt;code&gt;coord&lt;/code&gt; pattern! Although it's more code, it's much more readable.&lt;/p&gt;
+&lt;p&gt;Suppose you want to support arbitrary number of whitespace. The diff for this change will be:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;coord&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rxe&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;literal&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;(&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;zero_or_more&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rxe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;whitespace&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt; &lt;span class="c1"&gt;# &amp;lt;--- line added&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;exactly&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;decimal&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;zero_or_more&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rxe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;whitespace&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt; &lt;span class="c1"&gt;# &amp;lt;--- line added&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;literal&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;,&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;zero_or_more&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rxe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;whitespace&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt; &lt;span class="c1"&gt;# &amp;lt;--- line added&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;exactly&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;decimal&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;zero_or_more&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rxe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;whitespace&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt; &lt;span class="c1"&gt;# &amp;lt;--- line added&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;literal&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;)&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Okay, but we also want to extract the latitude and longitude, not just match on it. Let's extract them, but in a readable way:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;coord&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rxe&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;literal&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;(&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;zero_or_more&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rxe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;whitespace&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;exactly&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rxe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;named&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;lat&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;decimal&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="c1"&gt;# &amp;lt;--- line changed&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;zero_or_more&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rxe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;whitespace&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;literal&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;,&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;zero_or_more&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rxe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;whitespace&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;exactly&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rxe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;named&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;lat&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;decimal&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="c1"&gt;# &amp;lt;--- line changed&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;zero_or_more&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rxe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;whitespace&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;literal&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;)&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;m&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;coord2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;match&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;(23.34, 11.0)&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;group&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;lat&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;group&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;lon&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;One more example, parsing email addresses. The regex is &lt;code&gt;[\w.%+-]+@[\w.-]+\.[a-zA-Z]{2,6}&lt;/code&gt;. The equivalent &lt;code&gt;rxe&lt;/code&gt; code:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;username = rxe.one_or_more(rxe.set([rxe.alphanumeric(), &amp;#39;.&amp;#39;, &amp;#39;%&amp;#39;, &amp;#39;+&amp;#39;, &amp;#39;-&amp;#39;]))
+domain = (rxe
+    .one_or_more(rxe.set([rxe.alphanumeric(), &amp;#39;.&amp;#39;, &amp;#39;-&amp;#39;]))
+    .literal(&amp;#39;.&amp;#39;)
+    .at_least_at_most(2, 6, rxe.set([rxe.range(&amp;#39;a&amp;#39;, &amp;#39;z&amp;#39;), rxe.range(&amp;#39;A&amp;#39;, &amp;#39;Z&amp;#39;)]))
+)
+email = (rxe
+    .exactly(1, username)
+    .literal(&amp;#39;@&amp;#39;)
+    .exactly(1, domain)
+)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Install&lt;/h2&gt;
+&lt;p&gt;Use &lt;code&gt;pip&lt;/code&gt;:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;pip install git+git://github.com/mtrencseni/rxe&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Then:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;python&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;rxe&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;rxe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;digit&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;at_least&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;p&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;at_least&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;q&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;assert&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;r&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;match&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;1ppppqqqqq&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; 
+&lt;/pre&gt;&lt;/div&gt;</content><category term="python"></category></entry></feed>
