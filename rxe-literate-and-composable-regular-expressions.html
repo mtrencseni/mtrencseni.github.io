@@ -115,15 +115,14 @@
 
 <p>One more example, parsing email addresses. The regex is <code>[\w.%+-]+@[\w.-]+\.[a-zA-Z]{2,6}</code>. The equivalent <code>rxe</code> code:</p>
 <div class="highlight"><pre><span></span>username = rxe.one_or_more(rxe.set([rxe.alphanumeric(), &#39;.&#39;, &#39;%&#39;, &#39;+&#39;, &#39;-&#39;]))
-domain = (rxe
-    .one_or_more(rxe.set([rxe.alphanumeric(), &#39;.&#39;, &#39;-&#39;]))
-    .literal(&#39;.&#39;)
-    .at_least_at_most(2, 6, rxe.set([rxe.range(&#39;a&#39;, &#39;z&#39;), rxe.range(&#39;A&#39;, &#39;Z&#39;)]))
-)
+domain = rxe.one_or_more(rxe.set([rxe.alphanumeric(), &#39;.&#39;, &#39;-&#39;]))
+tld = rxe.at_least_at_most(2, 6, rxe.set([rxe.range(&#39;a&#39;, &#39;z&#39;), rxe.range(&#39;A&#39;, &#39;Z&#39;)]))
 email = (rxe
-    .exactly(1, username)
+    .exactly(username)
     .literal(&#39;@&#39;)
-    .exactly(1, domain)
+    .exactly(domain)
+    .literal(&#39;.&#39;)
+    .exactly(tld)
 )
 </pre></div>
 

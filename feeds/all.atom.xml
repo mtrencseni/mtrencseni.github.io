@@ -57,15 +57,14 @@
 
 &lt;p&gt;One more example, parsing email addresses. The regex is &lt;code&gt;[\w.%+-]+@[\w.-]+\.[a-zA-Z]{2,6}&lt;/code&gt;. The equivalent &lt;code&gt;rxe&lt;/code&gt; code:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;username = rxe.one_or_more(rxe.set([rxe.alphanumeric(), &amp;#39;.&amp;#39;, &amp;#39;%&amp;#39;, &amp;#39;+&amp;#39;, &amp;#39;-&amp;#39;]))
-domain = (rxe
-    .one_or_more(rxe.set([rxe.alphanumeric(), &amp;#39;.&amp;#39;, &amp;#39;-&amp;#39;]))
-    .literal(&amp;#39;.&amp;#39;)
-    .at_least_at_most(2, 6, rxe.set([rxe.range(&amp;#39;a&amp;#39;, &amp;#39;z&amp;#39;), rxe.range(&amp;#39;A&amp;#39;, &amp;#39;Z&amp;#39;)]))
-)
+domain = rxe.one_or_more(rxe.set([rxe.alphanumeric(), &amp;#39;.&amp;#39;, &amp;#39;-&amp;#39;]))
+tld = rxe.at_least_at_most(2, 6, rxe.set([rxe.range(&amp;#39;a&amp;#39;, &amp;#39;z&amp;#39;), rxe.range(&amp;#39;A&amp;#39;, &amp;#39;Z&amp;#39;)]))
 email = (rxe
-    .exactly(1, username)
+    .exactly(username)
     .literal(&amp;#39;@&amp;#39;)
-    .exactly(1, domain)
+    .exactly(domain)
+    .literal(&amp;#39;.&amp;#39;)
+    .exactly(tld)
 )
 &lt;/pre&gt;&lt;/div&gt;
 
