@@ -58,7 +58,8 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p><code>rxe</code> is a thin wrapper around Python's <code>re</code> module (see <a href="https://docs.python.org/2/library/re.html">official re docs</a>). The various <code>rxe</code> functions are wrappers around corresponding <code>re</code> patterns. For example, <code>rxe.digit().one_or_more('a').whitespace()</code> corresponds to <code>\da+\s</code>. Because <code>rxe</code> uses parentheses but wants to avoid unnamed groups, the internal (equivalent) representation is actually <code>\d(?:a)+\s</code>. This pattern can always be retrieved with <code>get_pattern()</code>.</p>
+<p><a href='https://github.com/mtrencseni/rxe'>rxe</a> is a thin wrapper around Python's <code>re</code> module (see <a href="https://docs.python.org/2/library/re.html">official re docs</a>). The various <code>rxe</code> functions are wrappers around corresponding <code>re</code> patterns. For example, <code>rxe.digit().one_or_more('a').whitespace()</code> corresponds to <code>\da+\s</code>. Because <code>rxe</code> uses parentheses but wants to avoid unnamed groups, the internal (equivalent) representation is actually <code>\d(?:a)+\s</code>. This pattern can always be retrieved with <code>get_pattern()</code>.</p>
+<p>Github: <a href='https://github.com/mtrencseni/rxe'>https://github.com/mtrencseni/rxe</a></p>
 <h2>Motivation</h2>
 <p>Suppose you want to parse geo coordinates from a string, like <code>(&lt;latitude&gt;,&lt;longitude&gt;)</code>, where each is a decimal. The raw regular expression would look like <code>\(\d+\.\d\+,\d+\.\d\+)</code>. This is hard to read and maintain for the next guy, and diffs will be hard to understand and verify.</p>
 <p>With rx, you can write:</p>
