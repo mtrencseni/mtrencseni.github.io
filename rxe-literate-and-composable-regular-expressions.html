@@ -25,7 +25,7 @@
 <meta property="article:author" content="/author/marton-trencseni.html">
 <meta property="article:section" content="Python"/>
 <meta property="article:tag" content="python"/>
-<meta property="og:image" content="/images/rxe2.png"/>
+<meta property="og:image" content="/images/rxe.PNG"/>
 
   <title>Bytepawn &ndash; rxe: literate and composable regular expressions</title>
 </head>
@@ -58,8 +58,7 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p><a href='https://github.com/mtrencseni/rxe'>rxe</a> is a thin wrapper around Python's <code>re</code> module (see <a href="https://docs.python.org/2/library/re.html">official re docs</a>). The various <code>rxe</code> functions are wrappers around corresponding <code>re</code> patterns. For example, <code>rxe.digit().one_or_more('a').whitespace()</code> corresponds to <code>\da+\s</code>. Because <code>rxe</code> uses parentheses but wants to avoid unnamed groups, the internal (equivalent) representation is actually <code>\d(?:a)+\s</code>. This pattern can always be retrieved with <code>get_pattern()</code>.</p>
-<p>Github: <a href='https://github.com/mtrencseni/rxe'>https://github.com/mtrencseni/rxe</a></p>
+<p><code>rxe</code> is a thin wrapper around Python's <code>re</code> module (see <a href="https://docs.python.org/2/library/re.html">official re docs</a>). The various <code>rxe</code> functions are wrappers around corresponding <code>re</code> patterns. For example, <code>rxe.digit().one_or_more('a').whitespace()</code> corresponds to <code>\da+\s</code>. Because <code>rxe</code> uses parentheses but wants to avoid unnamed groups, the internal (equivalent) representation is actually <code>\d(?:a)+\s</code>. This pattern can always be retrieved with <code>get_pattern()</code>.</p>
 <h2>Motivation</h2>
 <p>Suppose you want to parse geo coordinates from a string, like <code>(&lt;latitude&gt;,&lt;longitude&gt;)</code>, where each is a decimal. The raw regular expression would look like <code>\(\d+\.\d\+,\d+\.\d\+)</code>. This is hard to read and maintain for the next guy, and diffs will be hard to understand and verify.</p>
 <p>With rx, you can write:</p>
@@ -107,7 +106,7 @@
   <span class="o">.</span><span class="n">literal</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">)</span>
 <span class="p">)</span>
 
-<span class="n">m</span> <span class="o">=</span> <span class="n">coord2</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;(23.34, 11.0)&#39;</span><span class="p">)</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;(23.34, 11.0)&#39;</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">))</span>
 <span class="k">print</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;lon&#39;</span><span class="p">))</span>
 </pre></div>
@@ -115,14 +114,15 @@
 
 <p>One more example, parsing email addresses. The regex is <code>[\w.%+-]+@[\w.-]+\.[a-zA-Z]{2,6}</code>. The equivalent <code>rxe</code> code:</p>
 <div class="highlight"><pre><span></span>username = rxe.one_or_more(rxe.set([rxe.alphanumeric(), &#39;.&#39;, &#39;%&#39;, &#39;+&#39;, &#39;-&#39;]))
-domain = rxe.one_or_more(rxe.set([rxe.alphanumeric(), &#39;.&#39;, &#39;-&#39;]))
-tld = rxe.at_least_at_most(2, 6, rxe.set([rxe.range(&#39;a&#39;, &#39;z&#39;), rxe.range(&#39;A&#39;, &#39;Z&#39;)]))
-email = (rxe
-    .exactly(username)
-    .literal(&#39;@&#39;)
-    .exactly(domain)
+domain = (rxe
+    .one_or_more(rxe.set([rxe.alphanumeric(), &#39;.&#39;, &#39;-&#39;]))
     .literal(&#39;.&#39;)
-    .exactly(tld)
+    .at_least_at_most(2, 6, rxe.set([rxe.range(&#39;a&#39;, &#39;z&#39;), rxe.range(&#39;A&#39;, &#39;Z&#39;)]))
+)
+email = (rxe
+    .exactly(1, username)
+    .literal(&#39;@&#39;)
+    .exactly(1, domain)
 )
 </pre></div>
 
