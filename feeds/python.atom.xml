@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Python</title><link href="/" rel="alternate"></link><link href="/feeds/python.atom.xml" rel="self"></link><id>/</id><updated>2019-03-02T00:00:00+01:00</updated><entry><title>rxe: literate and composable regular expressions</title><link href="/rxe-literate-and-composable-regular-expressions.html" rel="alternate"></link><published>2019-03-02T00:00:00+01:00</published><updated>2019-03-02T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2019-03-02:/rxe-literate-and-composable-regular-expressions.html</id><summary type="html">&lt;p&gt;&lt;code&gt;rxe&lt;/code&gt; is a thin wrapper around Python's &lt;code&gt;re&lt;/code&gt; module. The various &lt;code&gt;rxe&lt;/code&gt; functions are wrappers around corresponding &lt;code&gt;re&lt;/code&gt; patterns. For example, &lt;code&gt;rxe.digit().one_or_more('a').whitespace()&lt;/code&gt; corresponds to &lt;code&gt;\da+\s&lt;/code&gt;. Because &lt;code&gt;rxe&lt;/code&gt; uses parentheses but wants to avoid unnamed groups, the internal (equivalent) representation is actually &lt;code&gt;\d(?:a)+\s&lt;/code&gt;. This pattern can always be retrieved with &lt;code&gt;get_pattern()&lt;/code&gt;.&lt;br/&gt;&lt;br/&gt;&lt;img src="/images/rxe.PNG" alt="rxe example code" style="width: 500px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Python</title><link href="/" rel="alternate"></link><link href="/feeds/python.atom.xml" rel="self"></link><id>/</id><updated>2019-03-02T00:00:00+01:00</updated><entry><title>rxe: literate and composable regular expressions</title><link href="/rxe-literate-and-composable-regular-expressions.html" rel="alternate"></link><published>2019-03-02T00:00:00+01:00</published><updated>2019-03-02T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2019-03-02:/rxe-literate-and-composable-regular-expressions.html</id><summary type="html">&lt;p&gt;&lt;code&gt;rxe&lt;/code&gt; is a thin wrapper around Python's &lt;code&gt;re&lt;/code&gt; module. The various &lt;code&gt;rxe&lt;/code&gt; functions are wrappers around corresponding &lt;code&gt;re&lt;/code&gt; patterns. For example, &lt;code&gt;rxe.digit().one_or_more('a').whitespace()&lt;/code&gt; corresponds to &lt;code&gt;\da+\s&lt;/code&gt;. Because &lt;code&gt;rxe&lt;/code&gt; uses parentheses but wants to avoid unnamed groups, the internal (equivalent) representation is actually &lt;code&gt;\d(?:a)+\s&lt;/code&gt;. This pattern can always be retrieved with &lt;code&gt;get_pattern()&lt;/code&gt;.&lt;br/&gt;&lt;br/&gt;&lt;img src="/images/rxe2.PNG" alt="rxe example code" style="width: 500px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;&lt;code&gt;rxe&lt;/code&gt; is a thin wrapper around Python's &lt;code&gt;re&lt;/code&gt; module (see &lt;a href="https://docs.python.org/2/library/re.html"&gt;official re docs&lt;/a&gt;). The various &lt;code&gt;rxe&lt;/code&gt; functions are wrappers around corresponding &lt;code&gt;re&lt;/code&gt; patterns. For example, &lt;code&gt;rxe.digit().one_or_more('a').whitespace()&lt;/code&gt; corresponds to &lt;code&gt;\da+\s&lt;/code&gt;. Because &lt;code&gt;rxe&lt;/code&gt; uses parentheses but wants to avoid unnamed groups, the internal (equivalent) representation is actually &lt;code&gt;\d(?:a)+\s&lt;/code&gt;. This pattern can always be retrieved with &lt;code&gt;get_pattern()&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Github repo: &lt;a href="https://github.com/mtrencseni/rxe"&gt;https://github.com/mtrencseni/rxe&lt;/a&gt;&lt;/p&gt;
 &lt;h2&gt;Motivation&lt;/h2&gt;
 &lt;p&gt;Suppose you want to parse geo coordinates from a string, like &lt;code&gt;(&amp;lt;latitude&amp;gt;,&amp;lt;longitude&amp;gt;)&lt;/code&gt;, where each is a decimal. The raw regular expression would look like &lt;code&gt;\(\d+\.\d\+,\d+\.\d\+)&lt;/code&gt;. This is hard to read and maintain for the next guy, and diffs will be hard to understand and verify.&lt;/p&gt;
 &lt;p&gt;With rx, you can write:&lt;/p&gt;
@@ -56,15 +57,14 @@
 
 &lt;p&gt;One more example, parsing email addresses. The regex is &lt;code&gt;[\w.%+-]+@[\w.-]+\.[a-zA-Z]{2,6}&lt;/code&gt;. The equivalent &lt;code&gt;rxe&lt;/code&gt; code:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;username = rxe.one_or_more(rxe.set([rxe.alphanumeric(), &amp;#39;.&amp;#39;, &amp;#39;%&amp;#39;, &amp;#39;+&amp;#39;, &amp;#39;-&amp;#39;]))
-domain = (rxe
-    .one_or_more(rxe.set([rxe.alphanumeric(), &amp;#39;.&amp;#39;, &amp;#39;-&amp;#39;]))
-    .literal(&amp;#39;.&amp;#39;)
-    .at_least_at_most(2, 6, rxe.set([rxe.range(&amp;#39;a&amp;#39;, &amp;#39;z&amp;#39;), rxe.range(&amp;#39;A&amp;#39;, &amp;#39;Z&amp;#39;)]))
-)
+domain = rxe.one_or_more(rxe.set([rxe.alphanumeric(), &amp;#39;.&amp;#39;, &amp;#39;-&amp;#39;]))
+tld = rxe.at_least_at_most(2, 6, rxe.set([rxe.range(&amp;#39;a&amp;#39;, &amp;#39;z&amp;#39;), rxe.range(&amp;#39;A&amp;#39;, &amp;#39;Z&amp;#39;)]))
 email = (rxe
-    .exactly(1, username)
+    .exactly(username)
     .literal(&amp;#39;@&amp;#39;)
-    .exactly(1, domain)
+    .exactly(domain)
+    .literal(&amp;#39;.&amp;#39;)
+    .exactly(tld)
 )
 &lt;/pre&gt;&lt;/div&gt;
 
