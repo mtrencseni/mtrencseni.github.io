@@ -188,18 +188,18 @@ Getting the set of commenters out of the JSON would be the easiest with <code>js
 
 
 <p>We can see that training is able to reduce the MSE by about 40% from the initial random vectors by finding better alignments. That doesn’t sound too good, but it’s good enough for recommendations to work. Let’s write a function to find the closest vectors to a query vector:</p>
-<div class="highlight"><pre><span></span>def similar_posts_by_title(title):
-    post_id = title_to_id[title]
-    pv = get_post_vector(post_id)
-    dists = []
-    for other_post in posts:
-        if other_post == post_id: continue
-        ov = get_post_vector(other_post)
-        dist = torch.dot(pv, ov)
-        dists.append([float(dist), &#39;https://news.ycombinator.com/item?id=&#39; + other_post, id_to_title[other_post]])
-    similars = sorted(dists)[-3:]
-    similars.reverse()
-    return similars
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">similar_posts_by_title</span><span class="p">(</span><span class="n">title</span><span class="p">):</span>
+    <span class="n">post_id</span> <span class="o">=</span> <span class="n">title_to_id</span><span class="p">[</span><span class="n">title</span><span class="p">]</span>
+    <span class="n">pv</span> <span class="o">=</span> <span class="n">get_post_vector</span><span class="p">(</span><span class="n">post_id</span><span class="p">)</span>
+    <span class="n">dists</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">other_post</span> <span class="ow">in</span> <span class="n">posts</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">other_post</span> <span class="o">==</span> <span class="n">post_id</span><span class="p">:</span> <span class="k">continue</span>
+        <span class="n">ov</span> <span class="o">=</span> <span class="n">get_post_vector</span><span class="p">(</span><span class="n">other_post</span><span class="p">)</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">pv</span><span class="p">,</span> <span class="n">ov</span><span class="p">)</span>
+        <span class="n">dists</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">dist</span><span class="p">),</span> <span class="s1">&#39;https://news.ycombinator.com/item?id=&#39;</span> <span class="o">+</span> <span class="n">other_post</span><span class="p">,</span> <span class="n">id_to_title</span><span class="p">[</span><span class="n">other_post</span><span class="p">]])</span>
+    <span class="n">similars</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dists</span><span class="p">)[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]</span>
+    <span class="n">similars</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">similars</span>
 </pre></div>
 
 
