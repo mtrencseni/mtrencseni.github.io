@@ -95,7 +95,7 @@ LIMIT
 <p>Getting the comments is not practical from BigQuery because the table stores the tree hierarchy (<code>parent_id</code> of the parent comment, but not the <code>post_id</code>), so we’d have to query repeatedly to get all the comments of the post, which is inconvenient. Fortunately there’s an easier way. <a href="https://algolia.com">Algolia</a> has a Hacker News API where we can download one big JSON per post, containing all the comments. The API endpoint for this is:</p>
 <p><code>https://hn.algolia.com/api/v1/items/&lt;post_id&gt;</code></p>
 <p>So we just go through all the posts from the previous step and download each one from Algolia.
-Getting the set of commenters out of the JSON would be the easiest with <code>json.load()</code>, but this sometimes fails on bad JSON. Instead we use an rxe regexp:</p>
+Getting the set of commenters out of the JSON would be the easiest with <code>json.load()</code>, but this sometimes fails on bad JSON. Instead we use an <a href="https://github.com/mtrencseni/rxe">rxe</a> regexp:</p>
 <p><code>rxe.one('"author":"').one_or_more(rxe.set_except(['"'])).one('"')</code></p>
 <p>The code for this is here on Github (LINK). The script caches files, so repeatedly running it doesn’t repeatedly re-download data from Algolia.</p>
 <p>The script outputs the <code>(post, user)</code> pairs into <code>post_comments_1000.csv</code> (Github link).</p>
