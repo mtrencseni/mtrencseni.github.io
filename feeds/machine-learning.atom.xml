@@ -15,7 +15,7 @@
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;p&gt;The &lt;a href="https://github.com/mtrencseni/pytorch-playground/tree/master/02-hacker-news-recommendations"&gt;code for this recipe is on Github&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/mtrencseni/pytorch-playground/tree/master/02-hacker-news-recommendations"&gt;All the code shown here, with the data files, is up on Github.&lt;/a&gt;&lt;/p&gt;
 &lt;h2&gt;Getting the top 1000 HN posts&lt;/h2&gt;
 &lt;p&gt;The simplest way to get this is from &lt;a href="https://cloud.google.com/bigquery"&gt;Google BigQuery&lt;/a&gt;, which has a &lt;a href="https://console.cloud.google.com/marketplace/details/y-combinator/hacker-news"&gt;public Hacker News dataset&lt;/a&gt;. We can write a SQL query and download the results as a CSV file from the Google Cloud console:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
