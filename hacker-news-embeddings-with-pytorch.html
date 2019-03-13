@@ -262,7 +262,7 @@ Getting the set of commenters out of the JSON would be the easiest with <code>js
 <li>Notice that when we got recommendations for a user (user-movie dot product), the dot product is always significantly lower than in the movie-movie case (user-user dot products are also lower). The users seem to be more scattered in the high-dimensional space, the movies seem to be in a more tightly packed subspace.</li>
 <li>Issues/bugs that slowed me down:<ul>
 <li>Both posts and users are embedded, so we must remember at which row in the embedding matrix the user vectors start (<code>min_user_idx</code> in the code). Initially I forgot to account for this, both started indexing at 0. Everything ran, but the similarity results were garbage. A nicer solution here would be to use 2 <code>Embedding</code> objects (essentially 2 arrays), so we don’t have to remember the offset.</li>
-<li>I forgot to call <code>optimizer.zero_grad()</code> in the zero grad. Everything ran, but the similarity results were garbage. Without the <code>zero_grad()</code> call, the gradients are just cumulated, and the optimizer jumps around aimlessly.</li>
+<li>I forgot to call <code>optimizer.zero_grad()</code> in the training loop. Everything ran, but the similarity results were garbage. Without the <code>zero_grad()</code> call, the gradients are just cumulated, and the optimizer jumps around aimlessly.</li>
 </ul>
 </li>
 </ol>
