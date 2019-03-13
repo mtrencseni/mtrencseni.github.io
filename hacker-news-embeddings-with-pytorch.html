@@ -72,21 +72,21 @@
 <p>The code for this recipe is up on Github (link to Github).</p>
 <h2>Getting the top 1000 HN posts</h2>
 <p>The simplest way to get this is from <a href="https://cloud.google.com/bigquery">Google BigQuery</a>, which has a <a href="https://console.cloud.google.com/marketplace/details/y-combinator/hacker-news">public Hacker News dataset</a>. We can write a SQL query and download the results as a CSV file from the Google Cloud console:</p>
-<div class="highlight"><pre><span></span>SELECT
-    id,
-    descendants,
-    title
-FROM
-    `bigquery-public-data.hacker_news.full`
-WHERE
-        timestamp &gt;= &quot;2018-01-01&quot;
-    AND timestamp &lt;  “2019-01-01”
-    AND type = &quot;story&quot;
-    AND score &gt; 1
-ORDER BY
-    2 DESC
-LIMIT
-    1000
+<div class="highlight"><pre><span></span><span class="k">SELECT</span>
+    <span class="n">id</span><span class="p">,</span>
+    <span class="n">descendants</span><span class="p">,</span>
+    <span class="n">title</span>
+<span class="k">FROM</span>
+    <span class="o">`</span><span class="n">bigquery</span><span class="o">-</span><span class="k">public</span><span class="o">-</span><span class="k">data</span><span class="p">.</span><span class="n">hacker_news</span><span class="p">.</span><span class="k">full</span><span class="o">`</span>
+<span class="k">WHERE</span>
+        <span class="k">timestamp</span> <span class="o">&gt;=</span> <span class="ss">&quot;2018-01-01&quot;</span>
+    <span class="k">AND</span> <span class="k">timestamp</span> <span class="o">&lt;</span>  <span class="err">“</span><span class="mi">2019</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">01</span><span class="err">”</span>
+    <span class="k">AND</span> <span class="k">type</span> <span class="o">=</span> <span class="ss">&quot;story&quot;</span>
+    <span class="k">AND</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="mi">1</span>
+<span class="k">ORDER</span> <span class="k">BY</span>
+    <span class="mi">2</span> <span class="k">DESC</span>
+<span class="k">LIMIT</span>
+    <span class="mi">1000</span>
 </pre></div>
 
 
@@ -103,67 +103,67 @@ Getting the set of commenters out of the JSON would be the easiest with <code>js
 <p>PyTorch has a built-in module for <a href="https://pytorch.org/tutorials/beginner/nlp/word_embeddings_tutorial.html">Embeddings</a>, which makes building the model simple. It’s essentially a big array, which stores for each entity the assigned high-dimensional vector. In our case, both posts and users are embedded so if there are <code>num_posts</code> posts and <code>num_users</code> users, so <code>num_vectors = num_posts + num_users</code>. So the array has <code>num_vectors</code> row, each row corresponds to that entity’s embedding vector.</p>
 <p>PyTorch will then optimize the entries in this array, so that the dot products of the combinations of the vectors are <code>+1</code> and <code>-1</code> as specified during training, or as close as possible.</p>
 <p>The next step is to create a Model which contains the embedding. We implement the <code>forward()</code> function, which just returns the dot product for a minibatch of posts and users, as per the current embedding vectors:</p>
-<div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Model</span><span class="p">(</span><span class="nx">torch</span><span class="p">.</span><span class="nx">nn</span><span class="p">.</span><span class="nx">Module</span><span class="p">)</span><span class="o">:</span>
-    <span class="nx">def</span> <span class="nx">__init__</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">num_vectors</span><span class="p">,</span> <span class="nx">embedding_dim</span><span class="p">)</span><span class="o">:</span>
-        <span class="kr">super</span><span class="p">(</span><span class="nx">Model</span><span class="p">,</span> <span class="nx">self</span><span class="p">).</span><span class="nx">__init__</span><span class="p">()</span>
-        <span class="nx">self</span><span class="p">.</span><span class="nx">embedding</span> <span class="o">=</span> <span class="nx">torch</span><span class="p">.</span><span class="nx">nn</span><span class="p">.</span><span class="nx">Embedding</span><span class="p">(</span><span class="nx">num_vectors</span><span class="p">,</span> <span class="nx">embedding_dim</span><span class="p">,</span> <span class="nx">max_norm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-    <span class="nx">def</span> <span class="nx">forward</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">input</span><span class="p">)</span><span class="o">:</span>
-        <span class="nx">t1</span> <span class="o">=</span> <span class="nx">self</span><span class="p">.</span><span class="nx">embedding</span><span class="p">(</span><span class="nx">torch</span><span class="p">.</span><span class="nx">LongTensor</span><span class="p">([</span><span class="nx">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="nx">v</span> <span class="k">in</span> <span class="nx">input</span><span class="p">]))</span>
-        <span class="nx">t2</span> <span class="o">=</span> <span class="nx">self</span><span class="p">.</span><span class="nx">embedding</span><span class="p">(</span><span class="nx">torch</span><span class="p">.</span><span class="nx">LongTensor</span><span class="p">([</span><span class="nx">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="nx">v</span> <span class="k">in</span> <span class="nx">input</span><span class="p">]))</span>
-        <span class="nx">dot_products</span> <span class="o">=</span> <span class="nx">torch</span><span class="p">.</span><span class="nx">bmm</span><span class="p">(</span>
-            <span class="nx">t1</span><span class="p">.</span><span class="nx">contiguous</span><span class="p">().</span><span class="nx">view</span><span class="p">(</span><span class="nx">len</span><span class="p">(</span><span class="nx">input</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">self</span><span class="p">.</span><span class="nx">embedding</span><span class="p">.</span><span class="nx">embedding_dim</span><span class="p">),</span>
-            <span class="nx">t2</span><span class="p">.</span><span class="nx">contiguous</span><span class="p">().</span><span class="nx">view</span><span class="p">(</span><span class="nx">len</span><span class="p">(</span><span class="nx">input</span><span class="p">),</span> <span class="nx">self</span><span class="p">.</span><span class="nx">embedding</span><span class="p">.</span><span class="nx">embedding_dim</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_vectors</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">num_vectors</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="p">,</span> <span class="n">max_norm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">):</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">input</span><span class="p">]))</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">input</span><span class="p">]))</span>
+        <span class="n">dot_products</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">bmm</span><span class="p">(</span>
+            <span class="n">t1</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">input</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="o">.</span><span class="n">embedding_dim</span><span class="p">),</span>
+            <span class="n">t2</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">input</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="o">.</span><span class="n">embedding_dim</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="nx">dot_products</span><span class="p">.</span><span class="nx">contiguous</span><span class="p">().</span><span class="nx">view</span><span class="p">(</span><span class="nx">len</span><span class="p">(</span><span class="nx">input</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">dot_products</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">input</span><span class="p">))</span>
 </pre></div>
 
 
 <p>Next, we need to write a function to build the minibatches we will use for training. For training, we will pass in existing combinations and “assert” that the dot product should be <code>+1</code>, and some missing combinations with <code>-1</code>:</p>
-<div class="highlight"><pre><span></span>def build_minibatch(num_positives, num_negatives):
-    minibatch = []
-    for _ in range(num_positives):
-        which = int(len(idx_list) * random())
-        minibatch.append(idx_list[which] + [1])
-    for _ in range(num_negatives):
-        while True:
-            post = int(len(posts) * random())
-            user = min_user_idx + int(len(users) * random())
-            if post not in idx_user_posts[user]:
-                break
-        minibatch.append([post, user] + [-1])
-    shuffle(minibatch)
-    return minibatch
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">build_minibatch</span><span class="p">(</span><span class="n">num_positives</span><span class="p">,</span> <span class="n">num_negatives</span><span class="p">):</span>
+    <span class="n">minibatch</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_positives</span><span class="p">):</span>
+        <span class="n">which</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idx_list</span><span class="p">)</span> <span class="o">*</span> <span class="n">random</span><span class="p">())</span>
+        <span class="n">minibatch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx_list</span><span class="p">[</span><span class="n">which</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_negatives</span><span class="p">):</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">post</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">posts</span><span class="p">)</span> <span class="o">*</span> <span class="n">random</span><span class="p">())</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">min_user_idx</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">users</span><span class="p">)</span> <span class="o">*</span> <span class="n">random</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">post</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">idx_user_posts</span><span class="p">[</span><span class="n">user</span><span class="p">]:</span>
+                <span class="k">break</span>
+        <span class="n">minibatch</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">post</span><span class="p">,</span> <span class="n">user</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">shuffle</span><span class="p">(</span><span class="n">minibatch</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">minibatch</span>
 </pre></div>
 
 
 <p>Now we can perform the training. We will embed into 50 dimensions, we will use 500 positive and 500 negative combinations per minibatch. We use the <a href="https://pytorch.org/docs/stable/optim.html">Adam optimizer</a> and minimize the mean squared error between our asserted dot products and the actual dot products:</p>
-<div class="highlight"><pre><span></span><span class="nt">embedding_dim</span> <span class="o">=</span> <span class="nt">50</span>
-<span class="nt">model</span> <span class="o">=</span> <span class="nt">Model</span><span class="o">(</span><span class="nt">num_vectors</span><span class="o">,</span> <span class="nt">embedding_dim</span><span class="o">)</span>
-<span class="nt">optimizer</span> <span class="o">=</span> <span class="nt">torch</span><span class="p">.</span><span class="nc">optim</span><span class="p">.</span><span class="nc">Adam</span><span class="o">(</span><span class="nt">model</span><span class="p">.</span><span class="nc">parameters</span><span class="o">())</span>
-<span class="nt">loss_function</span> <span class="o">=</span> <span class="nt">torch</span><span class="p">.</span><span class="nc">nn</span><span class="p">.</span><span class="nc">MSELoss</span><span class="o">(</span><span class="nt">reduction</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="o">)</span>
-<span class="nt">num_epochs</span> <span class="o">=</span> <span class="nt">50</span>
-<span class="nt">num_positives</span> <span class="o">=</span> <span class="nt">500</span>
-<span class="nt">num_negatives</span> <span class="o">=</span> <span class="nt">500</span>
-<span class="nt">num_steps_per_epoch</span> <span class="o">=</span> <span class="nt">int</span><span class="o">(</span><span class="nt">len</span><span class="o">(</span><span class="nt">post_comments</span><span class="o">)</span> <span class="o">/</span> <span class="nt">num_positives</span><span class="o">)</span>
-<span class="nt">for</span> <span class="nt">i</span> <span class="nt">in</span> <span class="nt">range</span><span class="o">(</span><span class="nt">num_epochs</span><span class="o">):</span>
-    <span class="nt">for</span> <span class="nt">j</span> <span class="nt">in</span> <span class="nt">range</span><span class="o">(</span><span class="nt">num_steps_per_epoch</span><span class="o">):</span>
-        <span class="nt">optimizer</span><span class="p">.</span><span class="nc">zero_grad</span><span class="o">()</span>
-        <span class="nt">minibatch</span> <span class="o">=</span> <span class="nt">build_minibatch</span><span class="o">(</span><span class="nt">num_positives</span><span class="o">,</span> <span class="nt">num_negatives</span><span class="o">)</span>
-        <span class="nt">y</span> <span class="o">=</span> <span class="nt">model</span><span class="p">.</span><span class="nc">forward</span><span class="o">(</span><span class="nt">minibatch</span><span class="o">)</span>
-        <span class="nt">target</span> <span class="o">=</span> <span class="nt">torch</span><span class="p">.</span><span class="nc">FloatTensor</span><span class="o">(</span><span class="cp">[</span><span class="nx">v</span><span class="err">[</span><span class="mi">2</span><span class="cp">]</span> <span class="nt">for</span> <span class="nt">v</span> <span class="nt">in</span> <span class="nt">minibatch</span><span class="o">])</span>
-        <span class="nt">loss</span> <span class="o">=</span> <span class="nt">loss_function</span><span class="o">(</span><span class="nt">y</span><span class="o">,</span> <span class="nt">target</span><span class="o">)</span>
-        <span class="nt">if</span> <span class="nt">i</span> <span class="o">==</span> <span class="nt">0</span> <span class="nt">and</span> <span class="nt">j</span> <span class="o">==</span> <span class="nt">0</span><span class="o">:</span>
-            <span class="nt">print</span><span class="o">(</span><span class="s1">&#39;r: loss = %.3f&#39;</span> <span class="o">%</span> <span class="nt">float</span><span class="o">(</span><span class="nt">loss</span><span class="o">))</span>
-        <span class="nt">loss</span><span class="p">.</span><span class="nc">backward</span><span class="o">(</span><span class="nt">retain_graph</span><span class="o">=</span><span class="nt">True</span><span class="o">)</span>
-        <span class="nt">optimizer</span><span class="p">.</span><span class="nc">step</span><span class="o">()</span>
-    <span class="nt">print</span><span class="o">(</span><span class="s1">&#39;%s: loss = %.3f&#39;</span> <span class="o">%</span> <span class="o">(</span><span class="nt">i</span><span class="o">,</span> <span class="nt">float</span><span class="o">(</span><span class="nt">loss</span><span class="o">)))</span>
-<span class="err">#</span> <span class="nt">print</span> <span class="nt">out</span> <span class="nt">some</span> <span class="nt">samples</span> <span class="nt">to</span> <span class="nt">see</span> <span class="nt">how</span> <span class="nt">good</span> <span class="nt">the</span> <span class="nt">fit</span> <span class="nt">is</span>
-<span class="nt">minibatch</span> <span class="o">=</span> <span class="nt">build_minibatch</span><span class="o">(</span><span class="nt">5</span><span class="o">,</span> <span class="nt">5</span><span class="o">)</span>
-<span class="nt">y</span> <span class="o">=</span> <span class="nt">model</span><span class="p">.</span><span class="nc">forward</span><span class="o">(</span><span class="nt">minibatch</span><span class="o">)</span>
-<span class="nt">target</span> <span class="o">=</span> <span class="nt">torch</span><span class="p">.</span><span class="nc">FloatTensor</span><span class="o">(</span><span class="cp">[</span><span class="nx">v</span><span class="err">[</span><span class="mi">2</span><span class="cp">]</span> <span class="nt">for</span> <span class="nt">v</span> <span class="nt">in</span> <span class="nt">minibatch</span><span class="o">])</span>
-<span class="nt">print</span><span class="o">(</span><span class="s1">&#39;Sample vectors:&#39;</span><span class="o">);</span>
-<span class="nt">for</span> <span class="nt">i</span> <span class="nt">in</span> <span class="nt">range</span><span class="o">(</span><span class="nt">5</span><span class="o">+</span><span class="nt">5</span><span class="o">):</span>
-    <span class="nt">print</span><span class="o">(</span><span class="s1">&#39;%.3f vs %.3f&#39;</span> <span class="o">%</span> <span class="o">(</span><span class="nt">float</span><span class="o">(</span><span class="nt">y</span><span class="cp">[</span><span class="nx">i</span><span class="cp">]</span><span class="o">),</span> <span class="nt">float</span><span class="o">(</span><span class="nt">target</span><span class="cp">[</span><span class="nx">i</span><span class="cp">]</span><span class="o">)))</span>
+<div class="highlight"><pre><span></span><span class="n">embedding_dim</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">num_vectors</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="p">)</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+<span class="n">loss_function</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">MSELoss</span><span class="p">(</span><span class="n">reduction</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">)</span>
+<span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">num_positives</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">num_negatives</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">num_steps_per_epoch</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">post_comments</span><span class="p">)</span> <span class="o">/</span> <span class="n">num_positives</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_steps_per_epoch</span><span class="p">):</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+        <span class="n">minibatch</span> <span class="o">=</span> <span class="n">build_minibatch</span><span class="p">(</span><span class="n">num_positives</span><span class="p">,</span> <span class="n">num_negatives</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">minibatch</span><span class="p">)</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">minibatch</span><span class="p">])</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_function</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;r: loss = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">float</span><span class="p">(</span><span class="n">loss</span><span class="p">))</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">retain_graph</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: loss = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">loss</span><span class="p">)))</span>
+<span class="c1"># print out some samples to see how good the fit is</span>
+<span class="n">minibatch</span> <span class="o">=</span> <span class="n">build_minibatch</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">minibatch</span><span class="p">)</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">minibatch</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Sample vectors:&#39;</span><span class="p">);</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="o">+</span><span class="mi">5</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.3f</span><span class="s1"> vs </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="n">i</span><span class="p">])))</span>
 </pre></div>
 
 
@@ -205,7 +205,6 @@ Getting the set of commenters out of the JSON would be the easiest with <code>js
 
 <p>We can use this to find similar posts, and it works:</p>
 <p>Query: <a href="https://news.ycombinator.com/item?id=16619917">Self-driving Uber car kills Arizona woman crossing street</a></p>
-<p>Results:</p>
 <ul>
 <li>0.89, <a href="https://news.ycombinator.com/item?id=16643056">Tempe Police Release Video of Uber Accident</a></li>
 <li>0.69, <a href="https://news.ycombinator.com/item?id=16629673">Police Say Video Shows Woman Stepped Suddenly in Front of Self-Driving Uber</a></li>
