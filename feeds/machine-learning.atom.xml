@@ -114,17 +114,18 @@ Getting the set of commenters out of the JSON would be the easiest with &lt;code
 &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;loss&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;1.009&lt;/span&gt;
 &lt;span class="o"&gt;...&lt;/span&gt;
 &lt;span class="mi"&gt;49&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;loss&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.633&lt;/span&gt;
+
 &lt;span class="n"&gt;Sample&lt;/span&gt; &lt;span class="n"&gt;vectors&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
-&lt;span class="mf"&gt;0.319&lt;/span&gt; &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;1.000&lt;/span&gt;
-&lt;span class="mf"&gt;0.395&lt;/span&gt; &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="mf"&gt;1.000&lt;/span&gt;
-&lt;span class="mf"&gt;0.226&lt;/span&gt; &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;1.000&lt;/span&gt;
+&lt;span class="mf"&gt;0.319&lt;/span&gt;  &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;1.000&lt;/span&gt;
+&lt;span class="mf"&gt;0.226&lt;/span&gt;  &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;1.000&lt;/span&gt;
 &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;0.232&lt;/span&gt; &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;1.000&lt;/span&gt;
-&lt;span class="mf"&gt;0.537&lt;/span&gt; &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="mf"&gt;1.000&lt;/span&gt;
-&lt;span class="mf"&gt;0.179&lt;/span&gt; &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;1.000&lt;/span&gt;
-&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;0.020&lt;/span&gt; &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="mf"&gt;1.000&lt;/span&gt;
-&lt;span class="mf"&gt;0.392&lt;/span&gt; &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="mf"&gt;1.000&lt;/span&gt;
-&lt;span class="mf"&gt;0.141&lt;/span&gt; &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="mf"&gt;1.000&lt;/span&gt;
+&lt;span class="mf"&gt;0.179&lt;/span&gt;  &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;1.000&lt;/span&gt;
 &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;0.096&lt;/span&gt; &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;1.000&lt;/span&gt;
+&lt;span class="mf"&gt;0.395&lt;/span&gt;  &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="mf"&gt;1.000&lt;/span&gt;
+&lt;span class="mf"&gt;0.537&lt;/span&gt;  &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="mf"&gt;1.000&lt;/span&gt;
+&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;0.020&lt;/span&gt; &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="mf"&gt;1.000&lt;/span&gt;
+&lt;span class="mf"&gt;0.392&lt;/span&gt;  &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="mf"&gt;1.000&lt;/span&gt;
+&lt;span class="mf"&gt;0.141&lt;/span&gt;  &lt;span class="n"&gt;vs&lt;/span&gt; &lt;span class="mf"&gt;1.000&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
