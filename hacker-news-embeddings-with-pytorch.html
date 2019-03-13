@@ -69,7 +69,7 @@
 <li>Train with <a href="https://en.wikipedia.org/wiki/Mean_squared_error">mean squared error</a> (MSE)</li>
 <li>Use the resulting model to get post similarity</li>
 </ol>
-<p>The code for this recipe is up on Github (link to Github).</p>
+<p>The <a href="https://github.com/mtrencseni/pytorch-playground/tree/master/02-hacker-news-recommendations">code for this recipe is on Github</a>.</p>
 <h2>Getting the top 1000 HN posts</h2>
 <p>The simplest way to get this is from <a href="https://cloud.google.com/bigquery">Google BigQuery</a>, which has a <a href="https://console.cloud.google.com/marketplace/details/y-combinator/hacker-news">public Hacker News dataset</a>. We can write a SQL query and download the results as a CSV file from the Google Cloud console:</p>
 <div class="highlight"><pre><span></span><span class="k">SELECT</span>
@@ -90,15 +90,15 @@
 </pre></div>
 
 
-<p>The result of this is <code>top_1000_posts.csv</code> (link to Github).</p>
+<p>The result of this is <a href="https://github.com/mtrencseni/pytorch-playground/blob/master/02-hacker-news-recommendations/top_1000_posts.csv">top_1000_posts.csv</a>.</p>
 <h2>Retrieve commenters for top posts</h2>
 <p>Getting the comments is not practical from BigQuery because the table stores the tree hierarchy (<code>parent_id</code> of the parent comment, but not the <code>post_id</code>), so we’d have to query repeatedly to get all the comments of the post, which is inconvenient. Fortunately there’s an easier way. <a href="https://algolia.com">Algolia</a> has a Hacker News API where we can download one big JSON per post, containing all the comments. The API endpoint for this is:</p>
 <p><code>https://hn.algolia.com/api/v1/items/&lt;post_id&gt;</code></p>
 <p>So we just go through all the posts from the previous step and download each one from Algolia.
 Getting the set of commenters out of the JSON would be the easiest with <code>json.load()</code>, but this sometimes fails on bad JSON. Instead we use an <a href="https://github.com/mtrencseni/rxe">rxe</a> regexp:</p>
 <p><code>rxe.one('"author":"').one_or_more(rxe.set_except(['"'])).one('"')</code></p>
-<p>The code for this is here on Github (LINK). The script caches files, so repeatedly running it doesn’t repeatedly re-download data from Algolia.</p>
-<p>The script outputs the <code>(post, user)</code> pairs into <code>post_comments_1000.csv</code> (Github link).</p>
+<p>The <a href="https://github.com/mtrencseni/pytorch-playground/blob/master/02-hacker-news-recommendations/download_comments.py">entire code for this download script is on Github</a>. The script <a href="https://github.com/mtrencseni/pytorch-playground/tree/master/02-hacker-news-recommendations/cache">caches</a> files, so repeatedly running it doesn’t repeatedly re-download data from Algolia.</p>
+<p>The script outputs the <code>(post, user)</code> pairs into <a href="https://github.com/mtrencseni/pytorch-playground/blob/master/02-hacker-news-recommendations/post_comments_1000.csv">post_comments_1000.csv</a>.</p>
 <h2>Building the model</h2>
 <p>PyTorch has a built-in module for <a href="https://pytorch.org/tutorials/beginner/nlp/word_embeddings_tutorial.html">Embeddings</a>, which makes building the model simple. It’s essentially a big array, which stores for each entity the assigned high-dimensional vector. In our case, both posts and users are embedded so if there are <code>num_posts</code> posts and <code>num_users</code> users, so <code>num_vectors = num_posts + num_users</code>. So the array has <code>num_vectors</code> row, each row corresponds to that entity’s embedding vector.</p>
 <p>PyTorch will then optimize the entries in this array, so that the dot products of the combinations of the vectors are <code>+1</code> and <code>-1</code> as specified during training, or as close as possible.</p>
@@ -204,7 +204,7 @@ Getting the set of commenters out of the JSON would be the easiest with <code>js
 </pre></div>
 
 
-<p>We can use this to find similar posts, it works reasonably well.</p>
+<p><a href="https://github.com/mtrencseni/pytorch-playground/blob/master/02-hacker-news-recommendations/Hacker%20News%20Embeddings%20with%20PyTorch.ipynb">The entire ipython notebook is on Github</a>. We can use this to find similar posts, it works reasonably well.</p>
 <p>Query: <a href="https://news.ycombinator.com/item?id=16619917">Self-driving Uber car kills Arizona woman crossing street</a></p>
 <ul>
 <li>0.89, <a href="https://news.ycombinator.com/item?id=16643056">Tempe Police Release Video of Uber Accident</a></li>

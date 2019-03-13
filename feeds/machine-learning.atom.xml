@@ -11,7 +11,7 @@
 &lt;li&gt;Train with &lt;a href="https://en.wikipedia.org/wiki/Mean_squared_error"&gt;mean squared error&lt;/a&gt; (MSE)&lt;/li&gt;
 &lt;li&gt;Use the resulting model to get post similarity&lt;/li&gt;
 &lt;/ol&gt;
-&lt;p&gt;The code for this recipe is up on Github (link to Github).&lt;/p&gt;
+&lt;p&gt;The &lt;a href="https://github.com/mtrencseni/pytorch-playground/tree/master/02-hacker-news-recommendations"&gt;code for this recipe is on Github&lt;/a&gt;.&lt;/p&gt;
 &lt;h2&gt;Getting the top 1000 HN posts&lt;/h2&gt;
 &lt;p&gt;The simplest way to get this is from &lt;a href="https://cloud.google.com/bigquery"&gt;Google BigQuery&lt;/a&gt;, which has a &lt;a href="https://console.cloud.google.com/marketplace/details/y-combinator/hacker-news"&gt;public Hacker News dataset&lt;/a&gt;. We can write a SQL query and download the results as a CSV file from the Google Cloud console:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
@@ -32,15 +32,15 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;The result of this is &lt;code&gt;top_1000_posts.csv&lt;/code&gt; (link to Github).&lt;/p&gt;
+&lt;p&gt;The result of this is &lt;a href="https://github.com/mtrencseni/pytorch-playground/blob/master/02-hacker-news-recommendations/top_1000_posts.csv"&gt;top_1000_posts.csv&lt;/a&gt;.&lt;/p&gt;
 &lt;h2&gt;Retrieve commenters for top posts&lt;/h2&gt;
 &lt;p&gt;Getting the comments is not practical from BigQuery because the table stores the tree hierarchy (&lt;code&gt;parent_id&lt;/code&gt; of the parent comment, but not the &lt;code&gt;post_id&lt;/code&gt;), so we’d have to query repeatedly to get all the comments of the post, which is inconvenient. Fortunately there’s an easier way. &lt;a href="https://algolia.com"&gt;Algolia&lt;/a&gt; has a Hacker News API where we can download one big JSON per post, containing all the comments. The API endpoint for this is:&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;https://hn.algolia.com/api/v1/items/&amp;lt;post_id&amp;gt;&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;So we just go through all the posts from the previous step and download each one from Algolia.
 Getting the set of commenters out of the JSON would be the easiest with &lt;code&gt;json.load()&lt;/code&gt;, but this sometimes fails on bad JSON. Instead we use an &lt;a href="https://github.com/mtrencseni/rxe"&gt;rxe&lt;/a&gt; regexp:&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;rxe.one('"author":"').one_or_more(rxe.set_except(['"'])).one('"')&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;The code for this is here on Github (LINK). The script caches files, so repeatedly running it doesn’t repeatedly re-download data from Algolia.&lt;/p&gt;
-&lt;p&gt;The script outputs the &lt;code&gt;(post, user)&lt;/code&gt; pairs into &lt;code&gt;post_comments_1000.csv&lt;/code&gt; (Github link).&lt;/p&gt;
+&lt;p&gt;The &lt;a href="https://github.com/mtrencseni/pytorch-playground/blob/master/02-hacker-news-recommendations/download_comments.py"&gt;entire code for this download script is on Github&lt;/a&gt;. The script &lt;a href="https://github.com/mtrencseni/pytorch-playground/tree/master/02-hacker-news-recommendations/cache"&gt;caches&lt;/a&gt; files, so repeatedly running it doesn’t repeatedly re-download data from Algolia.&lt;/p&gt;
+&lt;p&gt;The script outputs the &lt;code&gt;(post, user)&lt;/code&gt; pairs into &lt;a href="https://github.com/mtrencseni/pytorch-playground/blob/master/02-hacker-news-recommendations/post_comments_1000.csv"&gt;post_comments_1000.csv&lt;/a&gt;.&lt;/p&gt;
 &lt;h2&gt;Building the model&lt;/h2&gt;
 &lt;p&gt;PyTorch has a built-in module for &lt;a href="https://pytorch.org/tutorials/beginner/nlp/word_embeddings_tutorial.html"&gt;Embeddings&lt;/a&gt;, which makes building the model simple. It’s essentially a big array, which stores for each entity the assigned high-dimensional vector. In our case, both posts and users are embedded so if there are &lt;code&gt;num_posts&lt;/code&gt; posts and &lt;code&gt;num_users&lt;/code&gt; users, so &lt;code&gt;num_vectors = num_posts + num_users&lt;/code&gt;. So the array has &lt;code&gt;num_vectors&lt;/code&gt; row, each row corresponds to that entity’s embedding vector.&lt;/p&gt;
 &lt;p&gt;PyTorch will then optimize the entries in this array, so that the dot products of the combinations of the vectors are &lt;code&gt;+1&lt;/code&gt; and &lt;code&gt;-1&lt;/code&gt; as specified during training, or as close as possible.&lt;/p&gt;
@@ -146,7 +146,7 @@ Getting the set of commenters out of the JSON would be the easiest with &lt;code
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;We can use this to find similar posts, it works reasonably well.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/mtrencseni/pytorch-playground/blob/master/02-hacker-news-recommendations/Hacker%20News%20Embeddings%20with%20PyTorch.ipynb"&gt;The entire ipython notebook is on Github&lt;/a&gt;. We can use this to find similar posts, it works reasonably well.&lt;/p&gt;
 &lt;p&gt;Query: &lt;a href="https://news.ycombinator.com/item?id=16619917"&gt;Self-driving Uber car kills Arizona woman crossing street&lt;/a&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;0.89, &lt;a href="https://news.ycombinator.com/item?id=16643056"&gt;Tempe Police Release Video of Uber Accident&lt;/a&gt;&lt;/li&gt;
