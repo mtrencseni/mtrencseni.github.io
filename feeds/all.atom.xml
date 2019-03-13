@@ -7,7 +7,7 @@
 &lt;ol&gt;
 &lt;li&gt;Retrieve the top 1,000 HN posts from 2018 by number of comments&lt;/li&gt;
 &lt;li&gt;For each post, retrieve the unique set of users who commented&lt;/li&gt;
-&lt;li&gt;Use these (post, user) pairs for similarity embedding&lt;/li&gt;
+&lt;li&gt;Use these &lt;code&gt;(post, user)&lt;/code&gt; pairs for similarity embedding&lt;/li&gt;
 &lt;li&gt;Train with &lt;a href="https://en.wikipedia.org/wiki/Mean_squared_error"&gt;mean squared error&lt;/a&gt; (MSE)&lt;/li&gt;
 &lt;li&gt;Use the resulting model to get post similarity&lt;/li&gt;
 &lt;/ol&gt;
