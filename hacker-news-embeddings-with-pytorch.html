@@ -61,7 +61,6 @@
 <p><img src="/images/dlc.jpg" alt="Deep Learning Cookbook" style="width: 400px;"/></p>
 <p>In the book, embedding is performed on movies. For each movie, the wikipedia page is retrieved, and outgoing links to other wiki pages are collected. Two movies are similar if they both link to the same wiki page, else they are not similar. <a href="https://keras.io/">Keras</a> is used to train the model and the results are reasonably good.</p>
 <p>I wanted to implement the same thing in <a href="https://pytorch.org">PyTorch</a>, but on a different data set, to keep it interesting. As a regular <a href="https://news.ycombinator.com">Hacker News</a> reader, I chose Hacker News. Likes of user are not public, but comments are, so I use that for similarity.</p>
-<p><img src="/images/vectors.png" alt="Vector space" style="width: 400px;"/></p>
 <p>The plan is:</p>
 <ol>
 <li>Retrieve the top 1,000 HN posts from 2018 by number of comments</li>
@@ -103,6 +102,7 @@ Getting the set of commenters out of the JSON would be the easiest with <code>js
 <h2>Building the model</h2>
 <p>PyTorch has a built-in module for <a href="https://pytorch.org/tutorials/beginner/nlp/word_embeddings_tutorial.html">Embeddings</a>, which makes building the model simple. It’s essentially a big array, which stores for each entity the assigned high-dimensional vector. In our case, both posts and users are embedded so if there are <code>num_posts</code> posts and <code>num_users</code> users, so <code>num_vectors = num_posts + num_users</code>. So the array has <code>num_vectors</code> row, each row corresponds to that entity’s embedding vector.</p>
 <p>PyTorch will then optimize the entries in this array, so that the dot products of the combinations of the vectors are <code>+1</code> and <code>-1</code> as specified during training, or as close as possible.</p>
+<p><img src="/images/vectors.png" alt="Vector space" style="width: 400px;"/></p>
 <p>The next step is to create a Model which contains the embedding. We implement the <code>forward()</code> function, which just returns the dot product for a minibatch of posts and users, as per the current embedding vectors:</p>
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_vectors</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="p">):</span>
