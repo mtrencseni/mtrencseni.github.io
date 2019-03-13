@@ -67,7 +67,11 @@
 <li>For each post, retrieve the unique set of users who commented</li>
 <li>Use these <code>(post, user)</code> pairs for similarity embedding</li>
 <li>Train with <a href="https://en.wikipedia.org/wiki/Mean_squared_error">mean squared error</a> (MSE)</li>
-<li>Use the resulting model to get post similarity</li>
+<li>Use the resulting model to get:<ul>
+<li>post similarity: if I like post P, recommend other posts I might like</li>
+<li>user recommendations: I am user U, recommend posts I might like</li>
+</ul>
+</li>
 </ol>
 <p>The <a href="https://github.com/mtrencseni/pytorch-playground/tree/master/02-hacker-news-recommendations">code for this recipe is on Github</a>.</p>
 <h2>Getting the top 1000 HN posts</h2>
