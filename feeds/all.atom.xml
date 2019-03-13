@@ -176,10 +176,12 @@ Getting the set of commenters out of the JSON would be the easiest with &lt;code
 &lt;li&gt;0.71, &lt;a href="https://news.ycombinator.com/item?id=16115240"&gt;Buffett Says Stock Ownership Became More Attractive With Tax Cut&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;0.70, &lt;a href="https://news.ycombinator.com/item?id=16107597"&gt;Building for the Blockchain&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;Query: &lt;a href="https://news.ycombinator.com/item?id=17536352"&gt;2018 MacBook Pro Review&lt;/a&gt;
-- 0.75, &lt;a href="https://news.ycombinator.com/item?id=17231120"&gt;Apple introduces macOS Mojave&lt;/a&gt;
-- 0.75, &lt;a href="https://news.ycombinator.com/item?id=16766129"&gt;Apple’s 2019 Mac Pro will be shaped by workflows&lt;/a&gt;
-- 0.75, &lt;a href="https://news.ycombinator.com/item?id=17554902"&gt;MacBook Pro with i9 chip is throttled due to thermal issues, claims YouTuber&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Query: &lt;a href="https://news.ycombinator.com/item?id=17536352"&gt;2018 MacBook Pro Review&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;0.75, &lt;a href="https://news.ycombinator.com/item?id=17231120"&gt;Apple introduces macOS Mojave&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;0.75, &lt;a href="https://news.ycombinator.com/item?id=16766129"&gt;Apple’s 2019 Mac Pro will be shaped by workflows&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;0.75, &lt;a href="https://news.ycombinator.com/item?id=17554902"&gt;MacBook Pro with i9 chip is throttled due to thermal issues, claims YouTuber&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2&gt;Discussion&lt;/h2&gt;
 &lt;ol&gt;
 &lt;li&gt;Clearly we could use the text of the posts/comments to gauge similarity, and would get much better results.&lt;/li&gt;
