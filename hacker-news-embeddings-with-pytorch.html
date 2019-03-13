@@ -61,6 +61,7 @@
 <p><img src="/images/dlc.jpg" alt="Deep Learning Cookbook" style="width: 400px;"/></p>
 <p>In the book, embedding is performed on movies. For each movie, the wikipedia page is retrieved, and outgoing links to other wiki pages are collected. Two movies are similar if they both link to the same wiki page, else they are not similar. <a href="https://keras.io/">Keras</a> is used to train the model and the results are reasonably good.</p>
 <p>I wanted to implement the same thing in <a href="https://pytorch.org">PyTorch</a>, but on a different data set, to keep it interesting. As a regular <a href="https://news.ycombinator.com">Hacker News</a> reader, I chose Hacker News. Likes of user are not public, but comments are, so I use that for similarity.</p>
+<p><img src="/images/vectors.png" alt="Vector space" style="width: 400px;"/></p>
 <p>The plan is:</p>
 <ol>
 <li>Retrieve the top 1,000 HN posts from 2018 by number of comments</li>
