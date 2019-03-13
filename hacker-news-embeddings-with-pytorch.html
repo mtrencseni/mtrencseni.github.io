@@ -74,7 +74,7 @@
 </li>
 </ol>
 <p><a href="https://github.com/mtrencseni/pytorch-playground/tree/master/02-hacker-news-recommendations">All the code shown here, with the data files, is up on Github.</a></p>
-<h2>Getting the top 1000 HN posts</h2>
+<h2>Getting the top 1,000 HN posts</h2>
 <p>The simplest way to get this is from <a href="https://cloud.google.com/bigquery">Google BigQuery</a>, which has a <a href="https://console.cloud.google.com/marketplace/details/y-combinator/hacker-news">public Hacker News dataset</a>. We can write a SQL query and download the results as a CSV file from the Google Cloud console:</p>
 <div class="highlight"><pre><span></span><span class="k">SELECT</span>
     <span class="n">id</span><span class="p">,</span>
@@ -104,7 +104,7 @@ Getting the set of commenters out of the JSON would be the easiest with <code>js
 <p>The <a href="https://github.com/mtrencseni/pytorch-playground/blob/master/02-hacker-news-recommendations/download_comments.py">entire code for this download script is on Github</a>. The script <a href="https://github.com/mtrencseni/pytorch-playground/tree/master/02-hacker-news-recommendations/cache">caches</a> files, so repeatedly running it doesn’t repeatedly re-download data from Algolia.</p>
 <p>The script outputs the <code>(post, user)</code> pairs into <a href="https://github.com/mtrencseni/pytorch-playground/blob/master/02-hacker-news-recommendations/post_comments_1000.csv">post_comments_1000.csv</a>.</p>
 <h2>Building the model</h2>
-<p>PyTorch has a built-in module for <a href="https://pytorch.org/tutorials/beginner/nlp/word_embeddings_tutorial.html">Embeddings</a>, which makes building the model simple. It’s essentially a big array, which stores for each entity the assigned high-dimensional vector. In our case, both posts and users are embedded so if there are <code>num_posts</code> posts and <code>num_users</code> users, so <code>num_vectors = num_posts + num_users</code>. So the array has <code>num_vectors</code> row, each row corresponds to that entity’s embedding vector.</p>
+<p>PyTorch has a built-in module for <a href="https://pytorch.org/tutorials/beginner/nlp/word_embeddings_tutorial.html">Embeddings</a>, which makes building the model simple. It’s essentially a big array, which stores for each entity the assigned high-dimensional vector. In our case, both posts and users are embedded so if there are <code>num_posts</code> posts and <code>num_users</code> users, then <code>num_vectors = num_posts + num_users</code>. So the array has <code>num_vectors</code> row, each row corresponds to that entity’s embedding vector.</p>
 <p>PyTorch will then optimize the entries in this array, so that the dot products of the combinations of the vectors are <code>+1</code> and <code>-1</code> as specified during training, or as close as possible.</p>
 <p><img src="/images/vectors.png" alt="Vector space" style="width: 400px;"/></p>
 <p>The next step is to create a Model which contains the embedding. We implement the <code>forward()</code> function, which just returns the dot product for a minibatch of posts and users, as per the current embedding vectors:</p>
