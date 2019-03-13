@@ -145,7 +145,13 @@ Getting the set of commenters out of the JSON would be the easiest with &lt;code
 
 
 &lt;p&gt;We can use this to find similar posts, and it works:&lt;/p&gt;
-&lt;p&gt;&lt;make table here&gt;&lt;/p&gt;
+&lt;p&gt;Query: &lt;a href="https://news.ycombinator.com/item?id=16619917"&gt;Self-driving Uber car kills Arizona woman crossing street&lt;/a&gt;
+Results:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;0.89, &lt;a href="https://news.ycombinator.com/item?id=16643056"&gt;Tempe Police Release Video of Uber Accident&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;0.69, &lt;a href="https://news.ycombinator.com/item?id=16629673"&gt;Police Say Video Shows Woman Stepped Suddenly in Front of Self-Driving Uber&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;0.68, &lt;a href="https://news.ycombinator.com/item?id=16761602"&gt;Tesla crash in September showed similarities to fatal Mountain View accident&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2&gt;Discussion&lt;/h2&gt;
 &lt;ol&gt;
 &lt;li&gt;Clearly we could use the text of the posts/comments to gauge similarity, and would get much better results.&lt;/li&gt;
