@@ -92,7 +92,7 @@ LIMIT
 
 <p>The result of this is <code>top_1000_posts.csv</code> (link to Github).</p>
 <h2>Retrieve commenters for top posts</h2>
-<p>Getting the comments is not practical from BigQuery because the table stores the tree hierarchy (<code>parent_id</code> of the parent comment, but not the <code>post_id</code>), so we’d have to query repeatedly to get all the comments of the post, which is inconvenient. Fortunately there’s an easier way. <a href="https://algolia.com">Algolia</a> has an API where we can download one big JSON per post, containing all the comments. The API endpoint for this is:</p>
+<p>Getting the comments is not practical from BigQuery because the table stores the tree hierarchy (<code>parent_id</code> of the parent comment, but not the <code>post_id</code>), so we’d have to query repeatedly to get all the comments of the post, which is inconvenient. Fortunately there’s an easier way. <a href="https://algolia.com">Algolia</a> has a Hacker News API where we can download one big JSON per post, containing all the comments. The API endpoint for this is:</p>
 <p><code>https://hn.algolia.com/api/v1/items/&lt;post_id&gt;</code></p>
 <p>So we just go through all the posts from the previous step and download each one from Algolia.
 Getting the set of commenters out of the JSON would be the easiest with <code>json.load()</code>, but this sometimes fails on bad JSON. Instead we use an rxe regexp:</p>
