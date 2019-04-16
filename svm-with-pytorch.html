@@ -58,7 +58,7 @@
   </header>
   <div>
     <p><a href="https://en.wikipedia.org/wiki/Support-vector_machine">Support Vector Machine</a> are a standard ML model for supervised classification. The basic idea behind a (linear) SVM is to find a separating hyperplane for two categories of points. Additionally, to make the model as generic as possible, SVM tries to make the margin separating the two sets of points as wide as possible. When a linear separator is not enough, SVM can be made non-linear with the kernel trick, but here I will stick to the linear model. <a href="https://github.com/mtrencseni/pytorch-playground/blob/master/03-svm/SVM%20with%20Pytorch.ipynb">All the code is up on Github.</a></p>
-<p><img src="/images/svm_1.jpg" alt="SVM" style="width: 400px;"/></p>
+<p><img src="/images/svm_1.png" alt="SVM" style="width: 400px;"/></p>
 <p>Doing SVM in Pytorch is pretty simple, and we will follow the same recipe as in <a href="http://bytepawn.com/pytorch-basics-solving-the-axb-matrix-equation-with-gradient-descent.html#pytorch-basics-solving-the-axb-matrix-equation-with-gradient-descent">the Ax=b post</a>. We will use the standard <a href="https://en.wikipedia.org/wiki/Iris_flower_data_set">Iris dataset</a> for supervised learning.</p>
 <h2>Setting up the model: differentiable SVM</h2>
 <p>In order for Pytorch and autograd to work, we need to formulate the SVM model in a differentiable way. This is pretty straighforward, and has been done before by <a href="http://deeplearning.net/wp-content/uploads/2013/03/dlsvm.pdf">Tang in this 2013 paper</a>.</p>
@@ -67,7 +67,7 @@
 <p>There is a caveat though. What if the training points overlap? Or, there is just a few point which would case the separating hyperplane’s margin to be very narrow? As the first picture shows, the width of the margin is <strong>2/|w|</strong>, we also want to maximize this, or, minimize <strong>|w|/2</strong>. So the full loss function is: <strong>|w|/2 + C ∑ max[0, 1 - y ( wx - b ) ]²</strong>. <strong>C</strong> is an important hyperparameter, it sets the importance of separating all the points and pushing them outside the margin <em>versus</em> getting a wide margin.</p>
 <h2>Pytorch code</h2>
 <p>First, let’s get the Iris data. The easiest is to get it from SciKit-Learn, which comes with a bunch of standard datasets. We can use pyplot to visualize Iris’s 4 features and the 3 species:</p>
-<p><img src="/images/svm_2.jpg" alt="Iris dataset" style="width: 400px;"/></p>
+<p><img src="/images/svm_2.png" alt="Iris dataset" style="width: 400px;"/></p>
 <p>The code for this is:</p>
 <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
 <span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_iris</span>
@@ -168,7 +168,7 @@
 
 
 <p>To get:</p>
-<p><img src="/images/svm_3.jpg" alt="Iris dataset with SVM separator" style="width: 400px;"/></p>
+<p><img src="/images/svm_3.png" alt="Iris dataset with SVM separator" style="width: 400px;"/></p>
 <p>This was just a game. There’s no good reason to run SVM on Pytorch, <a href="https://scikit-learn.org/stable/modules/svm.html">SciKit-Learn has a built-in SVM model</a> that is more robust and scalable and can get this done in less lines of code.</p>
   </div>
   <div class="tag-cloud">
