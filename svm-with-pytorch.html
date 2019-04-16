@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="Doing SVM in Pytorch is pretty simple, and we will follow the same recipe as in the Ax=b post. We will use the standard Iris dataset for supervised learning." />
+<meta name="keywords" content="pytorch">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="SVM with Pytorch"/>
+<meta property="og:description" content="Doing SVM in Pytorch is pretty simple, and we will follow the same recipe as in the Ax=b post. We will use the standard Iris dataset for supervised learning."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/svm-with-pytorch.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2019-04-16 00:00:00+02:00"/>
+<meta property="article:modified_time" content="2019-04-16 00:00:00+02:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Machine Learning"/>
+<meta property="article:tag" content="pytorch"/>
+<meta property="og:image" content="/images/svm_1.png"/>
+
+  <title>Bytepawn &ndash; SVM with Pytorch</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="svm-with-pytorch">SVM with Pytorch</h1>
+    <p>Posted on Tue 16 April 2019 in <a href="/category/machine-learning.html">Machine Learning</a></p>
+  </header>
+  <div>
+    <p><a href="https://en.wikipedia.org/wiki/Support-vector_machine">Support Vector Machine</a> are a standard ML model for supervised classification. The basic idea behind a (linear) SVM is to find a separating hyperplane for two categories of points. Additionally, to make the model as generic as possible, SVM tries to make the margin separating the two sets of points as wide as possible. When a linear separator is not enough, SVM can be made non-linear with the kernel trick, but here I will stick to the linear model. <a href="https://github.com/mtrencseni/pytorch-playground/blob/master/03-svm/SVM%20with%20Pytorch.ipynb">All the code is up on Github.</a></p>
+<p><img src="/images/svm_1.jpg" alt="SVM" style="width: 400px;"/></p>
+<p>Doing SVM in Pytorch is pretty simple, and we will follow the same recipe as in <a href="http://bytepawn.com/pytorch-basics-solving-the-axb-matrix-equation-with-gradient-descent.html#pytorch-basics-solving-the-axb-matrix-equation-with-gradient-descent">the Ax=b post</a>. We will use the standard <a href="https://en.wikipedia.org/wiki/Iris_flower_data_set">Iris dataset</a> for supervised learning.</p>
+<h2>Setting up the model: differentiable SVM</h2>
+<p>In order for Pytorch and autograd to work, we need to formulate the SVM model in a differentiable way. This is pretty straighforward, and has been done before by <a href="http://deeplearning.net/wp-content/uploads/2013/03/dlsvm.pdf">Tang in this 2013 paper</a>.</p>
+<p>The separating hyperplane is defined by the <strong>wx - b = 0</strong> equations, where <strong>w</strong> is the normal vector and <strong>b</strong> is a scalar offset. <strong>w</strong>’s dimendionality is however many features we have. Additionally, we will try to place the plane in such a way that it falls halfway between the two classes, so that, if possible, there are no points behind the <strong>wx - b = ±1</strong> lines (see first image). For each training point <strong>x</strong>, we want <strong>wx - b &gt; 1</strong> if <strong>x</strong> is in the <strong>+1</strong> class, <strong>wx -b &lt; -1</strong> if <strong>x</strong> is in the <strong>-1</strong> class (we re-label classes to <strong>±1</strong>). Calling the labels <strong>y</strong>, we can multiply both equations to get the same thing: <strong>y ( wx - b) &gt; 1</strong>, or <strong>1 - y ( wx - b ) &lt; 0</strong>.</p>
+<p>So our constraint is for these expressions to be less than zero for each training point. If it’s positive, that’s “bad”. If it’s negative, we don’t really care how negative it is. This leads to the loss function: <strong>∑ max[0, 1 - y ( wx - b ) ]</strong>. To make it optimizer friendly, we square it: <strong>∑ max[0, 1 - y ( wx - b ) ]²</strong>.</p>
+<p>There is a caveat though. What if the training points overlap? Or, there is just a few point which would case the separating hyperplane’s margin to be very narrow? As the first picture shows, the width of the margin is <strong>2/|w|</strong>, we also want to maximize this, or, minimize <strong>|w|/2</strong>. So the full loss function is: <strong>|w|/2 + C ∑ max[0, 1 - y ( wx - b ) ]²</strong>. <strong>C</strong> is an important hyperparameter, it sets the importance of separating all the points and pushing them outside the margin <em>versus</em> getting a wide margin.</p>
+<h2>Pytorch code</h2>
+<p>First, let’s get the Iris data. The easiest is to get it from SciKit-Learn, which comes with a bunch of standard datasets. We can use pyplot to visualize Iris’s 4 features and the 3 species:</p>
+<p><img src="/images/svm_2.jpg" alt="Iris dataset" style="width: 400px;"/></p>
+<p>The code for this is:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_iris</span>
+
+<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">x_index</span><span class="p">,</span> <span class="n">y_index</span><span class="p">):</span>
+    <span class="n">formatter</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">FuncFormatter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">iris</span><span class="o">.</span><span class="n">target_names</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">iris</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="n">x_index</span><span class="p">],</span> <span class="n">iris</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="n">y_index</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">iris</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">ticks</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">format</span><span class="o">=</span><span class="n">formatter</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">iris</span><span class="o">.</span><span class="n">feature_names</span><span class="p">[</span><span class="n">x_index</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">iris</span><span class="o">.</span><span class="n">feature_names</span><span class="p">[</span><span class="n">y_index</span><span class="p">])</span>
+
+<span class="n">iris</span> <span class="o">=</span> <span class="n">load_iris</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p>For this demonstration, I will just run SVM on the petal length and width (the last two features). Constructing the training and test data:</p>
+<div class="highlight"><pre><span></span><span class="n">X</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">iris</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">iris</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Writing the code is straightforward, it’s the same story as in the Ax=b post. w and b are variables that we want to optimize. For this task we can leave out the first part of the loss function, as an exact solution is possible:</p>
+<div class="highlight"><pre><span></span><span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">w</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">dim</span><span class="p">),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>   <span class="n">requires_grad</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">step_size</span> <span class="o">=</span> <span class="mf">1e-3</span>
+<span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">5000</span>
+<span class="n">minibatch_size</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">):</span>
+    <span class="n">inds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X_train</span><span class="p">))]</span>
+    <span class="n">shuffle</span><span class="p">(</span><span class="n">inds</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inds</span><span class="p">)):</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">y_train</span><span class="p">[</span><span class="n">inds</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">*</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">X_train</span><span class="p">[</span><span class="n">inds</span><span class="p">[</span><span class="n">i</span><span class="p">]]))</span> <span class="o">-</span> <span class="n">b</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+        <span class="k">if</span> <span class="n">L</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># if the loss is zero, Pytorch leaves the variables as a float 0.0, so we can&#39;t call backward() on it</span>
+            <span class="n">L</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+            <span class="n">w</span><span class="o">.</span><span class="n">data</span> <span class="o">-=</span> <span class="n">step_size</span> <span class="o">*</span> <span class="n">w</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span> <span class="c1"># step</span>
+            <span class="n">b</span><span class="o">.</span><span class="n">data</span> <span class="o">-=</span> <span class="n">step_size</span> <span class="o">*</span> <span class="n">b</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span> <span class="c1"># step</span>
+            <span class="n">w</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">zero_</span><span class="p">()</span>
+            <span class="n">b</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">zero_</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Let’s print out the w and b values, and evaluate the model:</p>
+<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="s1">&#39;plane equation:  w=&#39;</span><span class="p">,</span> <span class="n">w</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="s1">&#39;b =&#39;</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">accuracy</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="n">correct</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)):</span>
+        <span class="n">y_predicted</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">((</span><span class="n">torch</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">y_predicted</span> <span class="o">==</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">correct</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">correct</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;train accuracy&#39;</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;test accuracy&#39;</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span>
+</pre></div>
+
+
+<p>I get:</p>
+<div class="highlight"><pre><span></span><span class="n">plane</span> <span class="n">equation</span><span class="p">:</span>  <span class="n">w</span><span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.8717707</span> <span class="o">-</span><span class="mf">1.4143362</span><span class="p">]</span> <span class="n">b</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3.2047558</span>
+<span class="n">train</span> <span class="n">accuracy</span> <span class="mf">1.0</span>
+<span class="n">test</span> <span class="n">accuracy</span> <span class="mf">1.0</span>
+</pre></div>
+
+
+<p>Let’s visualize the solution:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">line_func</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+    <span class="k">return</span>   <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="p">(</span><span class="n">offset</span> <span class="o">-</span> <span class="n">b</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span> <span class="p">)</span> <span class="o">/</span> <span class="n">w</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">ym</span> <span class="o">=</span> <span class="n">line_func</span><span class="p">(</span><span class="n">x</span><span class="p">,</span>  <span class="mi">0</span><span class="p">)</span>
+<span class="n">yp</span> <span class="o">=</span> <span class="n">line_func</span><span class="p">(</span><span class="n">x</span><span class="p">,</span>  <span class="mi">1</span><span class="p">)</span>
+<span class="n">yn</span> <span class="o">=</span> <span class="n">line_func</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">x_index</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">y_index</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">formatter</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">FuncFormatter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">iris</span><span class="o">.</span><span class="n">target_names</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">iris</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="n">x_index</span><span class="p">],</span> <span class="n">iris</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="n">y_index</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">iris</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">ticks</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">format</span><span class="o">=</span><span class="n">formatter</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">iris</span><span class="o">.</span><span class="n">feature_names</span><span class="p">[</span><span class="n">x_index</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">iris</span><span class="o">.</span><span class="n">feature_names</span><span class="p">[</span><span class="n">y_index</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ym</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">yp</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">yn</span><span class="p">)</span>
+</pre></div>
+
+
+<p>To get:</p>
+<p><img src="/images/svm_3.jpg" alt="Iris dataset with SVM separator" style="width: 400px;"/></p>
+<p>This was just a game. There’s no good reason to run SVM on Pytorch, <a href="https://scikit-learn.org/stable/modules/svm.html">SciKit-Learn has a built-in SVM model</a> that is more robust and scalable and can get this done in less lines of code.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/pytorch.html">pytorch</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "SVM with Pytorch",
+  "headline": "SVM with Pytorch",
+  "datePublished": "2019-04-16 00:00:00+02:00",
+  "dateModified": "2019-04-16 00:00:00+02:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/svm-with-pytorch.html",
+  "description": "Doing SVM in Pytorch is pretty simple, and we will follow the same recipe as in the Ax=b post. We will use the standard Iris dataset for supervised learning."
+}
+</script></body>
+</html>
