@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Python</title><link href="/" rel="alternate"></link><link href="/feeds/python.atom.xml" rel="self"></link><id>/</id><updated>2019-05-02T00:00:00+02:00</updated><entry><title>Solving MNIST with Pytorch and SKL</title><link href="/solving-mnist-with-pytorch-and-skl.html" rel="alternate"></link><published>2019-05-02T00:00:00+02:00</published><updated>2019-05-02T00:00:00+02:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2019-05-02:/solving-mnist-with-pytorch-and-skl.html</id><summary type="html">&lt;p&gt;MNIST is a classic image recognition problem, specifically digit recognition. It contains 70,000 28x28 pixel grayscale images of hand-written, labeled images, 60,000 for training and 10,000 for testing. Convolutional Neural Networks (CNN) do really well on MNIST, achieving 99%+ accuracy. The Pytorch distribution includes a 4-layer CNN for solving MNIST. Here I will unpack and go through this example. We use torchvision to avoid downloading and data wrangling the datasets. Finally, instead of calculating performance metrics of the model by hand, I will extract results in a format so we can use SciKit-Learn's rich library of metrics. &lt;br/&gt;&lt;br/&gt; &lt;img src="/images/mnist-example.png" alt="MNIST example digits" style="width: 300px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Python</title><link href="/" rel="alternate"></link><link href="/feeds/python.atom.xml" rel="self"></link><id>/</id><updated>2019-05-02T00:00:00+02:00</updated><entry><title>Solving MNIST with Pytorch and SKL</title><link href="/solving-mnist-with-pytorch-and-skl.html" rel="alternate"></link><published>2019-05-02T00:00:00+02:00</published><updated>2019-05-02T00:00:00+02:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2019-05-02:/solving-mnist-with-pytorch-and-skl.html</id><summary type="html">&lt;p&gt;MNIST is a classic image recognition problem, specifically digit recognition. It contains 70,000 28x28 pixel grayscale images of hand-written, labeled images, 60,000 for training and 10,000 for testing. Convolutional Neural Networks (CNN) do really well on MNIST, achieving 99%+ accuracy. The Pytorch distribution includes a 4-layer CNN for solving MNIST. Here I will unpack and go through this example. We use torchvision to avoid downloading and data wrangling the datasets. Finally, instead of calculating performance metrics of the model by hand, I will extract results in a format so we can use SciKit-Learn's rich library of metrics. &lt;br/&gt;&lt;br/&gt; &lt;img src="/images/mnist-example.png" alt="MNIST example digits" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;&lt;a href="http://yann.lecun.com/exdb/mnist/"&gt;MNIST&lt;/a&gt; is a classic image recognition problem, specifically digit recognition. It contains 70,000 28x28 pixel grayscale images of hand-written, labeled images, 60,000 for training and 10,000 for testing. Convolutional Neural Networks (CNN) do really well on MNIST, achieving 99%+ accuracy. The Pytorch distribution includes a 4-layer CNN for solving MNIST. Here I will unpack and go through this example. We use torchvision to avoid downloading and data wrangling the datasets. Finally, instead of calculating performance metrics of the model by hand, I will extract results in a format so we can use &lt;a href="https://scikit-learn.org/"&gt;SciKit-Learn's&lt;/a&gt; rich library of metrics. &lt;a href="https://github.com/mtrencseni/pytorch-playground/blob/master/04-mnist/MNIST.ipynb"&gt;The ipython notebook is up on Github.&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/mnist-example.png" alt="MNIST example digits" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;h2&gt;The neural network&lt;/h2&gt;
@@ -26,7 +26,7 @@
 
 &lt;p&gt;As an exercise, let's make sure we understand what's going on here:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;code&gt;conv1&lt;/code&gt; is the first convolutional layer:&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;conv1&lt;/code&gt; is the first convolutional layer:&lt;ul&gt;
 &lt;li&gt;the MNIST images are pixel grayscale, so there is just 1 input channel&lt;/li&gt;
 &lt;li&gt;this layer computes 20 convolutions / outputs 20 channels&lt;/li&gt;
 &lt;li&gt;each kernel is 5x5&lt;/li&gt;
@@ -34,26 +34,36 @@
 &lt;li&gt;by default, each kernel has a bias&lt;/li&gt;
 &lt;li&gt;20 x (5 x 5 + 1) = 520 parameters to train&lt;/li&gt;
 &lt;li&gt;the input is 28x28 pixels, the ouput is 28 - (5-1) = 24x24 pixels, on 20 channels each&lt;/li&gt;
-&lt;li&gt;in &lt;code&gt;forward()&lt;/code&gt;, &lt;code&gt;conv1&lt;/code&gt; is applied to the input image, than a &lt;code&gt;max_pool2d()&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;in &lt;code&gt;forward()&lt;/code&gt;, &lt;code&gt;conv1&lt;/code&gt; is applied to the input image, than a &lt;code&gt;max_pool2d()&lt;/code&gt;&lt;ul&gt;
 &lt;li&gt;2x2 patches are maxpool'd, with a stride of 2, this halves the image&lt;/li&gt;
 &lt;li&gt;the input is 24x24 pixels, the output is 12x12 pixels&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;conv2&lt;/code&gt; is the second convolutional layer:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;conv2&lt;/code&gt; is the second convolutional layer:&lt;ul&gt;
 &lt;li&gt;input = 12x12 pixels, 20 channels&lt;/li&gt;
 &lt;li&gt;this layer computes 50 convolutions / outputs 50 channels&lt;/li&gt;
 &lt;li&gt;same kernel and stride as the previous layer&lt;/li&gt;
 &lt;li&gt;50 x (20 x 5 x 5 + 1) = 25,050 parameters to train&lt;/li&gt;
 &lt;li&gt;the input is 12x12 pixels, the output is 12 - (5-1) = 8x8 pixels, on 50 channels each&lt;/li&gt;
 &lt;li&gt;having &amp;gt;1 input and output channels: there is a separate 5x5 kernel for each combination (50x20 kernels), then to get each of the 50 output pixels the 20 convolved are averaged, and the bias is added&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
 &lt;li&gt;we apply &lt;code&gt;relu()&lt;/code&gt;, this doesn't change dimensionality&lt;/li&gt;
 &lt;li&gt;another &lt;code&gt;max_pool2d()&lt;/code&gt; follows, cutting image size from 8x8 to 4x4 pixels&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;fc1&lt;/code&gt; (for fully connected 1):&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;fc1&lt;/code&gt; (for fully connected 1):&lt;ul&gt;
 &lt;li&gt;takes the 4 x 4 x 50 input values and treats is as a big vector&lt;/li&gt;
 &lt;li&gt;and projects it to a 500 dimensional vector with an Ax+b matrix multiplication&lt;/li&gt;
 &lt;li&gt;this is 4 x 4 x 50 x 500 + 500 = 400,500 parameters to train&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
 &lt;li&gt;then another &lt;code&gt;relu()&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;fc2&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;fc2&lt;/code&gt;&lt;ul&gt;
 &lt;li&gt;projects down to a 10 dimensional vector&lt;/li&gt;
 &lt;li&gt;this is 500 x 10 + 50 = 5,050 parameters to train&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
 &lt;li&gt;then &lt;code&gt;log_softmax()&lt;/code&gt; to get log-probabilities for each class; regular &lt;code&gt;softmax()&lt;/code&gt; would output probabilities, but here they are &lt;code&gt;log()&lt;/code&gt;'d, so later we have to &lt;code&gt;exp()&lt;/code&gt; to get back the probabilities&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Total parameters = 520 + 25,050 + 400,500 + 5,050 = 431,120 floats&lt;/p&gt;
@@ -118,9 +128,9 @@ plt.plot([mean(losses[i:i+10]) for i in range(len(losses))])
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;&lt;img src="/images/mnist-training-loss.png" alt="MNIST training loss" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/mnist-training-loss.png" alt="MNIST training loss" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;By computing the accuracy on the test set at the end of each epoch, we can see how our model improves:&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/mnist-training-accuracy.png" alt="MNIST test accuracies during training" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/mnist-training-accuracy.png" alt="MNIST test accuracies during training" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;h2&gt;Evaluating the model&lt;/h2&gt;
 &lt;p&gt;Now we use the test data portion of MNIST, and run the model on it.
 Most SKL metrics expect 2 of 3 inputs:&lt;/p&gt;
@@ -169,7 +179,7 @@ Accuracy score: 0.991200
 
 
 &lt;p&gt;ROC curve for one of the digit classes, with AUC; since the classifier is so good, the ROC curve is the ideal top-right curve, and AUC is 1.0 (again, not very interesting):&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/mnist-roc.png" alt="MNIST ROC curve" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/mnist-roc.png" alt="MNIST ROC curve" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;h2&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;The combination of Pytorch, torchvision and SKL makes it really quick to play around with deep neural network architectures and see how they perform, without writing too much code, while using regular Python to do the debugging. A good next step is to play around with &lt;a href="https://www.cs.toronto.edu/~kriz/cifar.html"&gt;CIFAR data&lt;/a&gt;.&lt;/p&gt;</content><category term="python"></category></entry><entry><title>rxe: literate and composable regular expressions</title><link href="/rxe-literate-and-composable-regular-expressions.html" rel="alternate"></link><published>2019-03-02T00:00:00+01:00</published><updated>2019-03-02T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2019-03-02:/rxe-literate-and-composable-regular-expressions.html</id><summary type="html">&lt;p&gt;&lt;code&gt;rxe&lt;/code&gt; is a thin wrapper around Python's &lt;code&gt;re&lt;/code&gt; module. The various &lt;code&gt;rxe&lt;/code&gt; functions are wrappers around corresponding &lt;code&gt;re&lt;/code&gt; patterns. For example, &lt;code&gt;rxe.digit().one_or_more('a').whitespace()&lt;/code&gt; corresponds to &lt;code&gt;\da+\s&lt;/code&gt;. Because &lt;code&gt;rxe&lt;/code&gt; uses parentheses but wants to avoid unnamed groups, the internal (equivalent) representation is actually &lt;code&gt;\d(?:a)+\s&lt;/code&gt;. This pattern can always be retrieved with &lt;code&gt;get_pattern()&lt;/code&gt;.&lt;br/&gt;&lt;br/&gt;&lt;img src="/images/rxe2.png" alt="rxe example code" style="width: 500px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;&lt;code&gt;rxe&lt;/code&gt; is a thin wrapper around Python's &lt;code&gt;re&lt;/code&gt; module (see &lt;a href="https://docs.python.org/2/library/re.html"&gt;official re docs&lt;/a&gt;). The various &lt;code&gt;rxe&lt;/code&gt; functions are wrappers around corresponding &lt;code&gt;re&lt;/code&gt; patterns. For example, &lt;code&gt;rxe.digit().one_or_more('a').whitespace()&lt;/code&gt; corresponds to &lt;code&gt;\da+\s&lt;/code&gt;. Because &lt;code&gt;rxe&lt;/code&gt; uses parentheses but wants to avoid unnamed groups, the internal (equivalent) representation is actually &lt;code&gt;\d(?:a)+\s&lt;/code&gt;. This pattern can always be retrieved with &lt;code&gt;get_pattern()&lt;/code&gt;.&lt;/p&gt;

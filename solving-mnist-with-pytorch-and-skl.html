@@ -84,7 +84,7 @@
 
 <p>As an exercise, let's make sure we understand what's going on here:</p>
 <ul>
-<li><code>conv1</code> is the first convolutional layer:</li>
+<li><code>conv1</code> is the first convolutional layer:<ul>
 <li>the MNIST images are pixel grayscale, so there is just 1 input channel</li>
 <li>this layer computes 20 convolutions / outputs 20 channels</li>
 <li>each kernel is 5x5</li>
@@ -92,26 +92,36 @@
 <li>by default, each kernel has a bias</li>
 <li>20 x (5 x 5 + 1) = 520 parameters to train</li>
 <li>the input is 28x28 pixels, the ouput is 28 - (5-1) = 24x24 pixels, on 20 channels each</li>
-<li>in <code>forward()</code>, <code>conv1</code> is applied to the input image, than a <code>max_pool2d()</code></li>
+</ul>
+</li>
+<li>in <code>forward()</code>, <code>conv1</code> is applied to the input image, than a <code>max_pool2d()</code><ul>
 <li>2x2 patches are maxpool'd, with a stride of 2, this halves the image</li>
 <li>the input is 24x24 pixels, the output is 12x12 pixels</li>
-<li><code>conv2</code> is the second convolutional layer:</li>
+</ul>
+</li>
+<li><code>conv2</code> is the second convolutional layer:<ul>
 <li>input = 12x12 pixels, 20 channels</li>
 <li>this layer computes 50 convolutions / outputs 50 channels</li>
 <li>same kernel and stride as the previous layer</li>
 <li>50 x (20 x 5 x 5 + 1) = 25,050 parameters to train</li>
 <li>the input is 12x12 pixels, the output is 12 - (5-1) = 8x8 pixels, on 50 channels each</li>
 <li>having &gt;1 input and output channels: there is a separate 5x5 kernel for each combination (50x20 kernels), then to get each of the 50 output pixels the 20 convolved are averaged, and the bias is added</li>
+</ul>
+</li>
 <li>we apply <code>relu()</code>, this doesn't change dimensionality</li>
 <li>another <code>max_pool2d()</code> follows, cutting image size from 8x8 to 4x4 pixels</li>
-<li><code>fc1</code> (for fully connected 1):</li>
+<li><code>fc1</code> (for fully connected 1):<ul>
 <li>takes the 4 x 4 x 50 input values and treats is as a big vector</li>
 <li>and projects it to a 500 dimensional vector with an Ax+b matrix multiplication</li>
 <li>this is 4 x 4 x 50 x 500 + 500 = 400,500 parameters to train</li>
+</ul>
+</li>
 <li>then another <code>relu()</code></li>
-<li><code>fc2</code></li>
+<li><code>fc2</code><ul>
 <li>projects down to a 10 dimensional vector</li>
 <li>this is 500 x 10 + 50 = 5,050 parameters to train</li>
+</ul>
+</li>
 <li>then <code>log_softmax()</code> to get log-probabilities for each class; regular <code>softmax()</code> would output probabilities, but here they are <code>log()</code>'d, so later we have to <code>exp()</code> to get back the probabilities</li>
 </ul>
 <p>Total parameters = 520 + 25,050 + 400,500 + 5,050 = 431,120 floats</p>
@@ -176,9 +186,9 @@ plt.plot([mean(losses[i:i+10]) for i in range(len(losses))])
 </pre></div>
 
 
-<p><img src="/images/mnist-training-loss.png" alt="MNIST training loss" style="width: 400px;"/></p>
+<p><img src="/images/mnist-training-loss.png" alt="MNIST training loss" style="width: 600px;"/></p>
 <p>By computing the accuracy on the test set at the end of each epoch, we can see how our model improves:</p>
-<p><img src="/images/mnist-training-accuracy.png" alt="MNIST test accuracies during training" style="width: 400px;"/></p>
+<p><img src="/images/mnist-training-accuracy.png" alt="MNIST test accuracies during training" style="width: 600px;"/></p>
 <h2>Evaluating the model</h2>
 <p>Now we use the test data portion of MNIST, and run the model on it.
 Most SKL metrics expect 2 of 3 inputs:</p>
@@ -227,7 +237,7 @@ Accuracy score: 0.991200
 
 
 <p>ROC curve for one of the digit classes, with AUC; since the classifier is so good, the ROC curve is the ideal top-right curve, and AUC is 1.0 (again, not very interesting):</p>
-<p><img src="/images/mnist-roc.png" alt="MNIST ROC curve" style="width: 400px;"/></p>
+<p><img src="/images/mnist-roc.png" alt="MNIST ROC curve" style="width: 600px;"/></p>
 <h2>Conclusion</h2>
 <p>The combination of Pytorch, torchvision and SKL makes it really quick to play around with deep neural network architectures and see how they perform, without writing too much code, while using regular Python to do the debugging. A good next step is to play around with <a href="https://www.cs.toronto.edu/~kriz/cifar.html">CIFAR data</a>.</p>
   </div>
