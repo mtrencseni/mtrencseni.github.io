@@ -183,11 +183,11 @@
 <p>This is a plain vanilla training loop, with <code>nll_loss()</code>. This stands for <a href="https://ljvmiranda921.github.io/notebook/2017/08/13/softmax-and-the-negative-log-likelihood/">negative log likelihood (NLL)</a>.
 NLL essentially transforms the class probability (0 to 1) to run from ∞ to 0, good for a loss function. The combination of outputing <code>log_softmax()</code> and minimizing <code>nll_loss()</code> is mathematically the same as outputing the probabilities and minimizing <a href="https://en.wikipedia.org/wiki/Cross_entropy">cross-entropy</a> (how different are two probability distributions, in bits), but with better numerical stability.</p>
 <p>Using matplotlib we can see how the model converges:</p>
-<div class="highlight"><pre><span></span>def mean(li): return sum(li)/len(li)
-plt.figure(figsize=(14, 4))
-plt.xlabel(&#39;training batch&#39;)
-plt.ylabel(&#39;loss&#39;)
-plt.plot([mean(losses[i:i+10]) for i in range(len(losses))])
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="n">li</span><span class="p">):</span> <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">li</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">li</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;training batch&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;loss&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">mean</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">10</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">losses</span><span class="p">))])</span>
 </pre></div>
 
 
