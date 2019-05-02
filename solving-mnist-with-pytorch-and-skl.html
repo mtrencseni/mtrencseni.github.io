@@ -90,8 +90,8 @@
 <p>As an exercise, let's make sure we understand what's going on here:</p>
 <ul>
 <li><code>conv1</code> is the first convolutional layer:<ul>
-<li>the MNIST images are pixel grayscale, so there is just 1 input channel</li>
-<li>this layer computes 20 convolutions / outputs 20 channels</li>
+<li>the MNIST images are grayscale, so there is just 1 input channel</li>
+<li>this layer computes 20 convolutions, so the output is 20 channels</li>
 <li>each kernel is 5x5</li>
 <li>with a stride of 1</li>
 <li>by default, each kernel has a bias</li>
@@ -106,7 +106,7 @@
 </li>
 <li><code>conv2</code> is the second convolutional layer:<ul>
 <li>input = 12x12 pixels, 20 channels</li>
-<li>this layer computes 50 convolutions / outputs 50 channels</li>
+<li>this layer computes 50 convolutions, so the output is 50 channels</li>
 <li>same kernel and stride as the previous layer</li>
 <li>50 x (20 x 5 x 5 + 1) = 25,050 parameters to train</li>
 <li>the input is 12x12 pixels, the output is 12 - (5-1) = 8x8 pixels, on 50 channels each</li>
@@ -115,9 +115,9 @@
 </li>
 <li>we apply <code>relu()</code>, this doesn't change dimensionality</li>
 <li>another <code>max_pool2d()</code> follows, cutting image size from 8x8 to 4x4 pixels</li>
-<li><code>fc1</code> (for fully connected 1):<ul>
-<li>takes the 4 x 4 x 50 input values and treats is as a big vector</li>
-<li>and projects it to a 500 dimensional vector with an Ax+b matrix multiplication</li>
+<li><code>fc1</code> (for fully connected):<ul>
+<li>takes the 4 x 4 x 50 = 800 input values and treats is as a big vector</li>
+<li>projects it to a 500 dimensional vector with an Ax+b matrix multiplication</li>
 <li>this is 4 x 4 x 50 x 500 + 500 = 400,500 parameters to train</li>
 </ul>
 </li>
@@ -160,7 +160,7 @@
 
 <p>The only trick here is the normalization. The mean and standard deviation passed in is the actual value computed for the dataset, after normalization (subtract and divide) the dataset will be a standard normal N(0,1) distribution. This just helps the training.</p>
 <h2>Training the model</h2>
-<p>Training is also easy. I've modified the code so it returns the losses, so we can plot it later:</p>
+<p>Training is straightforward. I've modified the code so it returns the losses, so we can plot it later:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">train_loader</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">epoch</span><span class="p">):</span>
     <span class="n">losses</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
@@ -181,7 +181,7 @@
 
 
 <p>This is a plain vanilla training loop, with <code>nll_loss()</code>. This stands for <a href="https://ljvmiranda921.github.io/notebook/2017/08/13/softmax-and-the-negative-log-likelihood/">negative log likelihood (NLL)</a>.
-NLL essentially transforms the class probability (0 to 1) to run between (Infinity to 0). The combination of outputing logsoftmax() and minimizing nll_loss() is mathematically the same as outputing the probabilities and minimizing <a href="https://en.wikipedia.org/wiki/Cross_entropy">cross-entropy</a> (how different are two probability distributions, in bits), but with better numerical stability.</p>
+NLL essentially transforms the class probability (0 to 1) to run from ∞ to 0, good for a loss function. The combination of outputing <code>log_softmax()</code> and minimizing <code>nll_loss()</code> is mathematically the same as outputing the probabilities and minimizing <a href="https://en.wikipedia.org/wiki/Cross_entropy">cross-entropy</a> (how different are two probability distributions, in bits), but with better numerical stability.</p>
 <p>Using matplotlib we can see how the model converges:</p>
 <div class="highlight"><pre><span></span>def mean(li): return sum(li)/len(li)
 plt.figure(figsize=(14, 4))
@@ -242,6 +242,39 @@ Accuracy score: 0.991200
 
 
 <p>ROC curve for one of the digit classes, with AUC; since the classifier is so good, the ROC curve is the ideal top-right curve, and AUC is 1.0 (again, not very interesting):</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_class_probabilities</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">test_loader</span><span class="p">,</span> <span class="n">which_class</span><span class="p">):</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="n">actuals</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">probabilities</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">data</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">test_loader</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">target</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">actuals</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">view_as</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span> <span class="o">==</span> <span class="n">which_class</span><span class="p">)</span>
+            <span class="n">probabilities</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">output</span><span class="p">[:,</span> <span class="n">which_class</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">actuals</span><span class="p">],</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">probabilities</span><span class="p">]</span>
+
+<span class="n">which_class</span> <span class="o">=</span> <span class="mi">9</span>
+<span class="n">actuals</span><span class="p">,</span> <span class="n">class_probabilities</span> <span class="o">=</span> <span class="n">test_class_probabilities</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">test_loader</span><span class="p">,</span> <span class="n">which_class</span><span class="p">)</span>
+
+<span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">actuals</span><span class="p">,</span> <span class="n">class_probabilities</span><span class="p">)</span>
+<span class="n">roc_auc</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">lw</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;darkorange&#39;</span><span class="p">,</span>
+         <span class="n">lw</span><span class="o">=</span><span class="n">lw</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;ROC curve (area = </span><span class="si">%0.2f</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="n">roc_auc</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;navy&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="n">lw</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;False Positive Rate&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;True Positive Rate&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;ROC for digit=</span><span class="si">%d</span><span class="s1"> class&#39;</span> <span class="o">%</span> <span class="n">which_class</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
 <p><img src="/images/mnist-roc.png" alt="MNIST ROC curve" style="width: 600px;"/></p>
 <h2>Conclusion</h2>
 <p>The combination of Pytorch, torchvision and SKL makes it really quick to play around with deep neural network architectures and see how they perform, without writing too much code, while using regular Python to do the debugging. A good next step is to play around with <a href="https://www.cs.toronto.edu/~kriz/cifar.html">CIFAR data</a>.</p>
