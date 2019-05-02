@@ -58,7 +58,7 @@
   </header>
   <div>
     <p><a href="http://yann.lecun.com/exdb/mnist/">MNIST</a> is a classic image recognition problem, specifically digit recognition. It contains 70,000 28x28 pixel grayscale images of hand-written, labeled images, 60,000 for training and 10,000 for testing. Convolutional Neural Networks (CNN) do really well on MNIST, achieving 99%+ accuracy. The Pytorch distribution includes a 4-layer CNN for solving MNIST. Here I will unpack and go through this example. We use torchvision to avoid downloading and data wrangling the datasets. Finally, instead of calculating performance metrics of the model by hand, I will extract results in a format so we can use <a href="https://scikit-learn.org/">SciKit-Learn's</a> rich library of metrics. <a href="https://github.com/mtrencseni/pytorch-playground/blob/master/04-mnist/MNIST.ipynb">The ipython notebook is up on Github.</a></p>
-<p><img src="/images/mnist-example.jpg" alt="MNIST example digits" style="width: 400px;"/></p>
+<p><img src="/images/mnist-example.png" alt="MNIST example digits" style="width: 400px;"/></p>
 <h1>The neural network</h1>
 <p>The definition for the CNN is just a couple of lines, taken from <a href="https://github.com/pytorch/examples/blob/master/mnist/main.py">https://github.com/pytorch/examples/blob/master/mnist/main.py</a>:</p>
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CNN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
@@ -175,9 +175,9 @@ plt.plot([mean(losses[i:i+10]) for i in range(len(losses))])
 </pre></div>
 
 
-<p><img src="/images/mnist-training-loss.jpg" alt="MNIST training loss" style="width: 400px;"/></p>
+<p><img src="/images/mnist-training-loss.png" alt="MNIST training loss" style="width: 400px;"/></p>
 <p>By computing the accuracy on the test set at the end of each epoch, we can see how our model improves:</p>
-<p><img src="/images/mnist-training-accuracy.jpg" alt="MNIST test accuracies during training" style="width: 400px;"/></p>
+<p><img src="/images/mnist-training-accuracy.png" alt="MNIST test accuracies during training" style="width: 400px;"/></p>
 <h1>Evaluating the model</h1>
 <p>Now we use the test data portion of MNIST, and run the model on it.
 Most SKL metrics expect 2 of 3 inputs:</p>
@@ -226,7 +226,7 @@ Accuracy score: 0.991200
 
 
 <p>ROC curve for one of the digit classes, with AUC; since the classifier is so good, the ROC curve is the ideal top-right curve, and AUC is 1.0 (again, not very interesting):</p>
-<p><img src="/images/mnist-roc.jpg" alt="MNIST ROC curve" style="width: 400px;"/></p>
+<p><img src="/images/mnist-roc.png" alt="MNIST ROC curve" style="width: 400px;"/></p>
 <h1>Conclusion</h1>
 <p>The combination of Pytorch, torchvision and SKL makes it really quick to play around with deep neural network architectures and see how they perform, without writing too much code, while using regular Python to do the debugging. A good next step is to play around with CIFAR data.</p>
   </div>
