@@ -12,27 +12,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="" />
 <meta name="author" content="Marton Trencseni" />
-<meta name="description" content="MNIST is a classic image recognition problem, specifically digit recognition. It contains 70,000 28x28 pixel grayscale images of hand-written, labeled images, 60,000 for training and 10,000 for testing. Convolutional Neural Networks (CNN) do really well on MNIST, achieving 99%+ accuracy. The Pytorch distribution includes a 4-layer CNN for solving MNIST. Here I will unpack and go through this example. We use torchvision to avoid downloading and data wrangling the datasets. Finally, instead of calculating performance metrics of the model by hand, I will extract results in a format so we can use SciKit-Learn's rich library of metrics." />
-<meta name="keywords" content="python, pytorch, cnn, torchvision, mnist, skl">
+<meta name="description" content="CIFAR-10 is a classic image recognition problem, consisting of 60,000 32x32 pixel RGB images (50,000 for training and 10,000 for testing) in 10 categories: plane, car, bird, cat, deer, dog, frog, horse, ship, truck. Convolutional Neural Networks (CNN) do really well on CIFAR-10, achieving 99%+ accuracy. The Pytorch distribution includes an example CNN for solving CIFAR-10, at 45% accuracy. I will use that and merge it with another example implementation to achieve 75%. We use torchvision to avoid downloading and data wrangling the datasets. Like in the MNIST example, I use Scikit-Learn to calculate goodness metrics and plots." />
+<meta name="keywords" content="python, pytorch, cnn, torchvision, cifar, skl">
 <meta property="og:site_name" content="Bytepawn"/>
-<meta property="og:title" content="Solving MNIST with Pytorch and SKL"/>
-<meta property="og:description" content="MNIST is a classic image recognition problem, specifically digit recognition. It contains 70,000 28x28 pixel grayscale images of hand-written, labeled images, 60,000 for training and 10,000 for testing. Convolutional Neural Networks (CNN) do really well on MNIST, achieving 99%+ accuracy. The Pytorch distribution includes a 4-layer CNN for solving MNIST. Here I will unpack and go through this example. We use torchvision to avoid downloading and data wrangling the datasets. Finally, instead of calculating performance metrics of the model by hand, I will extract results in a format so we can use SciKit-Learn's rich library of metrics."/>
+<meta property="og:title" content="Solving CIFAR-10 with Pytorch and SKL"/>
+<meta property="og:description" content="CIFAR-10 is a classic image recognition problem, consisting of 60,000 32x32 pixel RGB images (50,000 for training and 10,000 for testing) in 10 categories: plane, car, bird, cat, deer, dog, frog, horse, ship, truck. Convolutional Neural Networks (CNN) do really well on CIFAR-10, achieving 99%+ accuracy. The Pytorch distribution includes an example CNN for solving CIFAR-10, at 45% accuracy. I will use that and merge it with another example implementation to achieve 75%. We use torchvision to avoid downloading and data wrangling the datasets. Like in the MNIST example, I use Scikit-Learn to calculate goodness metrics and plots."/>
 <meta property="og:locale" content="en_US"/>
-<meta property="og:url" content="/solving-mnist-with-pytorch-and-skl.html"/>
+<meta property="og:url" content="/solving-cifar-10-with-pytorch-and-skl.html"/>
 <meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2019-05-02 00:00:00+02:00"/>
-<meta property="article:modified_time" content="2019-05-02 00:00:00+02:00"/>
+<meta property="article:published_time" content="2019-05-14 00:00:00+02:00"/>
+<meta property="article:modified_time" content="2019-05-14 00:00:00+02:00"/>
 <meta property="article:author" content="/author/marton-trencseni.html">
 <meta property="article:section" content="Python"/>
 <meta property="article:tag" content="python"/>
 <meta property="article:tag" content="pytorch"/>
 <meta property="article:tag" content="cnn"/>
 <meta property="article:tag" content="torchvision"/>
-<meta property="article:tag" content="mnist"/>
+<meta property="article:tag" content="cifar"/>
 <meta property="article:tag" content="skl"/>
-<meta property="og:image" content="/images/mnist-example.png"/>
+<meta property="og:image" content="/images/cifar-10-example.png"/>
 
-  <title>Bytepawn &ndash; Solving MNIST with Pytorch and SKL</title>
+  <title>Bytepawn &ndash; Solving CIFAR-10 with Pytorch and SKL</title>
 </head>
 <body>
   <aside>
@@ -58,103 +58,96 @@
 
 <article>
   <header>
-    <h1 id="solving-mnist-with-pytorch-and-skl">Solving MNIST with Pytorch and SKL</h1>
-    <p>Posted on Thu 02 May 2019 in <a href="/category/python.html">Python</a></p>
+    <h1 id="solving-cifar-10-with-pytorch-and-skl">Solving CIFAR-10 with Pytorch and SKL</h1>
+    <p>Posted on Tue 14 May 2019 in <a href="/category/python.html">Python</a></p>
   </header>
   <div>
     <h2>Introduction</h2>
-<p><a href="http://yann.lecun.com/exdb/mnist/">MNIST</a> is a classic image recognition problem, specifically digit recognition. It contains 70,000 28x28 pixel grayscale images of hand-written, labeled images, 60,000 for training and 10,000 for testing. Convolutional Neural Networks (CNN) do really well on MNIST, achieving 99%+ accuracy. The Pytorch distribution includes a <a href="https://github.com/pytorch/examples/blob/master/mnist/main.py">4-layer CNN for solving MNIST</a>. Here I will unpack and go through this example. We use <a href="https://pytorch.org/docs/stable/torchvision/index.html">torchvision</a> to avoid downloading and data wrangling the datasets. Finally, instead of calculating performance metrics of the model by hand, I will extract results in a format so we can use <a href="https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics">SciKit-Learn's rich library of metrics</a>. You can run this on your laptop in a couple of minutes without a GPU, the <a href="https://github.com/mtrencseni/pytorch-playground/blob/master/04-mnist/MNIST.ipynb">ipython notebook is up on Github.</a></p>
-<p><img src="/images/mnist-example.png" alt="MNIST example digits" style="width: 400px;"/></p>
+<p><a href="https://www.cs.toronto.edu/~kriz/cifar.html">CIFAR-10</a>  is a classic image recognition problem, consisting of 60,000 32x32 pixel RGB images (50,000 for training and 10,000 for testing) in 10 categories: plane, car,  bird,  cat, deer, dog, frog, horse, ship, truck. Convolutional Neural Networks (CNN) do really well on CIFAR-10, achieving 99%+ accuracy. The Pytorch distribution includes an <a href="https://github.com/pytorch/tutorials/blob/master/beginner_source/blitz/cifar10_tutorial.py">example CNN for solving CIFAR-10</a>, at 45% accuracy. I will use that and merge it with <a href="https://towardsdatascience.com/cifar-10-image-classification-in-tensorflow-5b501f7dc77c">another example implementation</a> to achieve 75%. We use <a href="https://pytorch.org/docs/stable/torchvision/index.html">torchvision</a> to avoid downloading and data wrangling the datasets. Like in the previous <a href="http://bytepawn.com/solving-mnist-with-pytorch-and-skl.html#solving-mnist-with-pytorch-and-skl">MNIST post</a>, I use <a href="https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics">SciKit-Learn</a> to calculate goodness metrics and plots. <br/><br/> <img src="/images/cifar-10-example.png" alt="CIFAR examples" style="width: 400px;"/> You can run this on your laptop in a couple of hours without a GPU, the <a href="https://github.com/mtrencseni/pytorch-playground/blob/master/05-cifar-10/CIFAR-10.ipynb">ipython notebook is up on Github.</a></p>
+<p><img src="/images/cifar-10-example.png" alt="CIFAR examples" style="width: 400px;"/></p>
 <h2>The neural network</h2>
-<p>The definition for the CNN is just a couple of lines, taken from <a href="https://github.com/pytorch/examples/blob/master/mnist/main.py">https://github.com/pytorch/examples/blob/master/mnist/main.py</a>:</p>
+<p>The CNN architecture is from <a href="https://towardsdatascience.com/cifar-10-image-classification-in-tensorflow-5b501f7dc77c">this example implementation</a>, ported to Pytorch, with <code>log_softmax()</code> at the final layer like in the <a href="http://bytepawn.com/solving-mnist-with-pytorch-and-skl.html#solving-mnist-with-pytorch-and-skl">MNIST CNN</a>:</p>
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CNN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">CNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fc1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="mi">4</span><span class="o">*</span><span class="mi">50</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fc2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span>   <span class="mi">64</span><span class="p">,</span>  <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span>  <span class="mi">128</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv3</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">64</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">128</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc3</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">max_pool2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">max_pool2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="o">*</span><span class="mi">4</span><span class="o">*</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv3</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">64</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fc1</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fc2</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc3</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">log_softmax</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 
 
-<p>As an exercise, let's make sure we understand what's going on here:</p>
-<ul>
-<li><code>conv1</code> is the first convolutional layer:<ul>
-<li>the MNIST images are grayscale, so there is just 1 input channel</li>
-<li>this layer computes 20 convolutions, so the output is 20 channels</li>
-<li>each kernel is 5x5</li>
-<li>with a stride of 1</li>
-<li>by default, each kernel has a bias</li>
-<li>20 x (5 x 5 + 1) = 520 parameters to train</li>
-<li>the input is 28x28 pixels, the ouput is 28 - (5-1) = 24x24 pixels, on 20 channels each</li>
-</ul>
-</li>
-<li>in <code>forward()</code>, <code>conv1</code> is applied to the input image, than a <code>max_pool2d()</code><ul>
-<li>2x2 patches are maxpool'd, with a stride of 2, this halves the image</li>
-<li>the input is 24x24 pixels, the output is 12x12 pixels</li>
-</ul>
-</li>
-<li><code>conv2</code> is the second convolutional layer:<ul>
-<li>input = 12x12 pixels, 20 channels</li>
-<li>this layer computes 50 convolutions, so the output is 50 channels</li>
-<li>same kernel and stride as the previous layer</li>
-<li>50 x (20 x 5 x 5 + 1) = 25,050 parameters to train</li>
-<li>the input is 12x12 pixels, the output is 12 - (5-1) = 8x8 pixels, on 50 channels each</li>
-<li>having &gt;1 input and output channels: there is a separate 5x5 kernel for each combination (50x20 kernels), then to get each of the 50 output pixels the 20 convolved are averaged, and the bias is added</li>
-</ul>
-</li>
-<li>we apply <code>relu()</code>, this doesn't change dimensionality</li>
-<li>another <code>max_pool2d()</code> follows, cutting image size from 8x8 to 4x4 pixels</li>
-<li><code>fc1</code> (for fully connected):<ul>
-<li>takes the 4 x 4 x 50 = 800 input values and treats is as a big vector</li>
-<li>projects it to a 500 dimensional vector with an Ax+b matrix multiplication</li>
-<li>this is 4 x 4 x 50 x 500 + 500 = 400,500 parameters to train</li>
-</ul>
-</li>
-<li>then another <code>relu()</code></li>
-<li><code>fc2</code><ul>
-<li>projects down to a 10 dimensional vector</li>
-<li>this is 500 x 10 + 50 = 5,050 parameters to train</li>
-</ul>
-</li>
-<li>then <code>log_softmax()</code> to get log-probabilities for each class; regular <code>softmax()</code> would output probabilities, but here they are <code>log()</code>'d, so later we have to <code>exp()</code> to get back the probabilities</li>
-</ul>
-<p>Total parameters = 520 + 25,050 + 400,500 + 5,050 = 431,120 floats</p>
+<p>This time, let's automate printing out how many parameters the net has:</p>
+<div class="highlight"><pre><span></span><span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Trainable parameters:&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">param</span><span class="o">.</span><span class="n">numel</span><span class="p">())</span>
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">param</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span>
+<span class="k">print</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Total&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Output (formatted):</p>
+<div class="highlight"><pre><span></span><span class="n">Trainable</span> <span class="n">parameters</span><span class="p">:</span>
+
+<span class="n">conv1</span><span class="o">.</span><span class="n">weight</span>      <span class="mi">1</span><span class="p">,</span><span class="mi">728</span>
+<span class="n">conv1</span><span class="o">.</span><span class="n">bias</span>           <span class="mi">64</span>
+<span class="n">conv2</span><span class="o">.</span><span class="n">weight</span>     <span class="mi">73</span><span class="p">,</span><span class="mi">728</span>
+<span class="n">conv2</span><span class="o">.</span><span class="n">bias</span>          <span class="mi">128</span>
+<span class="n">conv3</span><span class="o">.</span><span class="n">weight</span>    <span class="mi">294</span><span class="p">,</span><span class="mi">912</span>
+<span class="n">conv3</span><span class="o">.</span><span class="n">bias</span>          <span class="mi">256</span>
+<span class="n">fc1</span><span class="o">.</span><span class="n">weight</span>      <span class="mi">131</span><span class="p">,</span><span class="mo">072</span>
+<span class="n">fc1</span><span class="o">.</span><span class="n">bias</span>            <span class="mi">128</span>
+<span class="n">fc2</span><span class="o">.</span><span class="n">weight</span>       <span class="mi">32</span><span class="p">,</span><span class="mi">768</span>
+<span class="n">fc2</span><span class="o">.</span><span class="n">bias</span>            <span class="mi">256</span>
+<span class="n">fc3</span><span class="o">.</span><span class="n">weight</span>        <span class="mi">2</span><span class="p">,</span><span class="mi">560</span>
+<span class="n">fc3</span><span class="o">.</span><span class="n">bias</span>             <span class="mi">10</span>
+<span class="o">-----------------------</span>
+<span class="n">Total</span>           <span class="mi">537</span><span class="p">,</span><span class="mi">610</span>
+</pre></div>
+
+
 <h2>Getting data</h2>
 <p>As mentioned, we use torchvision here:</p>
-<div class="highlight"><pre><span></span><span class="n">train_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
-    <span class="n">datasets</span><span class="o">.</span><span class="n">MNIST</span><span class="p">(</span>
-        <span class="s1">&#39;../data&#39;</span><span class="p">,</span>
-       <span class="n">train</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-       <span class="n">download</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-       <span class="n">transform</span><span class="o">=</span><span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
-           <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
-           <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.1307</span><span class="p">,),</span> <span class="p">(</span><span class="mf">0.3081</span><span class="p">,))</span>
-       <span class="p">])</span>
-    <span class="p">),</span>
-    <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
-    <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+    <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+    <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
+<span class="p">])</span>
+
+<span class="n">train_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+    <span class="n">torchvision</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">CIFAR10</span><span class="p">(</span>
+        <span class="n">root</span><span class="o">=</span><span class="s1">&#39;./data&#39;</span><span class="p">,</span>
+        <span class="n">train</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">download</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">),</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
 <span class="n">test_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
-    <span class="n">datasets</span><span class="o">.</span><span class="n">MNIST</span><span class="p">(</span>
-        <span class="s1">&#39;../data&#39;</span><span class="p">,</span>
+    <span class="n">torchvision</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">CIFAR10</span><span class="p">(</span>
+        <span class="n">root</span><span class="o">=</span><span class="s1">&#39;./data&#39;</span><span class="p">,</span>
         <span class="n">train</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-        <span class="n">transform</span><span class="o">=</span><span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
-           <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
-           <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.1307</span><span class="p">,),</span> <span class="p">(</span><span class="mf">0.3081</span><span class="p">,))</span>
-        <span class="p">])</span>
-    <span class="p">),</span>
-    <span class="n">batch_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
-    <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">download</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">),</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
 
@@ -172,7 +165,7 @@
         <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
         <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
         <span class="n">losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
-        <span class="k">if</span> <span class="n">batch_idx</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">batch_idx</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">batch_idx</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">batch_idx</span> <span class="o">%</span> <span class="mi">1000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Train Epoch: {} [{}/{}</span><span class="se">\t</span><span class="s1">({:.0f}%)]</span><span class="se">\t</span><span class="s1">Loss: {:.6f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">epoch</span><span class="p">,</span> <span class="n">batch_idx</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_loader</span><span class="o">.</span><span class="n">dataset</span><span class="p">),</span>
                 <span class="mf">100.</span> <span class="o">*</span> <span class="n">batch_idx</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_loader</span><span class="p">),</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()))</span>
@@ -187,22 +180,22 @@ NLL essentially transforms the class probability (0 to 1) to run from ∞ to 0, 
 <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;training batch&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;loss&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">mean</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">10</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">losses</span><span class="p">))])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">mean</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">1000</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">losses</span><span class="p">))])</span>
 </pre></div>
 
 
-<p><img src="/images/mnist-training-loss.png" alt="MNIST training loss" style="width: 600px;"/></p>
+<p><img src="/images/cifar-10-training-loss.png" alt="CIFAR-10 training loss" style="width: 600px;"/></p>
 <p>By computing the accuracy on the training set at the end of each epoch, we can see how our model improves:</p>
-<p><img src="/images/mnist-training-accuracy.png" alt="MNIST training accuracy" style="width: 600px;"/></p>
+<p><img src="/images/cifar-10-training-accuracy.png" alt="CIFAR-10 training accuracy" style="width: 600px;"/></p>
 <h2>Evaluating the model</h2>
-<p>Now we use the test data portion of MNIST, and run the model on it.
+<p>Now we use the test data portion of CIFAR-10, and run the model on it.
 Most SKL metrics expect 2 of 3 inputs:</p>
 <ul>
 <li>the ground truth labels</li>
 <li>the predicted labels</li>
 <li>the prediction probabilities (for eg. ROC curve)</li>
 </ul>
-<p>Now we can use SKL to get various metrics. Because the model performs so well, most of these are not very interesting.</p>
+<p>Now we can use SKL to get various metrics:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_label_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">test_loader</span><span class="p">):</span>
     <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
     <span class="n">actuals</span> <span class="o">=</span> <span class="p">[]</span>
@@ -226,22 +219,22 @@ Most SKL metrics expect 2 of 3 inputs:</p>
 
 <p>Outputs:</p>
 <div class="highlight"><pre><span></span>Confusion matrix:
-[[ 973    0    0    0    0    0    4    1    2    0]
- [   0 1130    0    2    0    1    1    1    0    0]
- [   1    1 1024    0    2    0    1    2    1    0]
- [   0    0    0 1005    0    2    0    0    3    0]
- [   0    0    1    0  975    0    1    1    1    3]
- [   2    0    0   11    0  874    2    1    2    0]
- [   0    1    0    0    1    1  955    0    0    0]
- [   0    3    3    1    0    0    0 1019    1    1]
- [   0    0    1    1    0    1    0    0  970    1]
- [   0    2    0    6    7    2    0    4    1  987]]
-F1 score: 0.991200
-Accuracy score: 0.991200
+[[778  20  37  12  18   6   2  25  65  37]
+ [  6 854   7   5   2   4   1   1  44  76]
+ [ 61   5 525  97  89  92  55  36  24  16]
+ [ 20  10  32 587  65 162  45  35  19  25]
+ [  9   5  34  63 715  51  41  65  13   4]
+ [ 13   4  28 155  41 683  12  44   9  11]
+ [  7   2  24  62  25  37 814   5  13  11]
+ [ 13   3  17  38  54  61  10 785   5  14]
+ [ 39   9  12  14   4   1   5   6 874  36]
+ [ 23  56   6  14   4   4   5  14  35 839]]
+F1 score: 0.745400
+Accuracy score: 0.745400
 </pre></div>
 
 
-<p>ROC curve for one of the digit classes, with AUC; since the classifier is so good, the ROC curve is the ideal top-right curve, and AUC is 1.0 (again, not very interesting):</p>
+<p>Let's see the ROC curve for the cat(3) class:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_class_probabilities</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">test_loader</span><span class="p">,</span> <span class="n">which_class</span><span class="p">):</span>
     <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
     <span class="n">actuals</span> <span class="o">=</span> <span class="p">[]</span>
@@ -255,7 +248,7 @@ Accuracy score: 0.991200
             <span class="n">probabilities</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">output</span><span class="p">[:,</span> <span class="n">which_class</span><span class="p">]))</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">actuals</span><span class="p">],</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">probabilities</span><span class="p">]</span>
 
-<span class="n">which_class</span> <span class="o">=</span> <span class="mi">9</span>
+<span class="n">which_class</span> <span class="o">=</span> <span class="mi">3</span>
 <span class="n">actuals</span><span class="p">,</span> <span class="n">class_probabilities</span> <span class="o">=</span> <span class="n">test_class_probabilities</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">test_loader</span><span class="p">,</span> <span class="n">which_class</span><span class="p">)</span>
 
 <span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">actuals</span><span class="p">,</span> <span class="n">class_probabilities</span><span class="p">)</span>
@@ -269,13 +262,13 @@ Accuracy score: 0.991200
 <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">])</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;False Positive Rate&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;True Positive Rate&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;ROC for digit=</span><span class="si">%d</span><span class="s1"> class&#39;</span> <span class="o">%</span> <span class="n">which_class</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;ROC for label=cat(</span><span class="si">%d</span><span class="s1">) class&#39;</span> <span class="o">%</span> <span class="n">which_class</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 
 
-<p><img src="/images/mnist-roc.png" alt="MNIST ROC curve" style="width: 600px;"/></p>
+<p><img src="/images/cifar-10-roc.png" alt="CIFAR-10 ROC curve" style="width: 600px;"/></p>
 <h2>Conclusion</h2>
 <p>The combination of Pytorch, torchvision and SKL makes it really quick to play around with deep neural network architectures and see how they perform, without writing too much code, while using regular Python to do the debugging. A good next step is to play around with <a href="https://www.cs.toronto.edu/~kriz/cifar.html">CIFAR data</a>.</p>
   </div>
@@ -285,7 +278,7 @@ Accuracy score: 0.991200
       <a href="/tag/pytorch.html">pytorch</a>
       <a href="/tag/cnn.html">cnn</a>
       <a href="/tag/torchvision.html">torchvision</a>
-      <a href="/tag/mnist.html">mnist</a>
+      <a href="/tag/cifar.html">cifar</a>
       <a href="/tag/skl.html">skl</a>
     </p>
   </div>
@@ -299,18 +292,18 @@ Accuracy score: 0.991200
 {
   "@context": "http://schema.org",
   "@type": "BlogPosting",
-  "name": "Solving MNIST with Pytorch and SKL",
-  "headline": "Solving MNIST with Pytorch and SKL",
-  "datePublished": "2019-05-02 00:00:00+02:00",
-  "dateModified": "2019-05-02 00:00:00+02:00",
+  "name": "Solving CIFAR-10 with Pytorch and SKL",
+  "headline": "Solving CIFAR-10 with Pytorch and SKL",
+  "datePublished": "2019-05-14 00:00:00+02:00",
+  "dateModified": "2019-05-14 00:00:00+02:00",
   "author": {
     "@type": "Person",
     "name": "Marton Trencseni",
     "url": "/author/marton-trencseni.html"
   },
   "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
-  "url": "/solving-mnist-with-pytorch-and-skl.html",
-  "description": "MNIST is a classic image recognition problem, specifically digit recognition. It contains 70,000 28x28 pixel grayscale images of hand-written, labeled images, 60,000 for training and 10,000 for testing. Convolutional Neural Networks (CNN) do really well on MNIST, achieving 99%+ accuracy. The Pytorch distribution includes a 4-layer CNN for solving MNIST. Here I will unpack and go through this example. We use torchvision to avoid downloading and data wrangling the datasets. Finally, instead of calculating performance metrics of the model by hand, I will extract results in a format so we can use SciKit-Learn's rich library of metrics."
+  "url": "/solving-cifar-10-with-pytorch-and-skl.html",
+  "description": "CIFAR-10 is a classic image recognition problem, consisting of 60,000 32x32 pixel RGB images (50,000 for training and 10,000 for testing) in 10 categories: plane, car, bird, cat, deer, dog, frog, horse, ship, truck. Convolutional Neural Networks (CNN) do really well on CIFAR-10, achieving 99%+ accuracy. The Pytorch distribution includes an example CNN for solving CIFAR-10, at 45% accuracy. I will use that and merge it with another example implementation to achieve 75%. We use torchvision to avoid downloading and data wrangling the datasets. Like in the MNIST example, I use Scikit-Learn to calculate goodness metrics and plots."
 }
 </script></body>
 </html>
