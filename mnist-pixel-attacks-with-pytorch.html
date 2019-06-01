@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="It’s easy to build a CNN that does well on MNIST digit classification. How easy is it to break it, to distort the images and cause the model to misclassify?" />
+<meta name="keywords" content="python, pytorch, cnn, torchvision, mnist, skl">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="MNIST pixel attacks with Pytorch"/>
+<meta property="og:description" content="It’s easy to build a CNN that does well on MNIST digit classification. How easy is it to break it, to distort the images and cause the model to misclassify?"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/mnist-pixel-attacks-with-pytorch.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2019-06-01 00:00:00+02:00"/>
+<meta property="article:modified_time" content="2019-06-01 00:00:00+02:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Python"/>
+<meta property="article:tag" content="python"/>
+<meta property="article:tag" content="pytorch"/>
+<meta property="article:tag" content="cnn"/>
+<meta property="article:tag" content="torchvision"/>
+<meta property="article:tag" content="mnist"/>
+<meta property="article:tag" content="skl"/>
+<meta property="og:image" content="/images/mnist-attack-accuracy.png"/>
+
+  <title>Bytepawn &ndash; MNIST pixel attacks with Pytorch</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="mnist-pixel-attacks-with-pytorch">MNIST pixel attacks with Pytorch</h1>
+    <p>Posted on Sat 01 June 2019 in <a href="/category/python.html">Python</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>It’s easy to build a CNN that does well on MNIST digit classification. How easy is it to break it, to distort the images and cause the model to misclassify? The post was inspired by 2 papers, both are worth reading:</p>
+<ul>
+<li><a href="https://arxiv.org/abs/1710.08864">One Pixel Attack for Fooling Deep Neural Networks</a></li>
+<li><a href="https://keenlab.tencent.com/en/2019/03/29/Tencent-Keen-Security-Lab-Experimental-Security-Research-of-Tesla-Autopilot/">Tencent’s Keen Labs get a Tesla to leave the lane by placing a few white dots on the road</a></li>
+</ul>
+<p>For the experiments, I’m using the ~99% accurate CNN that I’ve trained in the <a href="http://bytepawn.com/solving-mnist-with-pytorch-and-skl.html#solving-mnist-with-pytorch-and-skl">previous MNIST post</a>. 
+The <a href="https://github.com/mtrencseni/pytorch-playground/blob/master/06-pixel-attacks/MNIST-pixel-attacks.ipynb">ipython notebook is up on Github.</a></p>
+<h2>Random noise</h2>
+<p>The first and simplest thing I tried is adding random noise. I wanted to see how random noise leads to classification errors, ie. reduced accuracy. Pytorch’s transformer framework made these experiments easy: I just had to add one Lambda to the transformers chain:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">distort</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">num_pixels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_pixels</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">random</span><span class="p">()</span><span class="o">*</span><span class="mi">28</span><span class="p">)][</span><span class="nb">int</span><span class="p">(</span><span class="n">random</span><span class="p">()</span><span class="o">*</span><span class="mi">28</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+<span class="k">def</span> <span class="nf">plot_accuracies</span><span class="p">(</span><span class="n">distorted_pixels</span><span class="p">,</span> <span class="n">accuracies</span><span class="p">):</span>
+    <span class="n">clear_output</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;distorted pixels&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;accuracy&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">distorted_pixels</span><span class="p">,</span> <span class="n">accuracies</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">distorted_pixels</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">accuracies</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">):</span>
+    <span class="n">my_test_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">datasets</span><span class="o">.</span><span class="n">MNIST</span><span class="p">(</span>
+            <span class="s1">&#39;../data&#39;</span><span class="p">,</span>
+            <span class="n">train</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+               <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+               <span class="n">transforms</span><span class="o">.</span><span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">distort</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">num_pixels</span><span class="o">=</span><span class="n">i</span><span class="p">)),</span>
+               <span class="c1"># the above line was added compared to the original model</span>
+               <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.1307</span><span class="p">,),</span> <span class="p">(</span><span class="mf">0.3081</span><span class="p">,)),</span>
+            <span class="p">])</span>
+        <span class="p">),</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+        <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">actuals</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="n">test_label_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">my_test_loader</span><span class="p">)</span>
+    <span class="n">distorted_pixels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">accuracies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">actuals</span><span class="p">,</span> <span class="n">predictions</span><span class="p">))</span>
+    <span class="n">plot_accuracies</span><span class="p">(</span><span class="n">distorted_pixels</span><span class="p">,</span> <span class="n">accuracies</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Note that the <code>transforms.Lambda()</code> was added after the <code>transforms.ToTensor()</code>, so at this point the image is a 28x28 tensor of floats between 0 and 1, and before the <code>transforms.Normalize()</code>. For reference, this is what a distorted image looks like (fifth test image in MNIST, a digit 4, original and with 100 pixels distorted):</p>
+<p><img src="/images/mnist-4.png" alt="MNIST 4 distorted" style="width: 600px;"/></p>
+<p>The result shows the decline in accuracy, as a function of how many pixels are randomly distorted on the test image:</p>
+<p><img src="/images/mnist-attack-accuracy" alt="MNIST attack accuracy" style="width: 600px;"/></p>
+<p>The accuracy degradation is pretty linear. I was surprised by this, I was expecting the model to perform well up to a certain distortion, and then break down. Note that I set the pixels randomly, so at high counts it’s possible that a pixel is “set twice”, so the actual number of distorted pixels is lower.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/python.html">python</a>
+      <a href="/tag/pytorch.html">pytorch</a>
+      <a href="/tag/cnn.html">cnn</a>
+      <a href="/tag/torchvision.html">torchvision</a>
+      <a href="/tag/mnist.html">mnist</a>
+      <a href="/tag/skl.html">skl</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "MNIST pixel attacks with Pytorch",
+  "headline": "MNIST pixel attacks with Pytorch",
+  "datePublished": "2019-06-01 00:00:00+02:00",
+  "dateModified": "2019-06-01 00:00:00+02:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/mnist-pixel-attacks-with-pytorch.html",
+  "description": "It’s easy to build a CNN that does well on MNIST digit classification. How easy is it to break it, to distort the images and cause the model to misclassify?"
+}
+</script></body>
+</html>
