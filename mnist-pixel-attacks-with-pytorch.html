@@ -71,7 +71,7 @@
 <p>For the experiments, I’m using the ~99% accurate CNN that I’ve trained in the <a href="http://bytepawn.com/solving-mnist-with-pytorch-and-skl.html#solving-mnist-with-pytorch-and-skl">previous MNIST post</a>. 
 The <a href="https://github.com/mtrencseni/pytorch-playground/blob/master/06-pixel-attacks/MNIST-pixel-attacks.ipynb">ipython notebook is up on Github.</a></p>
 <h2>Random noise</h2>
-<p>The first and simplest thing I tried is adding random noise. I wanted to see how random noise leads to classification errors, ie. reduced accuracy. Pytorch’s transformer framework made these experiments easy: I just had to add one Lambda to the transformers chain:</p>
+<p>The first and simplest thing I tried is adding random noise. I wanted to see how random noise leads to classification errors, ie. reduced accuracy. Pytorch’s <a href="https://pytorch.org/docs/stable/torchvision/transforms.html">transformer framework</a> made these experiments easy: I just had to add one <code>Lambda()</code> to the transformers chain:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">distort</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">num_pixels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_pixels</span><span class="p">):</span>
         <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">random</span><span class="p">()</span><span class="o">*</span><span class="mi">28</span><span class="p">)][</span><span class="nb">int</span><span class="p">(</span><span class="n">random</span><span class="p">()</span><span class="o">*</span><span class="mi">28</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span>
@@ -114,6 +114,75 @@ The <a href="https://github.com/mtrencseni/pytorch-playground/blob/master/06-pix
 <p>The result shows the decline in accuracy, as a function of how many pixels are randomly distorted on the test image:</p>
 <p><img src="/images/mnist-attack-accuracy.png" alt="MNIST attack accuracy" style="width: 600px;"/></p>
 <p>The accuracy degradation is pretty linear. I was surprised by this, I was expecting the model to perform well up to a certain distortion, and then break down (more inclined inverse S-curve). Note that I set the pixels randomly, so at high counts it’s possible that a pixel is “set twice”, so the actual number of distorted pixels is lower.</p>
+<h2>One-pixel attacks</h2>
+<p>Based on the above, breaking the model by setting one-pixel shouldn’t be easy. But in the random noise example, we were setting pixels randomly; is it possible to find a special vulnerable pixel and break the classification? When looking for a one-pixel vulnerability, there are 3 parameters, x and y, and the pixel value. Here I will only play with x and y, I will set the pixel value to 1.0.</p>
+<p>Unlike in the article references in the intro, here I’m doing a brute-force attack. Two outer loops go through the pixel values, and each time it runs the test images through the model, and counts how many images are misclassified. Note that without any distortion the model achieves 98.9% accuracy, so out of 10,000 test images there are 110 that are misclassified even without distortion. These 110 are always subtracted, they are not counted.</p>
+<p>The code:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">set_pixel</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+<span class="k">def</span> <span class="nf">misclassified_images</span><span class="p">(</span><span class="n">actuals</span><span class="p">,</span> <span class="n">predictions</span><span class="p">):</span>
+    <span class="n">vuls</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">actuals</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">actuals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">predictions</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+            <span class="n">vuls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">vuls</span><span class="p">)</span>
+
+<span class="n">my_test_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+    <span class="n">datasets</span><span class="o">.</span><span class="n">MNIST</span><span class="p">(</span>
+        <span class="s1">&#39;../data&#39;</span><span class="p">,</span>
+        <span class="n">train</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="n">transform</span><span class="o">=</span><span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+           <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+           <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.1307</span><span class="p">,),</span> <span class="p">(</span><span class="mf">0.3081</span><span class="p">,)),</span>
+        <span class="p">])</span>
+    <span class="p">),</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">actuals</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="n">test_label_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">my_test_loader</span><span class="p">)</span>
+<span class="n">base_misclassifieds</span> <span class="o">=</span> <span class="n">misclassified_images</span><span class="p">(</span><span class="n">actuals</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
+
+<span class="n">vulnerable_images</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([])</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">28</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">28</span><span class="p">):</span>
+        <span class="n">my_test_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+            <span class="n">datasets</span><span class="o">.</span><span class="n">MNIST</span><span class="p">(</span>
+                <span class="s1">&#39;../data&#39;</span><span class="p">,</span>
+                <span class="n">train</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                <span class="n">transform</span><span class="o">=</span><span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+                   <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+                   <span class="n">transforms</span><span class="o">.</span><span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">set_pixel</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)),</span>
+                   <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.1307</span><span class="p">,),</span> <span class="p">(</span><span class="mf">0.3081</span><span class="p">,)),</span>
+                <span class="p">])</span>
+            <span class="p">),</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+            <span class="n">shuffle</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">actuals</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="n">test_label_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">my_test_loader</span><span class="p">)</span>
+        <span class="n">misc</span> <span class="o">=</span> <span class="n">misclassified_images</span><span class="p">(</span><span class="n">actuals</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
+        <span class="n">actual_vulnerables</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">base_misclassifieds</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;(</span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">) vulnerables: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">actual_vulnerables</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">actual_vulnerables</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;--&gt; </span><span class="si">%s</span><span class="s1"> is </span><span class="si">%s</span><span class="s1">, classified as </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">actuals</span><span class="p">[</span><span class="n">a</span><span class="p">],</span> <span class="n">predictions</span><span class="p">[</span><span class="n">a</span><span class="p">]))</span>
+        <span class="n">vulnerable_images</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">actual_vulnerables</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">base_misclassifieds</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">vulnerable_images</span><span class="p">))</span>
+</pre></div>
+
+
+<p>In the end, it finds only 69 (out of 10,000) that are vulnerable. At most locations, it finds vulnerabilities, but it’s always the same images. For example, image #3906 is very vulnerable, changing the (0,8) pixel gets this 1 classified as a 3:</p>
+<p><img src="/images/mnist-one.png" alt="MNIST 1 attacked" style="width: 600px;"/></p>
+<p>This seems to go against the first cited article’s finding, where ~75% of CIFAR-10 images are found to have a one-pixel vulnerability. Possible explanations:</p>
+<ul>
+<li>classifying digits is simpler than image categories, so MNIST is less vulnerable</li>
+<li>playing around with the pixel values would yield more vulnerabilities</li>
+</ul>
+<h2>Out-of-bounds one-pixel attacks</h2>
+<p>Finally, I played around with setting out-of-bounds values, ie. what if I numerically set the pixel value to be greather than 1.0. Let’s repeat the distortion experiment, but set values to 5.0. At 20 distorted pixels the accuracy already drops to ~50%:</p>
+<p><img src="/images/mnist-oob-attack-accuracy.png" alt="MNIST attack accuracy" style="width: 600px;"/></p>
+<p>I attibute this to the <code>relu()</code> activation, which cuts off at the low end, but not on the high-end, so these out-of-bounds values are able to travel through the deep layers and throw off the model:</p>
+<p><img src="/images/relu.png" alt="relu()" style="width: 600px;"/></p>
+<p>Intuitively, neural nets find blobs in high-dimensional space and assign it to a label, and by doing this we move the image away from the blob along one dimension.</p>
   </div>
   <div class="tag-cloud">
     <p>
