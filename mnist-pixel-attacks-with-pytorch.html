@@ -110,10 +110,10 @@ The <a href="https://github.com/mtrencseni/pytorch-playground/blob/master/06-pix
 
 
 <p>Note that the <code>transforms.Lambda()</code> was added after the <code>transforms.ToTensor()</code>, so at this point the image is a 28x28 tensor of floats between 0 and 1, and before the <code>transforms.Normalize()</code>. For reference, this is what a distorted image looks like (fifth test image in MNIST, a digit 4, original and with 100 pixels distorted):</p>
-<p><img src="/images/mnist-4.png" alt="MNIST 4 distorted" style="width: 600px;"/></p>
+<p><img src="/images/mnist-four.png" alt="MNIST 4 distorted" style="width: 600px;"/></p>
 <p>The result shows the decline in accuracy, as a function of how many pixels are randomly distorted on the test image:</p>
-<p><img src="/images/mnist-attack-accuracy" alt="MNIST attack accuracy" style="width: 600px;"/></p>
-<p>The accuracy degradation is pretty linear. I was surprised by this, I was expecting the model to perform well up to a certain distortion, and then break down. Note that I set the pixels randomly, so at high counts it’s possible that a pixel is “set twice”, so the actual number of distorted pixels is lower.</p>
+<p><img src="/images/mnist-attack-accuracy.png" alt="MNIST attack accuracy" style="width: 600px;"/></p>
+<p>The accuracy degradation is pretty linear. I was surprised by this, I was expecting the model to perform well up to a certain distortion, and then break down (more inclined inverse S-curve). Note that I set the pixels randomly, so at high counts it’s possible that a pixel is “set twice”, so the actual number of distorted pixels is lower.</p>
   </div>
   <div class="tag-cloud">
     <p>
