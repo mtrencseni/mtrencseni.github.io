@@ -115,7 +115,7 @@ The &lt;a href="https://github.com/mtrencseni/pytorch-playground/blob/master/06-
 &lt;li&gt;playing around with the pixel values would yield more vulnerabilities&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2&gt;Out-of-bounds one-pixel attacks&lt;/h2&gt;
-&lt;p&gt;Finally, I played around with setting out-of-bounds values, ie. what if I numerically set the pixel value to be greather than 1.0. Let’s repeat the distortion experiment, but set values to 5.0. At 20 distorted pixels the accuracy already drops to ~50%:&lt;/p&gt;
+&lt;p&gt;Finally, I played around with setting out-of-bounds values, ie. what if I numerically set the pixel value to be greather than 1.0. Let’s repeat the distortion experiment, but set values to 5.0 instead of 1.0. At 20 distorted pixels the accuracy already drops to ~50%:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/mnist-oob-attack-accuracy.png" alt="MNIST attack accuracy" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;I attibute this to the &lt;code&gt;relu()&lt;/code&gt; activation, which cuts off at the low end, but not on the high-end, so these out-of-bounds values are able to travel through the deep layers and throw off the model:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/relu.png" alt="relu()" style="width: 600px;"/&gt;&lt;/p&gt;
