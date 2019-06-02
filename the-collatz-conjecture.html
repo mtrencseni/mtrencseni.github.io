@@ -121,6 +121,13 @@
 
 
 <p><img src="/images/collatz-max.png" alt="Collatz max" style="width: 600px;"/></p>
+<p><a href="http://www.ericr.nl/wondrous/pathrecs.html">Some people are brute-forcing it</a>, and have checked that all numbers satisfy the conjecture up to about 2^64. They're also recording path records, ie. the biggest number reached on the path down to 1. The current path record is (this is the <code>max()</code> I plotted above), reading off from the linked page (without running):</p>
+<div class="highlight"><pre><span></span><span class="nb">max</span><span class="p">(</span><span class="n">collatz_sequence</span><span class="p">(</span><span class="mi">71</span><span class="p">,</span><span class="mi">149323</span><span class="p">,</span><span class="mi">674102</span><span class="p">,</span><span class="mi">624415</span><span class="p">))</span> <span class="o">==</span> <span class="mi">9055</span><span class="p">,</span><span class="mi">383924</span><span class="p">,</span><span class="mi">226744</span><span class="p">,</span><span class="mi">340579</span><span class="p">,</span><span class="mi">466230</span><span class="p">,</span><span class="mi">337749</span><span class="p">,</span><span class="mi">396932</span>
+</pre></div>
+
+
+<p>Plotting the path records on a log-log plot looks very linear:</p>
+<p><img src="/images/collatz-path-records.png" alt="Collatz max" style="width: 400px;"/></p>
   </div>
   <div class="tag-cloud">
     <p>
