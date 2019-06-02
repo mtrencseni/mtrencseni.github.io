@@ -81,13 +81,41 @@
 </pre></div>
 
 
-<p>The sequences have a lot of random properties. For example, plotting how long it takes to reach 1:</p>
+<p>How about a bigger one:</p>
+<div class="highlight"><pre><span></span><span class="n">collatz_sequence</span><span class="p">(</span><span class="mi">2498904803</span><span class="p">)</span>
+<span class="p">[</span><span class="mi">2498904803</span><span class="p">,</span>
+ <span class="mi">7496714410</span><span class="p">,</span>
+ <span class="mi">3748357205</span><span class="p">,</span>
+ <span class="mi">11245071616</span><span class="p">,</span>
+ <span class="mi">5622535808</span><span class="p">,</span>
+ <span class="mi">2811267904</span><span class="p">,</span>
+ <span class="mi">1405633952</span><span class="p">,</span>
+ <span class="mi">702816976</span><span class="p">,</span>
+ <span class="o">...</span>
+ <span class="mi">53</span><span class="p">,</span>
+ <span class="mi">160</span><span class="p">,</span>
+ <span class="mi">80</span><span class="p">,</span>
+ <span class="mi">40</span><span class="p">,</span>
+ <span class="mi">20</span><span class="p">,</span>
+ <span class="mi">10</span><span class="p">,</span>
+ <span class="mi">5</span><span class="p">,</span>
+ <span class="mi">16</span><span class="p">,</span>
+ <span class="mi">8</span><span class="p">,</span>
+ <span class="mi">4</span><span class="p">,</span>
+ <span class="mi">2</span><span class="p">,</span>
+ <span class="mi">1</span><span class="p">]</span>
+</pre></div>
+
+
+<p>The one above is 278 long! This is what it looks like:</p>
+<p><img src="/images/collatz-log2-2498904803.png" alt="Collatz log2 2498904803" style="width: 600px;"/></p>
+<p>The sequences have a lot of random properties. For example, plotting the length of Collatz sequences:</p>
 <div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">collatz_sequence</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)])</span>
 </pre></div>
 
 
 <p><img src="/images/collatz-length.png" alt="Collatz length" style="width: 600px;"/></p>
-<p>What is the biggest value the sequence gets to, on a lot plot?</p>
+<p>What is the biggest value the sequence gets to, on a log plot:</p>
 <div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">log2</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">collatz_sequence</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)])</span>
 </pre></div>
 
