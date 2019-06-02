@@ -110,7 +110,11 @@
 </pre></div>
 
 
-<p>The one above is 278 long! This is what it looks like:</p>
+<p>The one above is 278 long! This is what it looks like on a log plot:</p>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">log2</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">collatz_sequence</span><span class="p">(</span><span class="mi">2498904803</span><span class="p">)])</span>
+</pre></div>
+
+
 <p><img src="/images/collatz-log2-2498904803.png" alt="Collatz log2 2498904803" style="width: 600px;"/></p>
 <h2>Sequence properties</h2>
 <p>The sequences have a lot of random properties. For example, plotting the length of Collatz sequences:</p>

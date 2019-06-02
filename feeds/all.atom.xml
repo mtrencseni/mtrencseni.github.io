@@ -51,7 +51,11 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;The one above is 278 long! This is what it looks like:&lt;/p&gt;
+&lt;p&gt;The one above is 278 long! This is what it looks like on a log plot:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;plt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;log2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;collatz_sequence&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2498904803&lt;/span&gt;&lt;span class="p"&gt;)])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
 &lt;p&gt;&lt;img src="/images/collatz-log2-2498904803.png" alt="Collatz log2 2498904803" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;h2&gt;Sequence properties&lt;/h2&gt;
 &lt;p&gt;The sequences have a lot of random properties. For example, plotting the length of Collatz sequences:&lt;/p&gt;
