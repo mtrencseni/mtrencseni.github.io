@@ -58,7 +58,8 @@
     <p>Posted on Sun 02 June 2019 in <a href="/category/math.html">Math</a></p>
   </header>
   <div>
-    <p>I came across the Collatz conjecture reading the book <a href="https://www.amazon.com/Model-Thinker-What-Need-Know/dp/0465094627">The Model Thinker</a>. The book I don’t recommend particulary, 80% of it is topics science/engineering students learn at college (eg. entropy, normal distribution). But 20% is interesting tidbits and references I haven’t heard of. One was the the <a href="https://en.wikipedia.org/wiki/Collatz_conjecture">Collatz conjecture. From wikipedia</a>:</p>
+    <h2>Introduction</h2>
+<p>I came across the Collatz conjecture reading the book <a href="https://www.amazon.com/Model-Thinker-What-Need-Know/dp/0465094627">The Model Thinker</a>. The book I don’t recommend particulary, 80% of it is topics science/engineering students learn at college (eg. entropy, normal distribution). But 20% is interesting tidbits and references I haven’t heard of. One was the the <a href="https://en.wikipedia.org/wiki/Collatz_conjecture">Collatz conjecture. From wikipedia</a>:</p>
 <p><em>The Collatz conjecture is a conjecture in mathematics that concerns a sequence defined as follows: start with any positive integer n. Then each term is obtained from the previous term as follows: if the previous term is even, the next term is one half the previous term. If the previous term is odd, the next term is 3 times the previous term plus 1. The conjecture is that no matter what value of n, the sequence will always reach 1.</em></p>
 <p>The kicker is, nobody can prove the Collatz conjecture. <a href="https://terrytao.wordpress.com/2011/08/25/the-collatz-conjecture-littlewood-offord-theory-and-powers-of-2-and-3/">Not even Terry Tao!</a></p>
 <p>Here it is as code, so we can play around with it:</p>
@@ -109,14 +110,15 @@
 
 <p>The one above is 278 long! This is what it looks like:</p>
 <p><img src="/images/collatz-log2-2498904803.png" alt="Collatz log2 2498904803" style="width: 600px;"/></p>
+<h2>Sequence properties</h2>
 <p>The sequences have a lot of random properties. For example, plotting the length of Collatz sequences:</p>
-<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">collatz_sequence</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)])</span>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">collatz_sequence</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">11</span><span class="p">)])</span>
 </pre></div>
 
 
 <p><img src="/images/collatz-length.png" alt="Collatz length" style="width: 600px;"/></p>
 <p>What is the biggest value the sequence gets to, on a log plot:</p>
-<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">log2</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">collatz_sequence</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)])</span>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">log2</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">collatz_sequence</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">11</span><span class="p">)])</span>
 </pre></div>
 
 
@@ -128,6 +130,12 @@
 
 <p>Plotting the path records on a log-log plot looks very linear:</p>
 <p><img src="/images/collatz-path-records.png" alt="Collatz max" style="width: 400px;"/></p>
+<p>The only way the series can get down to 1 is if it decreases. It only decreases when dividing by 2. So another way to state the conjecture is that eventually all series reach a number that is 2^k for some integer k. So let's check what is the biggest k, as a function of n:</p>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">log2</span><span class="p">(</span><span class="n">max_power2</span><span class="p">(</span><span class="n">collatz_sequence</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">)])</span>
+</pre></div>
+
+
+<p><img src="/images/collatz-max2power.png" alt="Collatz max" style="width: 600px;"/></p>
   </div>
   <div class="tag-cloud">
     <p>
