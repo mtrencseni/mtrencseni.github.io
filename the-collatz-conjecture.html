@@ -62,7 +62,7 @@
 <p>I came across the Collatz conjecture reading the book <a href="https://www.amazon.com/Model-Thinker-What-Need-Know/dp/0465094627">The Model Thinker</a>. The book I don’t recommend particulary, 80% of it is topics science/engineering students learn at college (eg. entropy, normal distribution). But 20% is interesting tidbits and references I haven’t heard of. One was the the <a href="https://en.wikipedia.org/wiki/Collatz_conjecture">Collatz conjecture. From wikipedia</a>:</p>
 <p><em>The Collatz conjecture is a conjecture in mathematics that concerns a sequence defined as follows: start with any positive integer n. Then each term is obtained from the previous term as follows: if the previous term is even, the next term is one half the previous term. If the previous term is odd, the next term is 3 times the previous term plus 1. The conjecture is that no matter what value of n, the sequence will always reach 1.</em></p>
 <p>The kicker is, nobody can prove the Collatz conjecture. <a href="https://terrytao.wordpress.com/2011/08/25/the-collatz-conjecture-littlewood-offord-theory-and-powers-of-2-and-3/">Not even Terry Tao!</a></p>
-<p>Here it is as code, so we can play around with it:</p>
+<p>Here it is as code, so we can play around with it. <a href="https://github.com/mtrencseni/playground/blob/master/Collatz.ipynb">The code is up on Github</a>:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">collatz</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>          <span class="k">return</span> <span class="mi">3</span><span class="o">*</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span>
@@ -150,7 +150,21 @@
 
 
 <p><img src="/images/collatz-binary1s.png" alt="Collatz max" style="width: 600px;"/></p>
-<p>Unfortunately, the 1s are not converved :)</p>
+<p>The 1s are not converved. It is possible to upper bound it, for example:</p>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="nb">len</span><span class="p">(</span><span class="s1">&#39;{0:b}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;{0:b}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s1">&#39;{0:b}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">collatz_sequence</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">)</span>
+    <span class="p">])</span>
+</pre></div>
+
+
+<p><img src="/images/collatz-bound.png" alt="Collatz max" style="width: 600px;"/></p>
+<p>But this isn't actually useful (not a good Lyapunov function), since the binary 1s can keep traveling up in the binary sequence, so the numbers can keep getting bigger.</p>
+<p>Another way to think about it like this: imagine the number broken out as prime factors. When there are prime factors like 2^k, those are chopped off by the divisions. So any time the sequence hits a number where the prime factors have a 2^k, those are chopped off. If there is something left (not 1), it will be odd, let's call it m+1, where m is even. We multiply it by 3 and add 1 (3m+4), that will be even, so we divide by 2. So what do we know about (3m+4)/2 = m + m/2 + 2, if m is even? <a href="https://www.quora.com/How-are-the-prime-factors-of-a-number-affected-when-multiplying-by-3-and-adding-1">I don't know, but other people are also thinking about this :)</a></p>
+<p>Another thing to keep in mind is cycles. To prove that it comes down to 1, we have to prove there are no cycles, if there's no number k that is reached (by 3n+1'ing a smaller number), which eventually will be reached again (by dividing 2k by 2), and then the sequence keeps looping. The only known loop is the trivial loop: [1 → 4 → 2 → 1].</p>
   </div>
   <div class="tag-cloud">
     <p>
