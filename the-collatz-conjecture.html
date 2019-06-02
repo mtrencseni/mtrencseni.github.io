@@ -60,7 +60,9 @@
   <div>
     <h2>Introduction</h2>
 <p>I came across the Collatz conjecture reading the book <a href="https://www.amazon.com/Model-Thinker-What-Need-Know/dp/0465094627">The Model Thinker</a>. The book I don’t recommend particulary, 80% of it is topics science/engineering students learn at college (eg. entropy, normal distribution). But 20% is interesting tidbits and references I haven’t heard of. One was the the <a href="https://en.wikipedia.org/wiki/Collatz_conjecture">Collatz conjecture. From wikipedia</a>:</p>
-<p><em>The Collatz conjecture is a conjecture in mathematics that concerns a sequence defined as follows: start with any positive integer n. Then each term is obtained from the previous term as follows: if the previous term is even, the next term is one half the previous term. If the previous term is odd, the next term is 3 times the previous term plus 1. The conjecture is that no matter what value of n, the sequence will always reach 1.</em></p>
+<blockquote>
+<p>The Collatz conjecture is a conjecture in mathematics that concerns a sequence defined as follows: start with any positive integer n. Then each term is obtained from the previous term as follows: if the previous term is even, the next term is one half the previous term. If the previous term is odd, the next term is 3 times the previous term plus 1. The conjecture is that no matter what value of n, the sequence will always reach 1.</p>
+</blockquote>
 <p>The kicker is, nobody can prove the Collatz conjecture. <a href="https://terrytao.wordpress.com/2011/08/25/the-collatz-conjecture-littlewood-offord-theory-and-powers-of-2-and-3/">Not even Terry Tao!</a></p>
 <p>Here it is as code, so we can play around with it. <a href="https://github.com/mtrencseni/playground/blob/master/Collatz.ipynb">The code is up on Github</a>:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">collatz</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
@@ -137,7 +139,9 @@
 
 <p><img src="/images/collatz-max2power.png" alt="Collatz max" style="width: 600px;"/></p>
 <p>It would be nice if there would be some regularity here, like numbers smaller than 2^k end up in 2^k, but that's not true. However, something similar was found by the <a href="(http://www.ericr.nl/wondrous/pathrecs.html)">brute-force check project</a>:</p>
-<p><em>The table therefore establishes the practical fact that for all numbers in the interval researched so far the path of every number taking k bytes (assuming a byte consists of 8 bits) can be completely determined using a storage of just 2k bytes for intermediate results.</em></p>
+<blockquote>
+<p>The table therefore establishes the practical fact that for all numbers in the interval researched so far the path of every number taking k bytes (assuming a byte consists of 8 bits) can be completely determined using a storage of just 2k bytes for intermediate results.</p>
+</blockquote>
 <p>Another idea I had was around <a href="https://en.wikipedia.org/wiki/Lyapunov_function">Lyapunov functions</a>. If one can come up with a function L(), so that L() is decreasing for a Collatz sequence (and L() has some good properties), that could help. One thing I tried is counting how the sequence produces 1s in the binary representation of the number:</p>
 <div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
     <span class="p">[</span>
@@ -167,7 +171,9 @@
 <p>Another way to think about it like this: imagine the number broken out as prime factors. When there are prime factors like 2^k, those are chopped off by the divisions. So any time the sequence hits a number where the prime factors have a 2^k, those are chopped off. If there is something left (not 1), it will be odd, let's call it n=m+1, where m is even. We multiply it by 3 and add 1 (3m+4), that will be even, so we divide by 2. So what do we know about (3m+4)/2 = m + m/2 + 2, if m is even? <a href="https://www.quora.com/How-are-the-prime-factors-of-a-number-affected-when-multiplying-by-3-and-adding-1">I don't know, but other people are also thinking about this.</a></p>
 <p>Taking one step back, if n is odd, it does not have 2 as a factor. We multiply it by 3, so we add 3 to the prime factors. Then we add 1, what happens to the prime factors? <a href="https://math.stackexchange.com/questions/173113/relationship-between-prime-factorizations-of-n-and-n1">I don't know, nobody knows!</a></p>
 <p>Another thing to keep in mind is <a href="https://en.wikipedia.org/wiki/Collatz_conjecture#Cycles">cycles</a>:</p>
-<p><em>Any counterexample to the Collatz conjecture would have to consist either of an infinite divergent trajectory or a cycle different from the trivial (4; 2; 1) cycle. Thus, if one could prove that neither of these types of counterexample could exist, then all positive integers would have a trajectory that reaches the trivial cycle. Such a strong result is not known, but certain types of cycles have been ruled out.</em></p>
+<blockquote>
+<p>Any counterexample to the Collatz conjecture would have to consist either of an infinite divergent trajectory or a cycle different from the trivial (4; 2; 1) cycle. Thus, if one could prove that neither of these types of counterexample could exist, then all positive integers would have a trajectory that reaches the trivial cycle. Such a strong result is not known, but certain types of cycles have been ruled out.</p>
+</blockquote>
 <p>To prove that it comes down to 1, we have to prove there are no cycles, if there's no number k that is reached (by 3n+1'ing a smaller number), which eventually will be reached again (by dividing 2k by 2), and then the sequence keeps looping. The only known cycle is the trivial: [1 → 4 → 2 → 1]. There's also no proof about no cycles.</p>
 <p><strong>Happy Collatz'ing! :)</strong></p>
   </div>
