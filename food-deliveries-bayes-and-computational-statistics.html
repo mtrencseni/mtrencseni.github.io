@@ -12,11 +12,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="" />
 <meta name="author" content="Marton Trencseni" />
-<meta name="description" content="I was grabbing a burger at Shake Stack, Mall of the Emirates in Dubai, when I noticed this notebook on the counter. The staff is using it to track food deliveries and each service (Carriage, Talabat, UberEats, Deliveroo) has its own column with the order numbers. Let's assume this is the only page for the day, and ask ourselves: given this data, what is the probability that UberEats is the most popular food delivery service?." />
+<meta name="description" content="I was grabbing a burger at Shake Shack, Mall of the Emirates in Dubai, when I noticed this notebook on the counter. The staff is using it to track food deliveries and each service (Carriage, Talabat, UberEats, Deliveroo) has its own column with the order numbers. Let's assume this is the only page for the day, and ask ourselves: given this data, what is the probability that UberEats is the most popular food delivery service?." />
 <meta name="keywords" content="python, math">
 <meta property="og:site_name" content="Bytepawn"/>
 <meta property="og:title" content="Food deliveries, Bayes and Computational Statistics"/>
-<meta property="og:description" content="I was grabbing a burger at Shake Stack, Mall of the Emirates in Dubai, when I noticed this notebook on the counter. The staff is using it to track food deliveries and each service (Carriage, Talabat, UberEats, Deliveroo) has its own column with the order numbers. Let's assume this is the only page for the day, and ask ourselves: given this data, what is the probability that UberEats is the most popular food delivery service?."/>
+<meta property="og:description" content="I was grabbing a burger at Shake Shack, Mall of the Emirates in Dubai, when I noticed this notebook on the counter. The staff is using it to track food deliveries and each service (Carriage, Talabat, UberEats, Deliveroo) has its own column with the order numbers. Let's assume this is the only page for the day, and ask ourselves: given this data, what is the probability that UberEats is the most popular food delivery service?."/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="/food-deliveries-bayes-and-computational-statistics.html"/>
 <meta property="og:type" content="article"/>
@@ -63,7 +63,7 @@
 </script>
 
 <h2>Introduction</h2>
-<p>I was grabbing a burger at Shake Stack, Mall of the Emirates in Dubai, when I noticed this notebook on the counter. The staff is using it to track food deliveries and each service (Carriage, Talabat, UberEats, Deliveroo) has its own column with the order numbers. Let's assume this is the only page for the day, and ask ourselves: <em>given this data, what is the probability that UberEats is the most popular food delivery service?</em>.</p>
+<p>I was grabbing a burger at <a href="https://www.shakeshack.com/location/dubai-moe/">Shake Shack</a>, <a href="http://www.malloftheemirates.com/">Mall of the Emirates</a> in Dubai, when I noticed this notebook on the counter. The staff is using it to track food deliveries and each service (Carriage, Talabat, UberEats, Deliveroo) has its own column with the order numbers. Let's assume this is the only page for the day, and ask ourselves: <em>given this data, what is the probability that UberEats is the most popular food delivery service?</em>.</p>
 <p><img src="/images/shake-shack.jpg" alt="Shake shack food deliveries" style="width: 600px;"/></p>
 <p>This is good challenge to exercise our Bayesian reasoning. Bayes theorem states that $ P(A|B)P(B) = P(A,B) = P(B|A)P(A) $, where $ P(A|B ) $ is the conditional probability of A given B, and $ P(A, B) $ is the joint probability of A and B co-occuring. All we have to do is replace A with H for Hypothesis and B with D for Data, and we get our formula for attacking the challenge: $ P(H|D) = \frac { P(D|H)P(H) }{ P(D) } $. Here <strong>Hypothesis</strong> is that UberEats is the most popular service, and <strong>Data</strong> is the observed counts (2, 2, 16, 14) in the notebook.</p>
 <h2>Simulation</h2>
@@ -183,6 +183,8 @@
 <p>$$ \frac { \int <em _sum="\sum" p_i>{\sum p_i = 1 \wedge p_3 = max(p_i)} P(x_i=k_i) dp_i } { \int </em> P(x_i=k_i) dp_i } $$</p>
 <p>where $ P(x_i = k_i) = \frac {N!}{x_1! ... x_s!} p_1^{x_1} ... p_s^{x_s} $ is the multinomial probability mass function evaluated at $ k_i = (2, 2, 16, 14), i = 1.. 4, N = \sum k_i = 34, s = 4$.</p>
 <p>It's called Monte Carlo because instead of computing the integral explicitly, we're just taking random samples in p-space and estimating (this sort of randomized numerics is called Monte Carlo). The $ P() $ function above can be integrated, it's just a polynomial, and I think the whole integrals can be explicitly calculated without MC. Both nominator and denominator are a hyperplane in 4D space, with the nominator being more tricky because of the $ max() $ constraint; I don't have Mathematica installed, so I will let the reader do this as homework :)</p>
+<p>If you're having trouble understanding this post, read the book [Think Bayes])(https://greenteapress.com/wp/think-bayes/), it's free.</p>
+<p><img src="/images/thinkbayes.png" alt="Think Bayes book" style="width: 600px;"/></p>
   </div>
   <div class="tag-cloud">
     <p>
@@ -211,7 +213,7 @@
   },
   "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
   "url": "/food-deliveries-bayes-and-computational-statistics.html",
-  "description": "I was grabbing a burger at Shake Stack, Mall of the Emirates in Dubai, when I noticed this notebook on the counter. The staff is using it to track food deliveries and each service (Carriage, Talabat, UberEats, Deliveroo) has its own column with the order numbers. Let's assume this is the only page for the day, and ask ourselves: given this data, what is the probability that UberEats is the most popular food delivery service?."
+  "description": "I was grabbing a burger at Shake Shack, Mall of the Emirates in Dubai, when I noticed this notebook on the counter. The staff is using it to track food deliveries and each service (Carriage, Talabat, UberEats, Deliveroo) has its own column with the order numbers. Let's assume this is the only page for the day, and ask ourselves: given this data, what is the probability that UberEats is the most popular food delivery service?."
 }
 </script></body>
 </html>
