@@ -117,8 +117,8 @@
 &lt;p&gt;Before moving on, here's a screenshot of this version, but before it converges. It shows the initial oscillations, which is what we were observing with the brute-force simulations (note that it eventually converges to 0.72):&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/food-bayes-simu2.png" alt="Food delivereis simulation" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;h2&gt;Integrals&lt;/h2&gt;
-&lt;p&gt;In case you remember college calculus, what we're doing above is a &lt;a href="https://en.wikipedia.org/wiki/Monte_Carlo_method"&gt;Monte Carlo (MC) integration&lt;/a&gt; of:&lt;/p&gt;
-&lt;p&gt;&lt;center&gt;$ \frac { \int &lt;em _sum="\sum" p_i&gt;{\sum p_i = 1 \wedge p_3 = max(p_i)} P(x_i=k_i) dp_i } { \int &lt;/em&gt; P(x_i=k_i) dp_i } $&lt;/center&gt;&lt;/p&gt;
+&lt;p&gt;In case you remember college calculus, what we're doing above is a &lt;a href="https://en.wikipedia.org/wiki/Monte_Carlo_method"&gt;Monte Carlo (MC) integration&lt;/a&gt; of.&lt;/p&gt;
+&lt;p&gt;hello $ \frac { \int &lt;em _sum="\sum" p_i&gt;{\sum p_i = 1 \wedge p_3 = max(p_i)} P(x_i=k_i) dp_i } { \int &lt;/em&gt; P(x_i=k_i) dp_i } $ world&lt;/p&gt;
 &lt;p&gt;where $ P(x_i = k_i) = \frac {N!}{x_1! ... x_s!} p_1^{x_1} ... p_s^{x_s} $ is the multinomial probability mass function evaluated at $ k_i = (2, 2, 16, 14), i = 1.. 4, N = \sum k_i = 34, s = 4$.&lt;/p&gt;
 &lt;p&gt;It's called Monte Carlo because instead of computing the integral explicitly, we're taking random samples in p-space and using that to estimate. The $ P() $ function above can be integrated, it's just a polynomial, and the whole integrals can be explicitly calculated with pen and paper (both nominator and denominator constrains are a hyperplane in 4D space, with the nominator being more tricky because of the $ max() $ constraint). I will let the reader do this as homework :)&lt;/p&gt;
 &lt;p&gt;If you're having trouble understanding this post, check out the free book &lt;a href="https://greenteapress.com/wp/think-bayes/"&gt;Think Bayes&lt;/a&gt;.&lt;/p&gt;
