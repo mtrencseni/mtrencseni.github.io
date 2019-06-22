@@ -197,7 +197,7 @@
 <p>where:</p>
 <p>$$ P(x_i = k_i) = \frac {N!}{x_1! ... x_s!} p_1^{x_1} ... p_s^{x_s} $$</p>
 <p>is the multinomial probability mass function evaluated at</p>
-<p>$$ k_i = (2, 2, 16, 14), i = 1.. 4, N = \sum k_i = 34, s = 4$$</p>
+<p>$$ k_i = (2, 2, 16, 14), s = 4, i = 1.. 4, N = \sum k_i = 34.$$</p>
 <p>It's called Monte Carlo because instead of computing the integral explicitly, we're taking random samples in p-space and using that to estimate. The $ P() $ function above can be integrated, it's just a polynomial, and the whole integrals can be explicitly calculated with pen and paper (both numerator and denominator constrains are a hyperplane in 4D space, with the numerator being more tricky because of the $ max() $ constraint). I will let the reader do this as homework :)</p>
 <p>If you're having trouble understanding this post, check out the free book <a href="https://greenteapress.com/wp/think-bayes/">Think Bayes</a>.</p>
 <p><img src="/images/thinkbayes.png" alt="Think Bayes book" style="width: 300px;"/></p>
