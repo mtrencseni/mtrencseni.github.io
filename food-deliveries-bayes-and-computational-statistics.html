@@ -191,7 +191,7 @@
 <p>Before moving on, here's a screenshot of this version, but before it converges. It shows the initial oscillations, which is what we were observing with the brute-force simulations:</p>
 <p><img src="/images/food-bayes-simu2.png" alt="Food delivereis simulation" style="width: 600px;"/></p>
 <h2>Integrals</h2>
-<p>For those that remember college calculus, what we're doing above is a <a href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte Carlo (MC) integration</a> of:</p>
+<p>In case you remember college calculus, what we're doing above is a <a href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte Carlo (MC) integration</a> of:</p>
 <p>$$ \frac { \int <em _sum="\sum" p_i>{\sum p_i = 1 \wedge p_3 = max(p_i)} P(x_i=k_i) dp_i } { \int </em> P(x_i=k_i) dp_i } $$</p>
 <p>where $ P(x_i = k_i) = \frac {N!}{x_1! ... x_s!} p_1^{x_1} ... p_s^{x_s} $ is the multinomial probability mass function evaluated at $ k_i = (2, 2, 16, 14), i = 1.. 4, N = \sum k_i = 34, s = 4$.</p>
 <p>It's called Monte Carlo because instead of computing the integral explicitly, we're just taking random samples in p-space and estimating (this sort of randomized numerics is called Monte Carlo). The $ P() $ function above can be integrated, it's just a polynomial, and I think the whole integrals can be explicitly calculated without MC. Both nominator and denominator are a hyperplane in 4D space, with the nominator being more tricky because of the $ max() $ constraint; I don't have Mathematica installed, so I will let the reader do this as homework :)</p>
