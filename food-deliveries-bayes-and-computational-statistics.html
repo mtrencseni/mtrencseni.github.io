@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
   <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
   <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
@@ -58,11 +61,7 @@
     <p>Posted on Sat 22 June 2019 in <a href="/category/math.html">Math</a></p>
   </header>
   <div>
-    <script type="text/javascript" async
-  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
-
-<h2>Introduction</h2>
+    <h2>Introduction</h2>
 <p>I was grabbing a burger at <a href="https://www.shakeshack.com/location/dubai-moe/">Shake Shack</a>, <a href="http://www.malloftheemirates.com/">Mall of the Emirates</a> in Dubai, when I noticed this notebook on the counter. The staff is using it to track food deliveries and each service (Carriage, Talabat, UberEats, Deliveroo) has its own column with the order numbers. Let's assume this is the only page for the day, and ask ourselves: <em>given this data, what is the probability that UberEats is the most popular food delivery service?</em>.</p>
 <p><img src="/images/shake-shack.jpg" alt="Shake shack food deliveries" style="width: 600px;"/></p>
 <p>This is good challenge to exercise our Bayesian reasoning. <a href="https://en.wikipedia.org/wiki/Bayes%27_theorem">Bayes theorem</a> states that $ P(A|B)P(B) = P(A,B) = P(B|A)P(A) $, where $ P(A|B ) $ is the conditional probability of A given B, and $ P(A, B) $ is the joint probability of A and B co-occuring. All we have to do is replace A with H for Hypothesis and B with D for Data, and we get our formula for attacking the challenge: $ P(H|D) = \frac { P(D|H)P(H) }{ P(D) } $. Here <strong>Hypothesis</strong> is that UberEats is the most popular service, and <strong>Data</strong> is the observed counts (2, 2, 16, 14) in the notebook.</p>
