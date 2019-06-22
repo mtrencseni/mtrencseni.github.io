@@ -193,7 +193,7 @@
 <p><img src="/images/food-bayes-simu2.png" alt="Food delivereis simulation" style="width: 600px;"/></p>
 <h2>Integrals</h2>
 <p>In case you remember college calculus, what we're doing above is a <a href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte Carlo (MC) integration</a> of.</p>
-<p>where $ P(x_i = k_i) = \frac {N!}{x_1! ... x_s!} p_1^{x_1} ... p_s^{x_s} $ is the multinomial probability mass function evaluated at $ k_i = (2, 2, 16, 14), i = 1.. 4, N = \sum k_i = 34, s = 4$. hello $ \frac { \int <em _sum="\sum" p_i>{\sum p_i = 1, p_3 = max(p_i)} P(x_i=k_i) dp_i }{ \int </em> P(x_i=k_i) dp_i } $ world 1 2 3 4 5 </p>
+<p>where $ P(x_i = k_i) = \frac {N!}{x_1! ... x_s!} p_1^{x_1} ... p_s^{x_s} $ is the multinomial probability mass function evaluated at $ k_i = (2, 2, 16, 14), i = 1.. 4, N = \sum k_i = 34, s = 4$. hello $ \frac { \int \sb{\sum p_i = 1, p_3 = max(p_i)} P(x_i=k_i) dp_i }{ \int \sb{\sum p_i = 1, p_3 = max(p_i)} P(x_i=k_i) dp_i } $ world 2234434.</p>
 <p>It's called Monte Carlo because instead of computing the integral explicitly, we're taking random samples in p-space and using that to estimate. The $ P() $ function above can be integrated, it's just a polynomial, and the whole integrals can be explicitly calculated with pen and paper (both numerator and denominator constrains are a hyperplane in 4D space, with the numerator being more tricky because of the $ max() $ constraint). I will let the reader do this as homework :)</p>
 <p>If you're having trouble understanding this post, check out the free book <a href="https://greenteapress.com/wp/think-bayes/">Think Bayes</a>.</p>
 <p><img src="/images/thinkbayes.png" alt="Think Bayes book" style="width: 300px;"/></p>
