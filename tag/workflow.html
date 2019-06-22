@@ -7,7 +7,11 @@
     styles: {
     ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
     },
-    tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']],processEscapes: true}
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true,
+    }
     });
   </script>
   <script type="text/javascript" async
