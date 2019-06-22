@@ -189,7 +189,7 @@
 
 <p>Note that we now no longer need the variable <code>n_simulations</code>. This is now lighting fast, converges in a few seconds, and quickly tells us that the probability we're looking for is 72%. <strong>Given what I saw on the notebook, the probability that UberEats is their most popular delivery service is ~72%.</strong> Given this code, it's easy to check another one. What's the probability that Deliveroo is the most popular? Just change <code>model_satisfies_hypothesis</code>, run it again, and it's ~28%. The other two have almost zero chances of actually being the most popular.</p>
 <p><em>Technical note: in this whole discussion I'm assuming a uniform prior, ie. I have no prior bias towards believing one service being more popular than the rest.</em></p>
-<p>Before moving on, here's a screenshot of this version, but before it converges. It shows the initial oscillations, which is what we were observing with the brute-force simulations:</p>
+<p>Before moving on, here's a screenshot of this version, but before it converges. It shows the initial oscillations, which is what we were observing with the brute-force simulations (note that it eventually converges to 0.72):</p>
 <p><img src="/images/food-bayes-simu2.png" alt="Food delivereis simulation" style="width: 600px;"/></p>
 <h2>Integrals</h2>
 <p>In case you remember college calculus, what we're doing above is a <a href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte Carlo (MC) integration</a> of:</p>
