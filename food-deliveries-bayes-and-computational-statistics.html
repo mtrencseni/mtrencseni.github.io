@@ -192,13 +192,13 @@
 <p>Before moving on, here's a screenshot of this version, but before it converges. It shows the initial oscillations, which is what we were observing with the brute-force simulations (note that it eventually converges to 0.72):</p>
 <p><img src="/images/food-bayes-simu2.png" alt="Food delivereis simulation" style="width: 600px;"/></p>
 <h2>Integrals</h2>
-<p>In case you remember college calculus, what we're doing above is a <a href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte Carlo (MC) integration</a> of.</p>
+<p>In case you remember college calculus, what we're doing above is a <a href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte Carlo (MC) integration</a> of:</p>
 <p>$$ \frac { \int_{\sum p_i = 1 \wedge p_3 = max(p_i)} P(x_i=k_i) dp_i }{ \int_{\sum p_i = 1} P(x_i=k_i) dp_i } $$</p>
 <p>where:</p>
 <p>$$ P(x_i = k_i) = \frac {N!}{x_1! ... x_s!} p_1^{x_1} ... p_s^{x_s} $$</p>
 <p>is the multinomial probability mass function evaluated at</p>
 <p>$$ k_i = (2, 2, 16, 14), s = 4, i = 1.. 4, N = \sum k_i = 34.$$</p>
-<p>It's called Monte Carlo because instead of computing the integral explicitly, we're taking random samples in p-space and using that to estimate. The $ P() $ function above can be integrated, it's just a polynomial, and the whole integrals can be explicitly calculated (I think) with pen and paper (or Mathematica); both numerator and denominator constrains are a hyperplane in 4D p-space, with the numerator being more tricky because of the $ max() $ constraint. I will let the reader do this as homework :)</p>
+<p>It's called Monte Carlo because instead of computing the integral explicitly, we're taking random samples in p-space and using that to estimate. The $ P() $ function above can be integrated, it's just a polynomial, and the whole integral can be explicitly calculated (I think) with pen and paper (or Mathematica); both numerator and denominator constraints are a hyperplane in 4D p-space, with the numerator being more tricky because of the $ max() $ constraint. I will let the reader do this as homework :)</p>
 <p>If you're having trouble understanding this post, check out the free book <a href="https://greenteapress.com/wp/think-bayes/">Think Bayes</a>.</p>
 <p><img src="/images/thinkbayes.png" alt="Think Bayes book" style="width: 300px;"/></p>
   </div>
