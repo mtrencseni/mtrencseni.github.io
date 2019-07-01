@@ -81,8 +81,8 @@
 <p><img src="/images/ab-testing-evanmiller-sample-size.png" alt="Sample size" style="width: 650px;"/></p>
 <p>At this point, in the A/B testing tool, there are 2 magic parameters that the Data Scientist has to set for the Chi-squared test:</p>
 <ul>
-<li><strong>α:</strong>   the probability that, if the experiment goes off, the effect is actually not there (<strong>False Positive Rate, FPR</strong>, aka sensitivity)</li>
-<li><strong>1-β:</strong> also called the <strong>power</strong>, this is the probability that, if the effect is there, the experiment will go off (<strong>True Positive Rate, TPR</strong>)</li>
+<li><strong>α:</strong>   also called <strong>sensitivity</strong>, the probability that, if the experiment goes off, the effect is actually not there (<strong>False Positive Rate, FPR</strong>)</li>
+<li><strong>1-β:</strong> also called <strong>power</strong>, the probability that, if the effect is there, the experiment will go off (<strong>True Positive Rate, TPR</strong>)</li>
 </ul>
 <p>Most tools will default α=0.05 and 1-β=0.8, which is a sensible default. With these, the A/B testing tool will tell the Data Scientist how many N samples she needs to collect per variant (control and test) to be able to detect the given lift (1%) from the base value (75%), with the specified statistics (FPR, TPR).</p>
 <p>By pushing down the FPR, we can increase our confidence in our results. More power will enable us to catch more working experiments. But there is no free lunch, we will need to collect more N samples for this. So what is a good trade-off here? Almost all tools default to the values above, but there is nothing special about them.</p>
