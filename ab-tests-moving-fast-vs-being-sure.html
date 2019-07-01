@@ -73,11 +73,13 @@
     <p>Posted on Mon 01 July 2019 in <a href="/category/ab-testing.html">ab-testing</a></p>
   </header>
   <div>
-    <p>The basic flow of an A/B test (in a frequentist setting) is roughly:
-- formulate a hypothesis ("sending additional notifications will cause people to be available for deliveries")
-- select a target metric ("Delivery Performance = Deliveries/Dispatches") and specify the base value ("75%")
-- estimate the lift on the target metric ("1%")
-- use an <a href="https://www.evanmiller.org/ab-testing/sample-size.html">off-the-shelf A/B testing tool to figure out how many N samples you will need</a>, given the base metric value and expected lift</p>
+    <p>The basic flow of an A/B test (in a frequentist setting) is roughly:</p>
+<ul>
+<li>formulate a hypothesis ("sending additional notifications will cause people to be available for deliveries")</li>
+<li>select a target metric ("Delivery Performance = Deliveries/Dispatches") and specify the base value ("75%")</li>
+<li>estimate the lift on the target metric ("1%")</li>
+<li>use an <a href="https://www.evanmiller.org/ab-testing/sample-size.html">off-the-shelf A/B testing tool to figure out how many N samples you will need</a>, given the base metric value and expected lift</li>
+</ul>
 <p><img src="/images/ab-testing-evanmiller-sample-size.png" alt="Sample size" style="width: 650px;"/></p>
 <p>At this point, in the A/B testing tool, there are 2 magic parameters that the Data Scientist has to set for the Chi-squared test:</p>
 <ul>
