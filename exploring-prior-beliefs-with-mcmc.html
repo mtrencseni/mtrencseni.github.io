@@ -76,7 +76,7 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>In the previous post <a href="http://bytepawn.com/food-deliveries-bayes-and-computational-statistics.html">Food deliveries, Bayes and Computational Statistics</a> a first principles simulation was used to calculate the Bayes posterior probability of UberEats being the most popular food delivery service. After I finished writing the post my spidey-senses went off: I wrote too much code. I realized I could've used a <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo">Markov chain Monte Carlo (MCMC)</a> framework to get at the same result, with less code.</p>
+<p>In the previous post <a href="http://bytepawn.com/food-deliveries-bayes-and-computational-statistics.html">Food deliveries, Bayes and Computational Statistics</a> a first principles simulation was used to calculate the Bayes posterior probability of UberEats being the most popular food delivery service. After I finished writing the post my I was left feeling unsatisfied: I wrote too much simulation code. I realized I could've used a <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo">Markov Chain Monte Carlo (MCMC)</a> framework to get the same result with less code.</p>
 <p>So let's do that. Let's use <a href="https://docs.pymc.io/">PyMC3</a>, the standard MCMC library for Python. This code is so simple, without further ado, here it is:</p>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pymc3</span> <span class="kn">as</span> <span class="nn">pm</span>
 <span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
