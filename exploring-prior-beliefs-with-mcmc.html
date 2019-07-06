@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="I use PyMC3 to solve the food delivery toy problem and explore some alternative priors." />
+<meta name="keywords" content="python, math, pymc3">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="Exploring prior beliefs with MCMC"/>
+<meta property="og:description" content="I use PyMC3 to solve the food delivery toy problem and explore some alternative priors."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/exploring-prior-beliefs-with-mcmc.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2019-07-06 00:00:00+02:00"/>
+<meta property="article:modified_time" content="2019-07-06 00:00:00+02:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Math"/>
+<meta property="article:tag" content="python"/>
+<meta property="article:tag" content="math"/>
+<meta property="article:tag" content="pymc3"/>
+<meta property="og:image" content="/images/pymc-2.png"/>
+
+  <title>Bytepawn &ndash; Exploring prior beliefs with MCMC</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="exploring-prior-beliefs-with-mcmc">Exploring prior beliefs with MCMC</h1>
+    <p>Posted on Sat 06 July 2019 in <a href="/category/math.html">Math</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>In the previous post <a href="http://bytepawn.com/food-deliveries-bayes-and-computational-statistics.html">Food deliveries, Bayes and Computational Statistics</a> a first principles simulation was used to calculate the Bayes posterior probability of UberEats being the most popular food delivery service. After I finished writing the post my spidey-senses went off: I wrote too much code. I realized I could've used a <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo">Markov chain Monte Carlo (MCMC)</a> framework to get at the same result, with less code.</p>
+<p>So let's do that. Let's use <a href="https://docs.pymc.io/">PyMC3</a>, the standard MCMC library for Python. This code is so simple, without further ado, here it is:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pymc3</span> <span class="kn">as</span> <span class="nn">pm</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Carriage&#39;</span><span class="p">:</span>  <span class="mi">2</span><span class="p">,</span>
+    <span class="s1">&#39;Talabat&#39;</span><span class="p">:</span>   <span class="mi">2</span><span class="p">,</span>
+    <span class="s1">&#39;UberEats&#39;</span><span class="p">:</span>  <span class="mi">16</span><span class="p">,</span>
+    <span class="s1">&#39;Deliveroo&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">uniform_prior</span><span class="p">(</span><span class="n">pm</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="n">rs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pm</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="s1">&#39;raw</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">rs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">pm</span><span class="o">.</span><span class="n">Deterministic</span><span class="p">(</span><span class="s1">&#39;p</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">,</span> <span class="n">rs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span>
+
+<span class="k">def</span> <span class="nf">run_model</span><span class="p">(</span><span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">pm</span><span class="o">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+        <span class="n">ps</span> <span class="o">=</span> <span class="n">prior</span><span class="p">(</span><span class="n">pm</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+        <span class="n">multi</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Multinomial</span><span class="p">(</span><span class="s1">&#39;multi&#39;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="nb">sum</span><span class="p">(</span><span class="n">vals</span><span class="p">),</span> <span class="n">p</span><span class="o">=</span><span class="n">ps</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">vals</span><span class="p">)</span>
+        <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">10</span><span class="o">*</span><span class="mi">1000</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pm</span><span class="p">,</span> <span class="n">trace</span>
+
+<span class="n">pm</span><span class="p">,</span> <span class="n">trace</span> <span class="o">=</span> <span class="n">run_model</span><span class="p">(</span><span class="n">uniform_prior</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Okay, what's happening here? PyMC3 is an MCMC library, and computes representative samples of random variables based on some data. We specify a <code>model</code>, which is essentially a way to compute a desired random variable (RV) (essentially a probability distribution function, pdf) from other random variables. In this case, we say that <code>multi</code> is a <a href="https://en.wikipedia.org/wiki/Multinomial_distribution">multinomial RV</a>, with the parameters of <code>multi</code> itself being RVs, these are <code>ps</code> in the code. When we specify <code>multi</code>, we pass in our observed values, so we "fix" this RV. The <code>ps</code> RVs are constructed in the <code>prior</code> helper function, named prior because here is where we encode our prior belief about the food delivery business. To match the previous post, we don't assume any courier is more popular than the other, constructed so that the probabilities sum to 1.</p>
+<p>When we call <code>sample()</code> on the model, MCMC is performed, but the details of this are beyond the scope of this article. The important thing is that after the simulation is complete, <code>trace</code> will contain a sample of all free (non-fixed) RVs, <em>updated according to the observations passed ot the fixed RVs</em>. Ie. when we specified these RVs, we gave our prior belief pdfs, $ p(H) $, whereas <code>trace</code> now contains samples from the posterior pdf, ie. $ p(H|D) $. That's exactly what we worked for in the previous post!</p>
+<p>Given this sample that PyMC3 gives us for free, it's easy to calculate the hypothesis. We simply count the frequency of cases when the probability parameter of UberEats is the maximum in the <code>trace</code>:</p>
+<div class="highlight"><pre><span></span><span class="n">hypothesis</span> <span class="o">=</span> <span class="p">[</span><span class="n">trace</span><span class="p">[</span><span class="s1">&#39;p2&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="nb">max</span><span class="p">([</span><span class="n">trace</span><span class="p">[</span><span class="s1">&#39;p</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">trace</span><span class="p">[</span><span class="s1">&#39;p0&#39;</span><span class="p">]))]</span>
+<span class="nb">sum</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The program outputs the probability at 72%, like in the original post.</p>
+<p>PyMC3 has a few useful helper functions. One is <code>pm.summary(trace)</code>, this outputs some statistics about the RVs:</p>
+<p><img src="/images/pymc-1.png" alt="PyMC3 summary()" style="width: 600px;"/></p>
+<p>The other is <code>pm.traceplot(trace)</code>, this outputs the pdf and the random walk for each RV:</p>
+<p><img src="/images/pymc-2.png" alt="PyMC3 traceplot()" style="width: 600px;"/></p>
+<p>There is something weird here. Looking at the original observation data, it half of the deliveries are from UberEats (16/32). The corresponding RV in the <code>summary()</code> output is <code>p2</code>. So why is the posterior mean for <code>p2</code> 0.44 and not closer to 0.50? Intuitively, after looking at the data, shouldn't that be the maximum likelyhood (ML) prediction? Let's think this through:</p>
+<ul>
+<li>the mean is not the ML, but looking at the posterior curve for <code>p2</code>, the maximum of the curve (=ML) is also not at 0.5</li>
+<li>it could be that the simulation has not reached a stationary state (in Markov chain language); but looking at the random walk output, it has (and to double-check I ran it longer, this is not the problem)</li>
+<li>numerical error: this is not the reason</li>
+</ul>
+<p>The reason is simple: it's our prior belief. Our prior belief was a uniform distribution. We observed some data and showed it to the model, and based on this our posterior belief was updated, <strong>but the prior belief is still baked in</strong>. The way to think about this is, the prior pdf slowly morphs into the posterior pdf as data is fed to the model. So, because our prior had a lot of tail in the $ p&gt;0.5 $ part, although the data pulled the pdf towards 0.5, that's how far it got.</p>
+<p>One good way to get a feel for this is to imagine feeding a low observation count to the model. Suppose we feed it observations like <code>(1,0,2,1)</code>. Should we now believe that Talabat never gets orders? Clearly not.</p>
+<p>Another good way to get a feel for this is to feed the model more data, but keeping the same ratios, ie. multiplying each number by 10, like <code>(20,20,160,120)</code>. At such high observation counts, the posteriors will be very narrow, and close to the actual ratios. This is called flooding the priors: as the model observes a lot of data, the prior belief is less and less important. </p>
+<p><img src="/images/pymc-3.png" alt="PyMC3 summary()" style="width: 600px;"/></p>
+<p>Also the hypothesis probability of UberEats being the most popular will be 98.7%, or almost certain.</p>
+<p>PyMC3 also allows us to easily explore other prior beliefs. For example, we could specify a prior centered around the observed ratios. <strong>BAKING OBSERVATIONS INTO THE PRIOR IS A MODELLING MISTAKE, DON'T DO THIS.</strong> I just used it as a debugging exercise to make sure that in such a case the posteriors are what I expect them to be, they remain centered on the observed ratios (yes). The evilness also comes out in the function signature, passing the observed values to the prior shouldn't happen. But in any case, it shows how easy it is to change the priors with PyMC3:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">beta_prior</span><span class="p">(</span><span class="n">pm</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="n">rs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pm</span><span class="o">.</span><span class="n">Beta</span><span class="p">(</span><span class="s1">&#39;raw</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">,</span> <span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="nb">sum</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span><span class="o">-</span><span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">rs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">pm</span><span class="o">.</span><span class="n">Deterministic</span><span class="p">(</span><span class="s1">&#39;p</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">,</span> <span class="n">rs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span>
+
+<span class="n">pm</span><span class="p">,</span> <span class="n">trace</span> <span class="o">=</span> <span class="n">run_model</span><span class="p">(</span><span class="n">beta_prior</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Going back to the original problem, we can make our code shorter by using PyMC3's built-in <a href="https://en.wikipedia.org/wiki/Dirichlet_distribution">Dirichlet distribution</a>. The Dirichlet distribution can be parameterized so that it's exactly the same uniform distribution that we constructed in three lines in the first snippet here:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">dirichlet_uniform_prior</span><span class="p">(</span><span class="n">pm</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">pm</span><span class="o">.</span><span class="n">Dirichlet</span><span class="p">(</span><span class="s1">&#39;ps&#39;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+<span class="n">pm</span><span class="p">,</span> <span class="n">trace</span> <span class="o">=</span> <span class="n">run_model</span><span class="p">(</span><span class="n">dirichlet_uniform_prior</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="n">hypothesis</span> <span class="o">=</span> <span class="p">[</span><span class="n">ps</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="nb">max</span><span class="p">(</span><span class="n">ps</span><span class="p">)</span> <span class="k">for</span> <span class="n">ps</span> <span class="ow">in</span> <span class="n">trace</span><span class="p">[</span><span class="s1">&#39;ps&#39;</span><span class="p">]]</span>
+<span class="nb">sum</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Running this reveals something interesting. The probability of the hypothesis that UberEats is the most popular comes out to ~78%, which is a bit more than before. What's going on here? It turns out that prior we baked in before, although it didn't favor any courier over the others, did have some bias built-in. We sampled each individual probability uniformly between 0 and 1, and then divided by the sum. Each individuals mean is 0.5, the sum's mean is 2, so the divided components mean is 0.25. So by constructing the prior like this, we biased it towards (0.25, 0.25, 0.25, 0.25), ie. we said this is a more likely prior than eg. (0.7, 0.1, 0.1, 0.1). This can be seen by using MCMC to just sample:</p>
+<div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">pm</span><span class="o">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">pm</span><span class="o">.</span><span class="n">Dirichlet</span><span class="p">(</span><span class="s1">&#39;ps&#39;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">10</span><span class="o">*</span><span class="mi">1000</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">pm</span><span class="o">.</span><span class="n">traceplot</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+</pre></div>
+
+
+<p><img src="/images/pymc-4.png" alt="PyMC3 traceplot()" style="width: 600px;"/></p>
+<p>Versus:</p>
+<div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">pm</span><span class="o">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">rs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pm</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="s1">&#39;raw</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">rs</span><span class="p">)</span>
+    <span class="p">[</span><span class="n">pm</span><span class="o">.</span><span class="n">Deterministic</span><span class="p">(</span><span class="s1">&#39;p</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">,</span> <span class="n">rs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span>
+    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">10</span><span class="o">*</span><span class="mi">1000</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">pm</span><span class="o">.</span><span class="n">traceplot</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+</pre></div>
+
+
+<p><img src="/images/pymc-5.png" alt="PyMC3 traceplot()" style="width: 600px;"/></p>
+<p>I would say the original post is buggy, because I intended to make no assumption (aka use the "uninformative prior"), so the Dirichlet distribution (at 𝛼=1) would have been a bette fit.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/python.html">python</a>
+      <a href="/tag/math.html">math</a>
+      <a href="/tag/pymc3.html">pymc3</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Exploring prior beliefs with MCMC",
+  "headline": "Exploring prior beliefs with MCMC",
+  "datePublished": "2019-07-06 00:00:00+02:00",
+  "dateModified": "2019-07-06 00:00:00+02:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/exploring-prior-beliefs-with-mcmc.html",
+  "description": "I use PyMC3 to solve the food delivery toy problem and explore some alternative priors."
+}
+</script></body>
+</html>
