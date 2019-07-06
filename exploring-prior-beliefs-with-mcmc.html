@@ -149,7 +149,7 @@
 </pre></div>
 
 
-<p>Running this reveals something interesting. The probability of the hypothesis that UberEats is the most popular comes out to ~78%, which is a bit more than before. What's going on here? It turns out that prior we baked in before, although it didn't favor any courier over the others, did have some bias built-in. We sampled each individual probability uniformly between 0 and 1, and then divided by the sum. Each individuals mean is 0.5, the sum's mean is 2, so the divided components mean is 0.25. So by constructing the prior like this, we biased it towards (0.25, 0.25, 0.25, 0.25), ie. we said this is a more likely prior than eg. (0.7, 0.1, 0.1, 0.1). This can be seen by using MCMC to just sample:</p>
+<p>Running this reveals something interesting. The probability of the hypothesis that UberEats is the most popular comes out to ~78%, which is a bit more than before. What's going on here? It turns out that prior we baked in before, although it didn't favor any courier over the others, did have some bias built-in. We sampled each individual <code>raw</code> RV uniformly between 0 and 1, and then divided by the <code>sum</code>. Each <code>raw</code>'s mean is 0.5, <code>sum</code>'s mean is 2, so the <code>ps</code> component's mean is 0.25. So by constructing the prior like this, we biased it towards <code>(0.25, 0.25, 0.25, 0.25)</code>, ie. we said this is a more likely prior than eg. (0.7, 0.1, 0.1, 0.1). This can be seen by using MCMC to just sample:</p>
 <div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">pm</span><span class="o">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span>
     <span class="n">k</span> <span class="o">=</span> <span class="mi">4</span>
     <span class="n">pm</span><span class="o">.</span><span class="n">Dirichlet</span><span class="p">(</span><span class="s1">&#39;ps&#39;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
@@ -171,7 +171,7 @@
 
 
 <p><img src="/images/pymc-5.png" alt="PyMC3 traceplot()" style="width: 600px;"/></p>
-<p>I would say the original post is buggy, because I intended to make no assumption (aka use the "uninformative prior"), so the Dirichlet distribution (at 𝛼=1) would have been a bette fit.</p>
+<p>I would say the original post is buggy, because I intended to make no prior assumption (=use the "uninformative prior"), so the Dirichlet distribution (at 𝛼=1) would have been a bettre fit.</p>
   </div>
   <div class="tag-cloud">
     <p>
