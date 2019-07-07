@@ -188,7 +188,7 @@
 
 
 <p>Note that we now no longer need the variable <code>n_simulations</code>. This is now lighting fast, converges in a few seconds, and quickly tells us that the probability we're looking for is 72%. <strong>Given what I saw on the notebook, the probability that UberEats is their most popular delivery service is ~72%.</strong> Given this code, it's easy to check another one. What's the probability that Deliveroo is the most popular? Just change <code>model_satisfies_hypothesis</code>, run it again, and it's ~28%. The other two have almost zero chances of actually being the most popular. In this whole discussion I'm assuming a uniform prior, ie. I have no prior bias towards believing one service being more popular than the rest.</p>
-<p><strong>Note: this post has a subtle bug in the prior assumption. For more, see this <a href="/exploring-prior-beliefs-with-mcmc.html">subsequent post</a>. The prior, as implemented above, does not favor one coureir over another, but it is not in fact uniform in p-space.</strong></p>
+<p><strong>Note: this post has a subtle bug in the prior assumption. For more, see this <a href="/exploring-prior-beliefs-with-mcmc.html">subsequent post</a>. The prior, as implemented above, does not favor one courier over another, but it is not in fact uniform in p-space.</strong></p>
 <p>Before moving on, here's a screenshot of this version, but before it converges. It shows the initial oscillations, which is what we were observing with the brute-force simulations (note that it eventually converges to 0.72):</p>
 <p><img src="/images/food-bayes-simu2.png" alt="Food delivereis simulation" style="width: 600px;"/></p>
 <h2>Integrals</h2>
