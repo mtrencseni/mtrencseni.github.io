@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Machine Learning</title><link href="/" rel="alternate"></link><link href="/feeds/machine-learning.atom.xml" rel="self"></link><id>/</id><updated>2019-08-02T00:00:00+02:00</updated><entry><title>Arabic name classification with Scikit-Learn and Pytorch</title><link href="/arabic-name-classification-with-scikit-learn-and-pytorch.html" rel="alternate"></link><published>2019-08-02T00:00:00+02:00</published><updated>2019-08-02T00:00:00+02:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2019-08-02:/arabic-name-classification-with-scikit-learn-and-pytorch.html</id><summary type="html">&lt;p&gt;While working on arabic-vs-rest classification, I was curious how good out-of-the-box models perform with publicly available data, and then compare that with what we can achieve with internal data / features derived from millions of deliveries. We train Scikit-learn and Pytorch models for this classification task and achieve 90% prediction accuracy on publicly available data and out-of-the-box models, while internally 99% is achievable. &lt;br/&gt;&lt;br/&gt; &lt;img src="/images/arabic-1.png" alt="ROC curve" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
-&lt;p&gt;Many times, a delivery company doing parcel deliveries on behalf of its clients to the clients’ customers (the recipients) doesn’t have a direct relationship with the recipient herself. All it has is the parcel, the attached name and address, and maybe a product description on the airway bill. Nevertheless, there are numerous steps in the logistics funnel when the delivery company would like to communicate to the recipient; the simplest example is sending an “I’m coming” notification on the day of (attempted) delivery. These notifications themselves present rich opportunities for data scientists for experimentation. One simple thing is to get the language right. In the Middle East, in countries like the UAE, more than half the population is expats, so we can probably do better than a country default (always arabic, always english).&lt;/p&gt;
-&lt;p&gt;In this region, the simplest base case is to tell an arabic name apart from a non-arabic name, and assume that a arabic/english notifications work for those 2 cases. While working on this and similar problems, I was curious how good a model we can build with publicly available data, and then compare that with what we can achieve with internal data / features derived from millions of deliveries.&lt;/p&gt;
+&lt;p&gt;Many times, a delivery company doing parcel deliveries on behalf of its clients to the clients’ customers (the recipients) doesn’t have a direct relationship with the recipient herself. All it has is the parcel, the attached name and address, and maybe a product description on the airway bill. Nevertheless, there are numerous steps in the logistics funnel when the delivery company would like to communicate to the recipient; the simplest example is sending an “I’m coming” notification on the day of (attempted) delivery. These notifications themselves present rich opportunities for data scientists for experimentation. One simple thing is to get the language right. In the Middle East, in countries like the UAE, more than half the population is expats, so we can probably do better than a country default.&lt;/p&gt;
+&lt;p&gt;In this region, the simplest base case is to tell an arabic name apart from a non-arabic name, and assume that arabic/english notifications work for those two cases. While working on this arabic-vs-rest classification problem, I was curious how good out-of-the-box models perform with publicly available data, and then compare that with what we can achieve with internal data / features derived from millions of deliveries.&lt;/p&gt;
 &lt;p&gt;&lt;a href="https://github.com/mtrencseni/pytorch-playground/tree/master/07-arabic"&gt;The code and training data is up on Github.&lt;/a&gt;&lt;/p&gt;
 &lt;h2&gt;Building a training set from publicly available data&lt;/h2&gt;
-&lt;p&gt;Fortunately there are some publicly available datasets that we can merge to get training data. Specifically, I used these sources (first 4 four arabic, last for english):&lt;/p&gt;
+&lt;p&gt;Fortunately there are some publicly available datasets that we can merge to get training data. Specifically, I used these sources (first 4 for arabic, last for english):&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href="https://en.wikipedia.org/wiki/List_of_Arabic_given_names"&gt;https://en.wikipedia.org/wiki/List_of_Arabic_given_names&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://github.com/zakahmad/ArabicNameGenderFinder"&gt;https://github.com/zakahmad/ArabicNameGenderFinder&lt;/a&gt;&lt;/li&gt;
@@ -12,10 +12,12 @@
 &lt;li&gt;&lt;a href="http://www.20000-names.com/male_arabian_names.htm"&gt;http://www.20000-names.com/male_arabian_names.htm&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://github.com/ligi/HiLoCo/blob/master/app/src/main/res/raw/names.csv"&gt;https://github.com/ligi/HiLoCo/blob/master/app/src/main/res/raw/names.csv&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;Using these sources I created a training set of 10,000 names:
-- 5,000 arabic, 5,000 english
-- 8,000 for training (balanced)
-= 2,000 for testing  (balanced)&lt;/p&gt;
+&lt;p&gt;Using these sources I created a training set of 10,000 names:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;5,000 arabic, 5,000 english&lt;/li&gt;
+&lt;li&gt;8,000 for training (balanced)&lt;/li&gt;
+&lt;li&gt;2,000 for testing  (balanced)&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;Some arabic examples: ahmed, ghalib, hasna, salar, afruz.
 Some english examples: john, westwood, eldon, corina, margareta.&lt;/p&gt;
 &lt;p&gt;The names are cleaned: ASCII a-z letters only; all lower-case; &amp;gt;3 long; some arabic names are also common in english speaking countries (like ahmed or ali), these were removed from english; and so on.&lt;/p&gt;

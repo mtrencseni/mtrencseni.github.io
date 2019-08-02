@@ -76,11 +76,11 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>Many times, a delivery company doing parcel deliveries on behalf of its clients to the clients’ customers (the recipients) doesn’t have a direct relationship with the recipient herself. All it has is the parcel, the attached name and address, and maybe a product description on the airway bill. Nevertheless, there are numerous steps in the logistics funnel when the delivery company would like to communicate to the recipient; the simplest example is sending an “I’m coming” notification on the day of (attempted) delivery. These notifications themselves present rich opportunities for data scientists for experimentation. One simple thing is to get the language right. In the Middle East, in countries like the UAE, more than half the population is expats, so we can probably do better than a country default (always arabic, always english).</p>
-<p>In this region, the simplest base case is to tell an arabic name apart from a non-arabic name, and assume that a arabic/english notifications work for those 2 cases. While working on this and similar problems, I was curious how good a model we can build with publicly available data, and then compare that with what we can achieve with internal data / features derived from millions of deliveries.</p>
+<p>Many times, a delivery company doing parcel deliveries on behalf of its clients to the clients’ customers (the recipients) doesn’t have a direct relationship with the recipient herself. All it has is the parcel, the attached name and address, and maybe a product description on the airway bill. Nevertheless, there are numerous steps in the logistics funnel when the delivery company would like to communicate to the recipient; the simplest example is sending an “I’m coming” notification on the day of (attempted) delivery. These notifications themselves present rich opportunities for data scientists for experimentation. One simple thing is to get the language right. In the Middle East, in countries like the UAE, more than half the population is expats, so we can probably do better than a country default.</p>
+<p>In this region, the simplest base case is to tell an arabic name apart from a non-arabic name, and assume that arabic/english notifications work for those two cases. While working on this arabic-vs-rest classification problem, I was curious how good out-of-the-box models perform with publicly available data, and then compare that with what we can achieve with internal data / features derived from millions of deliveries.</p>
 <p><a href="https://github.com/mtrencseni/pytorch-playground/tree/master/07-arabic">The code and training data is up on Github.</a></p>
 <h2>Building a training set from publicly available data</h2>
-<p>Fortunately there are some publicly available datasets that we can merge to get training data. Specifically, I used these sources (first 4 four arabic, last for english):</p>
+<p>Fortunately there are some publicly available datasets that we can merge to get training data. Specifically, I used these sources (first 4 for arabic, last for english):</p>
 <ul>
 <li><a href="https://en.wikipedia.org/wiki/List_of_Arabic_given_names">https://en.wikipedia.org/wiki/List_of_Arabic_given_names</a></li>
 <li><a href="https://github.com/zakahmad/ArabicNameGenderFinder">https://github.com/zakahmad/ArabicNameGenderFinder</a></li>
@@ -88,10 +88,12 @@
 <li><a href="http://www.20000-names.com/male_arabian_names.htm">http://www.20000-names.com/male_arabian_names.htm</a></li>
 <li><a href="https://github.com/ligi/HiLoCo/blob/master/app/src/main/res/raw/names.csv">https://github.com/ligi/HiLoCo/blob/master/app/src/main/res/raw/names.csv</a></li>
 </ul>
-<p>Using these sources I created a training set of 10,000 names:
-- 5,000 arabic, 5,000 english
-- 8,000 for training (balanced)
-= 2,000 for testing  (balanced)</p>
+<p>Using these sources I created a training set of 10,000 names:</p>
+<ul>
+<li>5,000 arabic, 5,000 english</li>
+<li>8,000 for training (balanced)</li>
+<li>2,000 for testing  (balanced)</li>
+</ul>
 <p>Some arabic examples: ahmed, ghalib, hasna, salar, afruz.
 Some english examples: john, westwood, eldon, corina, margareta.</p>
 <p>The names are cleaned: ASCII a-z letters only; all lower-case; &gt;3 long; some arabic names are also common in english speaking countries (like ahmed or ali), these were removed from english; and so on.</p>
