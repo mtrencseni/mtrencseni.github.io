@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="While working on arabic-vs-rest classification, I was curious how good out-of-the-box models perform with publicly available data, and then compare that with what we can achieve with internal data / features derived from millions of deliveries. We train Scikit-learn and Pytorch models for this classification task and achieve 90% prediction accuracy on publicly available data and out-of-the-box models, while internally 99% is achievable." />
+<meta name="keywords" content="pytorch, skl, arabic">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="Arabic name classification with Scikit-Learn and Pytorch"/>
+<meta property="og:description" content="While working on arabic-vs-rest classification, I was curious how good out-of-the-box models perform with publicly available data, and then compare that with what we can achieve with internal data / features derived from millions of deliveries. We train Scikit-learn and Pytorch models for this classification task and achieve 90% prediction accuracy on publicly available data and out-of-the-box models, while internally 99% is achievable."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/arabic-name-classification-with-scikit-learn-and-pytorch.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2019-08-02 00:00:00+02:00"/>
+<meta property="article:modified_time" content="2019-08-02 00:00:00+02:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Machine Learning"/>
+<meta property="article:tag" content="pytorch"/>
+<meta property="article:tag" content="skl"/>
+<meta property="article:tag" content="arabic"/>
+<meta property="og:image" content="/images/arabic-1.png"/>
+
+  <title>Bytepawn &ndash; Arabic name classification with Scikit-Learn and Pytorch</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="arabic-name-classification-with-scikit-learn-and-pytorch">Arabic name classification with Scikit-Learn and Pytorch</h1>
+    <p>Posted on Fri 02 August 2019 in <a href="/category/machine-learning.html">Machine Learning</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>Many times, a delivery company doing parcel deliveries on behalf of its clients to the clients’ customers (the recipients) doesn’t have a direct relationship with the recipient herself. All it has is the parcel, the attached name and address, and maybe a product description on the airway bill. Nevertheless, there are numerous steps in the logistics funnel when the delivery company would like to communicate to the recipient; the simplest example is sending an “I’m coming” notification on the day of (attempted) delivery. These notifications themselves present rich opportunities for data scientists for experimentation. One simple thing is to get the language right. In the Middle East, in countries like the UAE, more than half the population is expats, so we can probably do better than a country default (always arabic, always english).</p>
+<p>In this region, the simplest base case is to tell an arabic name apart from a non-arabic name, and assume that a arabic/english notifications work for those 2 cases. While working on this and similar problems, I was curious how good a model we can build with publicly available data, and then compare that with what we can achieve with internal data / features derived from millions of deliveries.</p>
+<p><a href="https://github.com/mtrencseni/pytorch-playground/tree/master/07-arabic">The code and training data is up on Github.</a></p>
+<h2>Building a training set from publicly available data</h2>
+<p>Fortunately there are some publicly available datasets that we can merge to get training data. Specifically, I used these sources (first 4 four arabic, last for english):</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/List_of_Arabic_given_names">https://en.wikipedia.org/wiki/List_of_Arabic_given_names</a></li>
+<li><a href="https://github.com/zakahmad/ArabicNameGenderFinder">https://github.com/zakahmad/ArabicNameGenderFinder</a></li>
+<li><a href="http://www.20000-names.com/female_arabian_names.htm">http://www.20000-names.com/female_arabian_names.htm</a></li>
+<li><a href="http://www.20000-names.com/male_arabian_names.htm">http://www.20000-names.com/male_arabian_names.htm</a></li>
+<li><a href="https://github.com/ligi/HiLoCo/blob/master/app/src/main/res/raw/names.csv">https://github.com/ligi/HiLoCo/blob/master/app/src/main/res/raw/names.csv</a></li>
+</ul>
+<p>Using these sources I created a training set of 10,000 names:
+- 5,000 arabic, 5,000 english
+- 8,000 for training (balanced)
+= 2,000 for testing  (balanced)</p>
+<p>Some arabic examples: ahmed, ghalib, hasna, salar, afruz.
+Some english examples: john, westwood, eldon, corina, margareta.</p>
+<p>The names are cleaned: ASCII a-z letters only; all lower-case; &gt;3 long; some arabic names are also common in english speaking countries (like ahmed or ali), these were removed from english; and so on.</p>
+<h2>Model training</h2>
+<p>I specifically wanted to see how bag-of-chars feature vectors perform against one-hot encoded ones; other than that I just wanted to try a bunch of models I had anyway from previous SKL and Pytorch projects:</p>
+<ul>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html">logistic regression</a></li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html">simple decision trees</a></li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html">Random Forests</a></li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html">Gradient Boosted Trees</a></li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html">Neural nets</a></li>
+<li>fully connected deep NNs in Pytorch,</li>
+<li>and finally CNNs in Pytorch.</li>
+</ul>
+<p>I won’t go into the details of these models, I will just show results.</p>
+<p><img src="/images/arabic-2.png" alt="Arabic-vs-rest model train and test results" style="width: 600px;"/></p>
+<p>My observations:</p>
+<ul>
+<li>the tree based and NN models have enough parameters to learn the training set (train accuracy approaches 100%)</li>
+<li>the neural nets don't outperfom the trees</li>
+<li>neither model is able to go significantly above 90% test accuracy, so generalization is limited</li>
+<li>90% is to me not nearly good enough for production (that wasn’t the goal here)</li>
+<li>I was expecting one-hot encoded models to pick up on useful trigram features, but they don’t significantly outperform the simple bag-of-chars models; I was expecting the CNN specifically to outperform the others here</li>
+<li>I was training the Pytorch models on my laptop’s CPU, that’s why the Pytorch training times are so high; it’s interesting how much slower the Pytorch network training is than SKL’s MLPClassifier (which is also a deep neural network); possible reasons: the MLP has a lot less parameters and/or the Pytorch models have Relu() and other non-linearities</li>
+</ul>
+<h2>Doing much better with a lot more data</h2>
+<p><em>Note: these datasets derived from internal data, and the models tied to it, are not shared.</em></p>
+<p>Since we do millions of deliveries, specifically in the countries of interest to us, we have the potential to have much more training data than the datasets above. The challenge for us was ground truth: our historic deliveries are not labeled for arabic/rest. Fortunately there are tricks we could use (other available fields, frequency, etc), to create a high-quality arabic names dataset for each of our target countries. As is usual in these projects, 80% of the work went into creating a high-quality dataset; once this was done, builiding a predictor was simple. In the end, the best-performing model is a hand-tuned tri-gram based model that also uses frequencies of names (not part of the public datasets), and achieves 99% accuracy. It only gets confused on names that genuinely sound like they could be arabic (but are actually not, or are shared arabic/indian names). I leave it to the reader to change the models/feature vectors above to be bag-of-trigrams.</p>
+<h2>Estimating impact</h2>
+<p>A model like this (once we’re reasonbly sure it’s accuracy is good enough that we can trust it for making estimates) is not just useful in production for actually setting the language of notifications, but for estimating its own impact. By running it on (unseen) past delivery data in our target countries, we can see how much of an impact the model will have in production: there are various “naive” ways to predict language (always arabic, always english, use information from other fields), and we can compare the accuracy to these to what we can achieve with our model, to get the additional % of deliveries where we will get the notification language right. If we also have an estimate for how much getting the language right lifts the probability of delivery success, we can estimate the overall lift in delivery success, which is then easy to translate to dollars. If any of these multpliers is not available in this Fermi-decomposition, then we can always perform an A/B test to see the impact. For us, running this estimate shows that the model will be most useful in the UAE; this makes sense, there are lots of expats in Dubai, and, interestingly, another GCC country, where most of our deliveries go to arabic names, but this would be hard to tell without the predictor since the recipients give their names with english letters (without arabic Unicode characters).</p>
+<p>The arabic expression for “done” is “khallas”, which is used often enough in the region that it also becomes slang for non-arabic speakers like myself. This project however is not done, there are always many ways to improve such models. Instead, “yalla” is more appropriate here, which roughly means “let’s go”, and improve the models further!</p>
+<p>Yalla let's go!</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/pytorch.html">pytorch</a>
+      <a href="/tag/skl.html">skl</a>
+      <a href="/tag/arabic.html">arabic</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Arabic name classification with Scikit-Learn and Pytorch",
+  "headline": "Arabic name classification with Scikit-Learn and Pytorch",
+  "datePublished": "2019-08-02 00:00:00+02:00",
+  "dateModified": "2019-08-02 00:00:00+02:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/arabic-name-classification-with-scikit-learn-and-pytorch.html",
+  "description": "While working on arabic-vs-rest classification, I was curious how good out-of-the-box models perform with publicly available data, and then compare that with what we can achieve with internal data / features derived from millions of deliveries. We train Scikit-learn and Pytorch models for this classification task and achieve 90% prediction accuracy on publicly available data and out-of-the-box models, while internally 99% is achievable."
+}
+</script></body>
+</html>
