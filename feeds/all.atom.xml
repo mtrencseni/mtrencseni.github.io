@@ -116,11 +116,11 @@
 &lt;p&gt;&lt;img src="/images/go-supervised-loss.png" alt="Loss" style="width: 800px;"/&gt;&lt;br/&gt;
 &lt;img src="/images/go-supervised-accuracy.png" alt="Accuracy" style="width: 800px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Examining the predictions was a bit surprising. The model has a softmax at the end, it’s predicting probabilities for each “class” (each of the possible moves). I thought that multiple good moves are identified by the model, which would make it useful in a MCTS algorithm. But that’s not what happens most of the time: the probabilities are “focused” on one move. Below are samples from the test data (board setup, actual move per test data, predicted move probabilities by model):&lt;/p&gt;
-&lt;p&gt;The test dataset's move is predicted:&lt;/p&gt;
+&lt;p&gt;The test dataset's move is predicted:&lt;br/&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/go-supervised-prediction-sample-1.jpg" alt="Go prediction sample" style="width: 800px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Another move has a higher probability, but the test dataset's move also has a high probability (two maximums):&lt;/p&gt;
+&lt;p&gt;Another move has a higher probability, but the test dataset's move also has a high probability (two maximums):&lt;br/&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/go-supervised-prediction-sample-2.jpg" alt="Go prediction sample" style="width: 800px;"/&gt;&lt;/p&gt;
-&lt;p&gt;The test dataset's move is missed completely:&lt;/p&gt;
+&lt;p&gt;The test dataset's move is missed completely:&lt;br/&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/go-supervised-prediction-sample-3.jpg" alt="Go prediction sample" style="width: 800px;"/&gt;&lt;/p&gt;
 &lt;p&gt;&lt;a href="https://github.com/mtrencseni/pytorch-playground/blob/master/08-go-supervised/Go-GPU-run.ipynb"&gt;See the output here for more examples&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;I didn’t try this, but this is probably not a problem. We can just train multiple models, on different training sets, and use the outputs of several models to guide the MCTS walk during simulation.&lt;/p&gt;
