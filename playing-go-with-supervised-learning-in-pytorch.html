@@ -137,13 +137,28 @@
 <p>The code above calls <code>data_point</code>, which actually constructs the desired representation, shown below.</p>
 <h2>Encoding data</h2>
 <p>Encoding the board positions is simple. Go is played 19x19 grid, and each grid point is either empty, occupied by white or occupied by black. We create 19x19 float arrays, where empty is <code>0.0</code>, the player who goes next is encoded <code>1.0</code>, the opponent is encoded <code>-1.0</code>. This way both white’s and black’s moves can be used for training. The move is the grid location of the next move, encoded in a one-hot vector of 19x19=361 length.</p>
-<div class="highlight"><pre><span></span><span class="n">BOARD_SIZE</span> <span class="o">=</span> <span class="mi">19</span>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="n">BOARD_SIZE</span> <span class="o">=</span> <span class="mi">19</span>
 
 <span class="k">def</span> <span class="nf">data_point</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">move</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
     <span class="n">board_array</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">BOARD_SIZE</span><span class="p">,</span> <span class="n">BOARD_SIZE</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">board</span><span class="o">.</span><span class="n">list_occupied_points</span><span class="p">():</span>
         <span class="n">board_array</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">color</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">board_array</span><span class="p">,</span> <span class="n">move</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">BOARD_SIZE</span><span class="o">+</span><span class="n">move</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="k">class</span> <span class="nc">GoDataset</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_points</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_points</span> <span class="o">=</span> <span class="n">data_points</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_points</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_points</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_points</span><span class="p">)</span>
+
+<span class="n">training_dataset</span> <span class="o">=</span> <span class="n">GoDataset</span><span class="p">(</span><span class="n">training_points</span><span class="p">)</span>
+<span class="n">test_dataset</span> <span class="o">=</span> <span class="n">GoDataset</span><span class="p">(</span><span class="n">test_points</span><span class="p">)</span>
+<span class="n">train_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">training_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">test_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 
 
@@ -175,13 +190,12 @@
 <p>Note that this is a pretty big model. It has 1M+ parameters, almost all of them in the final 2 fully connected (FC) layers; this is why it is able to overfit low cardinality training data.</p>
 <h2>Training and test accuracy</h2>
 <p>This is a relatively big model, so it needs to be trained on a GPU. On my GTX 970, training on 3000 games (500,000 moves) takes about 6 hours. The model converges to about 75% accuracy on train data and 25% accuracy on test data. Note that random guessing would have 1/19^2 = 0.27% accuracy, so this is 100x better. Also, in Go, there is not neccesary one right play, so being different than the test data may be okay.</p>
-<p><img src="/images/go-supervised-loss.png" alt="Loss" style="width: 400px;"/></p>
-<p><br/></p>
-<p><img src="/images/go-supervised-accuracy.png" alt="Accuracy" style="width: 400px;"/></p>
+<p><img src="/images/go-supervised-loss.png" alt="Loss" style="width: 600px;"/>
+<img src="/images/go-supervised-accuracy.png" alt="Accuracy" style="width: 600px;"/></p>
 <p>Examining the predictions was a bit surprising. The model has a softmax at the end, it’s predicting probabilities for each “class” (each of the possible moves). I thought that multiple good moves are identified by the model, which would make it useful in a MCTS algorithm. But that’s not what happens most of the time: the probabilities are “focused” on one move. Below are samples from the test data (board setup, actual move per test data, predicted move probabilities by model):</p>
-<p><img src="/images/go-supervised-prediction-sample-1.jpg" alt="Go prediction sample" style="width: 600px;"/></p>
-<p><img src="/images/go-supervised-prediction-sample-2.jpg" alt="Go prediction sample" style="width: 600px;"/></p>
-<p><img src="/images/go-supervised-prediction-sample-3.jpg" alt="Go prediction sample" style="width: 600px;"/></p>
+<p><img src="/images/go-supervised-prediction-sample-1.jpg" alt="Go prediction sample" style="width: 600px;"/>
+<img src="/images/go-supervised-prediction-sample-2.jpg" alt="Go prediction sample" style="width: 600px;"/>
+<img src="/images/go-supervised-prediction-sample-3.jpg" alt="Go prediction sample" style="width: 600px;"/></p>
 <p>I didn’t try this, but this is probably not a problem. We can just train multiple models, on different training sets, and use the outputs of several models to guide the MCTS walk during simulation.</p>
 <h2>Conclusion</h2>
 <p>Neural networks are a great tool for well-defined problems with rich training data, and Go is like this. I didn’t persue this specific supervised learning approach further, because this is not the most interesting way to build a Go bot. Here we are using other player’s moves to teach the network, which would potentially limit the agent’s strength and creativity. With Reinforcement Learning and self-play, as demonstrated by AlphaGo, it’s possible to build an agent that doesn’t use past gameplay data at all. More Go coming!</p>
