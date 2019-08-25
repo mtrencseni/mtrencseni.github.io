@@ -44,7 +44,7 @@
 <meta property="article:tag" content="pytorch"/>
 <meta property="article:tag" content="cnn"/>
 <meta property="article:tag" content="go"/>
-<meta property="og:image" content="/images/cifar-10-example.png"/>
+<meta property="og:image" content="/images/go-supervised-prediction-sample-1.jpg"/>
 
   <title>Bytepawn &ndash; Playing Go with supervised learning in Pytorch</title>
 </head>
@@ -179,9 +179,9 @@
 <p><br/></p>
 <p><img src="/images/go-supervised-accuracy.png" alt="Accuracy" style="width: 400px;"/></p>
 <p>Examining the predictions was a bit surprising. The model has a softmax at the end, it’s predicting probabilities for each “class” (each of the possible moves). I thought that multiple good moves are identified by the model, which would make it useful in a MCTS algorithm. But that’s not what happens most of the time: the probabilities are “focused” on one move. Below are samples from the test data (board setup, actual move per test data, predicted move probabilities by model):</p>
-<p><img src="/images/go-supervised-prediction-sample-1.jpg.png" alt="Go prediction sample" style="width: 600px;"/></p>
-<p><img src="/images/go-supervised-prediction-sample-2.jpg.png" alt="Go prediction sample" style="width: 600px;"/></p>
-<p><img src="/images/go-supervised-prediction-sample-3.jpg.png" alt="Go prediction sample" style="width: 600px;"/></p>
+<p><img src="/images/go-supervised-prediction-sample-1.jpg" alt="Go prediction sample" style="width: 600px;"/></p>
+<p><img src="/images/go-supervised-prediction-sample-2.jpg" alt="Go prediction sample" style="width: 600px;"/></p>
+<p><img src="/images/go-supervised-prediction-sample-3.jpg" alt="Go prediction sample" style="width: 600px;"/></p>
 <p>I didn’t try this, but this is probably not a problem. We can just train multiple models, on different training sets, and use the outputs of several models to guide the MCTS walk during simulation.</p>
 <h2>Conclusion</h2>
 <p>Neural networks are a great tool for well-defined problems with rich training data, and Go is like this. I didn’t persue this specific supervised learning approach further, because this is not the most interesting way to build a Go bot. Here we are using other player’s moves to teach the network, which would potentially limit the agent’s strength and creativity. With Reinforcement Learning and self-play, as demonstrated by AlphaGo, it’s possible to build an agent that doesn’t use past gameplay data at all. More Go coming!</p>
