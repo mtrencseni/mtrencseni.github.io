@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="I've had this idea for a while: write a document which helps new and existing people---manager or individual contributors alike---get an objective, metrics-based picture of the business. This is helpful when new people join, or when people start working in a new segment of the business, or just so people understand more of what goes on in other parts of the company." />
+<meta name="keywords" content="data">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="Metrics Atlas"/>
+<meta property="og:description" content="I've had this idea for a while: write a document which helps new and existing people---manager or individual contributors alike---get an objective, metrics-based picture of the business. This is helpful when new people join, or when people start working in a new segment of the business, or just so people understand more of what goes on in other parts of the company."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/metrics-atlas.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2019-08-29 00:00:00+02:00"/>
+<meta property="article:modified_time" content="2019-08-29 00:00:00+02:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data"/>
+<meta property="article:tag" content="data"/>
+<meta property="og:image" content="/images/metrics_atlas.png"/>
+
+  <title>Bytepawn &ndash; Metrics Atlas</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="metrics-atlas">Metrics Atlas</h1>
+    <p>Posted on Thu 29 August 2019 in <a href="/category/data.html">Data</a></p>
+  </header>
+  <div>
+    <p>I've had this idea for a while: write a document which helps new and existing people---manager or individual contributors alike---get an objective, metrics-based picture of the business. This is helpful when new people join, or when people start working in a new segment of the business, or just so people understand more of what goes on in other parts of the company. Companies with a reasonably good data/analytics team end up with a lot of dashboards and reports, plus hundreds of ad-hoc, non-dashboarded analysis that analysts/data scientists do. The dashboards are usually discorable in theory because they're in one tool/system, but usually there's a lot of them, and it's hard mental work to look through 50 dashboards. So people won't do that. And the ad-hoc reports, some of them contain valuable insights, those are locked up in documents, notebooks, email threads, not discoverable to others.</p>
+<p>So similar to how a good engineering team will conclude their system design work by writing a document explaining the architecture they chose, why they chose it, trade-offs, etc, I think a good analytics/data science team should maintain a "metrics atlas" of the business, ie. a written document, with lots of charts and links, that somebody can read and get a good picture of the product/business. Note that this is one, long, stand-alone document. I think wikis are good, but wikis have a lot of subpages, that's a different use-case; here the UX is that the person, once they get through it, have a good feeling that they did their job, understand the business better, know where to look, know who to ask. It doesn't have to be to-the-day up to date, it's good enough to update it every 3-6 months.</p>
+<p>The first time I had this idea was in Prezi, but we never got around to it. At Facebook I was working on Workplace, which was so new and changing so fast that this didn't make sense. I'm currently completing my 2nd year at Fetchr, it does make sense here, and we (my partner in crime is <a href="https://www.linkedin.com/in/mohitmahuja/">Mohit</a>) were able to allocate a few days to this in August, so for the first time we did it!</p>
+<p>It's a simple Google doc, we co-edit it, and share it within the company. Right now it's about 40 pages, it will probably come in at 50 pages in the end.</p>
+<p>This is what the first page looks like:</p>
+<p><img src="/images/metrics_atlas.png" alt="Metrics atlas" style="width: 800px;"/></p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/data.html">data</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Metrics Atlas",
+  "headline": "Metrics Atlas",
+  "datePublished": "2019-08-29 00:00:00+02:00",
+  "dateModified": "2019-08-29 00:00:00+02:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/metrics-atlas.html",
+  "description": "I've had this idea for a while: write a document which helps new and existing people---manager or individual contributors alike---get an objective, metrics-based picture of the business. This is helpful when new people join, or when people start working in a new segment of the business, or just so people understand more of what goes on in other parts of the company."
+}
+</script></body>
+</html>
