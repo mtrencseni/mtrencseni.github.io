@@ -28,11 +28,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="" />
 <meta name="author" content="Marton Trencseni" />
-<meta name="description" content="The CartPole problem is like the "Hello World" of Reinforcement Learning (RL), originally described in 1985 by Sutton et al. The environment is a pole balanced on a cart. We "derive" a simple a RL solution with Pytorch." />
+<meta name="description" content="The CartPole problem is like the Hello World of Reinforcement Learning, originally described in 1985 by Sutton et al. The environment is a pole balanced on a cart. We "derive" a simple solution with Pytorch." />
 <meta name="keywords" content="python, pytorch, reinforcement, learning">
 <meta property="og:site_name" content="Bytepawn"/>
 <meta property="og:title" content="Solving the CartPole Reinforcement Learning problem with Pytorch"/>
-<meta property="og:description" content="The CartPole problem is like the "Hello World" of Reinforcement Learning (RL), originally described in 1985 by Sutton et al. The environment is a pole balanced on a cart. We "derive" a simple a RL solution with Pytorch."/>
+<meta property="og:description" content="The CartPole problem is like the Hello World of Reinforcement Learning, originally described in 1985 by Sutton et al. The environment is a pole balanced on a cart. We "derive" a simple solution with Pytorch."/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="/solving-the-cartpole-reinforcement-learning-problem-with-pytorch.html"/>
 <meta property="og:type" content="article"/>
@@ -77,7 +77,7 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>The CartPole problem is like the <a href="https://en.wikipedia.org/wiki/%22Hello,_World!%22_program">“Hello World”</a> of Reinforcement Learning, originally described in <a href="http://www.incompleteideas.net/papers/OSB-tracking-85.pdf">1985 by Sutton et al</a>. The environment is a pole balanced on a cart. The environment’s state is described by a 4-tuple:</p>
+<p>The CartPole problem is like the <a href="https://en.wikipedia.org/wiki/%22Hello,_World!%22_program">Hello World</a> of Reinforcement Learning, originally described in <a href="http://www.incompleteideas.net/papers/OSB-tracking-85.pdf">1985 by Sutton et al</a>. The environment is a pole balanced on a cart. The environment’s state is described by a 4-tuple:</p>
 <p><code>(x position of cart, x velocity of cart, angular position of pole, angular velocity of pole)</code></p>
 <p>At every timestep, the physics simulation is updated. The input is +1 or -1, depending on whether we want to move the cart to the left or to the right.</p>
 <p>With the OpenAI Gym environment, we don’t have to code up the physics simulation, <a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py">it comes out of the box</a>. We just have to:</p>
@@ -86,7 +86,74 @@
 </pre></div>
 
 
-<p><img src="/images/cartpole.gif" alt="Cartpole animation" style="width: 800px;"/></p>
+<p><img src="/images/cartpole.gif" alt="Cartpole animation" style="width: 400px;"/></p>
+<p>Before we get into neural networks and Reinforcement Learning (RL), let’s play around with the environment to get some intuition. The basic simulation loop is:</p>
+<div class="highlight"><pre><span></span><span class="n">state</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">select_action</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+    <span class="n">state</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+        <span class="k">break</span>
+</pre></div>
+
+
+<p>The environment will return <code>done=True</code> if either 500 timesteps have elapsed (episode success) or if the pole has fallen over (angular position of the pole has reached +- 12 degrees) or the cart has left the simulation space (cart position has reached +- 2.4), in which case the episode failed.</p>
+<p><em>Note: the <code>-v1</code> in the environment spec makes it run for 500 steps. <code>-v0</code> only runs for 200 steps.</em></p>
+<p>To make the above snippet work, we just have to supply a <code>select_action()</code> function, which given the state, returns what to do: move the cart left or right. Let’s see what happens if we supply a random agent:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">select_action_random</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+</pre></div>
+
+
+<p>Obviously this will not perform very well, but it’s a start. How about something smarter: if the pole is falling to the right, let’s move the cart to the right to compensate, and vica versa:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">select_action_simple</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+</pre></div>
+
+
+<p>This should perform better than our random agent, but how much better? Let’s write a simple function which counts, on average, how far an agent survives (out of 500, as a ratio), and returns the average, a number between 0 and 1, 1 being a perfect score:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">goodness_score</span><span class="p">(</span><span class="n">select_action</span><span class="p">,</span> <span class="n">num_episodes</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="n">num_steps</span> <span class="o">=</span> <span class="mi">500</span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">episode</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_episodes</span><span class="p">):</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_steps</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">select_action</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+            <span class="n">state</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+            <span class="c1">#env.render()</span>
+            <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="n">ts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span><span class="o">*</span><span class="n">num_steps</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">score</span>
+</pre></div>
+
+
+<p>If we run this for the above 2 test functions, like:</p>
+<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">goodness_score</span><span class="p">(</span><span class="n">select_action_simple</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">goodness_score</span><span class="p">(</span><span class="n">select_action_random</span><span class="p">))</span>
+</pre></div>
+
+
+<p>We see that the random scores 0.04, and simple 0.08. So the simple is better than random, but still very far from 1. Let’s try something better; how about if we also add the angular velocity:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">select_action_good</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">state</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+<span class="n">goodness_score</span><span class="p">(</span><span class="n">select_action_good</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Turns out this simple test function solves the problem pretty much perfectly, it gets a score of almost 1.0 (meaning the simulation survives all the way to 500 steps most of the time). We got lucky with this ansatz, but there’s no lucky shortcut to solving Starcraft, so let’s move on to Reinforcement Learning.</p>
   </div>
   <div class="tag-cloud">
     <p>
@@ -117,7 +184,7 @@
   },
   "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
   "url": "/solving-the-cartpole-reinforcement-learning-problem-with-pytorch.html",
-  "description": "The CartPole problem is like the "Hello World" of Reinforcement Learning (RL), originally described in 1985 by Sutton et al. The environment is a pole balanced on a cart. We "derive" a simple a RL solution with Pytorch."
+  "description": "The CartPole problem is like the Hello World of Reinforcement Learning, originally described in 1985 by Sutton et al. The environment is a pole balanced on a cart. We "derive" a simple solution with Pytorch."
 }
 </script></body>
 </html>
