@@ -248,7 +248,7 @@
 
 
 <p>This "derivation" of RL should give an intuitive understanding of RL. There is one bit that we jumped over: we use the log probabilities in the loss function, not the regular probabilities (see last line in <code>select_action_from_policy()</code>). The training loop doesn't work if we change it to use the regular probabilities. For an explanation, see this <a href="https://medium.com/@thechrisyoon/deriving-policy-gradients-and-implementing-reinforce-f887949bd63">derivation of the policy gradient method</a>, which is what we actually implemented here.</p>
-<p>Another important note is that here we didn't use a discount factor (usually called gamma; what we did here is the same as setting gamma=1, ie. no decay of rewards), and the training loop still converges. Most RL problems use a discount factor, because there is an assumption that whatever action we took at time t influenced what happens after, but as time goes on it becomes less important.</p>
+<p>Another important note is that here we didn't use a discount factor (usually called gamma; what we did here is the same as setting gamma=1, ie. no decay of rewards), and the training loop still converges. Most RL problems use a discount factor, because there is an assumption that whatever action we took at time t influenced what happens after, but as time goes on it becomes less important. If you check the <a href="https://github.com/pytorch/examples/blob/master/reinforcement_learning/reinforce.py">official Pytorch CartPole example</a>, it uses a discount factor.</p>
   </div>
   <div class="tag-cloud">
     <p>
