@@ -102,6 +102,7 @@
 
 
 <p>The environment will return <code>done=True</code> if either 500 timesteps have elapsed (episode success) or if the pole has fallen over (angular position of the pole has reached +- 12 degrees) or the cart has left the simulation space (cart position has reached +- 2.4), in which case the episode failed.</p>
+<p>Note: with the <code>env.render()</code> in, it will open a GUI window and show you the cartpole.</p>
 <p><em>Note: the <code>-v1</code> in the environment spec makes it run for 500 steps. <code>CartPole-v0</code> only runs for 200 steps.</em></p>
 <p>To make the above snippet work, we just have to supply a <code>select_action()</code> function, which given the state, returns what to do: move the cart left or right. Let’s see what happens if we supply a random agent:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">select_action_random</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
@@ -130,7 +131,6 @@
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_steps</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
             <span class="n">action</span> <span class="o">=</span> <span class="n">select_action</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
             <span class="n">state</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
-            <span class="c1">#env.render()</span>
             <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
                 <span class="k">break</span>
         <span class="n">ts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
@@ -248,7 +248,7 @@
 
 
 <p>This "derivation" of RL should give an intuitive understanding of RL. There is one bit that we jumped over: we use the log probabilities in the loss function, not the regular probabilities (see last line in <code>select_action_from_policy()</code>). The training loop doesn't work if we change it to use the regular probabilities. For an explanation, see this <a href="https://medium.com/@thechrisyoon/deriving-policy-gradients-and-implementing-reinforce-f887949bd63">derivation of the policy gradient method</a>, which is what we actually implemented here.</p>
-<p>Another important note is that here we didn't use a discount factor (usually called gamma; what we did here is the same as setting gamma=1, ie. no decay of rewards), and the training loop still converges. Most RL problems use a discount factor, because there is an assumption that whatever action we took at time t influenced what happens after, but as time goes on it becomes less important. If you check the <a href="https://github.com/pytorch/examples/blob/master/reinforcement_learning/reinforce.py">official Pytorch CartPole example</a>, it uses a discount factor.</p>
+<p>Another important note is that here we didn't use a discount factor (usually called <code>gamma</code>; what we did here is the same as setting <code>gamma=1</code>, ie. no decay of rewards), and the training loop still converges. Most RL problems use a discount factor, because there is an assumption that whatever action we took at time t influenced what happens after, but as time goes on it becomes less important. Check the <a href="https://github.com/pytorch/examples/blob/master/reinforcement_learning/reinforce.py">official Pytorch CartPole example</a> for an implementation with a discount factor; interestingly, it doesn't seem to have better convergence properties than this naive implementation.</p>
   </div>
   <div class="tag-cloud">
     <p>
