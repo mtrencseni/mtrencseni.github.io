@@ -80,7 +80,8 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>The CartPole problem is like the <a href="https://en.wikipedia.org/wiki/%22Hello,_World!%22_program">Hello World</a> of Reinforcement Learning, originally described in <a href="http://www.incompleteideas.net/papers/OSB-tracking-85.pdf">1985 by Sutton et al</a>. The environment is a pole balanced on a cart. The environment’s state is described by a 4-tuple:</p>
+<p>The CartPole problem is like the <a href="https://en.wikipedia.org/wiki/%22Hello,_World!%22_program">Hello World</a> of Reinforcement Learning, originally described in <a href="http://www.incompleteideas.net/papers/OSB-tracking-85.pdf">1985 by Sutton et al</a>. The environment is a pole balanced on a cart. We "derive" a simple solution with Pytorch; the <a href="https://github.com/mtrencseni/pytorch-playground/tree/master/09-cartpole">ipython notebook is up on Github</a>.</p>
+<p>The environment’s state is described by a 4-tuple:</p>
 <p><code>(x position of cart, x velocity of cart, angular position of pole, angular velocity of pole)</code></p>
 <p>At every timestep, the physics simulation is updated. The input is +1 or -1, depending on whether we want to move the cart to the left or to the right.</p>
 <p>With the OpenAI Gym environment, we don’t have to code up the physics simulation, <a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py">it comes out of the box</a>. We just have to:</p>
