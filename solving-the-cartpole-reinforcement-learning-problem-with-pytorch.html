@@ -154,6 +154,19 @@
 
 
 <p>Turns out this simple test function solves the problem pretty much perfectly, it gets a score of almost 1.0 (meaning the simulation survives all the way to 500 steps most of the time). We got lucky with this ansatz, but there’s no lucky shortcut to solving Starcraft, so let’s move on to Reinforcement Learning.</p>
+<p>Essentially we will build a neural network which will try to guess/learn the <code>select_state()</code> function above. The input state is 4 doubles, and the output is 2 doubles (the probability of going left and right, sum to 1). Since we got lucky above with <code>select_action_good()</code>, we know a small neural network will do, it just has to learn to add the right components:</p>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">PolicyNN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PolicyNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The next question is, how do we train our network?</p>
   </div>
   <div class="tag-cloud">
     <p>
