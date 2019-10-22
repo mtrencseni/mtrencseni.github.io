@@ -102,7 +102,7 @@
 
 
 <p>The environment will return <code>done=True</code> if either 500 timesteps have elapsed (episode success) or if the pole has fallen over (angular position of the pole has reached +- 12 degrees) or the cart has left the simulation space (cart position has reached +- 2.4), in which case the episode failed.</p>
-<p><em>Note: the <code>-v1</code> in the environment spec makes it run for 500 steps. <code>-v0</code> only runs for 200 steps.</em></p>
+<p><em>Note: the <code>-v1</code> in the environment spec makes it run for 500 steps. <code>CartPole-v0</code> only runs for 200 steps.</em></p>
 <p>To make the above snippet work, we just have to supply a <code>select_action()</code> function, which given the state, returns what to do: move the cart left or right. Let’s see what happens if we supply a random agent:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">select_action_random</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span>
@@ -169,7 +169,29 @@
 </pre></div>
 
 
-<p>The next question is, how do we train our network?</p>
+<p>The next question is, how do we train our network? In <a href="http://bytepawn.com/solving-mnist-with-pytorch-and-skl.html">supervised learning like MNIST</a>, we train our network on independent samples, and for each sample, we know what the desired response is, and construct a loss function from that. Here, there is no explicit training data to tell whether in a given state a right/left prediction was good or bad. But it's actually not that hard to constuct a loss function.</p>
+<p>Taking a step back, what is our goal in the CartPole environment? The goal is that the agent should survive as long as possible, 500 steps in this simulation. So as a first idea, we could simply try to use the <code>(1 - t/500)</code> normalized length of the simulation (how far the agent got) as a loss function. Then we can use gradient descent to search for a minimum of the loss function (maximum length of simulation). Assuming we do a gradient descent after each episode (simulation run), the code would be:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_wont_work</span><span class="p">(</span><span class="n">num_episodes</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="n">num_steps</span> <span class="o">=</span> <span class="mi">500</span>
+    <span class="k">for</span> <span class="n">episode</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_episodes</span><span class="p">):</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_steps</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">select_action</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+            <span class="n">state</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">t</span> <span class="o">/</span> <span class="n">num_steps</span>
+        <span class="c1"># this doesn&#39;t actually work, because</span>
+        <span class="c1"># the loss function is not an explicit</span>
+        <span class="c1"># function of the model&#39;s output; it&#39;s</span>
+        <span class="c1"># a function of book keeping variables</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span> <span class="c1"># AttributeError: &#39;float&#39; object has no attribute &#39;backward&#39;</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</pre></div>
+
+
+<p>However, this won't work. The problem is, here <code>t</code> is a book keeping <code>int</code> variable, it's not a Pytorch variable, it's not derived from the neural network's output. So we can't take the derivative of it.</p>
   </div>
   <div class="tag-cloud">
     <p>
