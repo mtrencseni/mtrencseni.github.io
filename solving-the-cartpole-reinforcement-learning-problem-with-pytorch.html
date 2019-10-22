@@ -188,7 +188,7 @@
 </pre></div>
 
 
-<p><code>select_action_from_policy()</code> runs the network on the state, and returns the left/right output according to the probabilities. <code>select_action_from_policy_best()</code> can be used after training, it always returns the action with the higher probability.</p>
+<p><code>select_action_from_policy()</code> runs the network on the state, and returns the left/right output according to the probabilities (and also a probability, see later). <code>select_action_from_policy_best()</code> can be used after training, it always returns the action with the higher probability.</p>
 <p>The next question is, how do we train our network? In <a href="http://bytepawn.com/solving-mnist-with-pytorch-and-skl.html">supervised learning like MNIST</a>, we train our network on independent samples, and for each sample, we know what the desired response is, and construct a loss function from that. Here, there is no explicit training data to tell whether in a given state a right/left prediction was good or bad. But it's actually not that hard to constuct a loss function.</p>
 <p>Taking a step back, what is our goal in the CartPole environment? The goal is that the agent should survive as long as possible, 500 steps in this simulation. So as a first idea, we could simply try to use the <code>(1 - t/500)</code> normalized length of the simulation (how far the agent got) as a loss function. Then we can use gradient descent to search for a minimum of the loss function (maximum length of simulation). Assuming we do a gradient descent after each episode (simulation run), the code would be:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_wont_work</span><span class="p">(</span><span class="n">num_episodes</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
@@ -245,6 +245,10 @@
 <div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">goodness_score</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="n">select_action_from_policy_best</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">state</span><span class="p">)))</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="mf">1.0</span> 
 </pre></div>
+
+
+<p>This "derivation" of RL should give an intuitive understanding of RL. There is one bit that we jumped over: we use the log probabilities in the loss function, not the regular probabilities (see last line in <code>select_action_from_policy()</code>). The training loop doesn't work if we change it to use the regular probabilities. For an explanation, see this <a href="https://medium.com/@thechrisyoon/deriving-policy-gradients-and-implementing-reinforce-f887949bd63">derivation of the policy gradient method</a>, which is what we actually implemented here.</p>
+<p>Another important note is that here we didn't use a discount factor (usually called gamma; what we did here is the same as setting gamma=1, ie. no decay of rewards), and the training loop still converges. Most RL problems use a discount factor, because there is an assumption that whatever action we took at time t influenced what happens after, but as time goes on it becomes less important.</p>
   </div>
   <div class="tag-cloud">
     <p>
