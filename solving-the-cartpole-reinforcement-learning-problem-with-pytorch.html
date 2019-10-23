@@ -220,7 +220,7 @@ The <a href="https://github.com/mtrencseni/pytorch-playground/tree/master/09-car
 </pre></div>
 
 
-<p>However, this won't work. The problem is, here <code>t</code> is a book keeping <code>int</code> variable, it's not a Pytorch variable, it's not derived from the neural network's output. So we can't take the derivative of it.</p>
+<p>However, this won't work. The problem is, <code>t</code> is a book keeping <code>int</code> variable, it's not a Pytorch variable. It's not derived from (not a function of) the neural network's output, so we can't take the derivative of it (with respect t o the network's weights)AZ.</p>
 <p>But from the above idea, we can get something that works. At each timestep, let's say that the reward is how long the simulation survived after the timestep, multiplied by the network's output that we took (left/right probability). The loss is the negative sum of all rewards. This sounds good, because: (i) the global minimum of the this loss will be when the agent survives all the way, and takes the moves that lead there with 1 probability (ii) it's a function of the network's outputs (the probabilities). In code:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_simple</span><span class="p">(</span><span class="n">num_episodes</span><span class="o">=</span><span class="mi">10</span><span class="o">*</span><span class="mi">1000</span><span class="p">):</span>
     <span class="n">num_steps</span> <span class="o">=</span> <span class="mi">500</span>
@@ -242,6 +242,7 @@ The <a href="https://github.com/mtrencseni/pytorch-playground/tree/master/09-car
         <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
         <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
         <span class="n">ts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="c1"># check stopping condition:</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">10</span> <span class="ow">and</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ts</span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">:])</span><span class="o">/</span><span class="mf">10.0</span> <span class="o">&gt;=</span> <span class="n">num_steps</span> <span class="o">*</span> <span class="mf">0.95</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Stopping training, looks good...&#39;</span><span class="p">)</span>
             <span class="k">return</span>
@@ -256,8 +257,13 @@ The <a href="https://github.com/mtrencseni/pytorch-playground/tree/master/09-car
 </pre></div>
 
 
-<p>This "derivation" of RL should give an intuitive understanding of RL. There is one bit that we jumped over: we use the log probabilities in the loss function, not the regular probabilities (see last line in <code>select_action_from_policy()</code>). The training loop doesn't work if we change it to use the regular probabilities. For an explanation, see this <a href="https://medium.com/@thechrisyoon/deriving-policy-gradients-and-implementing-reinforce-f887949bd63">derivation of the policy gradient method</a>, which is what we actually implemented here.</p>
-<p>Another important note is that here we didn't use a discount factor (usually called <code>gamma</code>; what we did here is the same as setting <code>gamma=1</code>, ie. no decay of rewards), and the training loop still converges. Most RL problems use a discount factor, because there is an assumption that whatever action we took at time t influenced what happens after, but as time goes on it becomes less important. Check the <a href="https://github.com/pytorch/examples/blob/master/reinforcement_learning/reinforce.py">official Pytorch CartPole example</a> for an implementation with a discount factor; interestingly, it doesn't seem to have better convergence properties than this naive implementation.</p>
+<p>This "derivation" should give an intuitive understanding of RL. There is one bit that we jumped over: we use the log probabilities in the loss function, not the regular probabilities (see last line in <code>select_action_from_policy()</code>). The training loop doesn't work if we change it to use the regular probabilities. For an explanation, see this <a href="https://medium.com/@thechrisyoon/deriving-policy-gradients-and-implementing-reinforce-f887949bd63">derivation of the policy gradient method</a>, which is what we actually implemented here.</p>
+<p>Another important note is that here we didn't use a discount factor (usually called <code>gamma</code>; what we did here is the same as setting <code>gamma=1</code>, ie. no decay of rewards), and the training loop still converges. Most RL problems use a discount factor, because there is an assumption that whatever action we took at time t influenced what happens after, but as time goes on it becomes less important (the importance decays). Check the <a href="https://github.com/pytorch/examples/blob/master/reinforcement_learning/reinforce.py">official Pytorch CartPole example</a> for an implementation with a discount factor; interestingly, it doesn't seem to have better convergence properties than this naive implementation.</p>
+<p>More links:</p>
+<ul>
+<li><a href="https://www.youtube.com/playlist?list=PLzuuYNsE1EZAXYR4FJ75jcJseBmo4KQ9-">10 part RL course by Google DeepMind's David Silver</a> (highly recommended)</li>
+<li><a href="https://www.amazon.com/Reinforcement-Learning-Introduction-Adaptive-Computation/dp/0262193981">Sutton, Barto: <em>Reinforcement Learning</em> book</a></li>
+</ul>
   </div>
   <div class="tag-cloud">
     <p>
