@@ -28,11 +28,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="" />
 <meta name="author" content="Marton Trencseni" />
-<meta name="description" content="The CartPole problem is like the Hello World of Reinforcement Learning, originally described in 1985 by Sutton et al. The environment is a pole balanced on a cart. We "derive" a simple solution with Pytorch." />
+<meta name="description" content="The CartPole problem is the Hello World of Reinforcement Learning, originally described in 1985 by Sutton et al. The environment is a pole balanced on a cart. CartPole is one of the environments in OpenAI Gym, so we don't have to code up the physics. Here I walk through a simple solution using Pytorch." />
 <meta name="keywords" content="python, pytorch, reinforcement, learning, openai, gym, cartpole">
 <meta property="og:site_name" content="Bytepawn"/>
 <meta property="og:title" content="Solving the CartPole Reinforcement Learning problem with Pytorch"/>
-<meta property="og:description" content="The CartPole problem is like the Hello World of Reinforcement Learning, originally described in 1985 by Sutton et al. The environment is a pole balanced on a cart. We "derive" a simple solution with Pytorch."/>
+<meta property="og:description" content="The CartPole problem is the Hello World of Reinforcement Learning, originally described in 1985 by Sutton et al. The environment is a pole balanced on a cart. CartPole is one of the environments in OpenAI Gym, so we don't have to code up the physics. Here I walk through a simple solution using Pytorch."/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="/solving-the-cartpole-reinforcement-learning-problem-with-pytorch.html"/>
 <meta property="og:type" content="article"/>
@@ -80,10 +80,19 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>The CartPole problem is like the <a href="https://en.wikipedia.org/wiki/%22Hello,_World!%22_program">Hello World</a> of Reinforcement Learning, originally described in <a href="http://www.incompleteideas.net/papers/OSB-tracking-85.pdf">1985 by Sutton et al</a>. The environment is a pole balanced on a cart. We "derive" a simple solution with Pytorch; the <a href="https://github.com/mtrencseni/pytorch-playground/tree/master/09-cartpole">ipython notebook is up on Github</a>.</p>
-<p>The environment’s state is described by a 4-tuple:</p>
-<p><code>(x position of cart, x velocity of cart, angular position of pole, angular velocity of pole)</code></p>
-<p>At every timestep, the physics simulation is updated. The input is +1 or -1, depending on whether we want to move the cart to the left or to the right.</p>
+<p>The CartPole problem is the <a href="https://en.wikipedia.org/wiki/%22Hello,_World!%22_program">Hello World</a> of Reinforcement Learning, originally described in <a href="http://www.incompleteideas.net/papers/OSB-tracking-85.pdf">1985 by Sutton et al</a>. The environment is a pole balanced on a cart. Here I walk through a simple solution using Pytorch. 
+The <a href="https://github.com/mtrencseni/pytorch-playground/tree/master/09-cartpole">ipython notebook is up on Github</a>.</p>
+<p>The cartpole environment’s state is described by a 4-tuple:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span>
+    <span class="n">x</span> <span class="n">position</span> <span class="n">of</span> <span class="n">cart</span><span class="p">,</span>
+    <span class="n">x</span> <span class="n">velocity</span> <span class="n">of</span> <span class="n">cart</span><span class="p">,</span>
+    <span class="n">angular</span> <span class="n">position</span> <span class="n">of</span> <span class="n">pole</span><span class="p">,</span>
+    <span class="n">angular</span> <span class="n">velocity</span> <span class="n">of</span> <span class="n">pole</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>At every timestep, the physics simulation is updated. The input is 0 or 1, depending on whether we want to move the cart to the left or to the right.</p>
 <p>With the OpenAI Gym environment, we don’t have to code up the physics simulation, <a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py">it comes out of the box</a>. We just have to:</p>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gym</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;CartPole-v1&#39;</span><span class="p">)</span>
@@ -91,6 +100,7 @@
 
 
 <p><img src="/images/cartpole.gif" alt="Cartpole animation" style="width: 400px;"/></p>
+<p>Note: the <code>-v1</code> in the environment spec makes each episode run for 500 steps. <code>CartPole-v0</code> only runs for 200 steps.</p>
 <p>Before we get into neural networks and Reinforcement Learning (RL), let’s play around with the environment to get some intuition. The basic simulation loop is:</p>
 <div class="highlight"><pre><span></span><span class="n">state</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
@@ -102,9 +112,8 @@
 </pre></div>
 
 
+<p>Note: <code>env.render()</code> will open a GUI window and show you the cartpole.</p>
 <p>The environment will return <code>done=True</code> if either 500 timesteps have elapsed (episode success) or if the pole has fallen over (angular position of the pole has reached +- 12 degrees) or the cart has left the simulation space (cart position has reached +- 2.4), in which case the episode failed.</p>
-<p>Note: with the <code>env.render()</code> in, it will open a GUI window and show you the cartpole.</p>
-<p><em>Note: the <code>-v1</code> in the environment spec makes it run for 500 steps. <code>CartPole-v0</code> only runs for 200 steps.</em></p>
 <p>To make the above snippet work, we just have to supply a <code>select_action()</code> function, which given the state, returns what to do: move the cart left or right. Let’s see what happens if we supply a random agent:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">select_action_random</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span>
@@ -114,7 +123,7 @@
 </pre></div>
 
 
-<p>Obviously this will not perform very well, but it’s a start. How about something smarter: if the pole is falling to the right, let’s move the cart to the right to compensate, and vica versa:</p>
+<p>Obviously this will not perform very well, but it’s a start. How about something smarter: if the pole is falling to the right, let’s move the cart to the right to compensate, and vice versa:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">select_action_simple</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">0</span>
@@ -123,7 +132,7 @@
 </pre></div>
 
 
-<p>This should perform better than our random agent, but how much better? Let’s write a simple function which counts, on average, how far an agent survives (out of 500, as a ratio), and returns the average, a number between 0 and 1, 1 being a perfect score:</p>
+<p>This should perform better than our random agent, but how much better? Let’s write a simple function which counts, on average, how far our agent survives (out of 500, as a ratio), and returns the average, a number between 0 and 1, 1 being a perfect score:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">goodness_score</span><span class="p">(</span><span class="n">select_action</span><span class="p">,</span> <span class="n">num_episodes</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
     <span class="n">num_steps</span> <span class="o">=</span> <span class="mi">500</span>
     <span class="n">ts</span> <span class="o">=</span> <span class="p">[]</span>
@@ -146,7 +155,7 @@
 </pre></div>
 
 
-<p>We see that the random scores 0.04, and simple 0.08. So the simple is better than random, but still very far from 1. Let’s try something better; how about if we also add the angular velocity:</p>
+<p>We see that the random scores 0.04, and simple 0.08. So the simple is better than random, but still very far from 1. Let’s try something better: how about if we also add the angular velocity:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">select_action_good</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">state</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">0</span>
@@ -157,7 +166,7 @@
 </pre></div>
 
 
-<p>Turns out this simple test function solves the problem pretty much perfectly, it gets a score of almost 1.0 (meaning the simulation survives all the way to 500 steps most of the time). We got lucky with this ansatz, but there’s no lucky shortcut to solving Starcraft, so let’s move on to Reinforcement Learning.</p>
+<p>Turns out this simple test function solves the problem pretty much perfectly, it gets a score of almost 1.0 (meaning the simulation survives all the way to 500 steps). We got lucky with this ansatz, but there’s no lucky shortcut to solving Starcraft, so let’s move on to Reinforcement Learning.</p>
 <p>Essentially we will build a neural network which will try to guess/learn the <code>select_state()</code> function above. The input state is 4 doubles, and the output is 2 doubles (the probability of going left and right, sum to 1). Since we got lucky above with <code>select_action_good()</code>, we know a small neural network will do, it just has to learn to add the right components:</p>
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">PolicyNN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -176,7 +185,6 @@
     <span class="n">probs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
     <span class="n">m</span> <span class="o">=</span> <span class="n">Categorical</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>
     <span class="n">action</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
-    <span class="c1">#return action.item(), probs[0][action]</span>
     <span class="k">return</span> <span class="n">action</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">m</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">select_action_from_policy_best</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
@@ -190,7 +198,7 @@
 
 
 <p><code>select_action_from_policy()</code> runs the network on the state, and returns the left/right output according to the probabilities (and also a probability, see later). <code>select_action_from_policy_best()</code> can be used after training, it always returns the action with the higher probability.</p>
-<p>The next question is, how do we train our network? In <a href="http://bytepawn.com/solving-mnist-with-pytorch-and-skl.html">supervised learning like MNIST</a>, we train our network on independent samples, and for each sample, we know what the desired response is, and construct a loss function from that. Here, there is no explicit training data to tell whether in a given state a right/left prediction was good or bad. But it's actually not that hard to constuct a loss function.</p>
+<p>The next question is, how do we train our network? In <a href="http://bytepawn.com/solving-mnist-with-pytorch-and-skl.html">supervised learning like MNIST</a>, we train our network on independent samples, and for each sample, we know what the desired response is, and construct a loss function (from some sort of distance-like metric) from that. Here, there is no explicit training data to tell us whether in a given state a right/left prediction was good or bad. But it's actually not that hard to constuct a loss function.</p>
 <p>Taking a step back, what is our goal in the CartPole environment? The goal is that the agent should survive as long as possible, 500 steps in this simulation. So as a first idea, we could simply try to use the <code>(1 - t/500)</code> normalized length of the simulation (how far the agent got) as a loss function. Then we can use gradient descent to search for a minimum of the loss function (maximum length of simulation). Assuming we do a gradient descent after each episode (simulation run), the code would be:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_wont_work</span><span class="p">(</span><span class="n">num_episodes</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
     <span class="n">num_steps</span> <span class="o">=</span> <span class="mi">500</span>
@@ -283,7 +291,7 @@
   },
   "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
   "url": "/solving-the-cartpole-reinforcement-learning-problem-with-pytorch.html",
-  "description": "The CartPole problem is like the Hello World of Reinforcement Learning, originally described in 1985 by Sutton et al. The environment is a pole balanced on a cart. We "derive" a simple solution with Pytorch."
+  "description": "The CartPole problem is the Hello World of Reinforcement Learning, originally described in 1985 by Sutton et al. The environment is a pole balanced on a cart. CartPole is one of the environments in OpenAI Gym, so we don't have to code up the physics. Here I walk through a simple solution using Pytorch."
 }
 </script></body>
 </html>

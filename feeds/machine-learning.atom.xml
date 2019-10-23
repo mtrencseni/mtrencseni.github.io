@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Machine Learning</title><link href="/" rel="alternate"></link><link href="/feeds/machine-learning.atom.xml" rel="self"></link><id>/</id><updated>2019-10-22T00:00:00+02:00</updated><entry><title>Solving the CartPole Reinforcement Learning problem with Pytorch</title><link href="/solving-the-cartpole-reinforcement-learning-problem-with-pytorch.html" rel="alternate"></link><published>2019-10-22T00:00:00+02:00</published><updated>2019-10-22T00:00:00+02:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2019-10-22:/solving-the-cartpole-reinforcement-learning-problem-with-pytorch.html</id><summary type="html">&lt;p&gt;The CartPole problem is like the Hello World of Reinforcement Learning, originally described in 1985 by Sutton et al. The environment is a pole balanced on a cart. We "derive" a simple solution with Pytorch. &lt;br/&gt;&lt;br/&gt; &lt;img src="/images/cartpole.gif" alt="Cartpole animation" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
-&lt;p&gt;The CartPole problem is like the &lt;a href="https://en.wikipedia.org/wiki/%22Hello,_World!%22_program"&gt;Hello World&lt;/a&gt; of Reinforcement Learning, originally described in &lt;a href="http://www.incompleteideas.net/papers/OSB-tracking-85.pdf"&gt;1985 by Sutton et al&lt;/a&gt;. The environment is a pole balanced on a cart. We "derive" a simple solution with Pytorch; the &lt;a href="https://github.com/mtrencseni/pytorch-playground/tree/master/09-cartpole"&gt;ipython notebook is up on Github&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;The environment’s state is described by a 4-tuple:&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;(x position of cart, x velocity of cart, angular position of pole, angular velocity of pole)&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;At every timestep, the physics simulation is updated. The input is +1 or -1, depending on whether we want to move the cart to the left or to the right.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Machine Learning</title><link href="/" rel="alternate"></link><link href="/feeds/machine-learning.atom.xml" rel="self"></link><id>/</id><updated>2019-10-22T00:00:00+02:00</updated><entry><title>Solving the CartPole Reinforcement Learning problem with Pytorch</title><link href="/solving-the-cartpole-reinforcement-learning-problem-with-pytorch.html" rel="alternate"></link><published>2019-10-22T00:00:00+02:00</published><updated>2019-10-22T00:00:00+02:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2019-10-22:/solving-the-cartpole-reinforcement-learning-problem-with-pytorch.html</id><summary type="html">&lt;p&gt;The CartPole problem is the Hello World of Reinforcement Learning, originally described in 1985 by Sutton et al. The environment is a pole balanced on a cart. CartPole is one of the environments in OpenAI Gym, so we don't have to code up the physics. Here I walk through a simple solution using Pytorch. &lt;br/&gt;&lt;br/&gt; &lt;img src="/images/cartpole.gif" alt="Cartpole animation" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;The CartPole problem is the &lt;a href="https://en.wikipedia.org/wiki/%22Hello,_World!%22_program"&gt;Hello World&lt;/a&gt; of Reinforcement Learning, originally described in &lt;a href="http://www.incompleteideas.net/papers/OSB-tracking-85.pdf"&gt;1985 by Sutton et al&lt;/a&gt;. The environment is a pole balanced on a cart. Here I walk through a simple solution using Pytorch. 
+The &lt;a href="https://github.com/mtrencseni/pytorch-playground/tree/master/09-cartpole"&gt;ipython notebook is up on Github&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The cartpole environment’s state is described by a 4-tuple:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="n"&gt;position&lt;/span&gt; &lt;span class="n"&gt;of&lt;/span&gt; &lt;span class="n"&gt;cart&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="n"&gt;of&lt;/span&gt; &lt;span class="n"&gt;cart&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;angular&lt;/span&gt; &lt;span class="n"&gt;position&lt;/span&gt; &lt;span class="n"&gt;of&lt;/span&gt; &lt;span class="n"&gt;pole&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;angular&lt;/span&gt; &lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="n"&gt;of&lt;/span&gt; &lt;span class="n"&gt;pole&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;At every timestep, the physics simulation is updated. The input is 0 or 1, depending on whether we want to move the cart to the left or to the right.&lt;/p&gt;
 &lt;p&gt;With the OpenAI Gym environment, we don’t have to code up the physics simulation, &lt;a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py"&gt;it comes out of the box&lt;/a&gt;. We just have to:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;gym&lt;/span&gt;
 &lt;span class="n"&gt;env&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;gym&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;make&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;CartPole-v1&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -11,6 +20,7 @@
 
 
 &lt;p&gt;&lt;img src="/images/cartpole.gif" alt="Cartpole animation" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;Note: the &lt;code&gt;-v1&lt;/code&gt; in the environment spec makes each episode run for 500 steps. &lt;code&gt;CartPole-v0&lt;/code&gt; only runs for 200 steps.&lt;/p&gt;
 &lt;p&gt;Before we get into neural networks and Reinforcement Learning (RL), let’s play around with the environment to get some intuition. The basic simulation loop is:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;state&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;env&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;reset&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
@@ -22,9 +32,8 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
+&lt;p&gt;Note: &lt;code&gt;env.render()&lt;/code&gt; will open a GUI window and show you the cartpole.&lt;/p&gt;
 &lt;p&gt;The environment will return &lt;code&gt;done=True&lt;/code&gt; if either 500 timesteps have elapsed (episode success) or if the pole has fallen over (angular position of the pole has reached +- 12 degrees) or the cart has left the simulation space (cart position has reached +- 2.4), in which case the episode failed.&lt;/p&gt;
-&lt;p&gt;Note: with the &lt;code&gt;env.render()&lt;/code&gt; in, it will open a GUI window and show you the cartpole.&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;Note: the &lt;code&gt;-v1&lt;/code&gt; in the environment spec makes it run for 500 steps. &lt;code&gt;CartPole-v0&lt;/code&gt; only runs for 200 steps.&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;To make the above snippet work, we just have to supply a &lt;code&gt;select_action()&lt;/code&gt; function, which given the state, returns what to do: move the cart left or right. Let’s see what happens if we supply a random agent:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;select_action_random&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;state&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mf"&gt;0.5&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
@@ -34,7 +43,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Obviously this will not perform very well, but it’s a start. How about something smarter: if the pole is falling to the right, let’s move the cart to the right to compensate, and vica versa:&lt;/p&gt;
+&lt;p&gt;Obviously this will not perform very well, but it’s a start. How about something smarter: if the pole is falling to the right, let’s move the cart to the right to compensate, and vice versa:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;select_action_simple&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;state&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;state&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
@@ -43,7 +52,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;This should perform better than our random agent, but how much better? Let’s write a simple function which counts, on average, how far an agent survives (out of 500, as a ratio), and returns the average, a number between 0 and 1, 1 being a perfect score:&lt;/p&gt;
+&lt;p&gt;This should perform better than our random agent, but how much better? Let’s write a simple function which counts, on average, how far our agent survives (out of 500, as a ratio), and returns the average, a number between 0 and 1, 1 being a perfect score:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;goodness_score&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;select_action&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;num_episodes&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;num_steps&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;500&lt;/span&gt;
     &lt;span class="n"&gt;ts&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
@@ -66,7 +75,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;We see that the random scores 0.04, and simple 0.08. So the simple is better than random, but still very far from 1. Let’s try something better; how about if we also add the angular velocity:&lt;/p&gt;
+&lt;p&gt;We see that the random scores 0.04, and simple 0.08. So the simple is better than random, but still very far from 1. Let’s try something better: how about if we also add the angular velocity:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;select_action_good&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;state&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;state&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;state&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
@@ -77,7 +86,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Turns out this simple test function solves the problem pretty much perfectly, it gets a score of almost 1.0 (meaning the simulation survives all the way to 500 steps most of the time). We got lucky with this ansatz, but there’s no lucky shortcut to solving Starcraft, so let’s move on to Reinforcement Learning.&lt;/p&gt;
+&lt;p&gt;Turns out this simple test function solves the problem pretty much perfectly, it gets a score of almost 1.0 (meaning the simulation survives all the way to 500 steps). We got lucky with this ansatz, but there’s no lucky shortcut to solving Starcraft, so let’s move on to Reinforcement Learning.&lt;/p&gt;
 &lt;p&gt;Essentially we will build a neural network which will try to guess/learn the &lt;code&gt;select_state()&lt;/code&gt; function above. The input state is 4 doubles, and the output is 2 doubles (the probability of going left and right, sum to 1). Since we got lucky above with &lt;code&gt;select_action_good()&lt;/code&gt;, we know a small neural network will do, it just has to learn to add the right components:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;PolicyNN&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;nn&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Module&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
@@ -96,7 +105,6 @@
     &lt;span class="n"&gt;probs&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;state&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;m&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Categorical&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;probs&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;action&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sample&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-    &lt;span class="c1"&gt;#return action.item(), probs[0][action]&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;action&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;log_prob&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;action&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;select_action_from_policy_best&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;state&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
@@ -110,7 +118,7 @@
 
 
 &lt;p&gt;&lt;code&gt;select_action_from_policy()&lt;/code&gt; runs the network on the state, and returns the left/right output according to the probabilities (and also a probability, see later). &lt;code&gt;select_action_from_policy_best()&lt;/code&gt; can be used after training, it always returns the action with the higher probability.&lt;/p&gt;
-&lt;p&gt;The next question is, how do we train our network? In &lt;a href="http://bytepawn.com/solving-mnist-with-pytorch-and-skl.html"&gt;supervised learning like MNIST&lt;/a&gt;, we train our network on independent samples, and for each sample, we know what the desired response is, and construct a loss function from that. Here, there is no explicit training data to tell whether in a given state a right/left prediction was good or bad. But it's actually not that hard to constuct a loss function.&lt;/p&gt;
+&lt;p&gt;The next question is, how do we train our network? In &lt;a href="http://bytepawn.com/solving-mnist-with-pytorch-and-skl.html"&gt;supervised learning like MNIST&lt;/a&gt;, we train our network on independent samples, and for each sample, we know what the desired response is, and construct a loss function (from some sort of distance-like metric) from that. Here, there is no explicit training data to tell us whether in a given state a right/left prediction was good or bad. But it's actually not that hard to constuct a loss function.&lt;/p&gt;
 &lt;p&gt;Taking a step back, what is our goal in the CartPole environment? The goal is that the agent should survive as long as possible, 500 steps in this simulation. So as a first idea, we could simply try to use the &lt;code&gt;(1 - t/500)&lt;/code&gt; normalized length of the simulation (how far the agent got) as a loss function. Then we can use gradient descent to search for a minimum of the loss function (maximum length of simulation). Assuming we do a gradient descent after each episode (simulation run), the code would be:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;train_wont_work&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;num_episodes&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1000&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;num_steps&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;500&lt;/span&gt;
