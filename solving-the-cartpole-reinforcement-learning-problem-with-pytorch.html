@@ -261,6 +261,7 @@ The <a href="https://github.com/mtrencseni/pytorch-playground/tree/master/09-car
 <p>Another important note is that here we didn't use a discount factor (usually called <code>gamma</code>; what we did here is the same as setting <code>gamma=1</code>, ie. no decay of rewards), and the training loop still converges. Most RL problems use a discount factor, because there is an assumption that whatever action we took at time t influenced what happens after, but as time goes on it becomes less important (the importance decays). Check the <a href="https://github.com/pytorch/examples/blob/master/reinforcement_learning/reinforce.py">official Pytorch CartPole example</a> for an implementation with a discount factor; interestingly, it doesn't seem to have better convergence properties than this naive implementation.</p>
 <p>More links:</p>
 <ul>
+<li><a href="https://medium.com/@ts1829/policy-gradient-reinforcement-learning-in-pytorch-df1383ea0baf">Policy Gradient Reinforcement Learning in PyTorchs</a> (similar intro)</li>
 <li><a href="https://www.youtube.com/playlist?list=PLzuuYNsE1EZAXYR4FJ75jcJseBmo4KQ9-">10 part RL course by Google DeepMind's David Silver</a> (highly recommended)</li>
 <li><a href="https://www.amazon.com/Reinforcement-Learning-Introduction-Adaptive-Computation/dp/0262193981">Sutton, Barto: <em>Reinforcement Learning</em> book</a></li>
 </ul>
