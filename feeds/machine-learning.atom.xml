@@ -11,7 +11,7 @@
 &lt;p&gt;All these problems are similar in that the state space (which is the input space for the policy neural network) is a few real numbers. The action space (which is the output space for the policy) is sometimes discrete (left/right) and sometimes a real (magnitude):&lt;/p&gt;
 &lt;table&gt;
     &lt;tr&gt;
-        &lt;td&gt;env&lt;/td&gt;
+        &lt;td&gt;**env**&lt;/td&gt;
         &lt;td&gt;CartPole-v1&lt;/td&gt;
         &lt;td&gt;Acrobot-v1&lt;/td&gt;
         &lt;td&gt;Pendulum-v0&lt;/td&gt;
@@ -19,7 +19,7 @@
         &lt;td&gt;MountainCarContinuous-v0&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
-        &lt;td&gt;description&lt;/td&gt;
+        &lt;td&gt;**description**&lt;/td&gt;
         &lt;td&gt;balance a pole on a cart&lt;/td&gt;
         &lt;td&gt;swing up a two-link robot&lt;/td&gt;
         &lt;td&gt;swing up a pendulum&lt;/td&gt;
@@ -27,7 +27,7 @@
         &lt;td&gt;drive up a big hill&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
-        &lt;td&gt;state&lt;/td&gt;
+        &lt;td&gt;**state**&lt;/td&gt;
         &lt;td&gt;4 reals: cart position, velocity, pole angle, velocity&lt;/td&gt;
         &lt;td&gt;6 reals: sine and cosine of the two rotational joint angles and the joint angular velocities&lt;/td&gt;
         &lt;td&gt;3 reals: sine and cosine of the angle and angular velocity&lt;/td&gt;
