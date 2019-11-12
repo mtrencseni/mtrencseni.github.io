@@ -29,11 +29,11 @@
     &lt;/tr&gt;
     &lt;tr&gt;
         &lt;td&gt;&lt;b&gt;code&lt;/b&gt;&lt;/td&gt;
-        &lt;td&gt;https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py&lt;/td&gt;
-        &lt;td&gt;https://github.com/openai/gym/blob/master/gym/envs/classic_control/acrobot.py&lt;/td&gt;
-        &lt;td&gt;https://github.com/openai/gym/blob/master/gym/envs/classic_control/pendulum.py&lt;/td&gt;
-        &lt;td&gt;https://github.com/openai/gym/blob/master/gym/envs/classic_control/mountain_car.py&lt;/td&gt;
-        &lt;td&gt;https://github.com/openai/gym/blob/master/gym/envs/classic_control/continuous_mountain_car.py&lt;/td&gt;
+        &lt;td&gt;[cartpole.py](https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py)&lt;/td&gt;
+        &lt;td&gt;[acrobot.py](https://github.com/openai/gym/blob/master/gym/envs/classic_control/acrobot.py)&lt;/td&gt;
+        &lt;td&gt;[pendulum.py](https://github.com/openai/gym/blob/master/gym/envs/classic_control/pendulum.py)&lt;/td&gt;
+        &lt;td&gt;[mountain_car.py](https://github.com/openai/gym/blob/master/gym/envs/classic_control/mountain_car.py)&lt;/td&gt;
+        &lt;td&gt;[continuous_mountain_car.py](https://github.com/openai/gym/blob/master/gym/envs/classic_control/continuous_mountain_car.py)&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
         &lt;td&gt;&lt;b&gt;state&lt;/b&gt;&lt;/td&gt;
