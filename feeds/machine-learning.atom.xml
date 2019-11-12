@@ -20,7 +20,7 @@
         &lt;td&gt;&lt;b&gt;MountainCarContinuous-v0&lt;/b&gt;&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
-        &lt;td&gt;description&lt;/td&gt;
+        &lt;td&gt;&lt;b&gt;description&lt;/b&gt;&lt;/td&gt;
         &lt;td&gt;balance a pole on a cart&lt;/td&gt;
         &lt;td&gt;swing up a two-link robot&lt;/td&gt;
         &lt;td&gt;swing up a pendulum&lt;/td&gt;
@@ -28,7 +28,7 @@
         &lt;td&gt;drive up a big hill&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
-        &lt;td&gt;state&lt;/td&gt;
+        &lt;td&gt;&lt;b&gt;state&lt;/b&gt;&lt;/td&gt;
         &lt;td&gt;4 reals: cart position, velocity, pole angle, velocity&lt;/td&gt;
         &lt;td&gt;6 reals: sine and cosine of the two rotational joint angles and the joint angular velocities&lt;/td&gt;
         &lt;td&gt;3 reals: sine and cosine of the angle and angular velocity&lt;/td&gt;
@@ -36,7 +36,7 @@
         &lt;td&gt;2 reals: position, velocity&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
-        &lt;td&gt;action&lt;/td&gt;
+        &lt;td&gt;&lt;b&gt;action&lt;/b&gt;&lt;/td&gt;
         &lt;td&gt;discrete: left/right&lt;/td&gt;
         &lt;td&gt;discrete: left/nothing/right, the torque on the second joint&lt;/td&gt;
         &lt;td&gt;1 real between -2 and 2, the torque&lt;/td&gt;
@@ -44,7 +44,7 @@
         &lt;td&gt;1 real between -1 and 1, the force on the car&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
-        &lt;td&gt;episode length&lt;/td&gt;
+        &lt;td&gt;&lt;b&gt;episode length&lt;/b&gt;&lt;/td&gt;
         &lt;td&gt;500&lt;/td&gt;
         &lt;td&gt;500&lt;/td&gt;
         &lt;td&gt;200&lt;/td&gt;
