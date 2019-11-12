@@ -107,6 +107,14 @@
         <td>drive up a big hill</td>
     </tr>
     <tr>
+        <td><b>code</b></td>
+        <td>https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py</td>
+        <td>https://github.com/openai/gym/blob/master/gym/envs/classic_control/acrobot.py</td>
+        <td>https://github.com/openai/gym/blob/master/gym/envs/classic_control/pendulum.py</td>
+        <td>https://github.com/openai/gym/blob/master/gym/envs/classic_control/mountain_car.py</td>
+        <td>https://github.com/openai/gym/blob/master/gym/envs/classic_control/continuous_mountain_car.py</td>
+    </tr>
+    <tr>
         <td><b>state</b></td>
         <td>4 reals: cart position, velocity, pole angle, velocity</td>
         <td>6 reals: sine and cosine of the two rotational joint angles and the joint angular velocities</td>
@@ -158,6 +166,147 @@
         <span class="n">output_length</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">n</span>
     <span class="k">return</span> <span class="n">input_length</span><span class="p">,</span> <span class="n">output_length</span>
 </pre></div>
+
+
+<p>For example, for CartPole, it returns (4, 2). The next question is, how to attack environments such as Pendulum, where the action is real and not discrete? The Policy gradient formalism uses probabilities, so I chose to quantize the action space and pretend it’s discrete. This makes the quantization levels a parameter. I also wanted to play around with different reward functions when constructing the loss function, so I collected these into an EnvDescriptor:</p>
+<div class="highlight"><pre><span></span><span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;model_class&#39;</span><span class="p">,</span>
+    <span class="c1"># the rest are optional, in case it&#39;s needed for the env</span>
+    <span class="s1">&#39;reward_func&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;output_quantization_levels&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;output_range&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;reward_threshold&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">EnvDescription</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;EnvDescription&#39;</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">))</span>    
+</pre></div>
+
+
+<p>The descriptors for the problems are:</p>
+<div class="highlight"><pre><span></span><span class="n">env_descriptions</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">EnvDescription</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;CartPole-v1&#39;</span><span class="p">,</span>
+                   <span class="n">model_class</span><span class="o">=</span><span class="n">PolicyShallowNN</span><span class="p">,</span>
+                  <span class="p">),</span>
+    <span class="n">EnvDescription</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Acrobot-v1&#39;</span><span class="p">,</span>
+                   <span class="n">model_class</span><span class="o">=</span><span class="n">PolicyShallowNN</span><span class="p">,</span>
+                  <span class="p">),</span>
+    <span class="n">EnvDescription</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Pendulum-v0&#39;</span><span class="p">,</span>
+                   <span class="n">model_class</span><span class="o">=</span><span class="n">PolicyDeepNN</span><span class="p">,</span>
+                   <span class="n">reward_func</span><span class="o">=</span><span class="n">pendelum_reward_func</span><span class="p">,</span>
+                   <span class="n">output_quantization_levels</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span>
+                   <span class="n">output_range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+                   <span class="n">reward_threshold</span><span class="o">=-</span><span class="mi">150</span><span class="p">,</span>
+                  <span class="p">),</span>
+    <span class="n">EnvDescription</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MountainCar-v0&#39;</span><span class="p">,</span>
+                   <span class="n">model_class</span><span class="o">=</span><span class="n">PolicyDeepNN</span><span class="p">,</span>
+                   <span class="n">reward_func</span><span class="o">=</span><span class="n">mountaincar_reward_func</span>
+                  <span class="p">),</span>
+    <span class="n">EnvDescription</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="n">MountainCarContinuous</span><span class="o">-</span><span class="n">v0</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                   <span class="n">model_class</span><span class="o">=</span><span class="n">PolicyDeepNN</span><span class="p">,</span>
+                   <span class="n">reward_func</span><span class="o">=</span><span class="n">mountaincar_reward_func</span><span class="p">,</span>
+                   <span class="n">output_quantization_levels</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span>
+                   <span class="n">output_range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                  <span class="p">),</span>
+<span class="p">]</span>
+</pre></div>
+
+
+<p>I defined two policy neural networks: one which is a simple affine linear map, and one with one hidden layer network and ReLu for nonlinearity. Both end with softmax to get a probability distribution over the discrete (or discretized) action space, as before:</p>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">PolicyShallowNN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_length</span><span class="p">,</span> <span class="n">output_length</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PolicyShallowNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">input_length</span><span class="p">,</span> <span class="n">output_length</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">PolicyDeepNN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_length</span><span class="p">,</span> <span class="n">output_length</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PolicyDeepNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">input_length</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc3</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="n">output_length</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc3</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<p>With these generalizations, we use plain-vannila policy descent:
+- for each episode
+    - finish the episode
+    - if the descriptor contains a custom reward function, use that, otherwise use the env’s default reward function to compute rewards, which are then rolled up with a gamma factor and multiplied by -1 to get the loss function (value)
+    - using gamma = 0.99
+- every 10 episodes, use Adam to improve the weights on the policy, by backprop’ing from the added up losses (of 10 episodes)
+- check whether the avg reward of the last 10 episodes if greater than the threshold (always use the env’s rewards here), if yes, we’re done</p>
+<p>Computing the loss function:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">compute_loss</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">rewards</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">reward_func</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.99</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">reward_func</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">rewards</span> <span class="o">=</span> <span class="n">reward_func</span><span class="p">(</span><span class="n">rewards</span><span class="p">,</span> <span class="n">states</span><span class="p">)</span>
+    <span class="n">scaled_rewards</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># decay rewards with gamma</span>
+    <span class="n">tail</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">reward</span> <span class="ow">in</span> <span class="n">rewards</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span> <span class="c1"># backward</span>
+        <span class="n">tail</span> <span class="o">=</span> <span class="n">reward</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">tail</span>
+        <span class="n">scaled_rewards</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">tail</span><span class="p">)</span> <span class="c1"># insert at beginning</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">scaled_rewards</span><span class="p">):</span>
+        <span class="n">loss</span> <span class="o">+=</span> <span class="n">p</span> <span class="o">*</span> <span class="n">r</span>
+    <span class="n">loss</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="n">loss</span>
+</pre></div>
+
+
+<p>The main training loop:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_solve</span><span class="p">(</span><span class="n">env_desc</span><span class="p">,</span> <span class="n">num_episodes</span><span class="o">=</span><span class="mi">100</span><span class="o">*</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Doing </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">env_desc</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">env_desc</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">input_length</span><span class="p">,</span> <span class="n">output_length</span> <span class="o">=</span> <span class="n">in_out_length</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">env_desc</span><span class="o">.</span><span class="n">output_quantization_levels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">output_length</span> <span class="o">*=</span> <span class="n">env_desc</span><span class="o">.</span><span class="n">output_quantization_levels</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">env_desc</span><span class="o">.</span><span class="n">model_class</span><span class="p">(</span><span class="n">input_length</span><span class="p">,</span> <span class="n">output_length</span><span class="p">)</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+    <span class="n">episode_rewards</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">episode</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_episodes</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">episode</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">episode</span> <span class="o">%</span> <span class="mi">100</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">))</span>
+        <span class="n">probs</span><span class="p">,</span> <span class="n">rewards</span><span class="p">,</span> <span class="n">states</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">_max_episode_steps</span><span class="p">):</span>
+            <span class="n">action</span><span class="p">,</span> <span class="n">prob</span> <span class="o">=</span> <span class="n">select_action_from_policy</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">env_desc</span><span class="o">.</span><span class="n">output_quantization_levels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">env_desc</span><span class="o">.</span><span class="n">output_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">action</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">env_desc</span><span class="o">.</span><span class="n">output_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">env_desc</span><span class="o">.</span><span class="n">output_range</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">env_desc</span><span class="o">.</span><span class="n">output_quantization_levels</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">action</span><span class="p">])</span>
+            <span class="n">state</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+            <span class="n">probs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prob</span><span class="p">)</span>
+            <span class="n">rewards</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
+            <span class="n">states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="n">episode_reward</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
+        <span class="n">episode_rewards</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">episode_reward</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_solved</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">episode_rewards</span><span class="p">,</span> <span class="n">reward_threshold</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">env_desc</span><span class="p">)):</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Solved in </span><span class="si">%s</span><span class="s1"> episodes!&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">episode</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">env</span><span class="p">,</span> <span class="n">model</span>
+        <span class="n">loss</span> <span class="o">+=</span> <span class="n">compute_loss</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">rewards</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">env_desc</span><span class="o">.</span><span class="n">reward_func</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">episode</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">episode</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+            <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Failed!&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">env</span><span class="p">,</span> <span class="n">model</span>
+</pre></div>
+
+
+<h2>Results</h2>
+<p>This approach is able to solve CartPole-v1, Acrobot-v1, but fails on the Pendulum and MountainCar problems. The optimizer gets stuck in local minima and never finds a good policy. An interesting bad behavior is for positive loss functions, it often converges to a bad solution by setting the probabilities to one, making the log zero, making the loss function zero, even though the solution is actually completely randomized. Intuitively, it seems this simple implementation of gradient descent only works for reactive environments like CartPole and Acrobot, where the policy network doesn’t have to find a “plan” (ie. swing left and then right to get up), it just has to react to the current state, irrespective of the history. To solve the harder environments, more advanced approaches such as actor-critic are required.</p>
   </div>
   <div class="tag-cloud">
     <p>
