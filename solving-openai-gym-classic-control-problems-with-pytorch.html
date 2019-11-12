@@ -130,6 +130,22 @@
         <td>200</td>
         <td>999</td>
     </tr>
+    <tr>
+        <td><b>reward</b></td>
+        <td>+1 for each timestep the agent stays alive</td>
+        <td>-1 for each timestep the agent takes to swing up</td>
+        <td>negative reward as a function of the angle</td>
+        <td>-1 for each timestep the agent doesn’t reach the top of the hill</td>
+        <td>negative for applied action, +100 once solved</td>
+    </tr>
+    <tr>
+        <td><b>reward threshold for solved</b></td>
+        <td>475</td>
+        <td>-100</td>
+        <td>None (I used -150)</td>
+        <td>-110</td>
+        <td>90</td>
+    </tr>
 </table>
   </div>
   <div class="tag-cloud">
