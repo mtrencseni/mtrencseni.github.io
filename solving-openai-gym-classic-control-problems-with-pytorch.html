@@ -80,12 +80,14 @@
   <div>
     <h2>Introduction</h2>
 <p>In <a href="http://bytepawn.com/solving-the-cartpole-reinforcement-learning-problem-with-pytorch.html">the previous blog post</a> we used a simple Reinforcement Learning method called policy gradient to solve the CartPole-v1 environment from OpenAI. This post is about seeing how far I can take this basic approach. Can it solve the other, harder classic control problems in OpenAI? </p>
-<p>The OpenAI classic control problem set consists of:
-- <a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py">CartPole-v1</a>: Balance a pole on a cart.
-- <a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/acrobot.py">Acrobot-v1</a>: Swing up and balance a two-link robot.
-- <a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/pendulum.py">Pendulum-v0</a>: Swing up and balance a pendulum.
-- <a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/mountain_car.py">MountainCar-v0</a>: Drive up a big hill.
-- <a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/continuous_mountain_car.py">MountainCarContinuous-v0</a>: Drive up a big hill.</p>
+<p>The OpenAI classic control problem set consists of:</p>
+<ul>
+<li><a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py">CartPole-v1</a>: Balance a pole on a cart.</li>
+<li><a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/acrobot.py">Acrobot-v1</a>: Swing up and balance a two-link robot.</li>
+<li><a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/pendulum.py">Pendulum-v0</a>: Swing up and balance a pendulum.</li>
+<li><a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/mountain_car.py">MountainCar-v0</a>: Drive up a big hill.</li>
+<li><a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/continuous_mountain_car.py">MountainCarContinuous-v0</a>: Drive up a big hill.</li>
+</ul>
 <h2>Environments</h2>
 <p>All these problems are similar in that the state space (which is the input space for the policy neural network) is a few real numbers. The action space (which is the output space for the policy) is sometimes discrete (left/right) and sometimes a real (magnitude):</p>
 <p><img src="/images/classic_control.png" alt="OpenAI classic control environments" style="width: 600px;"/></p>
@@ -108,11 +110,11 @@
     </tr>
     <tr>
         <td><b>code</b></td>
-        <td>[cartpole.py](https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py)</td>
-        <td>[acrobot.py](https://github.com/openai/gym/blob/master/gym/envs/classic_control/acrobot.py)</td>
-        <td>[pendulum.py](https://github.com/openai/gym/blob/master/gym/envs/classic_control/pendulum.py)</td>
-        <td>[mountain_car.py](https://github.com/openai/gym/blob/master/gym/envs/classic_control/mountain_car.py)</td>
-        <td>[continuous_mountain_car.py](https://github.com/openai/gym/blob/master/gym/envs/classic_control/continuous_mountain_car.py)</td>
+        <td><a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py">cartpole.py</a></td>
+        <td><a nref="https://github.com/openai/gym/blob/master/gym/envs/classic_control/acrobot.py">acrobot.py</a></td>
+        <td><a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/pendulum.py">pendulum.py</a></td>
+        <td><a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/mountain_car.py">mountain_car.py</a></td>
+        <td><a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/continuous_mountain_car.py">continuous_mountain_car.py</a></td>
     </tr>
     <tr>
         <td><b>state</b></td>
@@ -238,13 +240,17 @@
 </pre></div>
 
 
-<p>With these generalizations, we use plain-vannila policy descent:
-- for each episode
-    - finish the episode
-    - if the descriptor contains a custom reward function, use that, otherwise use the env’s default reward function to compute rewards, which are then rolled up with a gamma factor and multiplied by -1 to get the loss function (value)
-    - using gamma = 0.99
-- every 10 episodes, use Adam to improve the weights on the policy, by backprop’ing from the added up losses (of 10 episodes)
-- check whether the avg reward of the last 10 episodes if greater than the threshold (always use the env’s rewards here), if yes, we’re done</p>
+<p>With these generalizations, we use plain-vannila policy descent:</p>
+<ul>
+<li>for each episode<ul>
+<li>finish the episode</li>
+<li>if the descriptor contains a custom reward function, use that, otherwise use the env’s default reward function to compute rewards, which are then rolled up with a gamma factor and multiplied by -1 to get the loss function (value)</li>
+<li>using gamma = 0.99</li>
+</ul>
+</li>
+<li>every 10 episodes, use Adam to improve the weights on the policy, by backprop’ing from the added up losses (of 10 episodes)</li>
+<li>check whether the avg reward of the last 10 episodes if greater than the threshold (always use the env’s rewards here), if yes, we’re done</li>
+</ul>
 <p>Computing the loss function:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">compute_loss</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">rewards</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">reward_func</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.99</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">reward_func</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
