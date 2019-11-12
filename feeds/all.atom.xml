@@ -13,11 +13,11 @@
 &lt;table&gt;
     &lt;tr&gt;
         &lt;td&gt;&lt;b&gt;env&lt;/b&gt;&lt;/td&gt;
-        &lt;td&gt;CartPole-v1&lt;/td&gt;
-        &lt;td&gt;Acrobot-v1&lt;/td&gt;
-        &lt;td&gt;Pendulum-v0&lt;/td&gt;
-        &lt;td&gt;MountainCar-v0&lt;/td&gt;
-        &lt;td&gt;MountainCarContinuous-v0&lt;/td&gt;
+        &lt;td&gt;&lt;b&gt;CartPole-v1&lt;/b&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;b&gt;Acrobot-v1&lt;/b&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;b&gt;Pendulum-v0&lt;/b&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;b&gt;MountainCar-v0&lt;/b&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;b&gt;MountainCarContinuous-v0&lt;/b&gt;&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
         &lt;td&gt;description&lt;/td&gt;
