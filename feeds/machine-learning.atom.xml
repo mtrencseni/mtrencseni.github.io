@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Machine Learning</title><link href="/" rel="alternate"></link><link href="/feeds/machine-learning.atom.xml" rel="self"></link><id>/</id><updated>2019-10-29T00:00:00+01:00</updated><entry><title>Machine Learning at Fetchr</title><link href="/machine-learning-at-fetchr.html" rel="alternate"></link><published>2019-10-29T00:00:00+01:00</published><updated>2019-10-29T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2019-10-29:/machine-learning-at-fetchr.html</id><summary type="html">&lt;p&gt;Opportunities for automating, optimizing and enabling processes with ML at a delivery company such as Fetchr are plentiful. We put three families of ML models into production. These 3 areas are: Scheduling, Notifications and Operational choice.&lt;br/&gt;&lt;br/&gt;&lt;img src="/images/opchoice.png" alt="Operational choice" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Machine Learning</title><link href="/" rel="alternate"></link><link href="/feeds/machine-learning.atom.xml" rel="self"></link><id>/</id><updated>2019-11-12T00:00:00+01:00</updated><entry><title>Solving OpenAI Gym classic control problems with Pytorch</title><link href="/solving-openai-gym-classic-control-problems-with-pytorch.html" rel="alternate"></link><published>2019-11-12T00:00:00+01:00</published><updated>2019-11-12T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2019-11-12:/solving-openai-gym-classic-control-problems-with-pytorch.html</id><summary type="html">&lt;p&gt;I try to generalize the policy gradient algorithm as introduced earlier to solve all the OpenAI classic control problems. It works for CartPole and Acrobot, but not for Pendulum and MountainCar environments. &lt;br/&gt;&lt;br/&gt; &lt;img src="/images/classic_control.png" alt="OpenAI classic control environments" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;In &lt;a href="http://bytepawn.com/solving-the-cartpole-reinforcement-learning-problem-with-pytorch.html"&gt;the previous blog post&lt;/a&gt; we used a simple Reinforcement Learning method called policy gradient to solve the CartPole-v1 environment from OpenAI. This post is about seeing how far I can take this basic approach. Can it solve the other, harder classic control problems in OpenAI? &lt;/p&gt;
+&lt;p&gt;The OpenAI classic control problem set consists of:
+- &lt;a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py"&gt;CartPole-v1&lt;/a&gt;: Balance a pole on a cart.
+- &lt;a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/acrobot.py"&gt;Acrobot-v1&lt;/a&gt;: Swing up and balance a two-link robot.
+- &lt;a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/pendulum.py"&gt;Pendulum-v0&lt;/a&gt;: Swing up and balance a pendulum.
+- &lt;a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/mountain_car.py"&gt;MountainCar-v0&lt;/a&gt;: Drive up a big hill.
+- &lt;a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/continuous_mountain_car.py"&gt;MountainCarContinuous-v0&lt;/a&gt;: Drive up a big hill.&lt;/p&gt;
+&lt;h2&gt;Environments&lt;/h2&gt;
+&lt;p&gt;All these problems are similar in that the state space (which is the input space for the policy neural network) is a few real numbers. The action space (which is the output space for the policy) is sometimes discrete (left/right) and sometimes a real (magnitude):&lt;/p&gt;
+&lt;table&gt;
+&lt;tr&gt;
+&lt;td&gt;env&lt;/td&gt;
+&lt;td&gt;CartPole-v1&lt;/td&gt;
+&lt;td&gt;Acrobot-v1&lt;/td&gt;
+&lt;td&gt;Pendulum-v0&lt;/td&gt;
+&lt;td&gt;MountainCar-v0&lt;/td&gt;
+&lt;td&gt;MountainCarContinuous-v0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;description&lt;/td&gt;
+&lt;td&gt;balance a pole on a cart&lt;/td&gt;
+&lt;td&gt;swing up a two-link robot&lt;/td&gt;
+&lt;td&gt;swing up a pendulum&lt;/td&gt;
+&lt;td&gt;drive up a big hill&lt;/td&gt;
+&lt;td&gt;drive up a big hill&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;</content><category term="python"></category><category term="pytorch"></category><category term="reinforcement"></category><category term="learning"></category><category term="openai"></category><category term="gym"></category></entry><entry><title>Machine Learning at Fetchr</title><link href="/machine-learning-at-fetchr.html" rel="alternate"></link><published>2019-10-29T00:00:00+01:00</published><updated>2019-10-29T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2019-10-29:/machine-learning-at-fetchr.html</id><summary type="html">&lt;p&gt;Opportunities for automating, optimizing and enabling processes with ML at a delivery company such as Fetchr are plentiful. We put three families of ML models into production. These 3 areas are: Scheduling, Notifications and Operational choice.&lt;br/&gt;&lt;br/&gt;&lt;img src="/images/opchoice.png" alt="Operational choice" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;In the first year of Data Science at Fetchr, &lt;a href="http://bytepawn.com/fetchr-data-science-infra.html"&gt;we built out a data science infrastructure&lt;/a&gt; that allows us to understand the data, our business and operations from a quantitative perspective. We built a &lt;a href="http://prestodb.github.io/"&gt;Presto&lt;/a&gt; data warehouse on AWS, built approx. 100-200 &lt;a href="https://airflow.apache.org/"&gt;Airflow&lt;/a&gt; pipelines to feed it from our production systems, and approx. 50-100 &lt;a href="https://superset.apache.org/"&gt;Superset&lt;/a&gt; dashboards to visualize it all. This has been a great success and a big step towards making the company data-driven.&lt;/p&gt;
 &lt;p&gt;While doing this work, we identified a number of opportunities to deploy Machine Learning. During our second year at Fetchr, we put three families of ML models into production. These 3 areas are:&lt;/p&gt;
 &lt;ul&gt;

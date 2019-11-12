@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="I try to generalize the policy gradient algorithm as introduced earlier to solve all the OpenAI classic control problems. It works for CartPole and Acrobot, but not for Pendulum and MountainCar environments." />
+<meta name="keywords" content="python, pytorch, reinforcement, learning, openai, gym">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="Solving OpenAI Gym classic control problems with Pytorch"/>
+<meta property="og:description" content="I try to generalize the policy gradient algorithm as introduced earlier to solve all the OpenAI classic control problems. It works for CartPole and Acrobot, but not for Pendulum and MountainCar environments."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/solving-openai-gym-classic-control-problems-with-pytorch.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2019-11-12 00:00:00+01:00"/>
+<meta property="article:modified_time" content="2019-11-12 00:00:00+01:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Machine Learning"/>
+<meta property="article:tag" content="python"/>
+<meta property="article:tag" content="pytorch"/>
+<meta property="article:tag" content="reinforcement"/>
+<meta property="article:tag" content="learning"/>
+<meta property="article:tag" content="openai"/>
+<meta property="article:tag" content="gym"/>
+<meta property="og:image" content="/images/classic_control.png"/>
+
+  <title>Bytepawn &ndash; Solving OpenAI Gym classic control problems with Pytorch</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="solving-openai-gym-classic-control-problems-with-pytorch">Solving OpenAI Gym classic control problems with Pytorch</h1>
+    <p>Posted on Tue 12 November 2019 in <a href="/category/machine-learning.html">Machine Learning</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>In <a href="http://bytepawn.com/solving-the-cartpole-reinforcement-learning-problem-with-pytorch.html">the previous blog post</a> we used a simple Reinforcement Learning method called policy gradient to solve the CartPole-v1 environment from OpenAI. This post is about seeing how far I can take this basic approach. Can it solve the other, harder classic control problems in OpenAI? </p>
+<p>The OpenAI classic control problem set consists of:
+- <a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py">CartPole-v1</a>: Balance a pole on a cart.
+- <a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/acrobot.py">Acrobot-v1</a>: Swing up and balance a two-link robot.
+- <a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/pendulum.py">Pendulum-v0</a>: Swing up and balance a pendulum.
+- <a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/mountain_car.py">MountainCar-v0</a>: Drive up a big hill.
+- <a href="https://github.com/openai/gym/blob/master/gym/envs/classic_control/continuous_mountain_car.py">MountainCarContinuous-v0</a>: Drive up a big hill.</p>
+<h2>Environments</h2>
+<p>All these problems are similar in that the state space (which is the input space for the policy neural network) is a few real numbers. The action space (which is the output space for the policy) is sometimes discrete (left/right) and sometimes a real (magnitude):</p>
+<table>
+<tr>
+<td>env</td>
+<td>CartPole-v1</td>
+<td>Acrobot-v1</td>
+<td>Pendulum-v0</td>
+<td>MountainCar-v0</td>
+<td>MountainCarContinuous-v0</td>
+</tr>
+<tr>
+<td>description</td>
+<td>balance a pole on a cart</td>
+<td>swing up a two-link robot</td>
+<td>swing up a pendulum</td>
+<td>drive up a big hill</td>
+<td>drive up a big hill</td>
+</tr>
+</table>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/python.html">python</a>
+      <a href="/tag/pytorch.html">pytorch</a>
+      <a href="/tag/reinforcement.html">reinforcement</a>
+      <a href="/tag/learning.html">learning</a>
+      <a href="/tag/openai.html">openai</a>
+      <a href="/tag/gym.html">gym</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Solving OpenAI Gym classic control problems with Pytorch",
+  "headline": "Solving OpenAI Gym classic control problems with Pytorch",
+  "datePublished": "2019-11-12 00:00:00+01:00",
+  "dateModified": "2019-11-12 00:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/solving-openai-gym-classic-control-problems-with-pytorch.html",
+  "description": "I try to generalize the policy gradient algorithm as introduced earlier to solve all the OpenAI classic control problems. It works for CartPole and Acrobot, but not for Pendulum and MountainCar environments."
+}
+</script></body>
+</html>
