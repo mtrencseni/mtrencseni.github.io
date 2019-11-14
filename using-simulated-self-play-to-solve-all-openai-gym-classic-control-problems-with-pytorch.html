@@ -131,6 +131,14 @@
 
 
 <h2>Results and discussion</h2>
+<p>This approach solves all the classic control problems from OpenAI Gym. I find it intellectually rewarding to adjust a simple, generic solution so it works across problems. Caveats of this approach are:</p>
+<ul>
+<li>as mentioned above, I had to adjust the reward structure for MountainCar so the training loop is able to tell apart better from worse runs (winners/losers)</li>
+<li>this approach still assumes a discrete action space, which means continuous problems like Pendulum had to be discretized. This would not work or would be very inefficient for higher dimensional action spaces</li>
+<li>although this approach works, it's quite slow: in each epoch, 100 games are played; for the simple games like CartPole about 100 epochs are enough, but for MountainCar about 2,000 epochs (so a total of 2,000,000 games played) are needed; other RL methods can find solutions to these simple problems using orders of magnitude less playing time</li>
+<li>I played around with off-policy learning; this would mean that in epsilon percent of cases, the agent does not pick the action based on the current policy distribution, but totally randomly (ie. uniform); this introduces more random exploration (and noise) into the training process; in the end, this was not needed here</li>
+<li></li>
+</ul>
   </div>
   <div class="tag-cloud">
     <p>
