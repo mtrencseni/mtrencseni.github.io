@@ -28,11 +28,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="" />
 <meta name="author" content="Marton Trencseni" />
-<meta name="description" content="I use simulated self-play by ranking episodes by summed reward. Game outcomes are divided in two by cutting at the median, winners are assigned +1 rewards and losers -1, and the standard policy gradient loss function is computed from this. Unlike naive policy gradient descent, this version solves all OpenAI classic control problems." />
+<meta name="description" content="I use simulated self-play by ranking episodes by summed reward. Game outcomes are divided in two by cutting at the median, winners are assigned +1 rewards, losers are assigned -1 rewards, like in games like Go and Chess. Unlike naive policy gradient descent used in previous posts, this version solves all OpenAI classic control problems, albeit slowly." />
 <meta name="keywords" content="python, pytorch, reinforcement, learning, openai, gym">
 <meta property="og:site_name" content="Bytepawn"/>
 <meta property="og:title" content="Using simulated self-play to solve all OpenAI Gym classic control problems with Pytorch"/>
-<meta property="og:description" content="I use simulated self-play by ranking episodes by summed reward. Game outcomes are divided in two by cutting at the median, winners are assigned +1 rewards and losers -1, and the standard policy gradient loss function is computed from this. Unlike naive policy gradient descent, this version solves all OpenAI classic control problems."/>
+<meta property="og:description" content="I use simulated self-play by ranking episodes by summed reward. Game outcomes are divided in two by cutting at the median, winners are assigned +1 rewards, losers are assigned -1 rewards, like in games like Go and Chess. Unlike naive policy gradient descent used in previous posts, this version solves all OpenAI classic control problems, albeit slowly."/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="/using-simulated-self-play-to-solve-all-openai-gym-classic-control-problems-with-pytorch.html"/>
 <meta property="og:type" content="article"/>
@@ -171,7 +171,7 @@
   },
   "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
   "url": "/using-simulated-self-play-to-solve-all-openai-gym-classic-control-problems-with-pytorch.html",
-  "description": "I use simulated self-play by ranking episodes by summed reward. Game outcomes are divided in two by cutting at the median, winners are assigned +1 rewards and losers -1, and the standard policy gradient loss function is computed from this. Unlike naive policy gradient descent, this version solves all OpenAI classic control problems."
+  "description": "I use simulated self-play by ranking episodes by summed reward. Game outcomes are divided in two by cutting at the median, winners are assigned +1 rewards, losers are assigned -1 rewards, like in games like Go and Chess. Unlike naive policy gradient descent used in previous posts, this version solves all OpenAI classic control problems, albeit slowly."
 }
 </script></body>
 </html>
