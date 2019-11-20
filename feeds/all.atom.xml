@@ -339,7 +339,7 @@
 &lt;/ul&gt;
 &lt;p&gt;So in the end we used names from our own delivery dataset (10M+ deliveries) to bootstrap a classification dataset, where we used frequency in mostly homogeneous countries as an initial signal and went from there. This worked, but then we realized that the algorithms (n-gram frequency and co-occurrence counting) we used to do the bootstrapping can also be re-used for the classification task, there’s no need for Scikit Learn. The resulting hand-tuned model is 99% accurate.&lt;/p&gt;
 &lt;h2&gt;Operational choice&lt;/h2&gt;
-&lt;p&gt;This is the latest family of models we introduced at Fetchr.. From a Machine Learning perspective this is the most straightforward: we have a large number of features (essentially column in our data warehouse) available for our historic dispatches:&lt;/p&gt;
+&lt;p&gt;This is the latest family of models we introduced at Fetchr. From a Machine Learning perspective this is the most straightforward: we have a large number of features (essentially columns in our data warehouse) available for our historic dispatches:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;sender’s information&lt;/li&gt;
 &lt;li&gt;recipient’s information (address, etc.)&lt;/li&gt;
