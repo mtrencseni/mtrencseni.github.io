@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="I show the calibration curves for 4 different binary classification Scikit-Learn models we built for delivery prediction at Fetchr, trained using real-world data." />
+<meta name="keywords" content="machine, learning, fetchr, skl">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="Calibration curves for delivery prediction"/>
+<meta property="og:description" content="I show the calibration curves for 4 different binary classification Scikit-Learn models we built for delivery prediction at Fetchr, trained using real-world data."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/calibration-curves-for-delivery-prediction.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2019-11-21 00:00:00+01:00"/>
+<meta property="article:modified_time" content="2019-11-21 00:00:00+01:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Machine Learning"/>
+<meta property="article:tag" content="machine"/>
+<meta property="article:tag" content="learning"/>
+<meta property="article:tag" content="fetchr"/>
+<meta property="article:tag" content="skl"/>
+<meta property="og:image" content="/images/gradientboosting-decile.png"/>
+
+  <title>Bytepawn &ndash; Calibration curves for delivery prediction</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="calibration-curves-for-delivery-prediction">Calibration curves for delivery prediction</h1>
+    <p>Posted on Thu 21 November 2019 in <a href="/category/machine-learning.html">Machine Learning</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>In a previous post about <a href="http://bytepawn.com/machine-learning-at-fetchr.html">Machine Learning at Fetchr</a>, I mentioned several families of models we have in production. The latest is <strong>Operational Choice</strong>, which we use for delivery prediction. The idea is simple: we have a large number of features (essentially columns in our data warehouse) available for our historic dispatches:</p>
+<ul>
+<li>sender's information</li>
+<li>recipient’s information (address, etc.)</li>
+<li>recipient’s historic information</li>
+<li>geography</li>
+<li>scheduling channel</li>
+<li>timing</li>
+<li>etc.</li>
+</ul>
+<p>For each dispatch, we know whether it was successfully delivered or not (True/False). Given our historic data, we can build a binary classifier which predicts which orders will be delivered (or not) tomorrow, of all orders scheduled for dispatch. After one-hot encoding, our feature vector length is in the 1000s, and we can achieve 90%+ accuracy with out-of-the-box <a href="https://scikit-learn.org/">Scikit-Learn</a> models. In other words, perhaps not too surprisingly, it is possible to predict the chances of delivery success quite well.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/machine.html">machine</a>
+      <a href="/tag/learning.html">learning</a>
+      <a href="/tag/fetchr.html">fetchr</a>
+      <a href="/tag/skl.html">skl</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Calibration curves for delivery prediction",
+  "headline": "Calibration curves for delivery prediction",
+  "datePublished": "2019-11-21 00:00:00+01:00",
+  "dateModified": "2019-11-21 00:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/calibration-curves-for-delivery-prediction.html",
+  "description": "I show the calibration curves for 4 different binary classification Scikit-Learn models we built for delivery prediction at Fetchr, trained using real-world data."
+}
+</script></body>
+</html>
