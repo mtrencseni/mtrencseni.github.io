@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="I show calibration curves for four different binary classification Scikit-Learn models we built for delivery prediction at Fetchr, trained using real-world data: LogisticRegression, DecisionTree, RandomForest and GradientBoosting." />
+<meta name="keywords" content="machine, learning, fetchr, skl">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="Calibration curves for delivery prediction with Scikit-Learn"/>
+<meta property="og:description" content="I show calibration curves for four different binary classification Scikit-Learn models we built for delivery prediction at Fetchr, trained using real-world data: LogisticRegression, DecisionTree, RandomForest and GradientBoosting."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/calibration-curves-for-delivery-prediction-with-scikit-learn.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2019-11-21 00:00:00+01:00"/>
+<meta property="article:modified_time" content="2019-11-21 00:00:00+01:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Machine Learning"/>
+<meta property="article:tag" content="machine"/>
+<meta property="article:tag" content="learning"/>
+<meta property="article:tag" content="fetchr"/>
+<meta property="article:tag" content="skl"/>
+<meta property="og:image" content="/images/logisticregression-decile.png"/>
+
+  <title>Bytepawn &ndash; Calibration curves for delivery prediction with Scikit-Learn</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="calibration-curves-for-delivery-prediction-with-scikit-learn">Calibration curves for delivery prediction with Scikit-Learn</h1>
+    <p>Posted on Thu 21 November 2019 in <a href="/category/machine-learning.html">Machine Learning</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>In a previous post about <a href="http://bytepawn.com/machine-learning-at-fetchr.html">Machine Learning at Fetchr</a>, I mentioned several families of models we have in production. The latest is <strong>Operational Choice</strong>, which we use for delivery prediction. The idea is simple: we have a large number of features (essentially columns in our data warehouse) available for our historic dispatches:</p>
+<ul>
+<li>sender's information</li>
+<li>recipient’s information (address, etc.)</li>
+<li>recipient’s historic information</li>
+<li>geography</li>
+<li>scheduling channel</li>
+<li>timing</li>
+<li>etc.</li>
+</ul>
+<p>For each dispatch, we know whether it was successfully delivered or not (True/False). Given our historic data, we can build a binary classifier which predicts which orders will be delivered (or not) tomorrow, of all orders scheduled for dispatch. After one-hot encoding, our feature vector length is in the 1000s, and we can achieve 90%+ accuracy with out-of-the-box <a href="https://scikit-learn.org/">Scikit-Learn</a> models. In other words, perhaps not too surprisingly, it is possible to predict the chances of delivery success quite well.</p>
+<p>When using this in production, we don’t primarily look at the absolute value of the delivery probability itself. What we care about is the relative ordering: out of 1,000 orders, which are the least likely to be delivered successfully tomorrow? Operational Choice is about treating these orders differently. So while in standard ML classification tasks usually the most important metric is <a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html">accuracy</a> (assuming a balanced dataset), ie. the ratio of test data that is predicted correctly by the predictor, here we also care about calibration: that the relationship between predicted and actual delivery probability should be monotonic, and as close to the <code>x=y</code> line as possible.</p>
+<p>As a reminder, the way the binary (delivered or not) predictor models discussed here work is that given a feature vector, they return a probability of delivery, like 0.67 (SKL’s <code>model.predict_proba()</code> functions. If we want to get a True/False prediction, we cut the probability at 0.5, so for 0.67 we would predict True (SKK’s <code>model.predict()</code> function). Accuracy is the ratio of test data (historic dispatches) where the True/False prediction matches the actual True/False historic delivery outcome. To get the calibration curve, we need to convert the True/False historic ground truth to probabilities, so we need to bucket the data and count the ratio of successful deliveries.</p>
+<p>Below I show the calibration results for 4 Scikit-Learn models:</p>
+<ul>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html">LogisticRegression</a></li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html">DecisionTree</a></li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html">RandomForest</a></li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html">GradientBoosting</a></li>
+</ul>
+<p>The first left chart show the predicted probability on the x-axis, by deciles, as a bar chart; so the first bar is test data points where the model predicted between 0-10% delivery probability, and so on. The y axis is the ratio of test data in the bucket that was actually delivered (ratio of Trues). The right chart shows the number of data points in each decile; since the deciles are fixed, the counts are unbalanced, which leads to inbalanced statistics, ie. the error varies between bars. The lower, third chart shows the same thing, but with equal bucket sizes (total 10 buckets).</p>
+<p>To get these results, I used 100,000 randomly chosen training points from our real delivery data and 100,00 test points. Both sets were randomly chosen, so the test distribution matches the training distribution. Both are balanced 50-50 between successful and unsuccessful deliveries.</p>
+<h2>LogisticRegression</h2>
+<p><code>LogisticRegression</code> is the simplest model, it takes 4 seconds to train. It has an accuracy of 87.9% on the balanced dataset. Both the unbalanced and balanced calibration curves look very good.</p>
+<p><img src="/images/logisticregression-decile.png" alt="Logistic regression deciles" style="width: 650px;"/></p>
+<p><img src="/images/logisticregression-balanced.png" alt="Logistic regression balanced" style="width: 400px;"/></p>
+<h2>DecisionTree(max_depth=10)</h2>
+<p>The <code>DecisionTree</code> model, after 13 seconds of training, has an accuracy of 90.1%. The decile calibration curve is beautiful, although the deciles are very unbalanced, so this could be misleading. The balanced calibration curve has an inversion between the 7th and 8th buckets.</p>
+<p><img src="/images/decisiontree-decile.png" alt="Decision tree deciles" style="width: 650px;"/></p>
+<p><img src="/images/decisiontree-balanced.png" alt="Decision tree balanced" style="width: 400px;"/></p>
+<h2>RandomForest(max_depth=10)</h2>
+<p>The <code>RandomForest</code> model, after 7 seconds of training, has an accuracy of 87.5%. The decile calibration curve is more like a sigmoid, and it’s interesting that the decile counts are skewed torwards the middle. The balanced calibration curve has an inversion between the 7th and 8th buckets, like the <code>DecisionTree</code>.</p>
+<p><img src="/images/randomforest-decile.png" alt="Random forest deciles" style="width: 650px;"/></p>
+<p><img src="/images/randomforest-balanced.png" alt="Random forest balanced" style="width: 400px;"/></p>
+<h2>GradientBoosting(max_depth=10)</h2>
+<p>The <code>GradientBoosting</code> model, after 1,679 seconds of training (!), has an accuracy of 91.1%. Both the balanced and unbalanced calibration curves are very close to the ideal <code>x=y</code>. The decile counts are heavily skewed towards the two ends.</p>
+<p><img src="/images/gradientboosting-decile.png" alt="Gradient boosting deciles" style="width: 650px;"/></p>
+<p><img src="/images/gradientboosting-balanced.png" alt="Gradient boosting balanced" style="width: 400px;"/></p>
+<h2>Discussion</h2>
+<p>If training time is not an issue, the <code>GradientBoosting</code> model is the best choice, both in terms of accuracy and in terms of calibration. Note how the subsequent gradient boosting steps push the predicted probabilities towards 0 and 1, resulting in the highly skewed decile counts. As a reminder, this is an ensemble of trees, trained and applied in sequence, where each subsequent tree is attempting to correct mistakes made so far; it's this construction which results in the skewed distribution.</p>
+<p>It’s also interesting to see how well the <code>LogisticRegression</code> model performs. It’s (i) only 3% off in terms of accuracy from <code>GradientBoosting</code> (ii) in terms of calibration it’s very close to <code>GradientBoosting</code> (iii) it takes only 4 seconds to train, 400x faster than <code>GradientBoosting</code>.</p>
+<p>The <code>DecisionTree</code> and the <code>RandomForest</code> models are not very appealing for this use-case. Note how the averaging between the trees in the <code>RandomForest</code> ensemble pulls the predicted probabilities towards 0.5. As a reminder, a <code>DecisionTree</code> cuts along a feature dimension at each step; when predicting, it travels down to a leaf, and returns the ratio of True training points in the leaf bucket. A <code>RandomForest</code> is an ensemble of such trees, with the final prediction being the average of the ensemble trees’ predictions.</p>
+<p>Accuracy is usually the primary indicator of how good a classification model is performing. However, in thise case our primary goal is to extract the probabilities, so we can use them for Operational Choice, ie. ranking orders. An imaginary perfect predictor would return <code>p=0</code> and <code>p=1</code> at 100% accuracy (so <code>ROC AUC=1</code>). This would be valuable because then we could not dispatch the <code>p=0</code> orders, since we could be 100% sure they wouldn't be delivered—but this is unrealistic. We actually prefer a model which nicely "stretches" the orders by the actual probability of delivery with a monotonic calibration curve, following the <code>x=y</code> diagonal, like the <code>GradientBoosting</code> model.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/machine.html">machine</a>
+      <a href="/tag/learning.html">learning</a>
+      <a href="/tag/fetchr.html">fetchr</a>
+      <a href="/tag/skl.html">skl</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Calibration curves for delivery prediction with Scikit-Learn",
+  "headline": "Calibration curves for delivery prediction with Scikit-Learn",
+  "datePublished": "2019-11-21 00:00:00+01:00",
+  "dateModified": "2019-11-21 00:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/calibration-curves-for-delivery-prediction-with-scikit-learn.html",
+  "description": "I show calibration curves for four different binary classification Scikit-Learn models we built for delivery prediction at Fetchr, trained using real-world data: LogisticRegression, DecisionTree, RandomForest and GradientBoosting."
+}
+</script></body>
+</html>
