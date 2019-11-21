@@ -28,11 +28,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="" />
 <meta name="author" content="Marton Trencseni" />
-<meta name="description" content="I show the calibration curves for 4 different binary classification Scikit-Learn models we built for delivery prediction at Fetchr, trained using real-world data." />
+<meta name="description" content="I show calibration curves for 4 different binary classification Scikit-Learn models we built for delivery prediction at Fetchr, trained using real-world data." />
 <meta name="keywords" content="machine, learning, fetchr, skl">
 <meta property="og:site_name" content="Bytepawn"/>
 <meta property="og:title" content="Calibration curves for delivery prediction"/>
-<meta property="og:description" content="I show the calibration curves for 4 different binary classification Scikit-Learn models we built for delivery prediction at Fetchr, trained using real-world data."/>
+<meta property="og:description" content="I show calibration curves for 4 different binary classification Scikit-Learn models we built for delivery prediction at Fetchr, trained using real-world data."/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="/calibration-curves-for-delivery-prediction.html"/>
 <meta property="og:type" content="article"/>
@@ -112,6 +112,7 @@
 <p>If training time is not an issue, the GradientBoosting model is the best choice, both in terms of accuracy and in terms of calibration. It’s interesting to see how the subsequent gradient boosting steps push the predicted probabilities towards 0 and 1, resulting in the highly skewed decile counts (as a reminder, this is an ensemble of trees, trained and applied in sequence, where each subsequent tree is attempting to correct mistakes made so far).</p>
 <p>It’s also interesting to see how well the LogisticRegression model performs. It’s only 3% off in terms of accuracy from the best, in terms of calibration it’s very close, and it takes only 4 seconds to train, 400x faster than the best GradientBoosting model.</p>
 <p>The DecisionTree and the RandomForest models are not very appealing for this use-case. It’s interesting to note that the averaging between the trees in the RandonForest ensemble pulls the predicted probabilities towards 0.5 (as a reminder, a DecisionTree cuts along a feature dimension at each step; when predicting, it travels down torwards a leaf, and returns the ratio of True training points in the leaf bucket; a RandomForest is an ensemble of such trees, with the final prediction being the average of the ensemble trees’ predictions).</p>
+<p>This was an interesting project because accuracy was a good indicator of how good the model is performing, but in the end we wanted to use the probabilities for ranking (Operational Choice). It's interesing to note that a perfect predictor, which would return <code>p=0</code> and <code>p=1</code> at 100% accuracy (so ROC <code>AUC=1</code>), would be valuable (because then we could avoid dispatching the p=0 orders, since we would be 100% sure it wouldn't be delivered), but this is unrealistic, and we actually prefer a model which nicely "stretches" the orders by the actual probability of delivery with a monotonic calibration curve following the x=y diagonal.</p>
   </div>
   <div class="tag-cloud">
     <p>
@@ -142,7 +143,7 @@
   },
   "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
   "url": "/calibration-curves-for-delivery-prediction.html",
-  "description": "I show the calibration curves for 4 different binary classification Scikit-Learn models we built for delivery prediction at Fetchr, trained using real-world data."
+  "description": "I show calibration curves for 4 different binary classification Scikit-Learn models we built for delivery prediction at Fetchr, trained using real-world data."
 }
 </script></body>
 </html>
