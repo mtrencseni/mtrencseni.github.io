@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="2019 was another big year for Pytorch, one of the most popular Deep Learning libraries out there. Pytorch has become the de facto deep learning library used for research thanks to it’s dynamic graph model which allows fast model experimentation. It’s also become production ready, with support for mobile and infrastructure tooling such as Tensorboard." />
+<meta name="keywords" content="pytorch">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="Pytorch in 2019"/>
+<meta property="og:description" content="2019 was another big year for Pytorch, one of the most popular Deep Learning libraries out there. Pytorch has become the de facto deep learning library used for research thanks to it’s dynamic graph model which allows fast model experimentation. It’s also become production ready, with support for mobile and infrastructure tooling such as Tensorboard."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/pytorch-in-2019.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2019-12-12 00:00:00+01:00"/>
+<meta property="article:modified_time" content="2019-12-12 00:00:00+01:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Machine Learning"/>
+<meta property="article:tag" content="pytorch"/>
+<meta property="og:image" content="/images/pytorch-gt.png"/>
+
+  <title>Bytepawn &ndash; Pytorch in 2019</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="pytorch-in-2019">Pytorch in 2019</h1>
+    <p>Posted on Thu 12 December 2019 in <a href="/category/machine-learning.html">Machine Learning</a></p>
+  </header>
+  <div>
+    <p>2019 was another big year for Pytorch, one of the most popular Deep Learning libraries out there. Pytorch has become the de facto deep learning library used for research thanks to it’s dynamic graph model which allows fast model experimentation. It’s also become production ready, with support for mobile and infrastructure tooling such as Tensorboard. Google Trends shows a slight increasing trend as measured by searches for Pytorch in 2019, although Pytorch is still behind Tensorflow and Keras in overall popularity:</p>
+<p><img src="/images/pytorch-gt.png" alt="Pytorch Google Trends 2019" style="width: 600px;"/></p>
+<p>Pytorch version 1.0 was released in late December, 2018. Since then, we’ve seen numerous minor releases, and it’s already up to version 1.3.1. Significant new features include:</p>
+<ul>
+<li>Tensorboard support: visualization and tooling needed for ML experimentation, for example tracking metrics such as loss and accuracy.</li>
+<li>Mobile support: run any TorchScript model directly on Android/iOS, without conversion.</li>
+<li>Extended ONNX support: ONNX is an open format to represent deep learning models. With ONNX, AI developers can more easily move models between state-of-the-art tools and choose the combination that is best for them.</li>
+<li><a href="https://github.com/pytorch/pytorch/releases">and 100s of other improvements...</a></li>
+</ul>
+<p>A number of Pytorch books came out in 2019 to help programmers and data scientists get started. There is <a href="https://www.amazon.com/Programming-PyTorch-Deep-Learning-Applications/dp/1492045357">Programming PyTorch for Deep Learning</a> by Ian Pointer, and <a href="https://www.amazon.com/Natural-Language-Processing-PyTorch-Applications/dp/1491978236">Natural Language Processing with PyTorch</a> by Delip Rao, both published by O’Reilly. Coming out soon is <a href="https://www.amazon.com/Deep-Learning-PyTorch-Eli-Stevens/dp/1617295264">Deep Learning with PyTorch</a> by Eli Stevens (Manning).</p>
+<p>Thanks to the community, milestone Deep Learning results have implementations in Pytorch:</p>
+<ul>
+<li><a href="https://github.com/suragnair/alpha-zero-general">AlphaGo Zero (Reinforcement Learning) in Pytorch</a></li>
+<li><a href="https://github.com/tingkai-zhang/openai-gpt-pytorch">GPT natural language model in Pytorch</a></li>
+<li><a href="https://github.com/eriklindernoren/PyTorch-GAN">GAN models</a></li>
+<li><a href="https://github.com/NVIDIA/FastPhotoStyle">NVIDIA style transfer model</a></li>
+<li><a href="https://pytorch.org/docs/stable/torchvision/models.html">Standard vision models</a></li>
+</ul>
+<p>In 2019 there was another Pytorch developer conference in San Francisco, where <a href="https://www.youtube.com/watch?v=oBklltKXtDE">Tesla’s Andrej Karpathy shared how the automaker uses Pytorch</a> to power their deep learning based self-driving architecture that relies solely on cameras.</p>
+<p>In Europe, the best place to learn about Pytorch in 2019 was at the <a href="http://reinforceconf.com/">Reinforce Conference</a> in Budapest! We had <a href="https://www.youtube.com/watch?v=-pRBzh_hGqA">Stefan Otte doing a great tutorial style presentation</a>, voted one of the best talks of the conference. Reinforce is returning in 2020, as is Stefan Otte, speaking about Pytorch once again. Join us April 6-7 for the conference days, and optionally April 8 for workshops, in Budapest again!</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/pytorch.html">pytorch</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Pytorch in 2019",
+  "headline": "Pytorch in 2019",
+  "datePublished": "2019-12-12 00:00:00+01:00",
+  "dateModified": "2019-12-12 00:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/pytorch-in-2019.html",
+  "description": "2019 was another big year for Pytorch, one of the most popular Deep Learning libraries out there. Pytorch has become the de facto deep learning library used for research thanks to it’s dynamic graph model which allows fast model experimentation. It’s also become production ready, with support for mobile and infrastructure tooling such as Tensorboard."
+}
+</script></body>
+</html>
