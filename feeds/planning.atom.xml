@@ -53,4 +53,4 @@
 &lt;h2&gt;Timing&lt;/h2&gt;
 &lt;p&gt;Once a project list is down, put it into the calendar, taking dependencies into account. This gives our estimated completion times. In my experience, for software, at best month-grained can be taken seriously (“We will start working on this in Nov, we will ship sometime in Dec”), but often only quarter-granularity is dependable ("We will ship in Q4").&lt;/p&gt;
 &lt;h2&gt;Meeting minutes&lt;/h2&gt;
-&lt;p&gt;The techlead or manager should take a picture of the table, enter it into a spreadsheet, and share it with the team. Then, if the team also uses software such as Trello or Jira, enter it there.&lt;/p&gt;</content><category term="planning"></category><category term="teams"></category></entry></feed>
+&lt;p&gt;The techlead or manager should take a picture of the table, enter it into a spreadsheet, and share it with the team. Then, if the team also uses software such as &lt;a href="https://trello.com"&gt;Trello&lt;/a&gt; or &lt;a href="https://jira.atlassian.com"&gt;Jira&lt;/a&gt;, enter it there.&lt;/p&gt;</content><category term="planning"></category><category term="teams"></category></entry></feed>
