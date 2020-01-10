@@ -20,18 +20,17 @@
 &lt;p&gt;The basic process is straightforward:&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;Draw a calendar on the whiteboard. Columns are people, rows are weeks in the quarter / half that you’re planning for. If you want, make cells for days, but I usually don’t. The point of the exercise is to count how many weeks we will have to work on “new stuff”.&lt;/li&gt;
-&lt;li&gt;Count how many eeks are in the quarter, and make a row for each week. Number the week as the week-of-year, eg. W44.&lt;/li&gt;
+&lt;li&gt;Count how many weeks are in the quarter, and make a row for each week. Number the week as the week-of-year, eg. W44.&lt;/li&gt;
 &lt;li&gt;Cross out any weeks that are in the past.&lt;/li&gt;
 &lt;li&gt;If you’re doing this exercise in the middle of the week, cross out the current week.&lt;/li&gt;
 &lt;li&gt;Cross out bank holidays.&lt;/li&gt;
 &lt;li&gt;Cross out days for team offsites, hackathons, etc.&lt;/li&gt;
 &lt;li&gt;All team members cross out weeks in their column when they will be on vacation. If you’re unsure which week it is, take a guess.&lt;/li&gt;
-&lt;li&gt;In my line of work, for a generalist data team, there are lots of interrupts; same goes for many software engineering teams. In my experience, 20-30% of time should be assumed to be interrupts (infrastructure breaks, logs change, new data breaks a pipe, dashboards break, ML model regresses, questions from PMs, SWEs, designers, AMs, sales, marketing, finance...) Mark 1-2 day per week for interrupts.&lt;/li&gt;
-&lt;li&gt;Estimate meeting load. Everybody open their calendar, and look at the last 2 weeks to estimate meeting load. Imagine compressing your meeting load into full days, and cross out that many days.
-Note: meetings are not interrupts; they’re planned interrupts.&lt;/li&gt;
-&lt;li&gt;Known must-do projects. For example, if the startup will be raising funding in the next quarter, there will be a Due Diligence, which always involves work for the data team.&lt;/li&gt;
+&lt;li&gt;Mark 1-2 day per week for interrupts. In my line of work, for a generalist data team, there are lots of interrupts (same goes for many software engineering teams). In my experience, 20-30% of time should be assumed to be interrupts (infrastructure breaks, logs change, new data breaks a pipe, dashboards break, ML model regresses, questions from PMs, SWEs, designers, AMs, sales, marketing, finance...)&lt;/li&gt;
+&lt;li&gt;Estimate meeting load. Everybody open their calendar, and look at the last 2 weeks to estimate meeting load. Imagine compressing your meeting load into full days, and cross out that many days. Note: meetings are not interrupts here.&lt;/li&gt;
 &lt;li&gt;The Techlead for a 4+ person team will spend 50%+ of their time on management duties. Take that time off from that person’s column.&lt;/li&gt;
 &lt;/ol&gt;
+&lt;p&gt;&lt;img src="/images/planning-table.png" alt="Planning table" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;p&gt;At this point, there is a per-person budget left. This is how much time is available to work on new stuff, to have direct impact.&lt;/p&gt;
 &lt;h2&gt;Direct vs indirect impact&lt;/h2&gt;
 &lt;p&gt;Sometimes people get upset because it seems too little time is left for new stuff.&lt;/p&gt;
@@ -54,5 +53,4 @@ Note: meetings are not interrupts; they’re planned interrupts.&lt;/li&gt;
 &lt;h2&gt;Timing&lt;/h2&gt;
 &lt;p&gt;Once a project list is down, put it into the calendar, taking dependencies into account. This gives our estimated completion times. In my experience, for software, at best month-grained can be taken seriously (“We will start working on this in Nov, we will ship sometime in Dec”), but often only quarter-granularity is dependable ("We will ship in Q4").&lt;/p&gt;
 &lt;h2&gt;Meeting minutes&lt;/h2&gt;
-&lt;p&gt;The techlead or manager should take a picture of the table, enter it into a spreadsheet, and share it with the team. Then, if the team also uses software such as Trello or Jira, enter it there. This is what an in-progress table might look like:&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/planning-table.png" alt="Planning table" style="width: 400px;"/&gt;&lt;/p&gt;</content><category term="planning"></category><category term="teams"></category></entry></feed>
+&lt;p&gt;The techlead or manager should take a picture of the table, enter it into a spreadsheet, and share it with the team. Then, if the team also uses software such as Trello or Jira, enter it there.&lt;/p&gt;</content><category term="planning"></category><category term="teams"></category></entry></feed>
