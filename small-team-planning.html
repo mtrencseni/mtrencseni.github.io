@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="Using historic gameplay between strong Go players as training data, a CNN model is built to predict good Go moves on a standard 19x19 Go board." />
+<meta name="keywords" content="planning, teams">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="Small team planning"/>
+<meta property="og:description" content="Using historic gameplay between strong Go players as training data, a CNN model is built to predict good Go moves on a standard 19x19 Go board."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/small-team-planning.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-01-10 00:00:00+01:00"/>
+<meta property="article:modified_time" content="2020-01-10 00:00:00+01:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Planning"/>
+<meta property="article:tag" content="planning"/>
+<meta property="article:tag" content="teams"/>
+<meta property="og:image" content="/images/peak.jpg"/>
+
+  <title>Bytepawn &ndash; Small team planning</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="small-team-planning">Small team planning</h1>
+    <p>Posted on Fri 10 January 2020 in <a href="/category/planning.html">Planning</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>I’ve worked at 5-10 different organizations, most of them were startups or startuppy companies. I’ve done a lot of planning in small teams, and also taken part in company-wide leadership planning. Here I will describe what has worked well for me in small team settings.</p>
+<h2>Team activity</h2>
+<p>Team planning typically occurs at the end of each quarter or half. It is an activity for whole team; everybody needs to own the plan. The techlead or engineering manager cannot do it alone, because there are multiple steps where everybody’s input is needed.</p>
+<h2>Planning vs goaling</h2>
+<p>The focus here is on planning. Planning is not the same as goaling.</p>
+<p>&nbsp; &nbsp; <strong>Goal</strong> = what we want to do
+ &nbsp; &nbsp; <strong>Plan</strong> = what we can do</p>
+<p>A plan incorporates resource and dependency contraints: people, time, money, team structure, software architecture, etc. Another way of saying this:</p>
+<p>&nbsp; &nbsp; <strong>Goal</strong> = where we want to get
+&nbsp; &nbsp; <strong>Plan</strong> = how we get there</p>
+<p>When goaling, if you don’t take into account resource and dependency contraints (=what makes a good plan), the goals will be unrealistic. When planning, if you don’t have a goaling direction, you won’t work toward the right direction. Planning and goaling go hand in hand, it’s a back-and-forth.</p>
+<p><img src="/images/peak.png" alt="Planning peak" style="width: 400px;"/></p>
+<p>In my experience, a lot of people are bad at planning, and tend to overpromise and underdeliver. I prefer to underpromise and overdeliver.</p>
+<p><em>Story: when I was a young Techlead , the first time I did small team planning for a quarter, we spent an hour writing lots of sticky notes, we estimated mandays, we channeled Fred Brooks. At the end, when we were finished, we leaned back and looked at our plan, and I laughed out. I said: “Heh, somehow we managed to fit all projects we can think, altogether, into the quarter! If we do a good job this quarter and do all this, we’ll be laid off at the end because there’s nothing left to do.” It was a joke. We overpromised and underdelivered, because we didn’t know how to make a good plan.</em></p>
+<h2>Counting days</h2>
+<p>The basic process is straightforward:</p>
+<ol>
+<li>Draw a calendar on the whiteboard. Columns are people, rows are weeks in the quarter / half that you’re planning for. If you want, make cells for days, but I usually don’t. The point of the exercise is to count how many weeks we will have to work on “new stuff”.</li>
+<li>Count how weeks are in the quarter, and make a row for each week. Number the week as the week-of-year, eg. W44.</li>
+<li>Cross out any weeks that are in the past.</li>
+<li>If you’re doing this exercise in the middle of the week, cross out the current week.</li>
+<li>Cross out bank holidays.</li>
+<li>Cross out days for team offsites, hackathons, etc.</li>
+<li>All team members cross out weeks in their column when they will be on vacation. If you’re unsure which week it is, take a guess.</li>
+<li>In my line of work, for a generalist data team, there are lots of interrupts; same goes for many software engineering teams. In my experience, 20-30% of time should be assumed to be interrupts (infrastructure breaks, logs change, new data breaks a pipe, dashboards break, ML model regresses, questions from PMs, SWEs, designers, AMs, sales, marketing, finance...) Mark 1-2 day per week for interrupts.</li>
+<li>Estimate meeting load. Everybody open their calendar, and look at the last 2 weeks to estimate meeting load. Try to gauge how many P productive days you’d have without meetings, and cross out 5-P days per your weeks. 
+Note: meetings are not interrupts; they’re planned interrupts.</li>
+<li>Known must-do projects. For example, if the startup will be raising funding in the next quarter, there will be a Due Diligence, which always involves work for the data team.</li>
+<li>The TL for a 4+ person team will spend 50%+ of their time on management duties. Take that time off from that person’s column.</li>
+</ol>
+<p>At this point, there is a per-person budget left. This is how much time is available to work on new stuff, to have direct impact.</p>
+<h2>Direct vs indirect impact</h2>
+<p>Sometimes people get upset because it seems too little time is left for new stuff.</p>
+<p>On the one hand, yes, we all are spending a lot of time in meetings, and some of the meetings are useless; but that has nothing to do with planning. Planning may draw attention to it, but it’s not a planning issue. To decrease interrupts, have your team set up the interrupt magnet system  = an assigned team member who handles interrupts that day/week, same idea for infra magnets.</p>
+<p><img src="/images/indirect-impact.png" alt="Indirect impact" style="width: 400px;"/></p>
+<p>On the other hand, and this is the point: a lot of impact is delivered indirectly. It may be realized by another team, or later. A good example is a hackathon: at Facebook, a lot of important features were first built at hackathon, even though, in terms of planning, a hackathon would be “crossed-off time”.
+Mandays
+The next step will be to estimate days for projects. Be careful about mandays versus calendar days: Pure mandays is how much time you’d spend on something if you were to work interrupted. Real mandays is how much time you will spend on it in real life, where you’re less efficient because of interrupts, but not counting interrupts. Calendar days (calendar weeks) is how much time will elapse between start and end, also counting interrupt time. For example if you 1 day per week is meetings, 1 day per week is interrupts, a task is estimated to take 4-5 pure mandays, then probably it will take 6 mandays, and overall it will consume 2 calendar weeks (1+1+3+1+1+3).</p>
+<p>Different people think in different quantities (pure mandays, real mandays, calendar days) when planning, make sure you’re taking the difference into account.</p>
+<h2>Planning poker</h2>
+<p>The point of planning poker is to make sure everybody who is involved in a project can give their manday estimate, without being influenced without others who speak before. Make sure you’re speaking about the same quantity (pure mandays, real mandays, calendar days). The easiest way to do it is to have people write their estimate on a sticky note, and then share it. Super-high and super-low estimates should be explained. The goal is to arrive at a realistic estimate. “Realistic” is not the same as “consensus”, eg. you should not take an average or median of estimates. People who are better at planning (=usually more senior people) need to have more weight, while people who are gaining experience should use this experience to learn how to do a better job estimasting.
+Goals and projects
+Write a list of projects the team would like to work on. The next step is to decide how much work to allocate to each project, who works on each, and when. I will skip the “who” and figuring out dependencies. At this point we know how much time each person has available, so we assign a certain number of weeks to each project. I find that days is too fine-grained, I usually think in coarse grained projects and use weeks. I always think in terms of real mandays and/or calendar days.</p>
+<p>Planning and goaling is a back-and-forth. If the plans and goals are too far off, one or both has to be adjusted; maybe the goal was too aggressive and needs to come down, or the team needs to find additional time this quarter and aggressively say no to interrupts and cancel meetings, or both.</p>
+<h2>Timing</h2>
+<p>Once a project list is down, put it into the calendar, taking dependencies into account. This gives our estimated completion times. In my experience, for software, at best month-grained can be taken seriously (“We will start working on this in Nov, we will ship sometime in Dec”), but often only quarter-granularity is dependable.</p>
+<h2>Meeting minutes</h2>
+<p>The techlead or manager should take a picture of the table, enter it into a spreadsheet, and share it with the team. Then, if the team also uses software such as Trello or Jira, enter it there. This is what an in-progress table might look like:</p>
+<p><img src="/images/planning-table.png" alt="Planning table" style="width: 400px;"/></p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/planning.html">planning</a>
+      <a href="/tag/teams.html">teams</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Small team planning",
+  "headline": "Small team planning",
+  "datePublished": "2020-01-10 00:00:00+01:00",
+  "dateModified": "2020-01-10 00:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/small-team-planning.html",
+  "description": "Using historic gameplay between strong Go players as training data, a CNN model is built to predict good Go moves on a standard 19x19 Go board."
+}
+</script></body>
+</html>
