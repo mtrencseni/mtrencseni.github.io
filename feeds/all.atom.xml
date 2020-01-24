@@ -84,7 +84,8 @@ WHERE
 
 
 &lt;h2&gt;Use &lt;code&gt;WITH&lt;/code&gt; instead of nested sub-&lt;code&gt;SELECT&lt;/code&gt;s&lt;/h2&gt;
-&lt;p&gt;Sub-&lt;code&gt;SELECT&lt;/code&gt;s with indenting are hard to read. Instead, chain create aliases with &lt;code&gt;WITH&lt;/code&gt;, and chain them. For example, suppose table &lt;code&gt;deliveries&lt;/code&gt; has columns &lt;code&gt;scheduled_coordinates&lt;/code&gt; and &lt;code&gt;actual_coordinates&lt;/code&gt; as &lt;code&gt;lat, lon&lt;/code&gt; string, and you want to compute the meter distance with the &lt;a href="https://en.wikipedia.org/wiki/Haversine_formula"&gt;Haversine formula&lt;/a&gt;:&lt;/p&gt;
+&lt;p&gt;Sub-&lt;code&gt;SELECT&lt;/code&gt;s with indenting are hard to read. Instead, chain create aliases with &lt;code&gt;WITH&lt;/code&gt;, and chain them. Put the &lt;code&gt;WITH&lt;/code&gt; on a separaste line, and then write the aliases.&lt;/p&gt;
+&lt;p&gt;For example, suppose table &lt;code&gt;deliveries&lt;/code&gt; has columns &lt;code&gt;scheduled_coordinates&lt;/code&gt; and &lt;code&gt;actual_coordinates&lt;/code&gt; as &lt;code&gt;lat, lon&lt;/code&gt; string, and you want to compute the meter distance with the &lt;a href="https://en.wikipedia.org/wiki/Haversine_formula"&gt;Haversine formula&lt;/a&gt;:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;WITH&lt;/span&gt;
 &lt;span class="n"&gt;step1&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt;
 &lt;span class="p"&gt;(&lt;/span&gt;
@@ -163,8 +164,9 @@ WHERE
 &lt;h2&gt;Alternative ways to write SQL&lt;/h2&gt;
 &lt;p&gt;Finally, some other, more comprehensive guides:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;https://www.sqlstyle.guide/&lt;/li&gt;
-&lt;li&gt;https://about.gitlab.com/handbook/business-ops/data-team/sql-style-guide/&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.sqlstyle.guide/"&gt;Simon Holywell's SQL style guide&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://about.gitlab.com/handbook/business-ops/data-team/sql-style-guide/"&gt;Gitlab's SQL style guide&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/mattm/sql-style-guide"&gt;Matt Mazur's SQL style guide&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</content><category term="programming"></category><category term="sql"></category></entry><entry><title>Small team planning</title><link href="/small-team-planning.html" rel="alternate"></link><published>2020-01-10T00:00:00+01:00</published><updated>2020-01-10T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-01-10:/small-team-planning.html</id><summary type="html">&lt;p&gt;I’ve worked at 5-10 different organizations, most of them were startups or startuppy companies. I’ve done a lot of planning in small teams, and also taken part in company-wide leadership planning. Here I will describe what has worked well for me in small team settings, focusing on time estimation. &lt;br/&gt;&lt;br/&gt; &lt;img src="/images/peak.png" alt="Reaching the peak" style="width: 200px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;I’ve worked at 5-10 different organizations, most of them were startups or startuppy companies. I’ve done a lot of planning in small teams, and also taken part in company-wide leadership planning. Here I will describe what has worked well for me in &lt;strong&gt;small team settings&lt;/strong&gt;, focusing on time estimation.&lt;/p&gt;
 &lt;h2&gt;Team activity&lt;/h2&gt;
