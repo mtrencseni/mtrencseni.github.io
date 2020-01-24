@@ -17,7 +17,7 @@
 &lt;p&gt;Writing good SQL code is much simpler than writing good C++ code. SQL code has no templates, classes, and in my experience analytical “data mining” SQL code also has no functions (=stored procedures). It’s really just a lot of standalone &lt;code&gt;SELECT&lt;/code&gt;s, sometimes chained with &lt;code&gt;WITH&lt;/code&gt;, or by dropping results into tables and &lt;code&gt;SELECT&lt;/code&gt;ing out of those tables in the next step. Having said that, I still see a lot of data people writing hard to read SQL code.&lt;/p&gt;
 &lt;p&gt;Without further ado, how I write SQL code:&lt;/p&gt;
 &lt;h2&gt;Use WITH instead of nested sub-&lt;code&gt;SELECT&lt;/code&gt;s&lt;/h2&gt;
-&lt;p&gt;Sub-SELECTS with indenting are hard to read. Instead, chain create aliases with WITH, and chain them. For example, suppose table &lt;code&gt;deliveries&lt;/code&gt; has columns &lt;code&gt;scheduled_coordinates&lt;/code&gt; and &lt;code&gt;actual_coordinates&lt;/code&gt; as &lt;code&gt;lat, lon&lt;/code&gt; string, and you want to compute the meter distance:&lt;/p&gt;
+&lt;p&gt;Sub-SELECTS with indenting are hard to read. Instead, chain create aliases with WITH, and chain them. For example, suppose table &lt;code&gt;deliveries&lt;/code&gt; has columns &lt;code&gt;scheduled_coordinates&lt;/code&gt; and &lt;code&gt;actual_coordinates&lt;/code&gt; as &lt;code&gt;lat, lon&lt;/code&gt; string, and you want to compute the meter distance with the &lt;a href="https://en.wikipedia.org/wiki/Haversine_formula"&gt;Haversine formula&lt;/a&gt;:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;WITH&lt;/span&gt;
 &lt;span class="n"&gt;step1&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt;
 &lt;span class="p"&gt;(&lt;/span&gt;
