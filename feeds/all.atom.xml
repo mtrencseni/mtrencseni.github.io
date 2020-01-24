@@ -46,7 +46,7 @@ Use lower-case for column names and table names.&lt;/p&gt;
 
 
 &lt;h2&gt;Write &lt;code&gt;GROUP BY 1, 2&lt;/code&gt;&lt;/h2&gt;
-&lt;p&gt;Always put the grouped columns first in the column list, and write &lt;code&gt;GROUP BY 1, 2.., N&lt;/code&gt;:&lt;/p&gt;
+&lt;p&gt;Always put the grouped columns first in the column list, and write &lt;code&gt;GROUP BY 1, 2 .. N&lt;/code&gt;:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
     &lt;span class="n"&gt;region_fleet&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
     &lt;span class="k"&gt;CASE&lt;/span&gt; &lt;span class="k"&gt;WHEN&lt;/span&gt; &lt;span class="n"&gt;status&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Delivered&amp;#39;&lt;/span&gt; &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Delivered&amp;#39;&lt;/span&gt; &lt;span class="k"&gt;ELSE&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Not Delivered&amp;#39;&lt;/span&gt; &lt;span class="k"&gt;END&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;status&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;

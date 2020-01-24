@@ -121,7 +121,7 @@ Use lower-case for column names and table names.</p>
 
 
 <h2>Write <code>GROUP BY 1, 2</code></h2>
-<p>Always put the grouped columns first in the column list, and write <code>GROUP BY 1, 2.., N</code>:</p>
+<p>Always put the grouped columns first in the column list, and write <code>GROUP BY 1, 2 .. N</code>:</p>
 <div class="highlight"><pre><span></span><span class="k">SELECT</span>
     <span class="n">region_fleet</span><span class="p">,</span>
     <span class="k">CASE</span> <span class="k">WHEN</span> <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;Delivered&#39;</span> <span class="k">THEN</span> <span class="s1">&#39;Delivered&#39;</span> <span class="k">ELSE</span> <span class="s1">&#39;Not Delivered&#39;</span> <span class="k">END</span> <span class="k">AS</span> <span class="n">status</span><span class="p">,</span>
