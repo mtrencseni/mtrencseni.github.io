@@ -15,7 +15,74 @@
 &lt;p&gt;Readable code should be relatively easy to explore and read. I say “relatively”, because most programs have a lot of innate complexity that you have to wrap your head around, even if it’s well-written.&lt;/p&gt;
 &lt;p&gt;A famous example of high quality and readable (C++) code is the &lt;a href="https://github.com/mtrencseni/quake3"&gt;Quake3&lt;/a&gt; or &lt;a href="https://github.com/mtrencseni/doom3"&gt;Doom3&lt;/a&gt; code by &lt;a href="https://en.wikipedia.org/wiki/John_Carmack"&gt;John Carmack&lt;/a&gt;. When I was working on &lt;a href="https://github.com/scalien/scaliendb"&gt;ScalienDB&lt;/a&gt; many years ago, I tried to write C++ code in a similar style.&lt;/p&gt;
 &lt;p&gt;Writing good SQL code is much simpler than writing good C++ code. SQL code has no templates, classes, and in my experience analytical “data mining” SQL code also has no functions (=stored procedures). It’s really just a lot of standalone &lt;code&gt;SELECT&lt;/code&gt;s, sometimes chained with &lt;code&gt;WITH&lt;/code&gt;, or by dropping results into tables and &lt;code&gt;SELECT&lt;/code&gt;ing out of those tables in the next step. Having said that, I still see a lot of data people writing hard to read SQL code.&lt;/p&gt;
-&lt;p&gt;Without further ado, how I write SQL code:&lt;/p&gt;
+&lt;p&gt;Without further ado, my rules for writing SQL code:&lt;/p&gt;
+&lt;h2&gt;Use all upper-case for keywords like &lt;code&gt;SELECT&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;Also use upper-case for built-in types and functions like &lt;code&gt;BIGINT&lt;/code&gt; and &lt;code&gt;COUNT()&lt;/code&gt;.
+Use lower-case for column names and tables names.&lt;/p&gt;
+&lt;h2&gt;Keep &lt;code&gt;SELECT ... FROM ... WHERE&lt;/code&gt; unindented&lt;/h2&gt;
+&lt;p&gt;An example so far:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
+    &lt;span class="n"&gt;customer_name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;customer_street&lt;/span&gt;
+&lt;span class="k"&gt;FROM&lt;/span&gt;
+    &lt;span class="n"&gt;company_metrics&lt;/span&gt;
+&lt;span class="k"&gt;WHERE&lt;/span&gt;
+    &lt;span class="n"&gt;customer_name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="err"&gt;‘&lt;/span&gt;&lt;span class="n"&gt;Marton&lt;/span&gt; &lt;span class="n"&gt;Trencseni&lt;/span&gt;&lt;span class="err"&gt;’&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Line up &lt;code&gt;WHERE&lt;/code&gt; conditions&lt;/h2&gt;
+&lt;p&gt;God is merciful because &lt;code&gt;AND&lt;/code&gt; is 4 characters, so &lt;code&gt;WHERE&lt;/code&gt; conditions are to be lined up like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;SELECT
+    ...
+FROM
+    deliveries
+WHERE
+        country = &amp;#39;UAE&amp;#39;
+    AND day &amp;gt;= DATE(&amp;#39;2019-07-01&amp;#39;)
+    AND DAY_OF_WEEK(day) != 5
+    AND scheduled_accuracy_meters &amp;lt;= 10*1000
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Write &lt;code&gt;GROUP BY 1, 2&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;Always put the grouped columns first in the column list, and write &lt;code&gt;GROUP BY 1, 2.., N&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
+    &lt;span class="n"&gt;region_fleet&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="k"&gt;CASE&lt;/span&gt; &lt;span class="k"&gt;WHEN&lt;/span&gt; &lt;span class="n"&gt;status&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Delivered&amp;#39;&lt;/span&gt; &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Delivered&amp;#39;&lt;/span&gt; &lt;span class="k"&gt;ELSE&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Not Delivered&amp;#39;&lt;/span&gt; &lt;span class="k"&gt;END&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;status&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;DATE_TRUNC&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;week&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;day&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;week&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="k"&gt;COUNT&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;DISTINCT&lt;/span&gt; &lt;span class="k"&gt;ROW&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;day&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;so_number&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;num_orders&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="k"&gt;COUNT&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;DISTINCT&lt;/span&gt; &lt;span class="k"&gt;CASE&lt;/span&gt; &lt;span class="k"&gt;WHEN&lt;/span&gt; &lt;span class="n"&gt;scheduled_accuracy_meters&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;500&lt;/span&gt; &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="k"&gt;ROW&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;day&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;so_number&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;ELSE&lt;/span&gt; &lt;span class="k"&gt;NULL&lt;/span&gt; &lt;span class="k"&gt;END&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;num_accurate&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="k"&gt;AVG&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;scheduled_accuracy_meters&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;scheduled_accuracy_meters&lt;/span&gt;
+&lt;span class="k"&gt;FROM&lt;/span&gt;
+    &lt;span class="n"&gt;deliveries&lt;/span&gt;
+&lt;span class="k"&gt;WHERE&lt;/span&gt;
+    &lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="k"&gt;GROUP&lt;/span&gt; &lt;span class="k"&gt;BY&lt;/span&gt;
+    &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Indent the &lt;code&gt;WHEN&lt;/code&gt; relative to the &lt;code&gt;CASE&lt;/code&gt;&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
+    &lt;span class="p"&gt;...,&lt;/span&gt;
+    &lt;span class="k"&gt;CASE&lt;/span&gt;
+        &lt;span class="k"&gt;WHEN&lt;/span&gt; &lt;span class="n"&gt;schedule_channel&lt;/span&gt; &lt;span class="k"&gt;IN&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Ticker&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Ticker&amp;#39;&lt;/span&gt;
+        &lt;span class="k"&gt;WHEN&lt;/span&gt; &lt;span class="n"&gt;schedule_channel&lt;/span&gt; &lt;span class="k"&gt;IN&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;CallCenter&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;CSA&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Callcenter&amp;#39;&lt;/span&gt;
+        &lt;span class="k"&gt;WHEN&lt;/span&gt; &lt;span class="n"&gt;schedule_channel&lt;/span&gt; &lt;span class="k"&gt;IN&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;CallCenterBlind&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;CSA-BD&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Blind&amp;#39;&lt;/span&gt;
+        &lt;span class="k"&gt;WHEN&lt;/span&gt; &lt;span class="n"&gt;schedule_channel&lt;/span&gt; &lt;span class="k"&gt;IN&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;AutoReschedule&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;AI-AutoReschedul&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Auto Schedule&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;DriverReschedule&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Rest&amp;#39;&lt;/span&gt;
+        &lt;span class="k"&gt;WHEN&lt;/span&gt; &lt;span class="n"&gt;schedule_channel&lt;/span&gt; &lt;span class="k"&gt;IN&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;BulkSchedule&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Bulk&amp;#39;&lt;/span&gt;
+        &lt;span class="k"&gt;WHEN&lt;/span&gt; &lt;span class="n"&gt;schedule_channel&lt;/span&gt; &lt;span class="k"&gt;IN&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;CallCenterSelfPickupPoint&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;CallCenterSelfPickupWarehouse&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Self-pickup&amp;#39;&lt;/span&gt;
+        &lt;span class="k"&gt;WHEN&lt;/span&gt; &lt;span class="n"&gt;schedule_channel&lt;/span&gt; &lt;span class="k"&gt;IN&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;AI-AutoSchedulin&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;AI_Rango&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;AI-Rango&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;AI&amp;#39;&lt;/span&gt;
+        &lt;span class="k"&gt;WHEN&lt;/span&gt; &lt;span class="n"&gt;schedule_channel&lt;/span&gt; &lt;span class="k"&gt;IN&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;MWeb&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;MWEB&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;mobile-ios&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;mobile-android&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Mweb/apps (various)&amp;#39;&lt;/span&gt;
+        &lt;span class="k"&gt;WHEN&lt;/span&gt; &lt;span class="n"&gt;schedule_channel&lt;/span&gt; &lt;span class="k"&gt;IN&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Whatsapp&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Callcenter&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Blind&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Driver (various)&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Bulk&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;AI&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="n"&gt;schedule_channel&lt;/span&gt;
+        &lt;span class="k"&gt;ELSE&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Rest&amp;#39;&lt;/span&gt;
+    &lt;span class="k"&gt;END&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;schedule_channel&lt;/span&gt;
+&lt;span class="k"&gt;FROM&lt;/span&gt;
+    &lt;span class="n"&gt;deliveries&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
 &lt;h2&gt;Use WITH instead of nested sub-&lt;code&gt;SELECT&lt;/code&gt;s&lt;/h2&gt;
 &lt;p&gt;Sub-SELECTS with indenting are hard to read. Instead, chain create aliases with WITH, and chain them. For example, suppose table &lt;code&gt;deliveries&lt;/code&gt; has columns &lt;code&gt;scheduled_coordinates&lt;/code&gt; and &lt;code&gt;actual_coordinates&lt;/code&gt; as &lt;code&gt;lat, lon&lt;/code&gt; string, and you want to compute the meter distance with the &lt;a href="https://en.wikipedia.org/wiki/Haversine_formula"&gt;Haversine formula&lt;/a&gt;:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;WITH&lt;/span&gt;
@@ -69,30 +136,28 @@
                 &lt;span class="n"&gt;SIN&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;   &lt;span class="n"&gt;RADIANS&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;scheduled_lon&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;actual_lon&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;   &lt;span class="p"&gt;),&lt;/span&gt;
                 &lt;span class="mi"&gt;2&lt;/span&gt;
             &lt;span class="p"&gt;)&lt;/span&gt;
-        &lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;distance_meters&lt;/span&gt;
+        &lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;scheduled_accuracy_meters&lt;/span&gt;
     &lt;span class="k"&gt;FROM&lt;/span&gt;
         &lt;span class="n"&gt;step2&lt;/span&gt;
 &lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h2&gt;Use all upper-case for keywords like &lt;code&gt;SELECT&lt;/code&gt;&lt;/h2&gt;
-&lt;p&gt;Also use upper-case for built-in types and functions like &lt;code&gt;BIGINT&lt;/code&gt; and &lt;code&gt;COUNT()&lt;/code&gt;.&lt;/p&gt;
-&lt;h2&gt;Use lower-case for column names and tables names&lt;/h2&gt;
-&lt;p&gt;.. like SELECT customer_name, customer_street FROM company_metrics WHERE customer_name = ‘Marton Trencseni’.&lt;/p&gt;
-&lt;h2&gt;Keep &lt;code&gt;SELECT ... FROM ... WHERE&lt;/code&gt; unindented&lt;/h2&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;dvsdfv
+&lt;h2&gt;Don’t indent small sub-&lt;code&gt;SELECT&lt;/code&gt;s&lt;/h2&gt;
+&lt;p&gt;Sometimes we &lt;code&gt;SELECT&lt;/code&gt; out a horizontal/vertical part of a table in a quick sub-SELECT to help the compiler.
+In cases like this I don't use &lt;code&gt;WITH&lt;/code&gt; and keep it in one line for understandability, like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
+    &lt;span class="p"&gt;...&lt;/span&gt;
+
+&lt;span class="k"&gt;FROM&lt;/span&gt;
+    &lt;span class="n"&gt;deliveries&lt;/span&gt;
+&lt;span class="k"&gt;LEFT&lt;/span&gt; &lt;span class="k"&gt;JOIN&lt;/span&gt;
+    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt; &lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="k"&gt;FROM&lt;/span&gt; &lt;span class="n"&gt;drivers&lt;/span&gt; &lt;span class="k"&gt;WHERE&lt;/span&gt; &lt;span class="n"&gt;country&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;UAE&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt;
+&lt;span class="k"&gt;ON&lt;/span&gt;
+    &lt;span class="p"&gt;...&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h2&gt;Line up &lt;code&gt;WHERE&lt;/code&gt; conditions&lt;/h2&gt;
-&lt;p&gt;God is merciful because &lt;code&gt;AND&lt;/code&gt; is 4 characters, so &lt;code&gt;WHERE&lt;/code&gt; conditions are to be lined up like:&lt;/p&gt;
-&lt;h2&gt;Write &lt;code&gt;GROUP BY 1, 2&lt;/code&gt;&lt;/h2&gt;
-&lt;p&gt;sdfsdf&lt;/p&gt;
-&lt;h2&gt;Indent the &lt;code&gt;WHEN&lt;/code&gt; relative to the &lt;code&gt;CASE&lt;/code&gt;&lt;/h2&gt;
-&lt;p&gt;dfsdf&lt;/p&gt;
-&lt;h2&gt;Don’t indent small sub-&lt;code&gt;SELECT&lt;/code&gt;s&lt;/h2&gt;
-&lt;p&gt;.. like (SELECT id, name FROM country).&lt;/p&gt;
 &lt;h2&gt;Break the rules for readability and flow of code&lt;/h2&gt;
 &lt;p&gt;sdfsdf&lt;/p&gt;
 &lt;h2&gt;Follow the same rules when writing interactive SQL code&lt;/h2&gt;
