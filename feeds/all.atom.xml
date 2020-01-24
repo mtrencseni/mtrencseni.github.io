@@ -22,19 +22,20 @@
 &lt;p&gt;Also use upper-case for built-in types and functions like &lt;code&gt;BIGINT&lt;/code&gt; and &lt;code&gt;COUNT()&lt;/code&gt;.&lt;/p&gt;
 &lt;h2&gt;Use lower-case for column names and tables names&lt;/h2&gt;
 &lt;p&gt;.. like SELECT customer_name, customer_street FROM company_metrics WHERE customer_name = ‘Marton Trencseni’.&lt;/p&gt;
-&lt;h2&gt;Keep &lt;code&gt;SELECT ... FROM ... WHERE&lt;/code&gt; unindented and indent the rest&lt;/h2&gt;
+&lt;h2&gt;Keep &lt;code&gt;SELECT ... FROM ... WHERE&lt;/code&gt; unindented&lt;/h2&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;dvsdfv
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;h2&gt;Line up &lt;code&gt;WHERE&lt;/code&gt; conditions&lt;/h2&gt;
 &lt;p&gt;God is merciful because &lt;code&gt;AND&lt;/code&gt; is 4 characters, so &lt;code&gt;WHERE&lt;/code&gt; conditions are to be lined up like:&lt;/p&gt;
-&lt;h2&gt;Always group by the first N columns, and write &lt;code&gt;GROUP BY 1, 2&lt;/code&gt;&lt;/h2&gt;
+&lt;h2&gt;Write &lt;code&gt;GROUP BY 1, 2&lt;/code&gt;&lt;/h2&gt;
 &lt;p&gt;sdfsdf&lt;/p&gt;
 &lt;h2&gt;Indent the &lt;code&gt;WHEN&lt;/code&gt; relative to the &lt;code&gt;CASE&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;dfsdf&lt;/p&gt;
 &lt;h2&gt;Don’t indent small sub-&lt;code&gt;SELECT&lt;/code&gt;s&lt;/h2&gt;
 &lt;p&gt;.. like (SELECT id, name FROM country).&lt;/p&gt;
-&lt;h2&gt;Break the rules for readability and visual flow of code&lt;/h2&gt;
+&lt;h2&gt;Break the rules for readability and flow of code&lt;/h2&gt;
 &lt;p&gt;sdfsdf&lt;/p&gt;
 &lt;h2&gt;Follow the same rules when writing interactive SQL code&lt;/h2&gt;
 &lt;p&gt;Follow these same rules when writing one-off queries and ETL code, it’s easier to stick to it, and one-off code oftens ends up being ETL’d.&lt;/p&gt;</content><category term="programming"></category><category term="sql"></category></entry><entry><title>Small team planning</title><link href="/small-team-planning.html" rel="alternate"></link><published>2020-01-10T00:00:00+01:00</published><updated>2020-01-10T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-01-10:/small-team-planning.html</id><summary type="html">&lt;p&gt;I’ve worked at 5-10 different organizations, most of them were startups or startuppy companies. I’ve done a lot of planning in small teams, and also taken part in company-wide leadership planning. Here I will describe what has worked well for me in small team settings, focusing on time estimation. &lt;br/&gt;&lt;br/&gt; &lt;img src="/images/peak.png" alt="Reaching the peak" style="width: 200px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
