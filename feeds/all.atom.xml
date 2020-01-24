@@ -63,7 +63,7 @@ WHERE
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h2&gt;Indent the &lt;code&gt;WHEN&lt;/code&gt; relative to the &lt;code&gt;CASE&lt;/code&gt;&lt;/h2&gt;
+&lt;h2&gt;Indent &lt;code&gt;WHEN&lt;/code&gt; relative to &lt;code&gt;CASE&lt;/code&gt;&lt;/h2&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
     &lt;span class="p"&gt;...,&lt;/span&gt;
     &lt;span class="k"&gt;CASE&lt;/span&gt;
