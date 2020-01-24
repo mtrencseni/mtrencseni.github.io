@@ -159,7 +159,7 @@ WHERE
 
 
 <h2>Use <code>WITH</code> instead of nested sub-<code>SELECT</code>s</h2>
-<p>Sub-SELECTS with indenting are hard to read. Instead, chain create aliases with WITH, and chain them. For example, suppose table <code>deliveries</code> has columns <code>scheduled_coordinates</code> and <code>actual_coordinates</code> as <code>lat, lon</code> string, and you want to compute the meter distance with the <a href="https://en.wikipedia.org/wiki/Haversine_formula">Haversine formula</a>:</p>
+<p>Sub-<code>SELECT</code>s with indenting are hard to read. Instead, chain create aliases with <code>WITH</code>, and chain them. For example, suppose table <code>deliveries</code> has columns <code>scheduled_coordinates</code> and <code>actual_coordinates</code> as <code>lat, lon</code> string, and you want to compute the meter distance with the <a href="https://en.wikipedia.org/wiki/Haversine_formula">Haversine formula</a>:</p>
 <div class="highlight"><pre><span></span><span class="k">WITH</span>
 <span class="n">step1</span> <span class="k">AS</span>
 <span class="p">(</span>
