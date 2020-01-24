@@ -15,7 +15,29 @@
 &lt;p&gt;Readable code should be relatively easy to explore and read. I say “relatively”, because most programs have a lot of innate complexity that you have to wrap your head around, even if it’s well-written.&lt;/p&gt;
 &lt;p&gt;A famous example of high quality and readable (C++) code is the &lt;a href="https://github.com/mtrencseni/quake3"&gt;Quake3&lt;/a&gt; or &lt;a href="https://github.com/mtrencseni/doom3"&gt;Doom3&lt;/a&gt; code by &lt;a href="https://en.wikipedia.org/wiki/John_Carmack"&gt;John Carmack&lt;/a&gt;. When I was working on &lt;a href="https://github.com/scalien/scaliendb"&gt;ScalienDB&lt;/a&gt; many years ago, I tried to write C++ code in a similar style.&lt;/p&gt;
 &lt;p&gt;Writing good SQL code is much simpler than writing good C++ code. SQL code has no templates, classes, and in my experience analytical “data mining” SQL code also has no functions (=stored procedures). It’s really just a lot of standalone &lt;code&gt;SELECT&lt;/code&gt;s, sometimes chained with &lt;code&gt;WITH&lt;/code&gt;, or by dropping results into tables and &lt;code&gt;SELECT&lt;/code&gt;ing out of those tables in the next step. Having said that, I still see a lot of data people writing hard to read SQL code.&lt;/p&gt;
-&lt;p&gt;Without further ado, how I write SQL code:&lt;/p&gt;</content><category term="programming"></category><category term="sql"></category></entry><entry><title>Small team planning</title><link href="/small-team-planning.html" rel="alternate"></link><published>2020-01-10T00:00:00+01:00</published><updated>2020-01-10T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-01-10:/small-team-planning.html</id><summary type="html">&lt;p&gt;I’ve worked at 5-10 different organizations, most of them were startups or startuppy companies. I’ve done a lot of planning in small teams, and also taken part in company-wide leadership planning. Here I will describe what has worked well for me in small team settings, focusing on time estimation. &lt;br/&gt;&lt;br/&gt; &lt;img src="/images/peak.png" alt="Reaching the peak" style="width: 200px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;Without further ado, how I write SQL code:&lt;/p&gt;
+&lt;h2&gt;Use WITH instead of nested sub-&lt;code&gt;SELECT&lt;/code&gt;s&lt;/h2&gt;
+&lt;p&gt;efesf&lt;/p&gt;
+&lt;h2&gt;Use all upper-case for keywords like &lt;code&gt;SELECT&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;Also use upper-case for built-in types and functions like &lt;code&gt;BIGINT&lt;/code&gt; and &lt;code&gt;COUNT()&lt;/code&gt;.&lt;/p&gt;
+&lt;h2&gt;Use lower-case for column names and tables names&lt;/h2&gt;
+&lt;p&gt;.. like SELECT customer_name, customer_street FROM company_metrics WHERE customer_name = ‘Marton Trencseni’.&lt;/p&gt;
+&lt;h2&gt;Keep &lt;code&gt;SELECT ... FROM ... WHERE&lt;/code&gt; unindented and indent the rest&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;dvsdfv
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Line up &lt;code&gt;WHERE&lt;/code&gt; conditions&lt;/h2&gt;
+&lt;p&gt;God is merciful because &lt;code&gt;AND&lt;/code&gt; is 4 characters, so &lt;code&gt;WHERE&lt;/code&gt; conditions are to be lined up like:&lt;/p&gt;
+&lt;h2&gt;Always group by the first N columns, and write &lt;code&gt;GROUP BY 1, 2&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;sdfsdf&lt;/p&gt;
+&lt;h2&gt;Indent the &lt;code&gt;WHEN&lt;/code&gt; relative to the &lt;code&gt;CASE&lt;/code&gt;&lt;/h2&gt;
+&lt;h2&gt;Don’t indent small sub-&lt;code&gt;SELECT&lt;/code&gt;s&lt;/h2&gt;
+&lt;p&gt;.. like (SELECT id, name FROM country).&lt;/p&gt;
+&lt;h2&gt;Break the rules for readability and visual flow of code&lt;/h2&gt;
+&lt;p&gt;sdfsdf&lt;/p&gt;
+&lt;h2&gt;Follow the same rules when writing interactive SQL code&lt;/h2&gt;
+&lt;p&gt;Follow these same rules when writing one-off queries and ETL code, it’s easier to stick to it, and one-off code oftens ends up being ETL’d.&lt;/p&gt;</content><category term="programming"></category><category term="sql"></category></entry><entry><title>Small team planning</title><link href="/small-team-planning.html" rel="alternate"></link><published>2020-01-10T00:00:00+01:00</published><updated>2020-01-10T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-01-10:/small-team-planning.html</id><summary type="html">&lt;p&gt;I’ve worked at 5-10 different organizations, most of them were startups or startuppy companies. I’ve done a lot of planning in small teams, and also taken part in company-wide leadership planning. Here I will describe what has worked well for me in small team settings, focusing on time estimation. &lt;br/&gt;&lt;br/&gt; &lt;img src="/images/peak.png" alt="Reaching the peak" style="width: 200px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;I’ve worked at 5-10 different organizations, most of them were startups or startuppy companies. I’ve done a lot of planning in small teams, and also taken part in company-wide leadership planning. Here I will describe what has worked well for me in &lt;strong&gt;small team settings&lt;/strong&gt;, focusing on time estimation.&lt;/p&gt;
 &lt;h2&gt;Team activity&lt;/h2&gt;
 &lt;p&gt;Team planning typically occurs at the beginning of each quarter or half. It is an activity for whole team; everybody needs to own the plan. The techlead or engineering manager cannot do it alone, because there are multiple steps where everybody’s input is needed to generate project ideas and estimates.&lt;/p&gt;
