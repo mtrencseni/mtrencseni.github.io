@@ -83,7 +83,7 @@ WHERE
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h2&gt;Use WITH instead of nested sub-&lt;code&gt;SELECT&lt;/code&gt;s&lt;/h2&gt;
+&lt;h2&gt;Use &lt;code&gt;WITH&lt;/code&gt; instead of nested sub-&lt;code&gt;SELECT&lt;/code&gt;s&lt;/h2&gt;
 &lt;p&gt;Sub-SELECTS with indenting are hard to read. Instead, chain create aliases with WITH, and chain them. For example, suppose table &lt;code&gt;deliveries&lt;/code&gt; has columns &lt;code&gt;scheduled_coordinates&lt;/code&gt; and &lt;code&gt;actual_coordinates&lt;/code&gt; as &lt;code&gt;lat, lon&lt;/code&gt; string, and you want to compute the meter distance with the &lt;a href="https://en.wikipedia.org/wiki/Haversine_formula"&gt;Haversine formula&lt;/a&gt;:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;WITH&lt;/span&gt;
 &lt;span class="n"&gt;step1&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt;
