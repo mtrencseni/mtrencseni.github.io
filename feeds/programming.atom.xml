@@ -27,21 +27,21 @@ Use lower-case for column names and table names.&lt;/p&gt;
 &lt;span class="k"&gt;FROM&lt;/span&gt;
     &lt;span class="n"&gt;company_metrics&lt;/span&gt;
 &lt;span class="k"&gt;WHERE&lt;/span&gt;
-    &lt;span class="n"&gt;customer_name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="err"&gt;‘&lt;/span&gt;&lt;span class="n"&gt;Marton&lt;/span&gt; &lt;span class="n"&gt;Trencseni&lt;/span&gt;&lt;span class="err"&gt;’&lt;/span&gt;
+    &lt;span class="n"&gt;customer_name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Marton Trencseni&amp;#39;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;h2&gt;Line up &lt;code&gt;WHERE&lt;/code&gt; conditions&lt;/h2&gt;
 &lt;p&gt;God is merciful because &lt;code&gt;AND⎵&lt;/code&gt; is 4 characters, so &lt;code&gt;WHERE&lt;/code&gt; conditions are to be lined up like (same for &lt;code&gt;JOIN&lt;/code&gt; conditions):&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;SELECT
-    ...
-FROM
-    deliveries
-WHERE
-        country = &amp;#39;UAE&amp;#39;
-    AND day &amp;gt;= DATE(&amp;#39;2019-07-01&amp;#39;)
-    AND DAY_OF_WEEK(day) != 5
-    AND scheduled_accuracy_meters &amp;lt;= 10*1000
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
+    &lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="k"&gt;FROM&lt;/span&gt;
+    &lt;span class="n"&gt;deliveries&lt;/span&gt;
+&lt;span class="k"&gt;WHERE&lt;/span&gt;
+        &lt;span class="n"&gt;country&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;UAE&amp;#39;&lt;/span&gt;
+    &lt;span class="k"&gt;AND&lt;/span&gt; &lt;span class="k"&gt;day&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;=&lt;/span&gt; &lt;span class="nb"&gt;DATE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;2019-07-01&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;AND&lt;/span&gt; &lt;span class="n"&gt;DAY_OF_WEEK&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;day&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;
+    &lt;span class="k"&gt;AND&lt;/span&gt; &lt;span class="n"&gt;scheduled_accuracy_meters&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="mi"&gt;1000&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 

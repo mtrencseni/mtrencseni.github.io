@@ -102,21 +102,21 @@ Use lower-case for column names and table names.</p>
 <span class="k">FROM</span>
     <span class="n">company_metrics</span>
 <span class="k">WHERE</span>
-    <span class="n">customer_name</span> <span class="o">=</span> <span class="err">‘</span><span class="n">Marton</span> <span class="n">Trencseni</span><span class="err">’</span>
+    <span class="n">customer_name</span> <span class="o">=</span> <span class="s1">&#39;Marton Trencseni&#39;</span>
 </pre></div>
 
 
 <h2>Line up <code>WHERE</code> conditions</h2>
 <p>God is merciful because <code>AND⎵</code> is 4 characters, so <code>WHERE</code> conditions are to be lined up like (same for <code>JOIN</code> conditions):</p>
-<div class="highlight"><pre><span></span>SELECT
-    ...
-FROM
-    deliveries
-WHERE
-        country = &#39;UAE&#39;
-    AND day &gt;= DATE(&#39;2019-07-01&#39;)
-    AND DAY_OF_WEEK(day) != 5
-    AND scheduled_accuracy_meters &lt;= 10*1000
+<div class="highlight"><pre><span></span><span class="k">SELECT</span>
+    <span class="p">...</span>
+<span class="k">FROM</span>
+    <span class="n">deliveries</span>
+<span class="k">WHERE</span>
+        <span class="n">country</span> <span class="o">=</span> <span class="s1">&#39;UAE&#39;</span>
+    <span class="k">AND</span> <span class="k">day</span> <span class="o">&gt;=</span> <span class="nb">DATE</span><span class="p">(</span><span class="s1">&#39;2019-07-01&#39;</span><span class="p">)</span>
+    <span class="k">AND</span> <span class="n">DAY_OF_WEEK</span><span class="p">(</span><span class="k">day</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">5</span>
+    <span class="k">AND</span> <span class="n">scheduled_accuracy_meters</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="o">*</span><span class="mi">1000</span>
 </pre></div>
 
 
