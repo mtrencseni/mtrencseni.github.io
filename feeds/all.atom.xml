@@ -32,7 +32,7 @@ Use lower-case for column names and table names.&lt;/p&gt;
 
 
 &lt;h2&gt;Line up &lt;code&gt;WHERE&lt;/code&gt; conditions&lt;/h2&gt;
-&lt;p&gt;God is merciful because &lt;code&gt;AND⎵&lt;/code&gt; is 4 characters, so &lt;code&gt;WHERE&lt;/code&gt; conditions are to be lined up like:&lt;/p&gt;
+&lt;p&gt;God is merciful because &lt;code&gt;AND⎵&lt;/code&gt; is 4 characters, so &lt;code&gt;WHERE&lt;/code&gt; conditions are to be lined up like (same for &lt;code&gt;JOIN&lt;/code&gt; conditions):&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;SELECT
     ...
 FROM
