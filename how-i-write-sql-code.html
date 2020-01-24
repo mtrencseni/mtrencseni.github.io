@@ -93,9 +93,9 @@
 <p>Without further ado, my rules for writing SQL code:</p>
 <h2>Use all upper-case for keywords like <code>SELECT</code></h2>
 <p>Also use upper-case for built-in types and functions like <code>BIGINT</code> and <code>COUNT()</code>.
-Use lower-case for column names and tables names.</p>
+Use lower-case for column names and table names.</p>
 <h2>Keep <code>SELECT ... FROM ... WHERE</code> unindented</h2>
-<p>An example so far:</p>
+<p>But indent the rest. An example so far:</p>
 <div class="highlight"><pre><span></span><span class="k">SELECT</span>
     <span class="n">customer_name</span><span class="p">,</span>
     <span class="n">customer_street</span>
@@ -107,7 +107,7 @@ Use lower-case for column names and tables names.</p>
 
 
 <h2>Line up <code>WHERE</code> conditions</h2>
-<p>God is merciful because <code>AND</code> is 4 characters, so <code>WHERE</code> conditions are to be lined up like:</p>
+<p>God is merciful because <code>AND⎵</code> is 4 characters, so <code>WHERE</code> conditions are to be lined up like:</p>
 <div class="highlight"><pre><span></span>SELECT
     ...
 FROM

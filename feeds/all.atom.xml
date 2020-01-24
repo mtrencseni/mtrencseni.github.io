@@ -18,9 +18,9 @@
 &lt;p&gt;Without further ado, my rules for writing SQL code:&lt;/p&gt;
 &lt;h2&gt;Use all upper-case for keywords like &lt;code&gt;SELECT&lt;/code&gt;&lt;/h2&gt;
 &lt;p&gt;Also use upper-case for built-in types and functions like &lt;code&gt;BIGINT&lt;/code&gt; and &lt;code&gt;COUNT()&lt;/code&gt;.
-Use lower-case for column names and tables names.&lt;/p&gt;
+Use lower-case for column names and table names.&lt;/p&gt;
 &lt;h2&gt;Keep &lt;code&gt;SELECT ... FROM ... WHERE&lt;/code&gt; unindented&lt;/h2&gt;
-&lt;p&gt;An example so far:&lt;/p&gt;
+&lt;p&gt;But indent the rest. An example so far:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
     &lt;span class="n"&gt;customer_name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
     &lt;span class="n"&gt;customer_street&lt;/span&gt;
@@ -32,7 +32,7 @@ Use lower-case for column names and tables names.&lt;/p&gt;
 
 
 &lt;h2&gt;Line up &lt;code&gt;WHERE&lt;/code&gt; conditions&lt;/h2&gt;
-&lt;p&gt;God is merciful because &lt;code&gt;AND&lt;/code&gt; is 4 characters, so &lt;code&gt;WHERE&lt;/code&gt; conditions are to be lined up like:&lt;/p&gt;
+&lt;p&gt;God is merciful because &lt;code&gt;AND⎵&lt;/code&gt; is 4 characters, so &lt;code&gt;WHERE&lt;/code&gt; conditions are to be lined up like:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;SELECT
     ...
 FROM
