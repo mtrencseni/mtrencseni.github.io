@@ -92,7 +92,65 @@
 <p>Writing good SQL code is much simpler than writing good C++ code. SQL code has no templates, classes, and in my experience analytical “data mining” SQL code also has no functions (=stored procedures). It’s really just a lot of standalone <code>SELECT</code>s, sometimes chained with <code>WITH</code>, or by dropping results into tables and <code>SELECT</code>ing out of those tables in the next step. Having said that, I still see a lot of data people writing hard to read SQL code.</p>
 <p>Without further ado, how I write SQL code:</p>
 <h2>Use WITH instead of nested sub-<code>SELECT</code>s</h2>
-<p>efesf</p>
+<p>Sub-SELECTS with indenting are hard to read. Instead, chain create aliases with WITH, and chain them. For example, suppose table <code>deliveries</code> has columns <code>scheduled_coordinates</code> and <code>actual_coordinates</code> as <code>lat, lon</code> string, and you want to compute the meter distance:</p>
+<div class="highlight"><pre><span></span><span class="k">WITH</span>
+<span class="n">step1</span> <span class="k">AS</span>
+<span class="p">(</span>
+    <span class="k">SELECT</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="k">TRIM</span><span class="p">(</span><span class="n">SPLIT_PART</span><span class="p">(</span><span class="n">actual_coordinates</span><span class="p">,</span>    <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="k">AS</span> <span class="n">act_lat_str</span><span class="p">,</span>
+        <span class="k">TRIM</span><span class="p">(</span><span class="n">SPLIT_PART</span><span class="p">(</span><span class="n">actual_coordinates</span><span class="p">,</span>    <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="k">AS</span> <span class="n">act_lon_str</span><span class="p">,</span>
+        <span class="k">TRIM</span><span class="p">(</span><span class="n">SPLIT_PART</span><span class="p">(</span><span class="n">scheduled_coordinates</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="k">AS</span> <span class="n">sch_lat_str</span><span class="p">,</span>
+        <span class="k">TRIM</span><span class="p">(</span><span class="n">SPLIT_PART</span><span class="p">(</span><span class="n">scheduled_coordinates</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="k">AS</span> <span class="n">sch_lon_str</span>
+    <span class="k">FROM</span>
+        <span class="n">deliveries</span>
+<span class="p">),</span>
+<span class="n">step2</span> <span class="k">AS</span>
+<span class="p">(</span>
+    <span class="k">SELECT</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="k">CASE</span>
+            <span class="k">WHEN</span> <span class="n">REGEXP_LIKE</span><span class="p">(</span><span class="n">act_lat_str</span><span class="p">,</span> <span class="s1">&#39;^[0-9]+\.[0-9]+$&#39;</span><span class="p">)</span> <span class="k">THEN</span> <span class="k">CAST</span><span class="p">(</span><span class="n">act_lat_str</span> <span class="k">AS</span> <span class="n">DOUBLE</span><span class="p">)</span>
+            <span class="k">ELSE</span> <span class="k">NULL</span>
+        <span class="k">END</span> <span class="k">AS</span> <span class="n">actual_lat</span><span class="p">,</span>
+        <span class="k">CASE</span>
+            <span class="k">WHEN</span> <span class="n">REGEXP_LIKE</span><span class="p">(</span><span class="n">act_lon_str</span><span class="p">,</span> <span class="s1">&#39;^[0-9]+\.[0-9]+$&#39;</span><span class="p">)</span> <span class="k">THEN</span> <span class="k">CAST</span><span class="p">(</span><span class="n">act_lon_str</span> <span class="k">AS</span> <span class="n">DOUBLE</span><span class="p">)</span>
+            <span class="k">ELSE</span> <span class="k">NULL</span>
+        <span class="k">END</span> <span class="k">AS</span> <span class="n">actual_lon</span><span class="p">,</span>
+        <span class="k">CASE</span>
+            <span class="k">WHEN</span> <span class="n">REGEXP_LIKE</span><span class="p">(</span><span class="n">sch_lat_str</span><span class="p">,</span> <span class="s1">&#39;^[0-9]+\.[0-9]+$&#39;</span><span class="p">)</span> <span class="k">THEN</span> <span class="k">CAST</span><span class="p">(</span><span class="n">sch_lat_str</span> <span class="k">AS</span> <span class="n">DOUBLE</span><span class="p">)</span>
+            <span class="k">ELSE</span> <span class="k">NULL</span>
+        <span class="k">END</span> <span class="k">AS</span> <span class="n">scheduled_lat</span><span class="p">,</span>
+        <span class="k">CASE</span>
+            <span class="k">WHEN</span> <span class="n">REGEXP_LIKE</span><span class="p">(</span><span class="n">sch_lon_str</span><span class="p">,</span> <span class="s1">&#39;^[0-9]+\.[0-9]+$&#39;</span><span class="p">)</span> <span class="k">THEN</span> <span class="k">CAST</span><span class="p">(</span><span class="n">sch_lon_str</span> <span class="k">AS</span> <span class="n">DOUBLE</span><span class="p">)</span>
+            <span class="k">ELSE</span> <span class="k">NULL</span>
+        <span class="k">END</span> <span class="k">AS</span> <span class="n">scheduled_lon</span>
+    <span class="k">FROM</span>
+        <span class="n">step1</span>
+<span class="p">),</span>
+<span class="n">step3</span> <span class="k">AS</span>
+<span class="p">(</span>
+    <span class="k">SELECT</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="mi">6371</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ASIN</span><span class="p">(</span><span class="n">SQRT</span><span class="p">(</span>
+            <span class="n">POW</span><span class="p">(</span>
+                <span class="n">SIN</span><span class="p">(</span>   <span class="n">RADIANS</span><span class="p">(</span><span class="n">scheduled_lat</span> <span class="o">-</span> <span class="n">actual_lat</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>   <span class="p">),</span>
+                <span class="mi">2</span>
+            <span class="p">)</span>
+            <span class="o">+</span>
+              <span class="n">COS</span><span class="p">(</span><span class="n">RADIANS</span><span class="p">(</span><span class="n">actual_lat</span><span class="p">))</span>
+            <span class="o">*</span> <span class="n">COS</span><span class="p">(</span><span class="n">RADIANS</span><span class="p">(</span><span class="n">scheduled_lat</span><span class="p">))</span>
+            <span class="o">*</span> <span class="n">POW</span><span class="p">(</span>
+                <span class="n">SIN</span><span class="p">(</span>   <span class="n">RADIANS</span><span class="p">(</span><span class="n">scheduled_lon</span> <span class="o">-</span> <span class="n">actual_lon</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>   <span class="p">),</span>
+                <span class="mi">2</span>
+            <span class="p">)</span>
+        <span class="p">))</span> <span class="k">AS</span> <span class="n">distance_meters</span>
+    <span class="k">FROM</span>
+        <span class="n">step2</span>
+<span class="p">)</span>
+</pre></div>
+
+
 <h2>Use all upper-case for keywords like <code>SELECT</code></h2>
 <p>Also use upper-case for built-in types and functions like <code>BIGINT</code> and <code>COUNT()</code>.</p>
 <h2>Use lower-case for column names and tables names</h2>
