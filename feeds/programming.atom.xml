@@ -143,22 +143,26 @@ WHERE
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h2&gt;Don’t indent small sub-&lt;code&gt;SELECT&lt;/code&gt;s&lt;/h2&gt;
-&lt;p&gt;Sometimes we &lt;code&gt;SELECT&lt;/code&gt; out a horizontal/vertical part of a table in a quick sub-SELECT to help the compiler.
-In cases like this I don't use &lt;code&gt;WITH&lt;/code&gt; and keep it in one line for understandability, like:&lt;/p&gt;
+&lt;h2&gt;Break the rules for readability and flow of code&lt;/h2&gt;
+&lt;p&gt;Rules are made to be broken. If doing it in another way leads to better readability, break the rules.&lt;/p&gt;
+&lt;p&gt;For example, sometimes we &lt;code&gt;SELECT&lt;/code&gt; out a horizontal/vertical part of a table in a quick sub-&lt;code&gt;SELECT&lt;/code&gt; to help the query optimizer. In cases like this I don't use &lt;code&gt;WITH&lt;/code&gt; and keep it in one line, like:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
     &lt;span class="p"&gt;...&lt;/span&gt;
 
 &lt;span class="k"&gt;FROM&lt;/span&gt;
-    &lt;span class="n"&gt;deliveries&lt;/span&gt;
+    &lt;span class="n"&gt;deliveries&lt;/span&gt; &lt;span class="n"&gt;dls&lt;/span&gt;
 &lt;span class="k"&gt;LEFT&lt;/span&gt; &lt;span class="k"&gt;JOIN&lt;/span&gt;
-    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt; &lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="k"&gt;FROM&lt;/span&gt; &lt;span class="n"&gt;drivers&lt;/span&gt; &lt;span class="k"&gt;WHERE&lt;/span&gt; &lt;span class="n"&gt;country&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;UAE&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt;
+    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt; &lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="k"&gt;FROM&lt;/span&gt; &lt;span class="n"&gt;drivers&lt;/span&gt; &lt;span class="k"&gt;WHERE&lt;/span&gt; &lt;span class="n"&gt;country&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;UAE&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;drv&lt;/span&gt;
 &lt;span class="k"&gt;ON&lt;/span&gt;
-    &lt;span class="p"&gt;...&lt;/span&gt;
+    &lt;span class="n"&gt;dls&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;driver_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;drv&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h2&gt;Break the rules for readability and flow of code&lt;/h2&gt;
-&lt;p&gt;sdfsdf&lt;/p&gt;
 &lt;h2&gt;Follow the same rules when writing interactive SQL code&lt;/h2&gt;
-&lt;p&gt;Follow these same rules when writing one-off queries and ETL code, it’s easier to stick to it, and one-off code oftens ends up being ETL’d.&lt;/p&gt;</content><category term="programming"></category><category term="sql"></category></entry></feed>
+&lt;p&gt;I follow these same rules when writing one-off queries in an interactive console. That way it’s easier to stick to them when writing long-lived code that goes into ETL and the repo. Also, one-off code oftens ends up being ETL’d.&lt;/p&gt;
+&lt;h2&gt;Alternative ways to write SQL&lt;/h2&gt;
+&lt;p&gt;Finally, some other, more comprehensive guides:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;https://www.sqlstyle.guide/&lt;/li&gt;
+&lt;li&gt;https://about.gitlab.com/handbook/business-ops/data-team/sql-style-guide/&lt;/li&gt;
+&lt;/ul&gt;</content><category term="programming"></category><category term="sql"></category></entry></feed>

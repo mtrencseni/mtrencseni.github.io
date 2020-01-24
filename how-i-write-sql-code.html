@@ -218,25 +218,29 @@ WHERE
 </pre></div>
 
 
-<h2>Don’t indent small sub-<code>SELECT</code>s</h2>
-<p>Sometimes we <code>SELECT</code> out a horizontal/vertical part of a table in a quick sub-SELECT to help the compiler.
-In cases like this I don't use <code>WITH</code> and keep it in one line for understandability, like:</p>
+<h2>Break the rules for readability and flow of code</h2>
+<p>Rules are made to be broken. If doing it in another way leads to better readability, break the rules.</p>
+<p>For example, sometimes we <code>SELECT</code> out a horizontal/vertical part of a table in a quick sub-<code>SELECT</code> to help the query optimizer. In cases like this I don't use <code>WITH</code> and keep it in one line, like:</p>
 <div class="highlight"><pre><span></span><span class="k">SELECT</span>
     <span class="p">...</span>
 
 <span class="k">FROM</span>
-    <span class="n">deliveries</span>
+    <span class="n">deliveries</span> <span class="n">dls</span>
 <span class="k">LEFT</span> <span class="k">JOIN</span>
-    <span class="p">(</span><span class="k">SELECT</span> <span class="n">id</span><span class="p">,</span> <span class="n">name</span> <span class="k">FROM</span> <span class="n">drivers</span> <span class="k">WHERE</span> <span class="n">country</span> <span class="o">=</span> <span class="s1">&#39;UAE&#39;</span><span class="p">)</span> <span class="n">d</span>
+    <span class="p">(</span><span class="k">SELECT</span> <span class="n">id</span><span class="p">,</span> <span class="n">name</span> <span class="k">FROM</span> <span class="n">drivers</span> <span class="k">WHERE</span> <span class="n">country</span> <span class="o">=</span> <span class="s1">&#39;UAE&#39;</span><span class="p">)</span> <span class="n">drv</span>
 <span class="k">ON</span>
-    <span class="p">...</span>
+    <span class="n">dls</span><span class="p">.</span><span class="n">driver_id</span> <span class="o">=</span> <span class="n">drv</span><span class="p">.</span><span class="n">id</span>
 </pre></div>
 
 
-<h2>Break the rules for readability and flow of code</h2>
-<p>sdfsdf</p>
 <h2>Follow the same rules when writing interactive SQL code</h2>
-<p>Follow these same rules when writing one-off queries and ETL code, it’s easier to stick to it, and one-off code oftens ends up being ETL’d.</p>
+<p>I follow these same rules when writing one-off queries in an interactive console. That way it’s easier to stick to them when writing long-lived code that goes into ETL and the repo. Also, one-off code oftens ends up being ETL’d.</p>
+<h2>Alternative ways to write SQL</h2>
+<p>Finally, some other, more comprehensive guides:</p>
+<ul>
+<li>https://www.sqlstyle.guide/</li>
+<li>https://about.gitlab.com/handbook/business-ops/data-team/sql-style-guide/</li>
+</ul>
   </div>
   <div class="tag-cloud">
     <p>
