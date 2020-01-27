@@ -135,7 +135,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h2&gt;Don’t forget to &lt;code&gt;COALESCE()&lt;/code&gt; when &lt;code&gt;LEFT/RIGHT/OUTER JOIN&lt;/code&gt;ing&lt;/h2&gt;
+&lt;h2&gt;Don’t forget to &lt;code&gt;COALESCE()&lt;/code&gt; when doing &lt;code&gt;LEFT/RIGHT/OUTER JOIN&lt;/code&gt;&lt;/h2&gt;
 &lt;p&gt;Similar to the above example, suppose you want to list out driver's names and daily DPDs for 2020-01-06:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;WITH&lt;/span&gt;
 &lt;span class="n"&gt;daily_dpd&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt;
