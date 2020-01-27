@@ -235,7 +235,7 @@
 
 <span class="k">SELECT</span>
     <span class="n">COALESCE</span><span class="p">(</span> <span class="c1">-- COALESCE() returns the first non-NULL argument passed to it</span>
-        <span class="n">drivers</span><span class="p">.</span><span class="n">driver_name</span><span class="p">,</span>
+        <span class="n">drivers</span><span class="p">.</span><span class="n">name</span><span class="p">,</span>
         <span class="k">CAST</span><span class="p">(</span><span class="n">daily_dpd</span><span class="p">.</span><span class="n">driver_id</span> <span class="k">AS</span> <span class="nb">VARCHAR</span><span class="p">)</span>
     <span class="p">)</span> <span class="k">AS</span> <span class="n">driver_name</span><span class="p">,</span>
     <span class="n">daily_dpd</span><span class="p">.</span><span class="n">num_delivered</span>

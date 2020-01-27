@@ -160,7 +160,7 @@
 
 &lt;span class="k"&gt;SELECT&lt;/span&gt;
     &lt;span class="n"&gt;COALESCE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="c1"&gt;-- COALESCE() returns the first non-NULL argument passed to it&lt;/span&gt;
-        &lt;span class="n"&gt;drivers&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;driver_name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;drivers&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
         &lt;span class="k"&gt;CAST&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;daily_dpd&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;driver_id&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="nb"&gt;VARCHAR&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;driver_name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
     &lt;span class="n"&gt;daily_dpd&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;num_delivered&lt;/span&gt;
