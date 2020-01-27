@@ -151,8 +151,7 @@
 <h2>Use <code>IN (...)</code> instead or <code>OR</code>s</h2>
 <p>In the above example, for clarity and efficiency, we should only include <code>dispatched</code> and <code>delivered</code> rows. Instead of writing <code>event = 'dispatched' OR event = 'delivered'</code>, use <code>IN()</code>:</p>
 <div class="highlight"><pre><span></span><span class="k">SELECT</span>
-    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="k">CASE</span> <span class="k">WHEN</span> <span class="n">event</span> <span class="o">=</span> <span class="s1">&#39;dispatched&#39;</span> <span class="k">THEN</span> <span class="k">ROW</span><span class="p">(</span><span class="k">day</span><span class="p">,</span> <span class="n">tracking_id</span><span class="p">)</span> <span class="k">ELSE</span> <span class="k">NULL</span> <span class="k">END</span><span class="p">)</span> <span class="k">AS</span> <span class="n">num_dispatched</span><span class="p">,</span>
-    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="k">CASE</span> <span class="k">WHEN</span> <span class="n">event</span> <span class="o">=</span> <span class="s1">&#39;delivered&#39;</span>  <span class="k">THEN</span> <span class="k">ROW</span><span class="p">(</span><span class="k">day</span><span class="p">,</span> <span class="n">tracking_id</span><span class="p">)</span> <span class="k">ELSE</span> <span class="k">NULL</span> <span class="k">END</span><span class="p">)</span> <span class="k">AS</span> <span class="n">num_delivered</span>
+    <span class="p">...</span>
 <span class="k">FROM</span>
     <span class="n">core_events</span>
 <span class="k">WHERE</span>
