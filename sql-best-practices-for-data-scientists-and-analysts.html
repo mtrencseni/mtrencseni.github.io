@@ -248,7 +248,7 @@
 </pre></div>
 
 
-<p>Also, I recommend always writing out the table aliases (daily_dpd and drivers in this example) for clarity. It may be clear to you now where each column is coming from, but will you know in 3 months? Will the next guy know? </p>
+<p>Also, always write out the table aliases (<code>daily_dpd</code> and <code>drivers</code> in this example) for clarity. It may be clear to you now where each column is coming from, but will you know in 3 months? Will the next guy know? </p>
 <h2>Double-check your parentheses in <code>WHERE</code> when using <code>OR</code>s</h2>
 <p>A nasty source of bugs in SQL code is a list of <code>AND</code>, with an <code>OR</code> hiding in there, with no parentheses, like:</p>
 <div class="highlight"><pre><span></span><span class="k">SELECT</span>

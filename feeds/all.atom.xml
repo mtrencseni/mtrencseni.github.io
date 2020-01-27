@@ -173,7 +173,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Also, I recommend always writing out the table aliases (daily_dpd and drivers in this example) for clarity. It may be clear to you now where each column is coming from, but will you know in 3 months? Will the next guy know? &lt;/p&gt;
+&lt;p&gt;Also, always write out the table aliases (&lt;code&gt;daily_dpd&lt;/code&gt; and &lt;code&gt;drivers&lt;/code&gt; in this example) for clarity. It may be clear to you now where each column is coming from, but will you know in 3 months? Will the next guy know? &lt;/p&gt;
 &lt;h2&gt;Double-check your parentheses in &lt;code&gt;WHERE&lt;/code&gt; when using &lt;code&gt;OR&lt;/code&gt;s&lt;/h2&gt;
 &lt;p&gt;A nasty source of bugs in SQL code is a list of &lt;code&gt;AND&lt;/code&gt;, with an &lt;code&gt;OR&lt;/code&gt; hiding in there, with no parentheses, like:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
