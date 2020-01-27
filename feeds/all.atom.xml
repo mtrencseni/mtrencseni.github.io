@@ -89,7 +89,7 @@
 &lt;p&gt;Write &lt;code&gt;day BETWEEN DATE('2020-01-06') AND DATE('2020-01-12')&lt;/code&gt;, it's much more readable.&lt;/p&gt;
 &lt;p&gt;Remember that &lt;code&gt;BETWEEN&lt;/code&gt; is inclusive, so &lt;code&gt;x BETWEEN 1 AND 3&lt;/code&gt; is the same as &lt;code&gt;x IN (1, 2, 3)&lt;/code&gt; for an &lt;code&gt;INT&lt;/code&gt;.&lt;/p&gt;
 &lt;h2&gt;Use “advanced” aggregation functions such as &lt;code&gt;MAX_BY()&lt;/code&gt;&lt;/h2&gt;
-&lt;p&gt;If you're doing analytics work, use a database meant for it, like Presto. A good database meant for analytics work will have lots of useful aggregation functions like:&lt;/p&gt;
+&lt;p&gt;If you're doing analytics work, use a database meant for it, like &lt;a href="https://prestodb.io/"&gt;Presto&lt;/a&gt;. A good database meant for analytics work will have lots of useful aggregation functions like:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;code&gt;MAX_BY()&lt;/code&gt;&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;MIN_BY()&lt;/code&gt;&lt;/li&gt;
