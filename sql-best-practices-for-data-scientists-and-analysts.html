@@ -106,7 +106,7 @@
 <div class="highlight"><pre><span></span><span class="k">SELECT</span>
     <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">),</span>                              <span class="c1">-- BAD:  what are we counting here?</span>
     <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">tracking_id</span><span class="p">)</span>            <span class="c1">-- GOOD: unique orders dispatched</span>
-    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="k">ROW</span><span class="p">(</span><span class="k">day</span><span class="p">,</span> <span class="n">tracking_id</span><span class="p">))</span>  <span class="c1">-- GOOD: unique orders dispatched, where we only count an order once a day</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="k">ROW</span><span class="p">(</span><span class="k">day</span><span class="p">,</span> <span class="n">tracking_id</span><span class="p">))</span>  <span class="c1">-- GOOD: dispatches, but we only count an order once a day</span>
 <span class="k">FROM</span>
     <span class="n">dispatches</span>
 <span class="k">WHERE</span>
