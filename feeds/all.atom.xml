@@ -1,5 +1,216 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn</title><link href="/" rel="alternate"></link><link href="/feeds/all.atom.xml" rel="self"></link><id>/</id><updated>2020-01-24T00:00:00+01:00</updated><entry><title>How I write SQL code</title><link href="/how-i-write-sql-code.html" rel="alternate"></link><published>2020-01-24T00:00:00+01:00</published><updated>2020-01-24T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-01-24:/how-i-write-sql-code.html</id><summary type="html">&lt;p&gt;This is a simple post about SQL code formatting. Most of this comes from my time as a Data Engineer at Facebook. &lt;br/&gt;&lt;br/&gt; &lt;img src="/images/sql.png" alt="SQL code" style="width: 600px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn</title><link href="/" rel="alternate"></link><link href="/feeds/all.atom.xml" rel="self"></link><id>/</id><updated>2020-01-26T00:00:00+01:00</updated><entry><title>SQL best practices for Data Scientists and Analysts</title><link href="/sql-best-practices-for-data-scientists-and-analysts.html" rel="alternate"></link><published>2020-01-26T00:00:00+01:00</published><updated>2020-01-26T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-01-26:/sql-best-practices-for-data-scientists-and-analysts.html</id><summary type="html">&lt;p&gt;My list of SQL best practices for Data Scientists and Analysts, or, how I personally write SQL code. I picked this up at Facebook, and later improved it at Fetchr. &lt;br/&gt;&lt;br/&gt; &lt;img src="/images/sql-constr.png" alt="SQL code" style="width: 600px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;The &lt;a href="http://bytepawn.com/how-i-write-sql-code.html"&gt;previous post was about SQL code style&lt;/a&gt;, like uppercasing, indentation and overall structure like &lt;code&gt;WITH&lt;/code&gt;. This is about how to write readable, concise and efficient &lt;code&gt;SELECT&lt;/code&gt; statements that minimize bugs.&lt;/p&gt;
+&lt;p&gt;For completeness, I will quickly list out the coding style suggestions from the &lt;a href="http://bytepawn.com/how-i-write-sql-code.html"&gt;last post&lt;/a&gt;, without explanations:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Use all upper-case for keywords like &lt;code&gt;SELECT&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Keep &lt;code&gt;SELECT .. FROM .. WHERE .. GROUP BY&lt;/code&gt; unindented&lt;/li&gt;
+&lt;li&gt;Line up &lt;code&gt;WHERE&lt;/code&gt; conditions&lt;/li&gt;
+&lt;li&gt;Write &lt;code&gt;GROUP BY 1, 2&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Indent &lt;code&gt;WHEN&lt;/code&gt; relative to &lt;code&gt;CASE&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Use &lt;code&gt;WITH&lt;/code&gt; instead of nested sub-&lt;code&gt;SELECT&lt;/code&gt;s&lt;/li&gt;
+&lt;li&gt;Long lines are okay&lt;/li&gt;
+&lt;li&gt;Break the rules for readability and flow of code&lt;/li&gt;
+&lt;li&gt;Follow the same rules when writing interactive SQL code&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Without further ado, my SQL best practices for Data Scientists and Analysts follow below.&lt;/p&gt;
+&lt;h2&gt;Use &lt;code&gt;COUNT(DISTINCT id)&lt;/code&gt; instead of &lt;code&gt;COUNT(*)&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;COUNT(*)&lt;/code&gt; is dangerous, because you could be counting things do don't want to. For example, a table called &lt;code&gt;dispatches&lt;/code&gt; might include multiple dispatch events for a delivery order. If you're counting dispatches for a week, do you want to double-count dispatches for the same order, if the order was dispatched but didn't get delivered the first time (customer was unreachable), and was re-dispatched again? Also, tables can sometimes get polluted with bad data, eg. if there was a software issue issue in production and the warehouse staff triggered multiple dispatch events. Also, although we expect data engineers to pre-clean data, sometimes new modes of dirtyness appear. And sometimes it happens that a bug is introduced in the ETL pipeline, and eg. all rows are duplicated in a table. Although it's not the analyst's fault, it's better to be defensive. Example:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
+    &lt;span class="k"&gt;COUNT&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;                    &lt;span class="c1"&gt;-- BAD:  what are we counting here?&lt;/span&gt;
+    &lt;span class="k"&gt;COUNT&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;DISTINCT&lt;/span&gt; &lt;span class="n"&gt;tracking_id&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="c1"&gt;-- GOOD: much clearer, we&amp;#39;re counting unique orders&lt;/span&gt;
+&lt;span class="k"&gt;FROM&lt;/span&gt;
+    &lt;span class="n"&gt;dispatches&lt;/span&gt;
+&lt;span class="k"&gt;WHERE&lt;/span&gt;
+    &lt;span class="p"&gt;...&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Use &lt;code&gt;ROW()&lt;/code&gt; when computing metrics over multiple days&lt;/h2&gt;
+&lt;p&gt;In the above example, suppose we want to count dispatches for 7 days, and we want to count re-dispatches of the same package. In this case &lt;code&gt;COUNT(DISTINCT tracking_id)&lt;/code&gt; won't work, because it won't double count double dispatches. And we said &lt;code&gt;COUNT(*)&lt;/code&gt; is evil. The way out is to &lt;code&gt;DISTINCT&lt;/code&gt; on both days and orders, and the way to do that is with &lt;code&gt;ROW()&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
+    &lt;span class="k"&gt;COUNT&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;                              &lt;span class="c1"&gt;-- BAD:  what are we counting here?&lt;/span&gt;
+    &lt;span class="k"&gt;COUNT&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;DISTINCT&lt;/span&gt; &lt;span class="n"&gt;tracking_id&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;            &lt;span class="c1"&gt;-- GOOD: unique orders dispatched&lt;/span&gt;
+    &lt;span class="k"&gt;COUNT&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;DISTINCT&lt;/span&gt; &lt;span class="k"&gt;ROW&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;day&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;tracking_id&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;  &lt;span class="c1"&gt;-- GOOD: unique orders dispatched, where we only count an order once a day&lt;/span&gt;
+&lt;span class="k"&gt;FROM&lt;/span&gt;
+    &lt;span class="n"&gt;dispatches&lt;/span&gt;
+&lt;span class="k"&gt;WHERE&lt;/span&gt;
+    &lt;span class="k"&gt;day&lt;/span&gt; &lt;span class="k"&gt;BETWEEN&lt;/span&gt; &lt;span class="nb"&gt;DATE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;2020-01-06&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AND&lt;/span&gt; &lt;span class="nb"&gt;DATE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;2020-01-12&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Always name columns with &lt;code&gt;AS&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;Continuing with the previous example, we should always name our columns:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
+    &lt;span class="k"&gt;COUNT&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;clown_town&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="k"&gt;COUNT&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;DISTINCT&lt;/span&gt; &lt;span class="n"&gt;tracking_id&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;num_unique_orders&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="k"&gt;COUNT&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;DISTINCT&lt;/span&gt; &lt;span class="k"&gt;ROW&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;day&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;tracking_id&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;num_dispatches&lt;/span&gt;
+&lt;span class="k"&gt;FROM&lt;/span&gt;
+    &lt;span class="n"&gt;dispatches&lt;/span&gt;
+&lt;span class="k"&gt;WHERE&lt;/span&gt;
+    &lt;span class="k"&gt;day&lt;/span&gt; &lt;span class="k"&gt;BETWEEN&lt;/span&gt; &lt;span class="nb"&gt;DATE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;2020-01-06&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AND&lt;/span&gt; &lt;span class="nb"&gt;DATE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;2020-01-12&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Use &lt;code&gt;CASE WHEN&lt;/code&gt; instead of writing multiple queries&lt;/h2&gt;
+&lt;p&gt;Suppose we want to count both dispatches and deliveries, and there's a table &lt;code&gt;core_events&lt;/code&gt; which has both. We can accomplish this with one &lt;code&gt;SELECT&lt;/code&gt;, we don't have to write two:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
+    &lt;span class="k"&gt;COUNT&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;DISTINCT&lt;/span&gt; &lt;span class="k"&gt;CASE&lt;/span&gt; &lt;span class="k"&gt;WHEN&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;dispatched&amp;#39;&lt;/span&gt; &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="k"&gt;ROW&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;day&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;tracking_id&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;ELSE&lt;/span&gt; &lt;span class="k"&gt;NULL&lt;/span&gt; &lt;span class="k"&gt;END&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;num_dispatched&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="k"&gt;COUNT&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;DISTINCT&lt;/span&gt; &lt;span class="k"&gt;CASE&lt;/span&gt; &lt;span class="k"&gt;WHEN&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;delivered&amp;#39;&lt;/span&gt;  &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="k"&gt;ROW&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;day&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;tracking_id&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;ELSE&lt;/span&gt; &lt;span class="k"&gt;NULL&lt;/span&gt; &lt;span class="k"&gt;END&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;num_delivered&lt;/span&gt;
+&lt;span class="k"&gt;FROM&lt;/span&gt;
+    &lt;span class="n"&gt;core_events&lt;/span&gt;
+&lt;span class="k"&gt;WHERE&lt;/span&gt;
+    &lt;span class="p"&gt;...&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Remember, &lt;code&gt;COUNT()&lt;/code&gt; doesn't count &lt;code&gt;NULL&lt;/code&gt;s.&lt;/p&gt;
+&lt;h2&gt;Use &lt;code&gt;IN (...)&lt;/code&gt; instead or &lt;code&gt;OR&lt;/code&gt;s&lt;/h2&gt;
+&lt;p&gt;In the above example, for clarity and efficiency, we should only include &lt;code&gt;dispatched&lt;/code&gt; and &lt;code&gt;delivered&lt;/code&gt; rows. Instead of writing &lt;code&gt;event = 'dispatched' OR event = 'delivered'&lt;/code&gt;, use &lt;code&gt;IN()&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
+    &lt;span class="k"&gt;COUNT&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;DISTINCT&lt;/span&gt; &lt;span class="k"&gt;CASE&lt;/span&gt; &lt;span class="k"&gt;WHEN&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;dispatched&amp;#39;&lt;/span&gt; &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="k"&gt;ROW&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;day&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;tracking_id&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;ELSE&lt;/span&gt; &lt;span class="k"&gt;NULL&lt;/span&gt; &lt;span class="k"&gt;END&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;num_dispatched&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="k"&gt;COUNT&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;DISTINCT&lt;/span&gt; &lt;span class="k"&gt;CASE&lt;/span&gt; &lt;span class="k"&gt;WHEN&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;delivered&amp;#39;&lt;/span&gt;  &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="k"&gt;ROW&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;day&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;tracking_id&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;ELSE&lt;/span&gt; &lt;span class="k"&gt;NULL&lt;/span&gt; &lt;span class="k"&gt;END&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;num_delivered&lt;/span&gt;
+&lt;span class="k"&gt;FROM&lt;/span&gt;
+    &lt;span class="n"&gt;core_events&lt;/span&gt;
+&lt;span class="k"&gt;WHERE&lt;/span&gt;
+    &lt;span class="n"&gt;event&lt;/span&gt; &lt;span class="k"&gt;IN&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;dispatched&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;delivered&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Use &lt;code&gt;BETWEEN&lt;/code&gt; for dates instead of &lt;code&gt;&amp;gt;=&lt;/code&gt; and &lt;code&gt;=&amp;lt;&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;Don't write &lt;code&gt;day &amp;gt;= DATE('2020-01-06') AND day &amp;lt;= DATE('2020-01-12')&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Write &lt;code&gt;day BETWEEN DATE('2020-01-06') AND DATE('2020-01-12')&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Remember that &lt;code&gt;BETWEEN&lt;/code&gt; is inclusive, so &lt;code&gt;x BETWEEN 1 AND 3&lt;/code&gt; is the same as &lt;code&gt;x IN (1, 2, 3)&lt;/code&gt; for an &lt;code&gt;INT&lt;/code&gt;.&lt;/p&gt;
+&lt;h2&gt;Use “advanced” aggregation functions such as &lt;code&gt;MAX_BY()&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;If you're doing analytics work, use a database meant for it, like Presto. A good database meant for analytics work will have lots of useful aggregation functions like:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;MAX_BY()&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;MIN_BY()&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ARRAY_AGG()&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ARBITRARY()&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;COUNT_IF()&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;APPROX_PERCENTILE()&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;KURTOSIS()&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;SKEWNESS()&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To understand what these are, check the &lt;a href="https://prestodb.io/docs/current/functions/aggregate.html"&gt;Presto docs&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;When taking &lt;code&gt;AVG()&lt;/code&gt;, also check min/max/median/p10/p90 values&lt;/h2&gt;
+&lt;p&gt;We often write aggregations and compute the mean summary statistic with &lt;code&gt;AVG()&lt;/code&gt;. In the logistics/delivery world, the most common example is to compute the metric &lt;strong&gt;average Deliveries per Driver&lt;/strong&gt; for a fleet. So we write the query, the fleet average comes out to &lt;code&gt;DPD=30.4&lt;/code&gt;, which means on average a driver makes 30.4 deliveries per day. Sounds reasonable. But there could be a lot of junk in there:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;drivers who are just hired and in training, and making 2-3 deliveries/day; probably shouldn't be counted&lt;/li&gt;
+&lt;li&gt;internal drivers making internal deliveries; probably shouldn't be counted&lt;/li&gt;
+&lt;li&gt;suppose the company just introduced self-pickups, but technically in the production system these show up as a &lt;code&gt;SELF_PICKUP&lt;/code&gt; driver, ie. all self-pickups are under one virtual driver's accounts, who has 1000+ deliveries; probably shouldn't be counted&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;See my earlier post &lt;a href="http://bytepawn.com/beat-the-averages.html#beat-the-averages"&gt;Beat the averages&lt;/a&gt; for more on this.&lt;/p&gt;
+&lt;p&gt;There's lots of ways to catch problems like this, but one cheap way is to check the edges of the distribution:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;WITH&lt;/span&gt;
+&lt;span class="n"&gt;daily_dpd&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="k"&gt;SELECT&lt;/span&gt;
+        &lt;span class="k"&gt;day&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;driver_id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="k"&gt;COUNT&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;DISTINCT&lt;/span&gt; &lt;span class="n"&gt;tracking_id&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;num_delivered&lt;/span&gt;
+    &lt;span class="k"&gt;FROM&lt;/span&gt;
+        &lt;span class="n"&gt;deliveries&lt;/span&gt;
+    &lt;span class="k"&gt;GROUP&lt;/span&gt; &lt;span class="k"&gt;BY&lt;/span&gt;
+        &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
+&lt;span class="p"&gt;),&lt;/span&gt;
+
+&lt;span class="k"&gt;SELECT&lt;/span&gt;
+    &lt;span class="k"&gt;day&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="k"&gt;AVG&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;num_delivered&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;dpd&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="c1"&gt;-- let&amp;#39;s get some additional statistics to make sure we&amp;#39;re&lt;/span&gt;
+    &lt;span class="c1"&gt;-- not fooling ourselves by reporting the average&lt;/span&gt;
+    &lt;span class="k"&gt;MIN&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;num_delivered&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;min_delivered&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;MIN_BY&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;driver_id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;num_delivered&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;min_delivered_driver_id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="k"&gt;MAX&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;num_delivered&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;max_delivered&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;MAX_BY&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;driver_id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;num_delivered&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;max_delivered_driver_id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;APPROX_PERCENTILE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;num_delivered&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;dpd_p10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;APPROX_PERCENTILE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;num_delivered&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;dpd_p50&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="c1"&gt;-- aka median&lt;/span&gt;
+    &lt;span class="n"&gt;APPROX_PERCENTILE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;num_delivered&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;dpd_p90&lt;/span&gt;
+&lt;span class="k"&gt;FROM&lt;/span&gt;
+    &lt;span class="n"&gt;daily_dpd&lt;/span&gt;
+&lt;span class="k"&gt;GROUP&lt;/span&gt; &lt;span class="k"&gt;BY&lt;/span&gt;
+    &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Don’t forget to &lt;code&gt;COALESCE()&lt;/code&gt; when &lt;code&gt;LEFT/RIGHT/OUTER JOIN&lt;/code&gt;ing&lt;/h2&gt;
+&lt;p&gt;Similar to the above example, suppose you want to list out driver's names and daily DPDs for 2020-01-06:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;WITH&lt;/span&gt;
+&lt;span class="n"&gt;daily_dpd&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="k"&gt;SELECT&lt;/span&gt;
+        &lt;span class="n"&gt;driver_id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="k"&gt;COUNT&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;DISTINCT&lt;/span&gt; &lt;span class="n"&gt;tracking_id&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;num_delivered&lt;/span&gt;
+    &lt;span class="k"&gt;FROM&lt;/span&gt;
+        &lt;span class="n"&gt;deliveries&lt;/span&gt;
+    &lt;span class="k"&gt;WHERE&lt;/span&gt;
+        &lt;span class="k"&gt;day&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;DATE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;2020-01-06&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;GROUP&lt;/span&gt; &lt;span class="k"&gt;BY&lt;/span&gt;
+        &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;SELECT&lt;/span&gt;
+    &lt;span class="n"&gt;COALESCE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="c1"&gt;-- COALESCE() returns the first non-NULL argument passed to it&lt;/span&gt;
+        &lt;span class="n"&gt;drivers&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;driver_name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="k"&gt;CAST&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;daily_dpd&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;driver_id&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="nb"&gt;VARCHAR&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;driver_name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;daily_dpd&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;num_delivered&lt;/span&gt;
+&lt;span class="k"&gt;FROM&lt;/span&gt;
+    &lt;span class="n"&gt;daily_dpd&lt;/span&gt;
+&lt;span class="k"&gt;LEFT&lt;/span&gt; &lt;span class="k"&gt;JOIN&lt;/span&gt;
+    &lt;span class="n"&gt;drivers&lt;/span&gt;
+&lt;span class="k"&gt;ON&lt;/span&gt;
+    &lt;span class="n"&gt;daily_dpd&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;driver_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;drivers&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Also, I recommend always writing out the table aliases (daily_dpd and drivers in this example) for clarity. It may be clear to you now where each column is coming from, but will you know in 3 months? Will the next guy know? &lt;/p&gt;
+&lt;h2&gt;Double-check your parentheses in &lt;code&gt;WHERE&lt;/code&gt; when using &lt;code&gt;OR&lt;/code&gt;s&lt;/h2&gt;
+&lt;p&gt;A nasty source of bugs in SQL code is a list of &lt;code&gt;AND&lt;/code&gt;, with an &lt;code&gt;OR&lt;/code&gt; hiding in there, with no parentheses, like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
+    &lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="k"&gt;FROM&lt;/span&gt;
+    &lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="k"&gt;WHERE&lt;/span&gt;
+    &lt;span class="n"&gt;country&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;UAE&amp;#39;&lt;/span&gt; &lt;span class="k"&gt;AND&lt;/span&gt; &lt;span class="k"&gt;day&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;DATE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;2020-01-16&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;AND&lt;/span&gt; &lt;span class="n"&gt;fleet&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;B2C&amp;#39;&lt;/span&gt; &lt;span class="k"&gt;OR&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Acme Bank&amp;#39;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This is almost certainly not what the writer intended. Notice I didn't follow my indentation rules here, which would help catch this. What we really want here is:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
+    &lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="k"&gt;FROM&lt;/span&gt;
+    &lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="k"&gt;WHERE&lt;/span&gt;
+        &lt;span class="n"&gt;country&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;UAE&amp;#39;&lt;/span&gt;
+    &lt;span class="k"&gt;AND&lt;/span&gt; &lt;span class="k"&gt;day&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;DATE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;2020-01-16&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;AND&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fleet&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;B2C&amp;#39;&lt;/span&gt; &lt;span class="k"&gt;OR&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Acme Bank&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Write &lt;code&gt;1000*1000&lt;/code&gt; instead of &lt;code&gt;100000&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;Notice how I left out a 0 above?&lt;/p&gt;
+&lt;p&gt;Unfortunately, we cannot put commas into the numbers to improve readability in SQL (or other programming languages), so we can't write &lt;code&gt;1,000,000&lt;/code&gt;. The problem with &lt;code&gt;1000000&lt;/code&gt; is that it's hard to see whether we got the number of zeros right. This can lead to nasty bugs. It's better to pretend commas by multiplying like &lt;code&gt;1000*1000&lt;/code&gt; or &lt;code&gt;500*1000&lt;/code&gt;.&lt;/p&gt;
+&lt;h2&gt;Use &lt;code&gt;DECIMAL&lt;/code&gt; not &lt;code&gt;DOUBLE&lt;/code&gt; when dealing with money&lt;/h2&gt;
+&lt;p&gt;When dealing with money, never use &lt;code&gt;DOUBLE&lt;/code&gt;. There is a type for it, called &lt;code&gt;DECIMAL&lt;/code&gt;. In SQL, like in many programming languages, doubles are IEEE 754 floating points, and there's weird precision behaviour that may introduce nasty bugs. There's &lt;a href="https://0.30000000000000004.com/"&gt;entire sites&lt;/a&gt; dedicated to explaining this. Tldr = &lt;code&gt;DOUBLE&lt;/code&gt; is meant to be used for math like sine and cosine, &lt;code&gt;DECIMAL&lt;/code&gt; for money. Note that by default, if you write a literal like &lt;code&gt;0.2&lt;/code&gt;, it will be &lt;code&gt;DOUBLE&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Here's a simple example that may surprise you:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
+    &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;does_math_work&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;col_is_double_type&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="k"&gt;CAST&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="nb"&gt;DECIMAL&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="k"&gt;CAST&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="nb"&gt;DECIMAL&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;does_this_other_math_work&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="k"&gt;CAST&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="nb"&gt;DECIMAL&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="k"&gt;CAST&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="nb"&gt;DECIMAL&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;col_is_decimal_type&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This returns on my Presto DB:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;-----------------+---------------------+---------------------------+---------------------+&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;does_math_work&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;col_is_double_type&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;does_this_other_math_work&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;col_is_decimal_type&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;-----------------+---------------------+---------------------------+---------------------+&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="k"&gt;false&lt;/span&gt;           &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;30000000000000004&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="k"&gt;true&lt;/span&gt;                      &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;                 &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;-----------------+---------------------+---------------------------+---------------------+&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</content><category term="programming"></category><category term="sql"></category></entry><entry><title>How I write SQL code</title><link href="/how-i-write-sql-code.html" rel="alternate"></link><published>2020-01-24T00:00:00+01:00</published><updated>2020-01-24T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-01-24:/how-i-write-sql-code.html</id><summary type="html">&lt;p&gt;This is a simple post about SQL code formatting. Most of this comes from my time as a Data Engineer at Facebook. &lt;br/&gt;&lt;br/&gt; &lt;img src="/images/sql.png" alt="SQL code" style="width: 600px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;This is a simple post about SQL code formatting. Most of this comes from my time as a Data Engineer at Facebook.&lt;/p&gt;
 &lt;p&gt;I’ve always cared a lot about writing readable code. Readability has several components:&lt;/p&gt;
 &lt;ul&gt;

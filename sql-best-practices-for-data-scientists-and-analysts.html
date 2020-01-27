@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="My list of SQL best practices for Data Scientists and Analysts, or, how I personally write SQL code. I picked this up at Facebook, and later improved it at Fetchr." />
+<meta name="keywords" content="programming, sql">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="SQL best practices for Data Scientists and Analysts"/>
+<meta property="og:description" content="My list of SQL best practices for Data Scientists and Analysts, or, how I personally write SQL code. I picked this up at Facebook, and later improved it at Fetchr."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/sql-best-practices-for-data-scientists-and-analysts.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-01-26 00:00:00+01:00"/>
+<meta property="article:modified_time" content="2020-01-26 00:00:00+01:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Programming"/>
+<meta property="article:tag" content="programming"/>
+<meta property="article:tag" content="sql"/>
+<meta property="og:image" content="/images/sql-constr.png"/>
+
+  <title>Bytepawn &ndash; SQL best practices for Data Scientists and Analysts</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="sql-best-practices-for-data-scientists-and-analysts">SQL best practices for Data Scientists and Analysts</h1>
+    <p>Posted on Sun 26 January 2020 in <a href="/category/programming.html">Programming</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>The <a href="http://bytepawn.com/how-i-write-sql-code.html">previous post was about SQL code style</a>, like uppercasing, indentation and overall structure like <code>WITH</code>. This is about how to write readable, concise and efficient <code>SELECT</code> statements that minimize bugs.</p>
+<p>For completeness, I will quickly list out the coding style suggestions from the <a href="http://bytepawn.com/how-i-write-sql-code.html">last post</a>, without explanations:</p>
+<ol>
+<li>Use all upper-case for keywords like <code>SELECT</code></li>
+<li>Keep <code>SELECT .. FROM .. WHERE .. GROUP BY</code> unindented</li>
+<li>Line up <code>WHERE</code> conditions</li>
+<li>Write <code>GROUP BY 1, 2</code></li>
+<li>Indent <code>WHEN</code> relative to <code>CASE</code></li>
+<li>Use <code>WITH</code> instead of nested sub-<code>SELECT</code>s</li>
+<li>Long lines are okay</li>
+<li>Break the rules for readability and flow of code</li>
+<li>Follow the same rules when writing interactive SQL code</li>
+</ol>
+<p>Without further ado, my SQL best practices for Data Scientists and Analysts follow below.</p>
+<h2>Use <code>COUNT(DISTINCT id)</code> instead of <code>COUNT(*)</code></h2>
+<p><code>COUNT(*)</code> is dangerous, because you could be counting things do don't want to. For example, a table called <code>dispatches</code> might include multiple dispatch events for a delivery order. If you're counting dispatches for a week, do you want to double-count dispatches for the same order, if the order was dispatched but didn't get delivered the first time (customer was unreachable), and was re-dispatched again? Also, tables can sometimes get polluted with bad data, eg. if there was a software issue issue in production and the warehouse staff triggered multiple dispatch events. Also, although we expect data engineers to pre-clean data, sometimes new modes of dirtyness appear. And sometimes it happens that a bug is introduced in the ETL pipeline, and eg. all rows are duplicated in a table. Although it's not the analyst's fault, it's better to be defensive. Example:</p>
+<div class="highlight"><pre><span></span><span class="k">SELECT</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">),</span>                    <span class="c1">-- BAD:  what are we counting here?</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">tracking_id</span><span class="p">)</span>  <span class="c1">-- GOOD: much clearer, we&#39;re counting unique orders</span>
+<span class="k">FROM</span>
+    <span class="n">dispatches</span>
+<span class="k">WHERE</span>
+    <span class="p">...</span>
+</pre></div>
+
+
+<h2>Use <code>ROW()</code> when computing metrics over multiple days</h2>
+<p>In the above example, suppose we want to count dispatches for 7 days, and we want to count re-dispatches of the same package. In this case <code>COUNT(DISTINCT tracking_id)</code> won't work, because it won't double count double dispatches. And we said <code>COUNT(*)</code> is evil. The way out is to <code>DISTINCT</code> on both days and orders, and the way to do that is with <code>ROW()</code>:</p>
+<div class="highlight"><pre><span></span><span class="k">SELECT</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">),</span>                              <span class="c1">-- BAD:  what are we counting here?</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">tracking_id</span><span class="p">)</span>            <span class="c1">-- GOOD: unique orders dispatched</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="k">ROW</span><span class="p">(</span><span class="k">day</span><span class="p">,</span> <span class="n">tracking_id</span><span class="p">))</span>  <span class="c1">-- GOOD: unique orders dispatched, where we only count an order once a day</span>
+<span class="k">FROM</span>
+    <span class="n">dispatches</span>
+<span class="k">WHERE</span>
+    <span class="k">day</span> <span class="k">BETWEEN</span> <span class="nb">DATE</span><span class="p">(</span><span class="s1">&#39;2020-01-06&#39;</span><span class="p">)</span> <span class="k">AND</span> <span class="nb">DATE</span><span class="p">(</span><span class="s1">&#39;2020-01-12&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<h2>Always name columns with <code>AS</code></h2>
+<p>Continuing with the previous example, we should always name our columns:</p>
+<div class="highlight"><pre><span></span><span class="k">SELECT</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">AS</span> <span class="n">clown_town</span><span class="p">,</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">tracking_id</span><span class="p">)</span> <span class="k">AS</span> <span class="n">num_unique_orders</span><span class="p">,</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="k">ROW</span><span class="p">(</span><span class="k">day</span><span class="p">,</span> <span class="n">tracking_id</span><span class="p">))</span> <span class="k">AS</span> <span class="n">num_dispatches</span>
+<span class="k">FROM</span>
+    <span class="n">dispatches</span>
+<span class="k">WHERE</span>
+    <span class="k">day</span> <span class="k">BETWEEN</span> <span class="nb">DATE</span><span class="p">(</span><span class="s1">&#39;2020-01-06&#39;</span><span class="p">)</span> <span class="k">AND</span> <span class="nb">DATE</span><span class="p">(</span><span class="s1">&#39;2020-01-12&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<h2>Use <code>CASE WHEN</code> instead of writing multiple queries</h2>
+<p>Suppose we want to count both dispatches and deliveries, and there's a table <code>core_events</code> which has both. We can accomplish this with one <code>SELECT</code>, we don't have to write two:</p>
+<div class="highlight"><pre><span></span><span class="k">SELECT</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="k">CASE</span> <span class="k">WHEN</span> <span class="n">event</span> <span class="o">=</span> <span class="s1">&#39;dispatched&#39;</span> <span class="k">THEN</span> <span class="k">ROW</span><span class="p">(</span><span class="k">day</span><span class="p">,</span> <span class="n">tracking_id</span><span class="p">)</span> <span class="k">ELSE</span> <span class="k">NULL</span> <span class="k">END</span><span class="p">)</span> <span class="k">AS</span> <span class="n">num_dispatched</span><span class="p">,</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="k">CASE</span> <span class="k">WHEN</span> <span class="n">event</span> <span class="o">=</span> <span class="s1">&#39;delivered&#39;</span>  <span class="k">THEN</span> <span class="k">ROW</span><span class="p">(</span><span class="k">day</span><span class="p">,</span> <span class="n">tracking_id</span><span class="p">)</span> <span class="k">ELSE</span> <span class="k">NULL</span> <span class="k">END</span><span class="p">)</span> <span class="k">AS</span> <span class="n">num_delivered</span>
+<span class="k">FROM</span>
+    <span class="n">core_events</span>
+<span class="k">WHERE</span>
+    <span class="p">...</span>
+</pre></div>
+
+
+<p>Remember, <code>COUNT()</code> doesn't count <code>NULL</code>s.</p>
+<h2>Use <code>IN (...)</code> instead or <code>OR</code>s</h2>
+<p>In the above example, for clarity and efficiency, we should only include <code>dispatched</code> and <code>delivered</code> rows. Instead of writing <code>event = 'dispatched' OR event = 'delivered'</code>, use <code>IN()</code>:</p>
+<div class="highlight"><pre><span></span><span class="k">SELECT</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="k">CASE</span> <span class="k">WHEN</span> <span class="n">event</span> <span class="o">=</span> <span class="s1">&#39;dispatched&#39;</span> <span class="k">THEN</span> <span class="k">ROW</span><span class="p">(</span><span class="k">day</span><span class="p">,</span> <span class="n">tracking_id</span><span class="p">)</span> <span class="k">ELSE</span> <span class="k">NULL</span> <span class="k">END</span><span class="p">)</span> <span class="k">AS</span> <span class="n">num_dispatched</span><span class="p">,</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="k">CASE</span> <span class="k">WHEN</span> <span class="n">event</span> <span class="o">=</span> <span class="s1">&#39;delivered&#39;</span>  <span class="k">THEN</span> <span class="k">ROW</span><span class="p">(</span><span class="k">day</span><span class="p">,</span> <span class="n">tracking_id</span><span class="p">)</span> <span class="k">ELSE</span> <span class="k">NULL</span> <span class="k">END</span><span class="p">)</span> <span class="k">AS</span> <span class="n">num_delivered</span>
+<span class="k">FROM</span>
+    <span class="n">core_events</span>
+<span class="k">WHERE</span>
+    <span class="n">event</span> <span class="k">IN</span> <span class="p">(</span><span class="s1">&#39;dispatched&#39;</span><span class="p">,</span> <span class="s1">&#39;delivered&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<h2>Use <code>BETWEEN</code> for dates instead of <code>&gt;=</code> and <code>=&lt;</code></h2>
+<p>Don't write <code>day &gt;= DATE('2020-01-06') AND day &lt;= DATE('2020-01-12')</code>.</p>
+<p>Write <code>day BETWEEN DATE('2020-01-06') AND DATE('2020-01-12')</code>.</p>
+<p>Remember that <code>BETWEEN</code> is inclusive, so <code>x BETWEEN 1 AND 3</code> is the same as <code>x IN (1, 2, 3)</code> for an <code>INT</code>.</p>
+<h2>Use “advanced” aggregation functions such as <code>MAX_BY()</code></h2>
+<p>If you're doing analytics work, use a database meant for it, like Presto. A good database meant for analytics work will have lots of useful aggregation functions like:</p>
+<ul>
+<li><code>MAX_BY()</code></li>
+<li><code>MIN_BY()</code></li>
+<li><code>ARRAY_AGG()</code></li>
+<li><code>ARBITRARY()</code></li>
+<li><code>COUNT_IF()</code></li>
+<li><code>APPROX_PERCENTILE()</code></li>
+<li><code>KURTOSIS()</code></li>
+<li><code>SKEWNESS()</code></li>
+</ul>
+<p>To understand what these are, check the <a href="https://prestodb.io/docs/current/functions/aggregate.html">Presto docs</a>.</p>
+<h2>When taking <code>AVG()</code>, also check min/max/median/p10/p90 values</h2>
+<p>We often write aggregations and compute the mean summary statistic with <code>AVG()</code>. In the logistics/delivery world, the most common example is to compute the metric <strong>average Deliveries per Driver</strong> for a fleet. So we write the query, the fleet average comes out to <code>DPD=30.4</code>, which means on average a driver makes 30.4 deliveries per day. Sounds reasonable. But there could be a lot of junk in there:</p>
+<ul>
+<li>drivers who are just hired and in training, and making 2-3 deliveries/day; probably shouldn't be counted</li>
+<li>internal drivers making internal deliveries; probably shouldn't be counted</li>
+<li>suppose the company just introduced self-pickups, but technically in the production system these show up as a <code>SELF_PICKUP</code> driver, ie. all self-pickups are under one virtual driver's accounts, who has 1000+ deliveries; probably shouldn't be counted</li>
+</ul>
+<p>See my earlier post <a href="http://bytepawn.com/beat-the-averages.html#beat-the-averages">Beat the averages</a> for more on this.</p>
+<p>There's lots of ways to catch problems like this, but one cheap way is to check the edges of the distribution:</p>
+<div class="highlight"><pre><span></span><span class="k">WITH</span>
+<span class="n">daily_dpd</span> <span class="k">AS</span>
+<span class="p">(</span>
+    <span class="k">SELECT</span>
+        <span class="k">day</span><span class="p">,</span>
+        <span class="n">driver_id</span><span class="p">,</span>
+        <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">tracking_id</span><span class="p">)</span> <span class="k">AS</span> <span class="n">num_delivered</span>
+    <span class="k">FROM</span>
+        <span class="n">deliveries</span>
+    <span class="k">GROUP</span> <span class="k">BY</span>
+        <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span>
+<span class="p">),</span>
+
+<span class="k">SELECT</span>
+    <span class="k">day</span><span class="p">,</span>
+    <span class="k">AVG</span><span class="p">(</span><span class="n">num_delivered</span><span class="p">)</span> <span class="k">AS</span> <span class="n">dpd</span><span class="p">,</span>
+    <span class="c1">-- let&#39;s get some additional statistics to make sure we&#39;re</span>
+    <span class="c1">-- not fooling ourselves by reporting the average</span>
+    <span class="k">MIN</span><span class="p">(</span><span class="n">num_delivered</span><span class="p">)</span> <span class="k">AS</span> <span class="n">min_delivered</span><span class="p">,</span>
+    <span class="n">MIN_BY</span><span class="p">(</span><span class="n">driver_id</span><span class="p">,</span> <span class="n">num_delivered</span><span class="p">)</span> <span class="k">AS</span> <span class="n">min_delivered_driver_id</span><span class="p">,</span>
+    <span class="k">MAX</span><span class="p">(</span><span class="n">num_delivered</span><span class="p">)</span> <span class="k">AS</span> <span class="n">max_delivered</span><span class="p">,</span>
+    <span class="n">MAX_BY</span><span class="p">(</span><span class="n">driver_id</span><span class="p">,</span> <span class="n">num_delivered</span><span class="p">)</span> <span class="k">AS</span> <span class="n">max_delivered_driver_id</span><span class="p">,</span>
+    <span class="n">APPROX_PERCENTILE</span><span class="p">(</span><span class="n">num_delivered</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="p">)</span> <span class="n">dpd_p10</span><span class="p">,</span>
+    <span class="n">APPROX_PERCENTILE</span><span class="p">(</span><span class="n">num_delivered</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">)</span> <span class="n">dpd_p50</span><span class="p">,</span> <span class="c1">-- aka median</span>
+    <span class="n">APPROX_PERCENTILE</span><span class="p">(</span><span class="n">num_delivered</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">9</span><span class="p">)</span> <span class="n">dpd_p90</span>
+<span class="k">FROM</span>
+    <span class="n">daily_dpd</span>
+<span class="k">GROUP</span> <span class="k">BY</span>
+    <span class="mi">1</span>
+</pre></div>
+
+
+<h2>Don’t forget to <code>COALESCE()</code> when <code>LEFT/RIGHT/OUTER JOIN</code>ing</h2>
+<p>Similar to the above example, suppose you want to list out driver's names and daily DPDs for 2020-01-06:</p>
+<div class="highlight"><pre><span></span><span class="k">WITH</span>
+<span class="n">daily_dpd</span> <span class="k">AS</span>
+<span class="p">(</span>
+    <span class="k">SELECT</span>
+        <span class="n">driver_id</span><span class="p">,</span>
+        <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">tracking_id</span><span class="p">)</span> <span class="k">AS</span> <span class="n">num_delivered</span>
+    <span class="k">FROM</span>
+        <span class="n">deliveries</span>
+    <span class="k">WHERE</span>
+        <span class="k">day</span> <span class="o">=</span> <span class="nb">DATE</span><span class="p">(</span><span class="s1">&#39;2020-01-06&#39;</span><span class="p">)</span>
+    <span class="k">GROUP</span> <span class="k">BY</span>
+        <span class="mi">1</span>
+<span class="p">)</span>
+
+<span class="k">SELECT</span>
+    <span class="n">COALESCE</span><span class="p">(</span> <span class="c1">-- COALESCE() returns the first non-NULL argument passed to it</span>
+        <span class="n">drivers</span><span class="p">.</span><span class="n">driver_name</span><span class="p">,</span>
+        <span class="k">CAST</span><span class="p">(</span><span class="n">daily_dpd</span><span class="p">.</span><span class="n">driver_id</span> <span class="k">AS</span> <span class="nb">VARCHAR</span><span class="p">)</span>
+    <span class="p">)</span> <span class="k">AS</span> <span class="n">driver_name</span><span class="p">,</span>
+    <span class="n">daily_dpd</span><span class="p">.</span><span class="n">num_delivered</span>
+<span class="k">FROM</span>
+    <span class="n">daily_dpd</span>
+<span class="k">LEFT</span> <span class="k">JOIN</span>
+    <span class="n">drivers</span>
+<span class="k">ON</span>
+    <span class="n">daily_dpd</span><span class="p">.</span><span class="n">driver_id</span> <span class="o">=</span> <span class="n">drivers</span><span class="p">.</span><span class="n">id</span>
+</pre></div>
+
+
+<p>Also, I recommend always writing out the table aliases (daily_dpd and drivers in this example) for clarity. It may be clear to you now where each column is coming from, but will you know in 3 months? Will the next guy know? </p>
+<h2>Double-check your parentheses in <code>WHERE</code> when using <code>OR</code>s</h2>
+<p>A nasty source of bugs in SQL code is a list of <code>AND</code>, with an <code>OR</code> hiding in there, with no parentheses, like:</p>
+<div class="highlight"><pre><span></span><span class="k">SELECT</span>
+    <span class="p">...</span>
+<span class="k">FROM</span>
+    <span class="p">...</span>
+<span class="k">WHERE</span>
+    <span class="n">country</span> <span class="o">=</span> <span class="s1">&#39;UAE&#39;</span> <span class="k">AND</span> <span class="k">day</span> <span class="o">=</span> <span class="nb">DATE</span><span class="p">(</span><span class="s1">&#39;2020-01-16&#39;</span><span class="p">)</span> <span class="k">AND</span> <span class="n">fleet</span> <span class="o">=</span> <span class="s1">&#39;B2C&#39;</span> <span class="k">OR</span> <span class="n">client</span> <span class="o">=</span> <span class="s1">&#39;Acme Bank&#39;</span>
+</pre></div>
+
+
+<p>This is almost certainly not what the writer intended. Notice I didn't follow my indentation rules here, which would help catch this. What we really want here is:</p>
+<div class="highlight"><pre><span></span><span class="k">SELECT</span>
+    <span class="p">...</span>
+<span class="k">FROM</span>
+    <span class="p">...</span>
+<span class="k">WHERE</span>
+        <span class="n">country</span> <span class="o">=</span> <span class="s1">&#39;UAE&#39;</span>
+    <span class="k">AND</span> <span class="k">day</span> <span class="o">=</span> <span class="nb">DATE</span><span class="p">(</span><span class="s1">&#39;2020-01-16&#39;</span><span class="p">)</span>
+    <span class="k">AND</span> <span class="p">(</span><span class="n">fleet</span> <span class="o">=</span> <span class="s1">&#39;B2C&#39;</span> <span class="k">OR</span> <span class="n">client</span> <span class="o">=</span> <span class="s1">&#39;Acme Bank&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<h2>Write <code>1000*1000</code> instead of <code>100000</code></h2>
+<p>Notice how I left out a 0 above?</p>
+<p>Unfortunately, we cannot put commas into the numbers to improve readability in SQL (or other programming languages), so we can't write <code>1,000,000</code>. The problem with <code>1000000</code> is that it's hard to see whether we got the number of zeros right. This can lead to nasty bugs. It's better to pretend commas by multiplying like <code>1000*1000</code> or <code>500*1000</code>.</p>
+<h2>Use <code>DECIMAL</code> not <code>DOUBLE</code> when dealing with money</h2>
+<p>When dealing with money, never use <code>DOUBLE</code>. There is a type for it, called <code>DECIMAL</code>. In SQL, like in many programming languages, doubles are IEEE 754 floating points, and there's weird precision behaviour that may introduce nasty bugs. There's <a href="https://0.30000000000000004.com/">entire sites</a> dedicated to explaining this. Tldr = <code>DOUBLE</code> is meant to be used for math like sine and cosine, <code>DECIMAL</code> for money. Note that by default, if you write a literal like <code>0.2</code>, it will be <code>DOUBLE</code>.</p>
+<p>Here's a simple example that may surprise you:</p>
+<div class="highlight"><pre><span></span><span class="k">SELECT</span>
+    <span class="mi">0</span><span class="p">.</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mi">2</span> <span class="o">=</span> <span class="mi">0</span><span class="p">.</span><span class="mi">3</span> <span class="k">AS</span> <span class="n">does_math_work</span><span class="p">,</span>
+    <span class="mi">0</span><span class="p">.</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mi">2</span> <span class="k">AS</span> <span class="n">col_is_double_type</span><span class="p">,</span>
+    <span class="k">CAST</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">1</span> <span class="k">AS</span> <span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="k">CAST</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">2</span> <span class="k">AS</span> <span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span> <span class="o">=</span> <span class="mi">0</span><span class="p">.</span><span class="mi">3</span> <span class="k">AS</span> <span class="n">does_this_other_math_work</span><span class="p">,</span>
+    <span class="k">CAST</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">1</span> <span class="k">AS</span> <span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="k">CAST</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">2</span> <span class="k">AS</span> <span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span> <span class="k">AS</span> <span class="n">col_is_decimal_type</span>
+</pre></div>
+
+
+<p>This returns on my Presto DB:</p>
+<div class="highlight"><pre><span></span><span class="o">+</span><span class="c1">-----------------+---------------------+---------------------------+---------------------+</span>
+<span class="o">|</span> <span class="n">does_math_work</span>  <span class="o">|</span> <span class="n">col_is_double_type</span>  <span class="o">|</span> <span class="n">does_this_other_math_work</span> <span class="o">|</span> <span class="n">col_is_decimal_type</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">-----------------+---------------------+---------------------------+---------------------+</span>
+<span class="o">|</span> <span class="k">false</span>           <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">30000000000000004</span> <span class="o">|</span> <span class="k">true</span>                      <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">3</span>                 <span class="o">|</span>
+<span class="o">+</span><span class="c1">-----------------+---------------------+---------------------------+---------------------+</span>
+</pre></div>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/programming.html">programming</a>
+      <a href="/tag/sql.html">sql</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "SQL best practices for Data Scientists and Analysts",
+  "headline": "SQL best practices for Data Scientists and Analysts",
+  "datePublished": "2020-01-26 00:00:00+01:00",
+  "dateModified": "2020-01-26 00:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/sql-best-practices-for-data-scientists-and-analysts.html",
+  "description": "My list of SQL best practices for Data Scientists and Analysts, or, how I personally write SQL code. I picked this up at Facebook, and later improved it at Fetchr."
+}
+</script></body>
+</html>
