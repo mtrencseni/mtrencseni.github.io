@@ -37,11 +37,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="" />
 <meta name="author" content="Marton Trencseni" />
-<meta name="description" content="My list of SQL best practices for Data Scientists and Analysts, or, how I personally write SQL code. I picked this up at Facebook, and later improved it at Fetchr." />
+<meta name="description" content="Sometimes I get to spend a few days with my Data Engineering hat on. I enjoy this kind of work, I like to move up and down the Data Science stack and I try to keep myself sharp technically. Recently I was able to spend a few days optimizing our Airflow ETL for speed." />
 <meta name="keywords" content="data engineering, python">
 <meta property="og:site_name" content="Bytepawn"/>
 <meta property="og:title" content="Optimizing waits in Airflow"/>
-<meta property="og:description" content="My list of SQL best practices for Data Scientists and Analysts, or, how I personally write SQL code. I picked this up at Facebook, and later improved it at Fetchr."/>
+<meta property="og:description" content="Sometimes I get to spend a few days with my Data Engineering hat on. I enjoy this kind of work, I like to move up and down the Data Science stack and I try to keep myself sharp technically. Recently I was able to spend a few days optimizing our Airflow ETL for speed."/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="/optimizing-waits-in-airflow.html"/>
 <meta property="og:type" content="article"/>
@@ -84,7 +84,7 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>Sometimes I get to spend a few days with my Data Engineering hat on. I enjoy this kind of work, I like to move up and down the Data Science stack (from debugging a Python exception to helping the CxOs make a good operational yearly plan) and I try to keep myself sharp technically.</p>
+<p>Sometimes I get to spend a few days with my Data Engineering hat on. I enjoy this kind of work, I like to move up and down the Data Science stack and I try to keep myself sharp technically.</p>
 <p>Recently I was able to spend a few days optimizing our <a href="https://airflow.apache.org/">Airflow</a> ETL for speed. We noticed that DWH jobs with a lots of waits are taking a lot of time to complete the waits (not counting the actual waiting time). Below is a list of changes I made to improve our waiting time.</p>
 <h2>Our history of waiting on tables</h2>
 <p>The basic premise is this. Suppose you have a DWH job that creates the latest <code>ds</code> partition for <code>result_table</code>, and the <code>INSERT</code> is a result of a <code>SELECT</code> like:</p>
@@ -246,7 +246,7 @@ What's confusing to me is, why does Airflow need to re-read the file to notice t
   },
   "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
   "url": "/optimizing-waits-in-airflow.html",
-  "description": "My list of SQL best practices for Data Scientists and Analysts, or, how I personally write SQL code. I picked this up at Facebook, and later improved it at Fetchr."
+  "description": "Sometimes I get to spend a few days with my Data Engineering hat on. I enjoy this kind of work, I like to move up and down the Data Science stack and I try to keep myself sharp technically. Recently I was able to spend a few days optimizing our Airflow ETL for speed."
 }
 </script></body>
 </html>
