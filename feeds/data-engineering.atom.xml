@@ -57,7 +57,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;The first thing we noticed is that this structure overloaded our Presto cluster. We have ~100 jobs, and each has a couple of &lt;code&gt;wait&lt;/code&gt;s, so this results in hundreds of waits trying to run at the same time. Also, since we only have a limited number of worker slots on our Airflow worker, sometimes the &lt;code&gt;wait&lt;/code&gt;s would use up all the slots, and the actual &lt;code&gt;insert&lt;/code&gt;s never ran, or took a long time to get there.&lt;/p&gt;
+&lt;p&gt;The first thing we noticed is that this overloaded our Presto cluster. We have ~100 jobs, and each has a couple of &lt;code&gt;wait&lt;/code&gt;s, so this results in hundreds of waits trying to run at the same time. Also, since we only have a limited number of worker slots on our Airflow worker, sometimes the &lt;code&gt;wait&lt;/code&gt;s would use up all the slots, and the actual &lt;code&gt;insert&lt;/code&gt;s never ran, or took a long time to get there.&lt;/p&gt;
 &lt;p&gt;So one of the initial optimizations was to chain the waits on the DAG, like:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    insert
     |
