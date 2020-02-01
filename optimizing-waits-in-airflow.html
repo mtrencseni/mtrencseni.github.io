@@ -141,7 +141,7 @@
 </pre></div>
 
 
-<p>The first thing we noticed is that this overloaded our Presto cluster. We have ~100 jobs, and each has a couple of <code>wait</code>s, so this results in hundreds of waits trying to run at the same time. Also, since we only have a limited number of worker slots on our Airflow worker, sometimes the <code>wait</code>s would use up all the slots, and the actual <code>insert</code>s never ran, or took a long time to get there.</p>
+<p>The first thing we noticed is that this overloaded our Presto cluster. We have ~100 jobs, and each has a couple of <code>wait</code>s, so this results in hundreds of <code>wait</code>s trying to run at the same time. Also, since we only have a limited number of worker slots on our Airflow worker, sometimes the <code>wait</code>s would use up all the slots, and the actual <code>insert</code>s never ran, or spent a long time in the queue, waiting to be executed.</p>
 <p>So one of the initial optimizations was to chain the waits on the DAG, like:</p>
 <div class="highlight"><pre><span></span>    insert
     |
@@ -156,7 +156,7 @@
 <p>This way each DAG only ever has one <code>wait</code> job running. The <code>wait</code> jobs per DAG run sequentally. This change was easy to make, because we don't construct our DAGs "by hand" for each table, we have a helper function which does this (which also does the <code>current_ds_wait::</code> stuff), so we just needed to make this change in one place.</p>
 <h2>Task pools</h2>
 <p>The second thing we tried was to use Airflow’s pool feature. With this, tasks can be assigned to pools, and per pool limits can be set on execution. So if we have 32 worker slots, we can set up a <code>wait</code> pool with 24 slots, so no more than 24 <code>wait</code>s can be running.</p>
-<p>Unfortunately, this feature in Airflow is buggy/broken. In our setup, where we’re running a separate master and worker, and using celery for running worker tasks, the Airflow scheduler doesn’t respect the limits, <a href="https://issues.apache.org/jira/browse/AIRFLOW-584">similar to this bug report</a>.</p>
+<p>Unfortunately, this feature in Airflow is buggy/broken. In our setup, where we’re running a separate master and worker, and using <a href="https://airflow.apache.org/docs/1.10.6/howto/executor/use-celery.html">Celery</a> for running worker tasks, the Airflow scheduler doesn’t respect the limits, <a href="https://issues.apache.org/jira/browse/AIRFLOW-584">similar to this bug report</a>.</p>
 <h2>Hive instead of Presto</h2>
 <p>This is an obvious optimization that we should have done at the beginning. Since all our DWH jobs run on Presto, our Hive execution engine is just sitting around handling metadata queries such as <code>CREATE TABLE</code> (<code>create</code> tasks in the DAG) and <code>MSCK REPAIR TABLE</code>s (the latter is neccessary when we put new data on S3 by copying data with the AWS S3 tools, ie. not a Presto <code>INSERT</code>, and we want the Hive metastore to notice the new partition; hence we call these <code>notice</code> jobs in the DAGs). So by running the <code>SHOW PARTITION</code> (the syntax starts the same, but it’s a bit different on Hive) on Hive, we can get rid of 95% of the jobs on the Presto cluster, which were taking a long time to run, even though they’re just checking for the presence of a partition.</p>
 <p>Once we made this to Hive and saw how much we save on the Presto side, I felt pretty stupid for not thinking of this earlier. And the Hive engine can handle these metadata queries trivially.</p>
