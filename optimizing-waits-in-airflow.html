@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-1812620-2');
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="My list of SQL best practices for Data Scientists and Analysts, or, how I personally write SQL code. I picked this up at Facebook, and later improved it at Fetchr." />
+<meta name="keywords" content="data engineering, python">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="Optimizing waits in Airflow"/>
+<meta property="og:description" content="My list of SQL best practices for Data Scientists and Analysts, or, how I personally write SQL code. I picked this up at Facebook, and later improved it at Fetchr."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/optimizing-waits-in-airflow.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-02-01 00:00:00+01:00"/>
+<meta property="article:modified_time" content="2020-02-01 00:00:00+01:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data engineering"/>
+<meta property="article:tag" content="data engineering"/>
+<meta property="article:tag" content="python"/>
+<meta property="og:image" content="/images/airflow-dag.png"/>
+
+  <title>Bytepawn &ndash; Optimizing waits in Airflow</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="optimizing-waits-in-airflow">Optimizing waits in Airflow</h1>
+    <p>Posted on Sat 01 February 2020 in <a href="/category/data-engineering.html">Data engineering</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>Sometimes I get to spend a few days with my Data Engineering hat on. I enjoy this kind of work, I like to move up and down the Data Science stack (from debugging a Python exception to helping the CxOs make a good operational yearly plan) and I try to keep myself sharp technically.</p>
+<p>Recently I was able to spend a few days optimizing our <a href="https://airflow.apache.org/">Airflow</a> ETL for speed. We noticed that DWH jobs with a lots of waits are taking a lot of time to complete the waits (not counting the actual waiting time). Below is a list of changes I made to improve our waiting time.</p>
+<h2>Our history of waiting on tables</h2>
+<p>The basic premise is this. Suppose you have a DWH job that creates the latest <code>ds</code> partition for <code>result_table</code>, and the <code>INSERT</code> is a result of a <code>SELECT</code> like:</p>
+<div class="highlight"><pre><span></span><span class="k">SELECT</span>
+    <span class="p">...</span>
+<span class="k">FROM</span>
+    <span class="n">table1</span>
+<span class="k">INNER</span> <span class="k">JOIN</span>
+    <span class="n">table2</span>
+<span class="k">ON</span>
+    <span class="p">...</span>
+<span class="k">INNER</span> <span class="k">JOIN</span>
+    <span class="n">table3</span>
+<span class="k">ON</span>
+    <span class="p">...</span>
+</pre></div>
+
+
+<p>In our ETL, we would write this like:</p>
+<div class="highlight"><pre><span></span><span class="k">SELECT</span>
+    <span class="p">...</span>
+<span class="k">FROM</span>
+    <span class="n">curent_ds_wait</span><span class="p">::</span><span class="n">table1</span>
+<span class="k">INNER</span> <span class="k">JOIN</span>
+    <span class="n">curent_ds_wait</span><span class="p">::</span><span class="n">table2</span>
+<span class="k">ON</span>
+    <span class="p">...</span>
+<span class="k">INNER</span> <span class="k">JOIN</span>
+    <span class="n">curent_ds_wait</span><span class="p">::</span><span class="n">table3</span>
+<span class="k">ON</span>
+    <span class="p">...</span>
+</pre></div>
+
+
+<p>Our framework parses the SQL snippets and extracts tables names after <code>current_ds_wait::</code>. These are the list of tables whose where we need to wait for today's <code>ds</code> partition to land before we can run the <code>SELECT</code> (otherwise the result would be incomplete).</p>
+<p>So when our framework generates the DAG for this DWH job, it generates an <code>insert</code> task (<code>PrestoOperator</code> operator), which depends on 3 <code>wait</code> tasks (<code>DsPartitionSensor</code> operators), one for each table. There a bunch of other tasks that we generate (such as tasks for running <code>CREATE TABLE IF NOT EXISTS</code>), but let’s ignore that.</p>
+<p>So this part of the DAG looks like:</p>
+<div class="highlight"><pre><span></span>    insert
+    |
+    +-- wait_table1
+    |
+    +-- wait_table2
+    |
+    +-- wait_table3
+</pre></div>
+
+
+<h2>Chaining waits</h2>
+<p>Initially, the <code>wait</code> jobs issued a Presto SQL statement like:</p>
+<div class="highlight"><pre><span></span><span class="k">SHOW</span> <span class="n">PARTITIONS</span> <span class="k">FROM</span> <span class="err">{</span><span class="k">table</span><span class="err">}</span> <span class="k">WHERE</span> <span class="n">ds</span> <span class="o">=</span> <span class="s1">&#39;{ds}&#39;</span> <span class="k">LIMIT</span> <span class="mi">1</span>
+</pre></div>
+
+
+<p>The first thing we noticed is that this structure overloaded our Presto cluster. We have ~100 jobs, and each has a couple of <code>wait</code>s, so this results in hundreds of waits trying to run at the same time. Also, since we only have a limited number of worker slots on our Airflow worker, sometimes the <code>wait</code>s would use up all the slots, and the actual <code>insert</code>s never ran, or took a long time to get there.</p>
+<p>So one of the initial optimizations was to chain the waits on the DAG, like:</p>
+<div class="highlight"><pre><span></span>    insert
+    |
+    +-- wait_table1
+          |
+          +-- wait_table2
+               |
+               +-- wait_table3
+</pre></div>
+
+
+<p>This way each DAG only ever has one <code>wait</code> job running. The <code>wait</code> jobs per DAG run sequentally. This change was easy to make, because we don't construct our DAGs "by hand" for each table, we have a helper function which does this (which also does the <code>current_ds_wait::</code> stuff), so we just needed to make this change in one place.</p>
+<h2>Task pools</h2>
+<p>The second thing we tried was to use Airflow’s pool feature. With this, tasks can be assigned to pools, and per pool limits can be set on execution. So if we have 32 worker slots, we can set up a <code>wait</code> pool with 24 slots, so no more than 24 <code>wait</code>s can be running.</p>
+<p>Unfortunately, this feature in Airflow is buggy/broken. In our setup, where we’re running a separate master and worker, and using celery for running worker tasks, the Airflow scheduler doesn’t respect the limits, <a href="https://issues.apache.org/jira/browse/AIRFLOW-584">similar to this bug report</a>.</p>
+<h2>Hive instead of Presto</h2>
+<p>This is an obvious optimization that we should have done at the beginning. Since all our DWH jobs run on Presto, our Hive execution engine is just sitting around handling metadata queries such as <code>CREATE TABLE</code> (<code>create</code> tasks in the DAG) and <code>MSCK REPAIR TABLE</code>s (the latter is neccessary when we put new data on S3 by copying data with the AWS S3 tools, ie. not a Presto <code>INSERT</code>, and we want the Hive metastore to notice the new partition; hence we call these <code>notice</code> jobs in the DAGs). So by running the <code>SHOW PARTITION</code> (the syntax starts the same, but it’s a bit different on Hive) on Hive, we can get rid of 95% of the jobs on the Presto cluster, which were taking a long time to run, even though they’re just checking for the presence of a partition.</p>
+<p>Once we made this to Hive and saw how much we save on the Presto side, I felt pretty stupid for not thinking of this earlier. And the Hive engine can handle these metadata queries trivially.</p>
+<h2>Multiwaits</h2>
+<p>In the example above, we’re waiting on 3 tables, and we generate 3 <code>wait</code> jobs. We realized this is inefficient, and we can just have one <code>multi_wait</code> task which checks all 3 partitions at once. We just generate a HQL with several <code>SHOW PARTITION</code> statements separated by <code>;</code> and parse the resulting string to see what’s there and what’s missing. So the final DAG looks very simple:</p>
+<div class="highlight"><pre><span></span>    insert
+    |
+    +-- multi_wait
+</pre></div>
+
+
+<p>This is such an obvious idea, I felt pretty stupid for not thinking of this earlier.</p>
+<h2>Reducing time between jobs</h2>
+<p>Looking at the scheduler logs, we still have a problem: the <code>multi_wait</code> finishes at time X, but the insert is only launched at time X+5 minutes. This is a generic issue with Airflow, not specific to <code>wait</code>s. Why does Airflow need 5 minutes to figure out that a task’s dependencies are all finished?</p>
+<p>To understand this I looked through the logs, and found that indeed, the first time in the logs that Airflow notices that the insert can run is several minutes after the <code>multi_wait</code> finishes. To understand this I took the log line and looked it up in the Airflow source code. What happens is this:</p>
+<p>Every 30 seconds the Airflow scheduler (as configured) lists out all .py files in the <code>dags</code> folder. It saves these known <code>.py</code> files, and then in a “round-robin” manner, executes them: it runs <code>one.py</code>, <code>two.py</code>, <code>three.py</code>, and so on, where each of the <code>.py</code> files is a DAG definition. Each time it executes the <code>.py</code> file, it looks at instances of the <code>DAG</code> class in the global namespace, and those are the <code>DAG</code>s it executes. The problem is, Airflow scheduler only checks for new runnable tasks (ie. all dependencies are finished) when it’s running the appropriate <code>.py</code> file! <strong>This is a very unfortunate architectural choice.</strong> And this explains why it takes ~5 minutes between task executions: we have about ~100 ETL jobs in ~100 <code>.py</code> files, and running a <code>.py</code> file takes 3-5 seconds (because the Airflow imports are slow). The reason it takes 3-5 seconds to execute a 100 line Python program is because they have to import Airflow libraries (to get DAG class, etc), and those Airflow imports take time:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">airflow.operators</span> <span class="kn">import</span> <span class="n">PrestoOperator</span><span class="p">,</span> <span class="n">DropDsPartitionOperator</span><span class="p">,</span> <span class="n">DsPartitionSensor</span><span class="p">,</span> <span class="n">PostgresOperator</span>
+<span class="kn">from</span> <span class="nn">airflow.operators.hive_operator</span> <span class="kn">import</span> <span class="n">HiveOperator</span>
+<span class="kn">from</span> <span class="nn">airflow.hooks.presto_hook</span> <span class="kn">import</span> <span class="n">PrestoHook</span>
+<span class="kn">from</span> <span class="nn">airflow.hooks.base_hook</span> <span class="kn">import</span> <span class="n">BaseHook</span>
+<span class="kn">from</span> <span class="nn">airflow</span> <span class="kn">import</span> <span class="n">DAG</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+</pre></div>
+
+
+<p>I asked the following question in the Airflow slack channel:</p>
+<blockquote>
+<p>I'm trying to debug my Airflow (1.8.2), we've been using it in prod for ~2 yrs. My issue is that it takes a long time between task runs. Ie. task X is waiting on task Y to finish in a DAG. Y finishes, and then it takes ~5 minutes for X to get queued and executed. Overall these 5 mins add up and add hours to the ETL running time.</p>
+<p>I've been doing some debugging, and looking at the Airflow source code; what I found so far:
+- for a task to be run, all upstream tasks have to finished, and the task has to be in <code>SCHEDULED</code> state: <code>jobs.py::_execute_task_instances()</code> called like <code>_execute_task_instances(simple_dag_bag, (State.SCHEDULED,))</code>
+- a task goes from <code>None</code> state to <code>SCHEDULED</code> state in <code>jobs.py::process_file()</code>, which corresponds to lines like <code>Started a process (PID: 28897) to generate tasks for ...</code> lines in my syslog
+- by default my tasks are in <code>None</code> state (I see this in Task Instance Details view on web UI).
+- I have ~100 DAG python files, each takes ~3 seconds to execute to collect the DAG, so a "roundtrip" takes ~300secs = 5mins
+- so I'm guessing this is what's causing the ~5 minute delay, that each DAG python file is re-read every 5 mins, and that's when Airflow realizes that the deps are good and makes it <code>SCHEDULED</code>. Correct me if I'm wrong.
+What's confusing to me is, why does Airflow need to re-read the file to notice that all upstream tasks are good to go?</p>
+</blockquote>
+<p>I received no clear answer, other than one person acknowledging that optimizations are needed in Airflow.</p>
+<p>Given this limitation, the obvious workaround is to put several DAGs into one <code>.py</code> file, thus saving time on <code>import</code>s. For example, right now we have one <code>.py</code> file per table import from the production database, which is very nice in terms of code layout in the IDE, and in terms of following changes on <code>git</code>. But we could put all these into one big <code>.py</code> file, and have one big <code>.py</code> file per “type” of DAG (eg. one file for imports, one for exports, etc).</p>
+<p>I haven’t yet made up my mind whether we should do this: it feels wrong to sacrifice everyday engineering UX for an accidental architectural flaw in the ETL system.</p>
+<h2>Further optimizations</h2>
+<p>Other ideas:</p>
+<ul>
+<li>talk straight to the Hive metastore</li>
+<li>cache existing partitions once we know they're there</li>
+</ul>
+<p>These are good idea, but at this point (repeatedly) querying Hive with <code>SHOW PARTITION</code>s is not a bottleneck, so it wouldn't help us.</p>
+<h2>Conclusion</h2>
+<p>Airflow is the 5th ETL tool I use: we wrote 3 hand-rolled ETL system at Prezi (one in bash, one in Haskell, one in Go), Facebook has Dataswarm, and Airflow is based on Dataswarm. I think it’s great that we have Airflow, because it’s miles better than a hand-rolled ETL system. Also, as it matures, it will get better.</p>
+<p>But I couldn’t help feeling that this is terribly inefficient. Putting aside the Hive/Presto issue, which is not related to Airflow itself, the fact that Airflow on the worker node launches a new Python process everytime it executes a task, allocates hundreds of MBs of memory, in our case just to execute a one-liner to check if data is available is terribly inefficient. And we pay the price for this in various ways:</p>
+<ul>
+<li>as the above issue shows, Airflow is slow to make progress</li>
+<li>Airflow in general consumes a lot of resources; we run two beefy EC2 nodes just for Airflow, which costs us ~$10k/year on AWS</li>
+<li>even with this brutally batchy, simplistic architecture, Airflow can get stuck in various ways (all worker slots are used up by tasks which block, sometimes the scheduler itself runs into a bug and gets stuck, sometimes tasks get “lost” and get stuck in “null” or “queued” status, and we have to manually re-kick them); the documentation recommends to periodically restart the Airflow processes</li>
+</ul>
+<p>Sometimes I remember that 10 years ago I was a proud C++ programmer, <a href="https://github.com/scalien/scaliendb">building database kernels and storage engines</a>, optimizing away bits and bytes. And today, because I try to “move fast and focus on impact”, which is a good thing, throwing hardware and money at a simple problem seems the best option. I definitely don’t regret using Airflow, but I hope the open source Data Engineering community will make Airflow (or something else) radically more efficient in the future, because it’s quite painful spending time “optimizing” something which is by design not optimized. It’d be nice if the core engine itself would be more optimized, performant, and less wasteful.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/data-engineering.html">data engineering</a>
+      <a href="/tag/python.html">python</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-1812620-2');
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Optimizing waits in Airflow",
+  "headline": "Optimizing waits in Airflow",
+  "datePublished": "2020-02-01 00:00:00+01:00",
+  "dateModified": "2020-02-01 00:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/optimizing-waits-in-airflow.html",
+  "description": "My list of SQL best practices for Data Scientists and Analysts, or, how I personally write SQL code. I picked this up at Facebook, and later improved it at Fetchr."
+}
+</script></body>
+</html>

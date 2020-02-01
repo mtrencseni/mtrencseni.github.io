@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Data engineering</title><link href="/" rel="alternate"></link><link href="/feeds/data-engineering.atom.xml" rel="self"></link><id>/</id><updated>2020-02-01T00:00:00+01:00</updated><entry><title>Optimizing waits in Airflow</title><link href="/optimizing-waits-in-airflow.html" rel="alternate"></link><published>2020-02-01T00:00:00+01:00</published><updated>2020-02-01T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-02-01:/optimizing-waits-in-airflow.html</id><summary type="html">&lt;p&gt;My list of SQL best practices for Data Scientists and Analysts, or, how I personally write SQL code. I picked this up at Facebook, and later improved it at Fetchr. &lt;br/&gt;&lt;br/&gt; &lt;img src="/images/airflow-dag.png" alt="Airflow DAG" style="width: 300px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;Sometimes I get to spend a few days with my Data Engineering hat on. I enjoy this kind of work, I like to move up and down the Data Science stack (from debugging a Python exception to helping the CxOs make a good operational yearly plan) and I try to keep myself sharp technically.&lt;/p&gt;
+&lt;p&gt;Recently I was able to spend a few days optimizing our &lt;a href="https://airflow.apache.org/"&gt;Airflow&lt;/a&gt; ETL for speed. We noticed that DWH jobs with a lots of waits are taking a lot of time to complete the waits (not counting the actual waiting time). Below is a list of changes I made to improve our waiting time.&lt;/p&gt;
+&lt;h2&gt;Our history of waiting on tables&lt;/h2&gt;
+&lt;p&gt;The basic premise is this. Suppose you have a DWH job that creates the latest &lt;code&gt;ds&lt;/code&gt; partition for &lt;code&gt;result_table&lt;/code&gt;, and the &lt;code&gt;INSERT&lt;/code&gt; is a result of a &lt;code&gt;SELECT&lt;/code&gt; like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
+    &lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="k"&gt;FROM&lt;/span&gt;
+    &lt;span class="n"&gt;table1&lt;/span&gt;
+&lt;span class="k"&gt;INNER&lt;/span&gt; &lt;span class="k"&gt;JOIN&lt;/span&gt;
+    &lt;span class="n"&gt;table2&lt;/span&gt;
+&lt;span class="k"&gt;ON&lt;/span&gt;
+    &lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="k"&gt;INNER&lt;/span&gt; &lt;span class="k"&gt;JOIN&lt;/span&gt;
+    &lt;span class="n"&gt;table3&lt;/span&gt;
+&lt;span class="k"&gt;ON&lt;/span&gt;
+    &lt;span class="p"&gt;...&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;In our ETL, we would write this like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
+    &lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="k"&gt;FROM&lt;/span&gt;
+    &lt;span class="n"&gt;curent_ds_wait&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;table1&lt;/span&gt;
+&lt;span class="k"&gt;INNER&lt;/span&gt; &lt;span class="k"&gt;JOIN&lt;/span&gt;
+    &lt;span class="n"&gt;curent_ds_wait&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;table2&lt;/span&gt;
+&lt;span class="k"&gt;ON&lt;/span&gt;
+    &lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="k"&gt;INNER&lt;/span&gt; &lt;span class="k"&gt;JOIN&lt;/span&gt;
+    &lt;span class="n"&gt;curent_ds_wait&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;table3&lt;/span&gt;
+&lt;span class="k"&gt;ON&lt;/span&gt;
+    &lt;span class="p"&gt;...&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Our framework parses the SQL snippets and extracts tables names after &lt;code&gt;current_ds_wait::&lt;/code&gt;. These are the list of tables whose where we need to wait for today's &lt;code&gt;ds&lt;/code&gt; partition to land before we can run the &lt;code&gt;SELECT&lt;/code&gt; (otherwise the result would be incomplete).&lt;/p&gt;
+&lt;p&gt;So when our framework generates the DAG for this DWH job, it generates an &lt;code&gt;insert&lt;/code&gt; task (&lt;code&gt;PrestoOperator&lt;/code&gt; operator), which depends on 3 &lt;code&gt;wait&lt;/code&gt; tasks (&lt;code&gt;DsPartitionSensor&lt;/code&gt; operators), one for each table. There a bunch of other tasks that we generate (such as tasks for running &lt;code&gt;CREATE TABLE IF NOT EXISTS&lt;/code&gt;), but let’s ignore that.&lt;/p&gt;
+&lt;p&gt;So this part of the DAG looks like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    insert
+    |
+    +-- wait_table1
+    |
+    +-- wait_table2
+    |
+    +-- wait_table3
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Chaining waits&lt;/h2&gt;
+&lt;p&gt;Initially, the &lt;code&gt;wait&lt;/code&gt; jobs issued a Presto SQL statement like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SHOW&lt;/span&gt; &lt;span class="n"&gt;PARTITIONS&lt;/span&gt; &lt;span class="k"&gt;FROM&lt;/span&gt; &lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="k"&gt;table&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt; &lt;span class="k"&gt;WHERE&lt;/span&gt; &lt;span class="n"&gt;ds&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;{ds}&amp;#39;&lt;/span&gt; &lt;span class="k"&gt;LIMIT&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The first thing we noticed is that this structure overloaded our Presto cluster. We have ~100 jobs, and each has a couple of &lt;code&gt;wait&lt;/code&gt;s, so this results in hundreds of waits trying to run at the same time. Also, since we only have a limited number of worker slots on our Airflow worker, sometimes the &lt;code&gt;wait&lt;/code&gt;s would use up all the slots, and the actual &lt;code&gt;insert&lt;/code&gt;s never ran, or took a long time to get there.&lt;/p&gt;
+&lt;p&gt;So one of the initial optimizations was to chain the waits on the DAG, like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    insert
+    |
+    +-- wait_table1
+          |
+          +-- wait_table2
+               |
+               +-- wait_table3
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This way each DAG only ever has one &lt;code&gt;wait&lt;/code&gt; job running. The &lt;code&gt;wait&lt;/code&gt; jobs per DAG run sequentally. This change was easy to make, because we don't construct our DAGs "by hand" for each table, we have a helper function which does this (which also does the &lt;code&gt;current_ds_wait::&lt;/code&gt; stuff), so we just needed to make this change in one place.&lt;/p&gt;
+&lt;h2&gt;Task pools&lt;/h2&gt;
+&lt;p&gt;The second thing we tried was to use Airflow’s pool feature. With this, tasks can be assigned to pools, and per pool limits can be set on execution. So if we have 32 worker slots, we can set up a &lt;code&gt;wait&lt;/code&gt; pool with 24 slots, so no more than 24 &lt;code&gt;wait&lt;/code&gt;s can be running.&lt;/p&gt;
+&lt;p&gt;Unfortunately, this feature in Airflow is buggy/broken. In our setup, where we’re running a separate master and worker, and using celery for running worker tasks, the Airflow scheduler doesn’t respect the limits, &lt;a href="https://issues.apache.org/jira/browse/AIRFLOW-584"&gt;similar to this bug report&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;Hive instead of Presto&lt;/h2&gt;
+&lt;p&gt;This is an obvious optimization that we should have done at the beginning. Since all our DWH jobs run on Presto, our Hive execution engine is just sitting around handling metadata queries such as &lt;code&gt;CREATE TABLE&lt;/code&gt; (&lt;code&gt;create&lt;/code&gt; tasks in the DAG) and &lt;code&gt;MSCK REPAIR TABLE&lt;/code&gt;s (the latter is neccessary when we put new data on S3 by copying data with the AWS S3 tools, ie. not a Presto &lt;code&gt;INSERT&lt;/code&gt;, and we want the Hive metastore to notice the new partition; hence we call these &lt;code&gt;notice&lt;/code&gt; jobs in the DAGs). So by running the &lt;code&gt;SHOW PARTITION&lt;/code&gt; (the syntax starts the same, but it’s a bit different on Hive) on Hive, we can get rid of 95% of the jobs on the Presto cluster, which were taking a long time to run, even though they’re just checking for the presence of a partition.&lt;/p&gt;
+&lt;p&gt;Once we made this to Hive and saw how much we save on the Presto side, I felt pretty stupid for not thinking of this earlier. And the Hive engine can handle these metadata queries trivially.&lt;/p&gt;
+&lt;h2&gt;Multiwaits&lt;/h2&gt;
+&lt;p&gt;In the example above, we’re waiting on 3 tables, and we generate 3 &lt;code&gt;wait&lt;/code&gt; jobs. We realized this is inefficient, and we can just have one &lt;code&gt;multi_wait&lt;/code&gt; task which checks all 3 partitions at once. We just generate a HQL with several &lt;code&gt;SHOW PARTITION&lt;/code&gt; statements separated by &lt;code&gt;;&lt;/code&gt; and parse the resulting string to see what’s there and what’s missing. So the final DAG looks very simple:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    insert
+    |
+    +-- multi_wait
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This is such an obvious idea, I felt pretty stupid for not thinking of this earlier.&lt;/p&gt;
+&lt;h2&gt;Reducing time between jobs&lt;/h2&gt;
+&lt;p&gt;Looking at the scheduler logs, we still have a problem: the &lt;code&gt;multi_wait&lt;/code&gt; finishes at time X, but the insert is only launched at time X+5 minutes. This is a generic issue with Airflow, not specific to &lt;code&gt;wait&lt;/code&gt;s. Why does Airflow need 5 minutes to figure out that a task’s dependencies are all finished?&lt;/p&gt;
+&lt;p&gt;To understand this I looked through the logs, and found that indeed, the first time in the logs that Airflow notices that the insert can run is several minutes after the &lt;code&gt;multi_wait&lt;/code&gt; finishes. To understand this I took the log line and looked it up in the Airflow source code. What happens is this:&lt;/p&gt;
+&lt;p&gt;Every 30 seconds the Airflow scheduler (as configured) lists out all .py files in the &lt;code&gt;dags&lt;/code&gt; folder. It saves these known &lt;code&gt;.py&lt;/code&gt; files, and then in a “round-robin” manner, executes them: it runs &lt;code&gt;one.py&lt;/code&gt;, &lt;code&gt;two.py&lt;/code&gt;, &lt;code&gt;three.py&lt;/code&gt;, and so on, where each of the &lt;code&gt;.py&lt;/code&gt; files is a DAG definition. Each time it executes the &lt;code&gt;.py&lt;/code&gt; file, it looks at instances of the &lt;code&gt;DAG&lt;/code&gt; class in the global namespace, and those are the &lt;code&gt;DAG&lt;/code&gt;s it executes. The problem is, Airflow scheduler only checks for new runnable tasks (ie. all dependencies are finished) when it’s running the appropriate &lt;code&gt;.py&lt;/code&gt; file! &lt;strong&gt;This is a very unfortunate architectural choice.&lt;/strong&gt; And this explains why it takes ~5 minutes between task executions: we have about ~100 ETL jobs in ~100 &lt;code&gt;.py&lt;/code&gt; files, and running a &lt;code&gt;.py&lt;/code&gt; file takes 3-5 seconds (because the Airflow imports are slow). The reason it takes 3-5 seconds to execute a 100 line Python program is because they have to import Airflow libraries (to get DAG class, etc), and those Airflow imports take time:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;airflow.operators&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;PrestoOperator&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;DropDsPartitionOperator&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;DsPartitionSensor&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;PostgresOperator&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;airflow.operators.hive_operator&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;HiveOperator&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;airflow.hooks.presto_hook&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;PrestoHook&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;airflow.hooks.base_hook&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;BaseHook&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;airflow&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;DAG&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;datetime&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;date&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;datetime&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timedelta&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I asked the following question in the Airflow slack channel:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;I'm trying to debug my Airflow (1.8.2), we've been using it in prod for ~2 yrs. My issue is that it takes a long time between task runs. Ie. task X is waiting on task Y to finish in a DAG. Y finishes, and then it takes ~5 minutes for X to get queued and executed. Overall these 5 mins add up and add hours to the ETL running time.&lt;/p&gt;
+&lt;p&gt;I've been doing some debugging, and looking at the Airflow source code; what I found so far:
+- for a task to be run, all upstream tasks have to finished, and the task has to be in &lt;code&gt;SCHEDULED&lt;/code&gt; state: &lt;code&gt;jobs.py::_execute_task_instances()&lt;/code&gt; called like &lt;code&gt;_execute_task_instances(simple_dag_bag, (State.SCHEDULED,))&lt;/code&gt;
+- a task goes from &lt;code&gt;None&lt;/code&gt; state to &lt;code&gt;SCHEDULED&lt;/code&gt; state in &lt;code&gt;jobs.py::process_file()&lt;/code&gt;, which corresponds to lines like &lt;code&gt;Started a process (PID: 28897) to generate tasks for ...&lt;/code&gt; lines in my syslog
+- by default my tasks are in &lt;code&gt;None&lt;/code&gt; state (I see this in Task Instance Details view on web UI).
+- I have ~100 DAG python files, each takes ~3 seconds to execute to collect the DAG, so a "roundtrip" takes ~300secs = 5mins
+- so I'm guessing this is what's causing the ~5 minute delay, that each DAG python file is re-read every 5 mins, and that's when Airflow realizes that the deps are good and makes it &lt;code&gt;SCHEDULED&lt;/code&gt;. Correct me if I'm wrong.
+What's confusing to me is, why does Airflow need to re-read the file to notice that all upstream tasks are good to go?&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;I received no clear answer, other than one person acknowledging that optimizations are needed in Airflow.&lt;/p&gt;
+&lt;p&gt;Given this limitation, the obvious workaround is to put several DAGs into one &lt;code&gt;.py&lt;/code&gt; file, thus saving time on &lt;code&gt;import&lt;/code&gt;s. For example, right now we have one &lt;code&gt;.py&lt;/code&gt; file per table import from the production database, which is very nice in terms of code layout in the IDE, and in terms of following changes on &lt;code&gt;git&lt;/code&gt;. But we could put all these into one big &lt;code&gt;.py&lt;/code&gt; file, and have one big &lt;code&gt;.py&lt;/code&gt; file per “type” of DAG (eg. one file for imports, one for exports, etc).&lt;/p&gt;
+&lt;p&gt;I haven’t yet made up my mind whether we should do this: it feels wrong to sacrifice everyday engineering UX for an accidental architectural flaw in the ETL system.&lt;/p&gt;
+&lt;h2&gt;Further optimizations&lt;/h2&gt;
+&lt;p&gt;Other ideas:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;talk straight to the Hive metastore&lt;/li&gt;
+&lt;li&gt;cache existing partitions once we know they're there&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;These are good idea, but at this point (repeatedly) querying Hive with &lt;code&gt;SHOW PARTITION&lt;/code&gt;s is not a bottleneck, so it wouldn't help us.&lt;/p&gt;
+&lt;h2&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;Airflow is the 5th ETL tool I use: we wrote 3 hand-rolled ETL system at Prezi (one in bash, one in Haskell, one in Go), Facebook has Dataswarm, and Airflow is based on Dataswarm. I think it’s great that we have Airflow, because it’s miles better than a hand-rolled ETL system. Also, as it matures, it will get better.&lt;/p&gt;
+&lt;p&gt;But I couldn’t help feeling that this is terribly inefficient. Putting aside the Hive/Presto issue, which is not related to Airflow itself, the fact that Airflow on the worker node launches a new Python process everytime it executes a task, allocates hundreds of MBs of memory, in our case just to execute a one-liner to check if data is available is terribly inefficient. And we pay the price for this in various ways:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;as the above issue shows, Airflow is slow to make progress&lt;/li&gt;
+&lt;li&gt;Airflow in general consumes a lot of resources; we run two beefy EC2 nodes just for Airflow, which costs us ~$10k/year on AWS&lt;/li&gt;
+&lt;li&gt;even with this brutally batchy, simplistic architecture, Airflow can get stuck in various ways (all worker slots are used up by tasks which block, sometimes the scheduler itself runs into a bug and gets stuck, sometimes tasks get “lost” and get stuck in “null” or “queued” status, and we have to manually re-kick them); the documentation recommends to periodically restart the Airflow processes&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Sometimes I remember that 10 years ago I was a proud C++ programmer, &lt;a href="https://github.com/scalien/scaliendb"&gt;building database kernels and storage engines&lt;/a&gt;, optimizing away bits and bytes. And today, because I try to “move fast and focus on impact”, which is a good thing, throwing hardware and money at a simple problem seems the best option. I definitely don’t regret using Airflow, but I hope the open source Data Engineering community will make Airflow (or something else) radically more efficient in the future, because it’s quite painful spending time “optimizing” something which is by design not optimized. It’d be nice if the core engine itself would be more optimized, performant, and less wasteful.&lt;/p&gt;</content><category term="data engineering"></category><category term="python"></category></entry></feed>
