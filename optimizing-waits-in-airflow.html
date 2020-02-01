@@ -84,7 +84,7 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>Sometimes I get to spend a few days with my Data Engineering hat on. I enjoy this kind of work, I like to move up and down the Data Science stack and I try to keep myself sharp technically.</p>
+<p>Sometimes I get to put on my Data Engineering hat for a few days. I enjoy this because I like to move up and down the Data Science stack and I try to keep myself sharp technically.</p>
 <p>Recently I was able to spend a few days optimizing our <a href="https://airflow.apache.org/">Airflow</a> ETL for speed. We noticed that DWH jobs with a lots of waits are taking a lot of time to complete the waits (not counting the actual waiting time). Below is a list of changes I made to improve our waiting time.</p>
 <h2>Our history of waiting on tables</h2>
 <p>The basic premise is this. Suppose you have a DWH job that creates the latest <code>ds</code> partition for <code>result_table</code>, and the <code>INSERT</code> is a result of a <code>SELECT</code> like:</p>
