@@ -192,7 +192,7 @@
 - so I'm guessing this is what's causing the ~5 minute delay, that each DAG python file is re-read every 5 mins, and that's when Airflow realizes that the deps are good and makes it <code>SCHEDULED</code>. Correct me if I'm wrong.
 What's confusing to me is, why does Airflow need to re-read the file to notice that all upstream tasks are good to go?</p>
 </blockquote>
-<p>I received no clear answer, other than one person acknowledging that optimizations are needed in Airflow.</p>
+<p>I received no clear answer, other than a link about <a href="https://www.astronomer.io/blog/profiling-the-airflow-scheduler/">profiling the Airflow scheduler</a>.</p>
 <p>Given this limitation, the obvious workaround is to put several DAGs into one <code>.py</code> file, thus saving time on <code>import</code>s. For example, right now we have one <code>.py</code> file per table import from the production database, which is very nice in terms of code layout in the IDE, and in terms of following changes on <code>git</code>. But we could put all these into one big <code>.py</code> file, and have one big <code>.py</code> file per “type” of DAG (eg. one file for imports, one for exports, etc).</p>
 <p>I haven’t yet made up my mind whether we should do this: it feels wrong to sacrifice everyday engineering UX for an accidental architectural flaw in the ETL system.</p>
 <h2>Further optimizations</h2>
