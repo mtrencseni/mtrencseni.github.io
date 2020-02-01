@@ -97,7 +97,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;I asked the following question in the Airflow slack channel:&lt;/p&gt;
+&lt;p&gt;I asked the following question in the &lt;a href="https://apache-airflow-slack.herokuapp.com/"&gt;Airflow slack #support channel&lt;/a&gt;:&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;I'm trying to debug my Airflow (1.8.2), we've been using it in prod for ~2 yrs. My issue is that it takes a long time between task runs. Ie. task X is waiting on task Y to finish in a DAG. Y finishes, and then it takes ~5 minutes for X to get queued and executed. Overall these 5 mins add up and add hours to the ETL running time.&lt;/p&gt;
 &lt;p&gt;I've been doing some debugging, and looking at the Airflow source code; what I found so far:
