@@ -87,7 +87,8 @@
 <p>Sometimes I get to put on my Data Engineering hat for a few days. I enjoy this because I like to move up and down the Data Science stack and I try to keep myself sharp technically. Recently I was able to spend a few days optimizing our <a href="https://airflow.apache.org/">Airflow</a> ETL for speed. We noticed that DWH jobs with a lots of waits are taking a lot of time to complete the waits (not counting the actual waiting time). Below is a list of changes I made to improve our waiting time.</p>
 <h2>Our history of waiting on tables</h2>
 <p>The basic premise is this. Suppose you have a DWH job that creates the latest <code>ds</code> partition for <code>result_table</code>, and the <code>INSERT</code> is a result of a <code>SELECT</code> like:</p>
-<div class="highlight"><pre><span></span><span class="k">SELECT</span>
+<div class="highlight"><pre><span></span><span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">result_table</span>
+<span class="k">SELECT</span>
     <span class="p">...</span>
 <span class="k">FROM</span>
     <span class="n">table1</span>
@@ -103,7 +104,8 @@
 
 
 <p>In our ETL, we would write this like:</p>
-<div class="highlight"><pre><span></span><span class="k">SELECT</span>
+<div class="highlight"><pre><span></span><span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">result_table</span>
+<span class="k">SELECT</span>
     <span class="p">...</span>
 <span class="k">FROM</span>
     <span class="n">curent_ds_wait</span><span class="p">::</span><span class="n">table1</span>

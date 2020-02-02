@@ -3,7 +3,8 @@
 &lt;p&gt;Sometimes I get to put on my Data Engineering hat for a few days. I enjoy this because I like to move up and down the Data Science stack and I try to keep myself sharp technically. Recently I was able to spend a few days optimizing our &lt;a href="https://airflow.apache.org/"&gt;Airflow&lt;/a&gt; ETL for speed. We noticed that DWH jobs with a lots of waits are taking a lot of time to complete the waits (not counting the actual waiting time). Below is a list of changes I made to improve our waiting time.&lt;/p&gt;
 &lt;h2&gt;Our history of waiting on tables&lt;/h2&gt;
 &lt;p&gt;The basic premise is this. Suppose you have a DWH job that creates the latest &lt;code&gt;ds&lt;/code&gt; partition for &lt;code&gt;result_table&lt;/code&gt;, and the &lt;code&gt;INSERT&lt;/code&gt; is a result of a &lt;code&gt;SELECT&lt;/code&gt; like:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;INSERT&lt;/span&gt; &lt;span class="k"&gt;INTO&lt;/span&gt; &lt;span class="n"&gt;result_table&lt;/span&gt;
+&lt;span class="k"&gt;SELECT&lt;/span&gt;
     &lt;span class="p"&gt;...&lt;/span&gt;
 &lt;span class="k"&gt;FROM&lt;/span&gt;
     &lt;span class="n"&gt;table1&lt;/span&gt;
@@ -19,7 +20,8 @@
 
 
 &lt;p&gt;In our ETL, we would write this like:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;INSERT&lt;/span&gt; &lt;span class="k"&gt;INTO&lt;/span&gt; &lt;span class="n"&gt;result_table&lt;/span&gt;
+&lt;span class="k"&gt;SELECT&lt;/span&gt;
     &lt;span class="p"&gt;...&lt;/span&gt;
 &lt;span class="k"&gt;FROM&lt;/span&gt;
     &lt;span class="n"&gt;curent_ds_wait&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;table1&lt;/span&gt;
