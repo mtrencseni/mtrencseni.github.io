@@ -204,20 +204,29 @@ What's confusing to me is, why does Airflow need to re-read the file to notice t
 </ul>
 <p>These are good idea, but at this point (repeatedly) querying Hive with <code>SHOW PARTITION</code>s is not a bottleneck, so it wouldn't help us.</p>
 <h2>Conclusion</h2>
-<p>Airflow is the 5th ETL tool I use: we wrote 3 hand-rolled ETL system at Prezi (one in bash, one in Haskell, one in Go), Facebook has Dataswarm, and Airflow is based on Dataswarm. I think it’s great that we have Airflow, because it’s miles better than a hand-rolled ETL system. Also, as it matures, it will get better.</p>
-<p>But I couldn’t help feeling that this is terribly inefficient:</p>
+<p>Airflow is the 5th ETL tool I use: we wrote 3 hand-rolled ETL system at Prezi (one in bash, one in Haskell, one in Go), at Facebook we used <a href="https://asiliconvalleyinsider.com/2016/05/01/data-engineering-facebook/">Dataswarm</a>, and at Fetchr we use Airflow (which is based on Dataswarm). I think it’s great that we have Airflow, because it’s miles better than a hand-rolled ETL system. Also, as it matures, it will get better!</p>
+<p>Having said that, I hope the open source Data Engineering community will improve Airflow in the future to address these issues. My problems with Airflow are three-fold:</p>
 <ul>
-<li>only making progress on the DAG when re-running the appropriate <code>.py</code> file</li>
-<li>Airflow on the worker node launches a new Python process everytime it executes a task, allocates hundreds of MBs of memory, in our case just to execute a one-liner to check if data is available; this is just how Airflow works</li>
-<li>even with this brutally batchy, simplistic architecture, Airflow can get stuck in various ways (all worker slots are used up by tasks which block, sometimes the scheduler itself runs into a bug and gets stuck, sometimes tasks get “lost” and get stuck in “null” or “queued” status, and we have to manually re-kick them)</li>
+<li>bugs:</li>
+<li>the unreliable pools feature</li>
+<li>Airflow can get stuck in various ways:<ul>
+<li>all worker slots are used up by tasks which block; in this case, we have to <code>ps ax | grep airflow | grep wait | awk ' { print  kill -9 $1 } '</code> on the worker</li>
+<li>sometimes tasks get stuck in <code>null</code> or <code>queued</code> status; in this case, we have to manually re-kick them on the UI</li>
+<li>sometimes the scheduler itself runs into a bug and gets stuck; in this case we have to restart the scheduler itself on the master with <code>systemctl restart airflow-scheduler.service</code></li>
 </ul>
-<p>And we pay the price for this in various ways:</p>
+</li>
+<li>architectural shortcomings</li>
+<li>only making progress on the DAG when re-running the <code>.py</code> file containing the <code>DAG</code></li>
+<li>right now, for every task instance Airflow launches a new, expensive Python process on the worker node, which takes hundreds of MBs of memory and the turn-around time is quite slow; it'd be nice to come up with an "in-process" way to launch small inexpensive checks quickly (like <code>wait</code>s)</li>
+<li>resource hungry: we run two beefy EC2 instances, one airflow-master and one airflow-worker, but all these really do is manage a relatively small DAG (~100 DAGs each with ~10 tasks); the actual work is performed on a third node (actually, a cluster), the EC2 nodes that are running Presto and the various ML jobs; still, both nodes show 2-3 load with <code>top</code>.</li>
+</ul>
+<p>These are real issues that affect our production every day in terms of landing time, dollars and engineering time:</p>
 <ul>
-<li>as the above issue shows, Airflow is slow to make progress</li>
-<li>Airflow in general consumes a lot of resources; we run two beefy EC2 nodes just for Airflow, which costs us ~$10k/year on AWS</li>
-<li>the Internet recommends to periodically restart the Airflow processes in production, to avoid waking up to a stuck ETL</li>
+<li>Airflow is slow to make progress</li>
+<li>we often have to manually kill / clear / re-kick jobs</li>
+<li>we run two beefy EC2 nodes just for Airflow, which costs us ~$10k/year on AWS</li>
 </ul>
-<p>Sometimes I remember that 10 years ago I was a proud C++ programmer, <a href="https://github.com/scalien/scaliendb">building database kernels and storage engines</a>, optimizing away bits and bytes. And today, because I try to “move fast and focus on impact”, which is a good thing, throwing hardware and money at a simple problem seems the best option. I definitely don’t regret using Airflow, but I hope the open source Data Engineering community will make Airflow (or something else) radically more efficient in the future, because it’s quite painful spending time “optimizing” something which is by design not optimized. It’d be nice if the core engine itself would be more efficient, performant, and less wasteful.</p>
+<p>I definitely don’t regret using Airflow, but it would be nice if the core engine itself would be more efficient, performant, and less wasteful. 10 years ago I was a proud C++ programmer, <a href="https://github.com/scalien/scaliendb">building database kernels and storage engines</a>, optimizing away bits and bytes, and today, because I try to “move fast and focus on impact” (which is the right thing to do, despite these issues) throwing hardware and money at a simple problem (of managing a small DAG) is the best option. Feels weird.</p>
   </div>
   <div class="tag-cloud">
     <p>

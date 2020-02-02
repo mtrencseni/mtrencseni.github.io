@@ -120,17 +120,26 @@ What's confusing to me is, why does Airflow need to re-read the file to notice t
 &lt;/ul&gt;
 &lt;p&gt;These are good idea, but at this point (repeatedly) querying Hive with &lt;code&gt;SHOW PARTITION&lt;/code&gt;s is not a bottleneck, so it wouldn't help us.&lt;/p&gt;
 &lt;h2&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;Airflow is the 5th ETL tool I use: we wrote 3 hand-rolled ETL system at Prezi (one in bash, one in Haskell, one in Go), Facebook has Dataswarm, and Airflow is based on Dataswarm. I think it’s great that we have Airflow, because it’s miles better than a hand-rolled ETL system. Also, as it matures, it will get better.&lt;/p&gt;
-&lt;p&gt;But I couldn’t help feeling that this is terribly inefficient:&lt;/p&gt;
+&lt;p&gt;Airflow is the 5th ETL tool I use: we wrote 3 hand-rolled ETL system at Prezi (one in bash, one in Haskell, one in Go), at Facebook we used &lt;a href="https://asiliconvalleyinsider.com/2016/05/01/data-engineering-facebook/"&gt;Dataswarm&lt;/a&gt;, and at Fetchr we use Airflow (which is based on Dataswarm). I think it’s great that we have Airflow, because it’s miles better than a hand-rolled ETL system. Also, as it matures, it will get better!&lt;/p&gt;
+&lt;p&gt;Having said that, I hope the open source Data Engineering community will improve Airflow in the future to address these issues. My problems with Airflow are three-fold:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;only making progress on the DAG when re-running the appropriate &lt;code&gt;.py&lt;/code&gt; file&lt;/li&gt;
-&lt;li&gt;Airflow on the worker node launches a new Python process everytime it executes a task, allocates hundreds of MBs of memory, in our case just to execute a one-liner to check if data is available; this is just how Airflow works&lt;/li&gt;
-&lt;li&gt;even with this brutally batchy, simplistic architecture, Airflow can get stuck in various ways (all worker slots are used up by tasks which block, sometimes the scheduler itself runs into a bug and gets stuck, sometimes tasks get “lost” and get stuck in “null” or “queued” status, and we have to manually re-kick them)&lt;/li&gt;
+&lt;li&gt;bugs:&lt;/li&gt;
+&lt;li&gt;the unreliable pools feature&lt;/li&gt;
+&lt;li&gt;Airflow can get stuck in various ways:&lt;ul&gt;
+&lt;li&gt;all worker slots are used up by tasks which block; in this case, we have to &lt;code&gt;ps ax | grep airflow | grep wait | awk ' { print  kill -9 $1 } '&lt;/code&gt; on the worker&lt;/li&gt;
+&lt;li&gt;sometimes tasks get stuck in &lt;code&gt;null&lt;/code&gt; or &lt;code&gt;queued&lt;/code&gt; status; in this case, we have to manually re-kick them on the UI&lt;/li&gt;
+&lt;li&gt;sometimes the scheduler itself runs into a bug and gets stuck; in this case we have to restart the scheduler itself on the master with &lt;code&gt;systemctl restart airflow-scheduler.service&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;And we pay the price for this in various ways:&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;architectural shortcomings&lt;/li&gt;
+&lt;li&gt;only making progress on the DAG when re-running the &lt;code&gt;.py&lt;/code&gt; file containing the &lt;code&gt;DAG&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;right now, for every task instance Airflow launches a new, expensive Python process on the worker node, which takes hundreds of MBs of memory and the turn-around time is quite slow; it'd be nice to come up with an "in-process" way to launch small inexpensive checks quickly (like &lt;code&gt;wait&lt;/code&gt;s)&lt;/li&gt;
+&lt;li&gt;resource hungry: we run two beefy EC2 instances, one airflow-master and one airflow-worker, but all these really do is manage a relatively small DAG (~100 DAGs each with ~10 tasks); the actual work is performed on a third node (actually, a cluster), the EC2 nodes that are running Presto and the various ML jobs; still, both nodes show 2-3 load with &lt;code&gt;top&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;These are real issues that affect our production every day in terms of landing time, dollars and engineering time:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;as the above issue shows, Airflow is slow to make progress&lt;/li&gt;
-&lt;li&gt;Airflow in general consumes a lot of resources; we run two beefy EC2 nodes just for Airflow, which costs us ~$10k/year on AWS&lt;/li&gt;
-&lt;li&gt;the Internet recommends to periodically restart the Airflow processes in production, to avoid waking up to a stuck ETL&lt;/li&gt;
+&lt;li&gt;Airflow is slow to make progress&lt;/li&gt;
+&lt;li&gt;we often have to manually kill / clear / re-kick jobs&lt;/li&gt;
+&lt;li&gt;we run two beefy EC2 nodes just for Airflow, which costs us ~$10k/year on AWS&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;Sometimes I remember that 10 years ago I was a proud C++ programmer, &lt;a href="https://github.com/scalien/scaliendb"&gt;building database kernels and storage engines&lt;/a&gt;, optimizing away bits and bytes. And today, because I try to “move fast and focus on impact”, which is a good thing, throwing hardware and money at a simple problem seems the best option. I definitely don’t regret using Airflow, but I hope the open source Data Engineering community will make Airflow (or something else) radically more efficient in the future, because it’s quite painful spending time “optimizing” something which is by design not optimized. It’d be nice if the core engine itself would be more efficient, performant, and less wasteful.&lt;/p&gt;</content><category term="data engineering"></category><category term="python"></category></entry></feed>
+&lt;p&gt;I definitely don’t regret using Airflow, but it would be nice if the core engine itself would be more efficient, performant, and less wasteful. 10 years ago I was a proud C++ programmer, &lt;a href="https://github.com/scalien/scaliendb"&gt;building database kernels and storage engines&lt;/a&gt;, optimizing away bits and bytes, and today, because I try to “move fast and focus on impact” (which is the right thing to do, despite these issues) throwing hardware and money at a simple problem (of managing a small DAG) is the best option. Feels weird.&lt;/p&gt;</content><category term="data engineering"></category><category term="python"></category></entry></feed>
