@@ -160,8 +160,7 @@
 <p>The second thing we tried was to use Airflow’s pool feature. With this, tasks can be assigned to pools, and per pool limits can be set on execution. So if we have 32 worker slots, we can set up a <code>wait</code> pool with 24 slots, so no more than 24 <code>wait</code>s can be running.</p>
 <p>Unfortunately, this feature in Airflow is buggy/broken. In our setup, where we’re running a separate master and worker, and using <a href="https://airflow.apache.org/docs/1.10.6/howto/executor/use-celery.html">Celery</a> for running worker tasks, the Airflow scheduler doesn’t respect the limits, <a href="https://issues.apache.org/jira/browse/AIRFLOW-584">similar to this bug report</a>.</p>
 <h2>Hive instead of Presto</h2>
-<p>Since all our DWH jobs run on Presto, our Hive execution engine is just sitting around idle handling metadata queries such as <code>CREATE TABLE</code> (<code>create</code> tasks in the DAG) . So by running the <code>SHOW PARTITION</code> (the syntax starts the same, but it’s a bit different on Hive) on Hive, we can get rid of 95% of the jobs on the Presto cluster, which were taking a long time to run, even though they’re just checking for the presence of a partition.</p>
-<p>Once we made this move to Hive and saw how much we save on the Presto side, I felt pretty stupid for not thinking of this earlier. And the Hive engine can handle these metadata queries trivially.</p>
+<p>Since all our DWH jobs run on Presto, our Hive execution engine is just sitting around idle handling metadata queries such as <code>CREATE TABLE</code> (<code>create</code> tasks in the DAG) . So by running the <code>SHOW PARTITION</code> (the syntax starts the same, but it’s a bit different on Hive) on Hive, we can get rid of 95% of the jobs on the Presto cluster, which were taking a long time to run, even though they’re just checking for the presence of a partition. The Hive engine can handle these metadata queries easily, returning in less than a second.</p>
 <h2>Multiwaits</h2>
 <p>In the example above, we’re waiting on 3 tables, and we generate 3 <code>wait</code> jobs. We realized this is inefficient, and we can just have one <code>multi_wait</code> task which checks all 3 partitions at once. We just generate a HQL with several <code>SHOW PARTITION</code> statements separated by <code>;</code> and parse the resulting string to see what’s there and what’s missing. So the final DAG looks very simple:</p>
 <div class="highlight"><pre><span></span>    insert
@@ -170,7 +169,7 @@
 </pre></div>
 
 
-<p>This is such an obvious idea, I felt pretty stupid for not thinking of this earlier.</p>
+<p>This is such an obvious idea..</p>
 <h2>Reducing time between jobs</h2>
 <p>Looking at the scheduler logs, we still have a problem: the <code>multi_wait</code> finishes at time X, but the insert is only launched at time X+5 minutes. This is a generic issue with Airflow, not specific to <code>wait</code>s. Why does Airflow need 5 minutes to figure out that a task’s dependencies are all finished?</p>
 <p>To understand this I looked through the logs, and found that indeed, the first time in the logs that Airflow notices that the insert can run is several minutes after the <code>multi_wait</code> finishes. To understand this I took the log line and looked it up in the Airflow source code. What happens is this:</p>

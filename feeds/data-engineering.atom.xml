@@ -76,8 +76,7 @@
 &lt;p&gt;The second thing we tried was to use Airflow’s pool feature. With this, tasks can be assigned to pools, and per pool limits can be set on execution. So if we have 32 worker slots, we can set up a &lt;code&gt;wait&lt;/code&gt; pool with 24 slots, so no more than 24 &lt;code&gt;wait&lt;/code&gt;s can be running.&lt;/p&gt;
 &lt;p&gt;Unfortunately, this feature in Airflow is buggy/broken. In our setup, where we’re running a separate master and worker, and using &lt;a href="https://airflow.apache.org/docs/1.10.6/howto/executor/use-celery.html"&gt;Celery&lt;/a&gt; for running worker tasks, the Airflow scheduler doesn’t respect the limits, &lt;a href="https://issues.apache.org/jira/browse/AIRFLOW-584"&gt;similar to this bug report&lt;/a&gt;.&lt;/p&gt;
 &lt;h2&gt;Hive instead of Presto&lt;/h2&gt;
-&lt;p&gt;Since all our DWH jobs run on Presto, our Hive execution engine is just sitting around idle handling metadata queries such as &lt;code&gt;CREATE TABLE&lt;/code&gt; (&lt;code&gt;create&lt;/code&gt; tasks in the DAG) . So by running the &lt;code&gt;SHOW PARTITION&lt;/code&gt; (the syntax starts the same, but it’s a bit different on Hive) on Hive, we can get rid of 95% of the jobs on the Presto cluster, which were taking a long time to run, even though they’re just checking for the presence of a partition.&lt;/p&gt;
-&lt;p&gt;Once we made this move to Hive and saw how much we save on the Presto side, I felt pretty stupid for not thinking of this earlier. And the Hive engine can handle these metadata queries trivially.&lt;/p&gt;
+&lt;p&gt;Since all our DWH jobs run on Presto, our Hive execution engine is just sitting around idle handling metadata queries such as &lt;code&gt;CREATE TABLE&lt;/code&gt; (&lt;code&gt;create&lt;/code&gt; tasks in the DAG) . So by running the &lt;code&gt;SHOW PARTITION&lt;/code&gt; (the syntax starts the same, but it’s a bit different on Hive) on Hive, we can get rid of 95% of the jobs on the Presto cluster, which were taking a long time to run, even though they’re just checking for the presence of a partition. The Hive engine can handle these metadata queries easily, returning in less than a second.&lt;/p&gt;
 &lt;h2&gt;Multiwaits&lt;/h2&gt;
 &lt;p&gt;In the example above, we’re waiting on 3 tables, and we generate 3 &lt;code&gt;wait&lt;/code&gt; jobs. We realized this is inefficient, and we can just have one &lt;code&gt;multi_wait&lt;/code&gt; task which checks all 3 partitions at once. We just generate a HQL with several &lt;code&gt;SHOW PARTITION&lt;/code&gt; statements separated by &lt;code&gt;;&lt;/code&gt; and parse the resulting string to see what’s there and what’s missing. So the final DAG looks very simple:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    insert
@@ -86,7 +85,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;This is such an obvious idea, I felt pretty stupid for not thinking of this earlier.&lt;/p&gt;
+&lt;p&gt;This is such an obvious idea..&lt;/p&gt;
 &lt;h2&gt;Reducing time between jobs&lt;/h2&gt;
 &lt;p&gt;Looking at the scheduler logs, we still have a problem: the &lt;code&gt;multi_wait&lt;/code&gt; finishes at time X, but the insert is only launched at time X+5 minutes. This is a generic issue with Airflow, not specific to &lt;code&gt;wait&lt;/code&gt;s. Why does Airflow need 5 minutes to figure out that a task’s dependencies are all finished?&lt;/p&gt;
 &lt;p&gt;To understand this I looked through the logs, and found that indeed, the first time in the logs that Airflow notices that the insert can run is several minutes after the &lt;code&gt;multi_wait&lt;/code&gt; finishes. To understand this I took the log line and looked it up in the Airflow source code. What happens is this:&lt;/p&gt;
