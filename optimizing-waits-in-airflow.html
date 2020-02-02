@@ -207,17 +207,19 @@ What's confusing to me is, why does Airflow need to re-read the file to notice t
 <p>Airflow is the 5th ETL tool I use: we wrote 3 hand-rolled ETL system at Prezi (one in bash, one in Haskell, one in Go), at Facebook we used <a href="https://asiliconvalleyinsider.com/2016/05/01/data-engineering-facebook/">Dataswarm</a>, and at Fetchr we use Airflow (which is based on Dataswarm). I think it’s great that we have Airflow, because it’s miles better than a hand-rolled ETL system. Also, as it matures, it will get better!</p>
 <p>Having said that, I hope the open source Data Engineering community will improve Airflow in the future to address these issues. My problems with Airflow are three-fold:</p>
 <ul>
-<li>bugs:</li>
+<li>bugs:<ul>
 <li>the unreliable pools feature</li>
-<li>Airflow can get stuck in various ways:<ul>
+<li>Airflow can get stuck in various ways:</li>
 <li>all worker slots are used up by tasks which block; in this case, we have to <code>ps ax | grep airflow | grep wait | awk ' { print  kill -9 $1 } '</code> on the worker</li>
 <li>sometimes tasks get stuck in <code>null</code> or <code>queued</code> status; in this case, we have to manually re-kick them on the UI</li>
 <li>sometimes the scheduler itself runs into a bug and gets stuck; in this case we have to restart the scheduler itself on the master with <code>systemctl restart airflow-scheduler.service</code></li>
 </ul>
 </li>
-<li>architectural shortcomings</li>
+<li>architectural shortcomings<ul>
 <li>only making progress on the DAG when re-running the <code>.py</code> file containing the <code>DAG</code></li>
 <li>right now, for every task instance Airflow launches a new, expensive Python process on the worker node, which takes hundreds of MBs of memory and the turn-around time is quite slow; it'd be nice to come up with an "in-process" way to launch small inexpensive checks quickly (like <code>wait</code>s)</li>
+</ul>
+</li>
 <li>resource hungry: we run two beefy EC2 instances, one airflow-master and one airflow-worker, but all these really do is manage a relatively small DAG (~100 DAGs each with ~10 tasks); the actual work is performed on a third node (actually, a cluster), the EC2 nodes that are running Presto and the various ML jobs; still, both nodes show 2-3 load with <code>top</code>.</li>
 </ul>
 <p>These are real issues that affect our production every day in terms of landing time, dollars and engineering time:</p>
