@@ -209,10 +209,12 @@ What's confusing to me is, why does Airflow need to re-read the file to notice t
 <ul>
 <li>bugs:<ul>
 <li>the unreliable pools feature</li>
-<li>Airflow can get stuck in various ways:</li>
+<li>Airflow can get stuck in various ways:<ul>
 <li>all worker slots are used up by tasks which block; in this case, we have to <code>ps ax | grep airflow | grep wait | awk ' { print  kill -9 $1 } '</code> on the worker</li>
 <li>sometimes tasks get stuck in <code>null</code> or <code>queued</code> status; in this case, we have to manually re-kick them on the UI</li>
 <li>sometimes the scheduler itself runs into a bug and gets stuck; in this case we have to restart the scheduler itself on the master with <code>systemctl restart airflow-scheduler.service</code></li>
+</ul>
+</li>
 </ul>
 </li>
 <li>architectural shortcomings<ul>
