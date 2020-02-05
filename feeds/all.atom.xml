@@ -6,6 +6,7 @@
 &lt;p&gt;A Z-test is any statistical test for which the distribution of the test statistic under &lt;strong&gt;the null hypothesis can be approximated by a normal distribution&lt;/strong&gt;.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;This a common source of confusion. What does it mean that &lt;em&gt;“the test statistic under the null hypothesis can be approximated by a normal distribution”&lt;/em&gt;? And whatever that is, how do I know it’s  a valid assumption for my data?&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/mtrencseni/playground/blob/master/AB%20testing%20and%20the%20Central%20Limit%20Theorem.ipynb"&gt;The code shown here is up on Github&lt;/a&gt;.&lt;/p&gt;
 &lt;h2&gt;A/B testing&lt;/h2&gt;
 &lt;p&gt;Let’s take a concrete example. Let’s suppose that we’re doing an A/B test, and we’re measuring two metrics for variants A and B: a $C$ conversion rate (at what rate do people convert) and a $T$ timespent (how many minutes do they spend in the product). In both case, our null hypothesis would be &lt;em&gt;“A and B are the same”&lt;/em&gt;, which is translated into the language of mathematics like:&lt;/p&gt;
 &lt;ul&gt;
@@ -42,7 +43,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Let's visualize a uniform, an exponential and a normal distribution like this:&lt;/p&gt;
+&lt;p&gt;Let's visualize a &lt;a href="https://en.wikipedia.org/wiki/Uniform_distribution_(continuous)"&gt;uniform&lt;/a&gt;, an &lt;a href="https://en.wikipedia.org/wiki/Exponential_distribution"&gt;exponential&lt;/a&gt; and a &lt;a href="https://en.wikipedia.org/wiki/Normal_distribution"&gt;normal distribution&lt;/a&gt; using the above function:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;population_sample_plot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;uniform&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;population_sample_plot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;expon&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;population_sample_plot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;norm&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -74,7 +75,7 @@
 
 &lt;p&gt;&lt;img src="/images/uniform_exp_normal_mean_sample.PNG" alt="Uniform, exponential and normal distribution sample means" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Alas, the Central Limit Theorem works. The distribution of the means, for uniform, exponential and normal distributions is a normal distribution, about the true population mean.&lt;/p&gt;
-&lt;p&gt;Note that the CLT also works for means coming from discrete distributions such as the Bernoulli distribution, ie. conversions:&lt;/p&gt;
+&lt;p&gt;Note that the CLT also works for means coming from discrete distributions such as the &lt;a href="https://en.wikipedia.org/wiki/Bernoulli_distribution"&gt;Bernoulli distribution&lt;/a&gt;, ie. conversions:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;population_sample_mean_plot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bernoulli&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
