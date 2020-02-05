@@ -91,10 +91,10 @@
 <p>A Z-test is any statistical test for which the distribution of the test statistic under <strong>the null hypothesis can be approximated by a normal distribution</strong>.</p>
 </blockquote>
 <p>This a common source of confusion. What does it mean that <em>“the test statistic under the null hypothesis can be approximated by a normal distribution”</em>? And whatever that is, how do I know it’s  a valid assumption for my data?</p>
-<p>Let’s take a concrete example. Let’s suppose that we’re doing an A/B test, and we’re measuring two metrics for variants A and B: a C conversion rate (at what rate do people convert) and a T timespent (how many minutes do they spend in the product). In both case, our null hypothesis would be “A and B are the same”, which is translated into the language of mathematics like:</p>
+<p>Let’s take a concrete example. Let’s suppose that we’re doing an A/B test, and we’re measuring two metrics for variants A and B: a $C$ conversion rate (at what rate do people convert) and a $T$ timespent (how many minutes do they spend in the product). In both case, our null hypothesis would be <em>“A and B are the same”</em>, which is translated into the language of mathematics like:</p>
 <ul>
-<li>conversion rate hypothesis: $ C_A = C_B $</li>
-<li>timespent hypothesis: $ T_A   = T_B $</li>
+<li>$ H_0 $ null hypothesis for conversion rate: $ C_A = C_B $</li>
+<li>$ H_0 $ null hypothesis for timespent: $ T_A  = T_B $</li>
 </ul>
 <p>Here comes the important part: in the above expression, $ C_A $ and $ C_B $ are the conversion rate, and $ T_A $ and $ T_B $ are the average timespent minutes. Both of these quantities are averages: for the conversion rate, we can imagine a conversion counting as a 1 and a non-conversion as a 0, and the conversion rate is the average of this random variable (like coinflips). The timespents is also computed by adding up the individual timespent minutes and dividing by the number of samples.</p>
   </div>
