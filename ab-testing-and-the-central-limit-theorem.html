@@ -91,6 +91,7 @@
 <p>A Z-test is any statistical test for which the distribution of the test statistic under <strong>the null hypothesis can be approximated by a normal distribution</strong>.</p>
 </blockquote>
 <p>This a common source of confusion. What does it mean that <em>“the test statistic under the null hypothesis can be approximated by a normal distribution”</em>? And whatever that is, how do I know it’s  a valid assumption for my data?</p>
+<h2>A/B testing</h2>
 <p>Let’s take a concrete example. Let’s suppose that we’re doing an A/B test, and we’re measuring two metrics for variants A and B: a $C$ conversion rate (at what rate do people convert) and a $T$ timespent (how many minutes do they spend in the product). In both case, our null hypothesis would be <em>“A and B are the same”</em>, which is translated into the language of mathematics like:</p>
 <ul>
 <li>$ H_0 $ null hypothesis for conversion rate: $ C_A = C_B $</li>
@@ -98,12 +99,14 @@
 </ul>
 <p>Here comes the important part: in the above expression, $ C_A $ and $ C_B $ are the conversion rate, and $ T_A $ and $ T_B $ are the average timespent minutes. Both of these quantities are averages: for the conversion rate, we can imagine a conversion counting as a 1 and a non-conversion as a 0, and the conversion rate is the average of this random variable (like coinflips). The timespents is also computed by adding up the individual timespent minutes and dividing by the number of samples.</p>
 <p>And this is the key: the z-test (and many other tests) work only if these averages can be approximated by a normal distribution. <strong>So it’s not the distribution of conversions or the distributions of timespents which must be normal.</strong> In fact, these do not follow a normal distribution at all! The conversions are 0s and 1s and follow a <a href="https://en.wikipedia.org/wiki/Bernoulli_distribution">Bernoulli distribution</a>, like toin cosses. Timespents usually follow an exponential-looking drop-off in SaaS products. <strong>But, given a big enough sample size, their distribution of average computed from samples can in fact be approximated by a normal.</strong> This is the guarantee of the Central Limit Theorem (CLT). A final technical note: the test statistic is actually the difference of the means: for example, $ T_A = T_B $ can be reformulated as $ T_A - T_B = 0 $, and it this difference (normalized) that is the test statistic. Fortunately, <a href="https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables">independent normal distributions have a very nice additive property</a>: if $ X $ and $ Y $ are i.i.d. normal random variables, so is $ X + Y $ and $ X - Y $. So if $ T_A $ and  $ T_B $ are normal, so is the test statistic $ T_A - T_B $.</p>
+<h2>The Central Limit Theorem</h2>
 <p>Without further ado, the <a href="https://en.wikipedia.org/wiki/Central_limit_theorem">Central Limit Theorem</a>:</p>
 <blockquote>
 <p>In probability theory, the central limit theorem (CLT) establishes that, in some situations, when independent random variables are added, their properly normalized sum tends toward a normal distribution (informally a "bell curve") even if the original variables themselves are not normally distributed. The theorem is a key concept in probability theory because it implies that probabilistic and statistical methods that work for normal distributions can be applicable to many problems involving other types of distributions.</p>
 <p>For example, suppose that a sample is obtained containing many observations, each observation being randomly generated in a way that does not depend on the values of the other observations, and that the arithmetic mean of the observed values is computed. If this procedure is performed many times, the central limit theorem says that the distribution of the average will be closely approximated by a normal distribution. A simple example of this is that if one flips a coin many times the probability of getting a given number of heads in a series of flips will approach a normal curve, with mean equal to half the total number of flips in each series; in the limit of an infinite number of flips, it will equal a normal curve.</p>
 </blockquote>
-<p>In layman’s terms, the CLT says that: given a population P, with some metric M whose true average is $ mu_M $, and you take a random sample of independent measurements from P and take the average $ a_M $, the error of the measurement, $ e_M = mu_M - a_M $, follows a normal distribution.</p>
+<p>In layman’s terms, the CLT says that: given a population P, with some metric M whose true average is $ mu_M $, and you take a random sample of independent measurements from P and take the average $ a_M $, the error of the measurement, $ e_M = mu_M - a_M $, follows a normal distribution. I will not discuss the exact mathematical formulation here.</p>
+<h2>Simulation</h2>
 <p>The way to see this for ourselves is simple, we can run simulations:</p>
 <ol>
 <li>First, we will define a population with some distribution, it doesn’t have to be normal, it can be uniform, exponential, whatever.</li>
@@ -155,8 +158,15 @@
 
 
 <p><img src="/images/uniform_exp_normal_mean_sample.PNG" alt="Uniform, exponential and normal distribution sample means" style="width: 400px;"/></p>
-<p>Alas, the Central Limit Theorem works. The distribution of the means, for uniform, exponential and normal distribution is a normal distribution, about the true population mean.</p>
-<p>This is why, when you're doing A/B testing on averages (such as conversion or average timespents), the normality assumption is justified.</p>
+<p>Alas, the Central Limit Theorem works. The distribution of the means, for uniform, exponential and normal distributions is a normal distribution, about the true population mean.</p>
+<p>Note that the CLT also works for means coming from discrete distributions such as the Bernoulli distribution, ie. conversions:</p>
+<div class="highlight"><pre><span></span><span class="n">population_sample_mean_plot</span><span class="p">(</span><span class="n">bernoulli</span><span class="p">)</span>
+</pre></div>
+
+
+<p><img src="/images/bernoulli_mean_sample.PNG" alt="Bernoulli sample means" style="width: 400px;"/></p>
+<h2>Conclusion</h2>
+<p>The Central Limit Theorem is the reason why, when you're doing A/B testing on averages (such as conversion or average timespents), the normality assumption for hypothesis testing is justified.</p>
   </div>
   <div class="tag-cloud">
     <p>
