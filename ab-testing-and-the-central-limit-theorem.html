@@ -98,7 +98,7 @@
 </ul>
 <p>Here comes the important part: in the above expression, $ C_A $ and $ C_B $ are the conversion rate, and $ T_A $ and $ T_B $ are the average timespent minutes. Both of these quantities are averages: for the conversion rate, we can imagine a conversion counting as a 1 and a non-conversion as a 0, and the conversion rate is the average of this random variable (like coinflips). The timespents is also computed by adding up the individual timespent minutes and dividing by the number of samples.</p>
 <p>And this is the key: the z-test (and many other tests) work only if these averages can be approximated by a normal distribution. <strong>So it’s not the distribution of conversions or the distributions of timespents which must be normal.</strong> In fact, these do not follow a normal distribution at all! The conversions are 0s and 1s and follow a <a href="https://en.wikipedia.org/wiki/Bernoulli_distribution">Bernoulli distribution</a>, like toin cosses. Timespents usually follow an exponential-looking drop-off in SaaS products. <strong>But, given a big enough sample size, their distribution of average computed from samples can in fact be approximated by a normal.</strong> This is the guarantee of the Central Limit Theorem (CLT). A final technical note: the test statistic is actually the difference of the means: for example, $ T_A = T_B $ can be reformulated as $ T_A - T_B = 0 $, and it this difference (normalized) that is the test statistic. Fortunately, <a href="https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables">independent normal distributions have a very nice additive property</a>: if $ X $ and $ Y $ are i.i.d. normal random variables, so is $ X + Y $ and $ X - Y $. So if $ T_A $ and  $ T_B $ are normal, so is the test statistic $ T_A - T_B $.</p>
-<p>Without further ado, the Central Limit Theorem, per wikipedia:</p>
+<p>Without further ado, the <a href="https://en.wikipedia.org/wiki/Central_limit_theorem">Central Limit Theorem</a>:</p>
 <blockquote>
 <p>In probability theory, the central limit theorem (CLT) establishes that, in some situations, when independent random variables are added, their properly normalized sum tends toward a normal distribution (informally a "bell curve") even if the original variables themselves are not normally distributed. The theorem is a key concept in probability theory because it implies that probabilistic and statistical methods that work for normal distributions can be applicable to many problems involving other types of distributions.</p>
 <p>For example, suppose that a sample is obtained containing many observations, each observation being randomly generated in a way that does not depend on the values of the other observations, and that the arithmetic mean of the observed values is computed. If this procedure is performed many times, the central limit theorem says that the distribution of the average will be closely approximated by a normal distribution. A simple example of this is that if one flips a coin many times the probability of getting a given number of heads in a series of flips will approach a normal curve, with mean equal to half the total number of flips in each series; in the limit of an infinite number of flips, it will equal a normal curve.</p>
@@ -111,7 +111,50 @@
 <li>We do the above step num_sample times, so we have num_sample means.</li>
 <li>Then we plot these means and according to the CLT, we should see a nice bell curve centered on the true mean of the original population distribution (ie. the mean of the uniform, the mean of the exponential, etc.).</li>
 </ol>
-<p>Let’s do this! </p>
+<p>Let's use <a href="https://www.scipy.org/">scipy</a>, it gives us convenient ways to sample standard distributions like Bernoulli, exponential, uniform, etc.</p>
+<p>First, a function which samples a given distribution and shows a histogram of the samples against the pdf of the distribution. We can use this to check that we're doing the right thing:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">population_sample_plot</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="n">sample</span> <span class="o">=</span> <span class="n">population</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
+    <span class="n">padding</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">sample</span><span class="p">))</span> <span class="o">/</span> <span class="mf">4.0</span>
+    <span class="n">resolution</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">sample</span><span class="p">))</span> <span class="o">/</span> <span class="mf">100.0</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span> <span class="o">-</span> <span class="n">padding</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span> <span class="o">+</span> <span class="n">padding</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">population</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Let's visualize a uniform, an exponential and a normal distribution like this:</p>
+<div class="highlight"><pre><span></span><span class="n">population_sample_plot</span><span class="p">(</span><span class="n">uniform</span><span class="p">)</span>
+<span class="n">population_sample_plot</span><span class="p">(</span><span class="n">expon</span><span class="p">)</span>
+<span class="n">population_sample_plot</span><span class="p">(</span><span class="n">norm</span><span class="p">)</span>
+</pre></div>
+
+
+<p><img src="/images/uniform_exp_normal_histo.PNG" alt="Uniform, exponential and normal distributions" style="width: 400px;"/></p>
+<p>So these are the original population distributions, and we're trying to estimate the mean by drawing samples. Let's write code to do this:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">population_sample_mean_plot</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="n">sample_means</span> <span class="o">=</span> <span class="p">[</span><span class="n">mean</span><span class="p">(</span><span class="n">population</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">))</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)]</span>
+    <span class="n">mn</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">sample_means</span><span class="p">)</span>
+    <span class="n">mx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">sample_means</span><span class="p">)</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">mx</span> <span class="o">-</span> <span class="n">mn</span>
+    <span class="n">padding</span> <span class="o">=</span> <span class="n">rng</span> <span class="o">/</span> <span class="mf">4.0</span>
+    <span class="n">resolution</span> <span class="o">=</span> <span class="n">rng</span> <span class="o">/</span> <span class="mf">100.0</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mn</span> <span class="o">-</span> <span class="n">padding</span><span class="p">,</span> <span class="n">mx</span> <span class="o">+</span> <span class="n">padding</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">norm</span><span class="p">(</span><span class="n">mean</span><span class="p">(</span><span class="n">sample_means</span><span class="p">),</span> <span class="n">std</span><span class="p">(</span><span class="n">sample_means</span><span class="p">))</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">sample_means</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Let's see the distribution of the means for the same three distributions:</p>
+<div class="highlight"><pre><span></span><span class="n">population_sample_mean_plot</span><span class="p">(</span><span class="n">uniform</span><span class="p">)</span>
+<span class="n">population_sample_mean_plot</span><span class="p">(</span><span class="n">expon</span><span class="p">)</span>
+<span class="n">population_sample_mean_plot</span><span class="p">(</span><span class="n">norm</span><span class="p">)</span>
+</pre></div>
+
+
+<p><img src="/images/uniform_exp_normal_mean_sample.PNG" alt="Uniform, exponential and normal distribution sample means" style="width: 400px;"/></p>
   </div>
   <div class="tag-cloud">
     <p>
