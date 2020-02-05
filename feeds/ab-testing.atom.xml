@@ -30,7 +30,7 @@
 &lt;li&gt;We do the above step &lt;code&gt;num_sample&lt;/code&gt; times, so we have &lt;code&gt;num_sample&lt;/code&gt; means.&lt;/li&gt;
 &lt;li&gt;Then we plot these means and according to the CLT, we should see a nice bell curve centered on the true mean of the original population distribution (ie. the mean of the uniform, the mean of the exponential, etc).&lt;/li&gt;
 &lt;/ol&gt;
-&lt;p&gt;Let's use &lt;a href="https://www.scipy.org/"&gt;scipy&lt;/a&gt;, it gives us convenient ways to sample standard distributions. First, a function which samples a given distribution and shows a histogram of the samples against the pdf of the distribution. We can use this to check that we're doing the right thing:&lt;/p&gt;
+&lt;p&gt;Let's use &lt;a href="https://www.scipy.org/"&gt;scipy&lt;/a&gt;, it gives us convenient ways to sample standard distributions. First, a function which samples a given distribution and shows a histogram of the samples against the &lt;a href="https://en.wikipedia.org/wiki/Probability_density_function"&gt;probability density function&lt;/a&gt; of the distribution. We can use this to check that we're doing the right thing:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;population_sample_plot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;population&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;sample_size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1000&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;sample&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;population&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rvs&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;sample_size&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;padding&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;max&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sample&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="nb"&gt;min&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sample&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="mf"&gt;4.0&lt;/span&gt;
@@ -73,8 +73,8 @@
 
 
 &lt;p&gt;&lt;img src="/images/uniform_exp_normal_mean_sample.PNG" alt="Uniform, exponential and normal distribution sample means" style="width: 400px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Alas, the Central Limit Theorem works. The distribution of the means, for uniform, exponential and normal distributions is a normal distribution, about the true population mean.&lt;/p&gt;
-&lt;p&gt;Note that the CLT also works for means coming from discrete distributions such as the &lt;a href="https://en.wikipedia.org/wiki/Bernoulli_distribution"&gt;Bernoulli distribution&lt;/a&gt;, ie. conversions:&lt;/p&gt;
+&lt;p&gt;The Central Limit Theorem works!The distribution of the means, for uniform, exponential and normal distributions is a normal distribution, about the true population mean.&lt;/p&gt;
+&lt;p&gt;Note that the CLT also works for discrete distributions such as the &lt;a href="https://en.wikipedia.org/wiki/Bernoulli_distribution"&gt;Bernoulli distribution&lt;/a&gt;, ie. conversions:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;population_sample_mean_plot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bernoulli&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
