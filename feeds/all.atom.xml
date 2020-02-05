@@ -25,10 +25,10 @@
 &lt;h2&gt;Simulation&lt;/h2&gt;
 &lt;p&gt;We can "prove" this to ourselves by running simulations:&lt;/p&gt;
 &lt;ol&gt;
-&lt;li&gt;First, we will define a population with some distribution, it doesn’t have to be normal, it can be uniform, exponential, whatever.&lt;/li&gt;
-&lt;li&gt;Then we take sample_size samples and compute the mean.&lt;/li&gt;
-&lt;li&gt;We do the above step num_sample times, so we have num_sample means.&lt;/li&gt;
-&lt;li&gt;Then we plot these means and according to the CLT, we should see a nice bell curve centered on the true mean of the original population distribution (ie. the mean of the uniform, the mean of the exponential, etc.).&lt;/li&gt;
+&lt;li&gt;First, we will define a population with some distribution. It doesn’t have to be normal, it can be uniform, exponential, whatever.&lt;/li&gt;
+&lt;li&gt;Then we take &lt;code&gt;sample_size&lt;/code&gt; samples and compute the mean.&lt;/li&gt;
+&lt;li&gt;We do the above step &lt;code&gt;num_sample&lt;/code&gt; times, so we have &lt;code&gt;num_sample&lt;/code&gt; means.&lt;/li&gt;
+&lt;li&gt;Then we plot these means and according to the CLT, we should see a nice bell curve centered on the true mean of the original population distribution (ie. the mean of the uniform, the mean of the exponential, etc).&lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;Let's use &lt;a href="https://www.scipy.org/"&gt;scipy&lt;/a&gt;, it gives us convenient ways to sample standard distributions. First, a function which samples a given distribution and shows a histogram of the samples against the pdf of the distribution. We can use this to check that we're doing the right thing:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;population_sample_plot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;population&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;sample_size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1000&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;

@@ -110,10 +110,10 @@
 <h2>Simulation</h2>
 <p>We can "prove" this to ourselves by running simulations:</p>
 <ol>
-<li>First, we will define a population with some distribution, it doesn’t have to be normal, it can be uniform, exponential, whatever.</li>
-<li>Then we take sample_size samples and compute the mean.</li>
-<li>We do the above step num_sample times, so we have num_sample means.</li>
-<li>Then we plot these means and according to the CLT, we should see a nice bell curve centered on the true mean of the original population distribution (ie. the mean of the uniform, the mean of the exponential, etc.).</li>
+<li>First, we will define a population with some distribution. It doesn’t have to be normal, it can be uniform, exponential, whatever.</li>
+<li>Then we take <code>sample_size</code> samples and compute the mean.</li>
+<li>We do the above step <code>num_sample</code> times, so we have <code>num_sample</code> means.</li>
+<li>Then we plot these means and according to the CLT, we should see a nice bell curve centered on the true mean of the original population distribution (ie. the mean of the uniform, the mean of the exponential, etc).</li>
 </ol>
 <p>Let's use <a href="https://www.scipy.org/">scipy</a>, it gives us convenient ways to sample standard distributions. First, a function which samples a given distribution and shows a histogram of the samples against the pdf of the distribution. We can use this to check that we're doing the right thing:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">population_sample_plot</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
