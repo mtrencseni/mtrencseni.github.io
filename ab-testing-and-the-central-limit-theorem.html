@@ -115,8 +115,7 @@
 <li>We do the above step num_sample times, so we have num_sample means.</li>
 <li>Then we plot these means and according to the CLT, we should see a nice bell curve centered on the true mean of the original population distribution (ie. the mean of the uniform, the mean of the exponential, etc.).</li>
 </ol>
-<p>Let's use <a href="https://www.scipy.org/">scipy</a>, it gives us convenient ways to sample standard distributions like Bernoulli, exponential, uniform, etc.</p>
-<p>First, a function which samples a given distribution and shows a histogram of the samples against the pdf of the distribution. We can use this to check that we're doing the right thing:</p>
+<p>Let's use <a href="https://www.scipy.org/">scipy</a>, it gives us convenient ways to sample standard distributions. First, a function which samples a given distribution and shows a histogram of the samples against the pdf of the distribution. We can use this to check that we're doing the right thing:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">population_sample_plot</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
     <span class="n">sample</span> <span class="o">=</span> <span class="n">population</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
     <span class="n">padding</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">sample</span><span class="p">))</span> <span class="o">/</span> <span class="mf">4.0</span>
