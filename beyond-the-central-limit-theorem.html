@@ -210,8 +210,24 @@
 <p><img src="/images/martingale_mean.PNG" alt="Martingale mean" style="width: 400px;"/></p>
 <p>But note that this is no longer the original CLT. Random walks like this are closely related to <a href="https://en.wikipedia.org/wiki/Brownian_motion">Brownian motion</a>, which is what earned Einstein the Nobel price.</p>
 <h2>Small sample size</h2>
-<p>The final case when we cannot rely on the CLT is when the sample size is small. The CLT says that as we increase the sample size $N$, we get arbitrarily close to a normal distribution (even though we never reach it, only in the $ N \rightarrow \infty $ infitinity limit). In real life, we don’t have infinite time, so we always stop at some fixed $N$, and it's the Data Scientist's job to make sure we have a big enough $N$ to make sure that our approximation is good enough.</p>
-<p>XYZ</p>
+<p>We also cannot rely on the CLT when the sample size is small. The CLT says that as we increase the sample size $N$, we get arbitrarily close to a normal distribution (even though we never reach it, only in the $ N \rightarrow \infty $ infitinity limit). In real life, we don’t have infinite time, so we always stop at some fixed $N$, and it's the Data Scientist's job to make sure we have a big enough $N$ that our approximation is good enough.</p>
+<p>Let's use conversions, ie. the <a href="https://en.wikipedia.org/wiki/Bernoulli_distribution">Bernoulli</a> distribution as an example, because it illustrates this point in a counter-intuitive, but instructive way. In the previous post we saw that even at $N=1,000$ the samples mean nicely approximate a normal... that is, when the $p$ parameter of the Bernoulli is $p=0.5$:</p>
+<p><img src="/images/bernoulli_mean_sample.PNG" alt="Bernoulli sample means" style="width: 400px;"/></p>
+<p>Let's run the same simulation, but at $p=0.001$, with $N=1,000$:</p>
+<div class="highlight"><pre><span></span><span class="n">population_sample_mean_plot</span><span class="p">(</span><span class="n">bernoulli</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.001</span><span class="p">))</span>
+</pre></div>
+
+
+<p>We get this:</p>
+<p><img src="/images/bernoulli_p_small.PNG" alt="Bernoulli at p=0.001, N=1,000" style="width: 400px;"/></p>
+<p>Clearly, this does not (yet) look like a bell curve, and it's stronly asymmetric. What happens is that $Np=1$, so on average we just get 1 conversion, a lot of the time we will get just 0, sometimes 2, 3, and so on.. At such low $N$, we simply don't get enough signal. But, to be clear, in general the CLT still holds, for a low $p$ Bernoulli distribution, we just need to collect more samples, so we get enough conversions per sample to actually see the bell curve. Repeating the same, but at $N=100,000$ shows a beautiful bell curve centered around $p=0.001$:</p>
+<div class="highlight"><pre><span></span><span class="n">population_sample_mean_plot</span><span class="p">(</span><span class="n">bernoulli</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.001</span><span class="p">),</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">100</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span>
+</pre></div>
+
+
+<p><img src="/images/bernoulli_p_small_high_n.PNG" alt="Bernoulli at p=0.001, N=100,000" style="width: 400px;"/></p>
+<p>So, the CLT still holds, but sometimes we just need to collect more data for it to “start working”. Note that these considerations are baked into sample size calculators such as <a href="https://www.evanmiller.org/ab-testing/sample-size.html">this</a>.</p>
+<p>A good real-life example of working with very low probability events is fraud in credit card transactions. In real life only about 1 in 1,000 transactions are fraudulent. Suppose we're A/B testing an ML model to catch fraudulent transactions: A is the new model, B is the old model. We need to collect a lot of samples to catch enough fraud cases to get a good estimate of the ratios for A and B ($C_A and C_B$), and the lift between A and B (the test statistic for the $H_0$ null hypothesis is $C_A - C_B$). What the above simulation shows is that if fraud cases happen at $p=0.001$ we will need to collect a lot more samples than if they were to happen at $p=0.5$ frequency.</p>
   </div>
   <div class="tag-cloud">
     <p>
