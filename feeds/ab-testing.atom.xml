@@ -8,7 +8,7 @@
 &lt;p&gt;This a common source of confusion. What does it mean that &lt;em&gt;“the test statistic under the null hypothesis can be approximated by a normal distribution”&lt;/em&gt;? And whatever that is, how do I know it’s  a valid assumption for my data?&lt;/p&gt;
 &lt;p&gt;&lt;a href="https://github.com/mtrencseni/playground/blob/master/AB%20testing%20and%20the%20Central%20Limit%20Theorem.ipynb"&gt;Note: the code shown below is up on Github&lt;/a&gt;.&lt;/p&gt;
 &lt;h2&gt;A/B testing&lt;/h2&gt;
-&lt;p&gt;Let’s take a concrete example. Let’s suppose that we’re doing an A/B test, and we’re measuring two metrics for variants A and B: a $C$ conversion rate (at what rate do people convert) and a $T$ timespent (how many minutes do they spend in the product). In both case, our null hypothesis would be &lt;em&gt;“A and B are the same”&lt;/em&gt;, which is translated into the language of mathematics like:&lt;/p&gt;
+&lt;p&gt;Let’s take a concrete example. Suppose we’re doing an A/B test, and we’re measuring two metrics for variants A and B: a $C$ conversion rate (at what rate do people convert) and a $T$ timespent (how many minutes do they spend in the product). In both case, our null hypothesis would be &lt;em&gt;“A and B are the same”&lt;/em&gt;, which is translated into the language of mathematics like:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;$ H_0 $ null hypothesis for conversion rate: $ C_A = C_B $&lt;/li&gt;
 &lt;li&gt;$ H_0 $ null hypothesis for timespent: $ T_A  = T_B $&lt;/li&gt;
