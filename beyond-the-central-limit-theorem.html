@@ -105,7 +105,7 @@
 <p>$ E[X] = \sum i p_i $, where $ \sum p_i = 1 $</p>
 <p>The mean of a distribution does not exist if the integral or sum does not exist, ie. for a "pathological" $ f $ or $ p_i $.</p>
 <p>One example is the <a href="https://en.wikipedia.org/wiki/Cauchy_distribution">Cauchy-distribution</a>, defined by $ f(x) = \frac{ 1 }{ \pi ( 1 + x^2 )} $. If you plug this into the above integral, it does not exist.</p>
-<p>The Cauchy distribution looks like this:</p>
+<p>The Cauchy distribution looks like this (notice how it's more narrow in the center and far in the tails than a normal distribution):</p>
 <p><img src="/images/cauchy.PNG" alt="Cauchy" style="width: 400px;"/></p>
 <p>We can see this for ourselves with a simulation. Let's run the following simulation:</p>
 <ol>
@@ -139,7 +139,7 @@
 <p>Let's do the same for the Cauchy distribution, but let's let it run for 10,000,000 samples:</p>
 <p><img src="/images/running_mean_cauchy.PNG" alt="Running mean for Cauchy distribution" style="width: 400px;"/></p>
 <p>Notice how even after millions of samples, sometimes there is a big jump in the running mean. It does not converge, if we keep running it, it will keep jumping around, and it will jump to arbitrarily large values.</p>
-<p>Why is this? The Cauchy distribution can be visualized like this: imagine drawing the bottom part of a circle (a half-circle) around the position (x=0, y=1). Now, for each draw, pick an angle $ \theta \in ( -\Pi/2, \Pi/2) $ in a uniform way, and then shoot a ray at that angle to the x-axis. The x-coordinate of the x-axis is the returned value for the Cauchy sampling. Although the angle is uniform, the ray can shoot arbitrarily far on the x-axis to generate extremely large or small values, and this happens quite often. Note that eg. the normal distribution can also generate arbitrarily small or large values, but at a lower rate, so the mean still exists there.</p>
+<p>Why is this? The Cauchy distribution can be visualized like this: imagine drawing the bottom part of a circle (a half-circle) around the center (x=0, y=1). Now, for each draw, pick an angle $ \theta \in ( -\pi/2, \pi/2) $ in a uniform way on the half circle, and then shoot a ray from the center at that angle to the half-circle, and then on to the x-axis. The x-coordinate of the x-axis is the returned value for the Cauchy sampling. Although the angle is uniform, the ray can shoot arbitrarily far on the x-axis to generate extremely large or small values, and this happens quite often. Note that eg. the normal distribution can also generate arbitrarily small or large values, but at a lower rate, so the mean still exists there.</p>
 <p>Another way to see this is to look at a histogram of 100,000 draws and compare it with a normal distribution (top is normal, bottom is Cauchy):</p>
 <p><img src="/images/scatter_norm_cauchy.PNG" alt="Scatter plot for normal and Cauchy distributions" style="width: 400px;"/></p>
 <p>Notice how the normal doesn't produce extreme values, whereas the Cauchy does.</p>
