@@ -107,11 +107,11 @@
 <p>One example is the <a href="https://en.wikipedia.org/wiki/Cauchy_distribution">Cauchy-distribution</a>, defined by $ f(x) = \frac{ 1 }{ \pi ( 1 + x^2 )} $. If you plug this into the above integral, it does not exist.</p>
 <p>The Cauchy distribution looks like this (shown with the normal in blue, cauchy in orange; notice how cauchy is more narrow in the center and fatter in the tails than the normal):</p>
 <p><img src="/images/norm_cauchy.PNG" alt="Cauchy and normal" style="width: 400px;"/></p>
-<p>We can see this for ourselves with a simulation. Let's run the following simulation:</p>
+<p>We can see this for ourselves with a Monte Carlo simulation:</p>
 <ol>
 <li>Draw samples from a distribution</li>
 <li>Every 100 sample, compute the running mean (from the very beginning)</li>
-<li>Plot the running mean, together with the standard error</li>
+<li>Plot the running mean, together with the <a href="https://en.wikipedia.org/wiki/Standard_error">standard error</a></li>
 </ol>
 <p>Like in the previous post, we'll use <a href="https://www.scipy.org/">scipy</a>. First let's do this for distributions that have a mean: uniform ($ \mu = 0.5 $), exponential ($ \mu = 1 $) and a standard normal ($ \mu = 0 $):</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">population_running_mean_plot</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">10</span><span class="o">*</span><span class="mi">1000</span><span class="p">):</span>
@@ -134,11 +134,11 @@
 </pre></div>
 
 
-<p>Let's see how the running mean converges to the true sample mean after 10,000 samples:</p>
+<p>Let's see how the running mean converges to the true sample mean after $N=10,000$ samples:</p>
 <p><img src="/images/running_mean_convergence.PNG" alt="Running mean converges for the uniform, exponential and normal distribution" style="width: 400px;"/></p>
-<p>Let's do the same for the Cauchy distribution, but let's let it run for 10,000,000 samples:</p>
+<p>Let's do the same for the Cauchy distribution, but let's let it run for $N=10,000,000$ samples:</p>
 <p><img src="/images/running_mean_cauchy.PNG" alt="Running mean for Cauchy distribution" style="width: 400px;"/></p>
-<p>Notice how even after millions of samples, sometimes there is a big jump in the running mean. It does not converge, if we keep running it, it will keep jumping around, and it will jump to arbitrarily large values.</p>
+<p>For the Cauchy even after millions of samples, sometimes there is a big jump in the running mean (unlike the previous distributions). It does not converge: if we keep running it, it will keep jumping around, and it will jump to arbitrarily large values.</p>
 <p>Why is this? The Cauchy distribution can be visualized like this: imagine drawing the bottom part of a circle (a half-circle) around the center (x=0, y=1). Now, for each draw, pick an angle $ \theta \in ( -\pi/2, \pi/2) $ in a uniform way on the half circle, and then shoot a ray from the center at that angle to the half-circle, and then on to the x-axis. The x-coordinate of the x-axis is the returned value for the Cauchy sampling. Although the angle is uniform, the ray can shoot arbitrarily far on the x-axis to generate extremely large or small values, and this happens quite often. Note that eg. the normal distribution can also generate arbitrarily small or large values, but at a lower rate, so the mean still exists there.</p>
 <p>Another way to see this is to look at a histogram of 100,000 draws and compare it with a normal distribution (top is normal, bottom is Cauchy):</p>
 <p><img src="/images/scatter_norm_cauchy.PNG" alt="Scatter plot for normal and Cauchy distributions" style="width: 400px;"/></p>

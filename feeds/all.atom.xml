@@ -22,11 +22,11 @@
 &lt;p&gt;One example is the &lt;a href="https://en.wikipedia.org/wiki/Cauchy_distribution"&gt;Cauchy-distribution&lt;/a&gt;, defined by $ f(x) = \frac{ 1 }{ \pi ( 1 + x^2 )} $. If you plug this into the above integral, it does not exist.&lt;/p&gt;
 &lt;p&gt;The Cauchy distribution looks like this (shown with the normal in blue, cauchy in orange; notice how cauchy is more narrow in the center and fatter in the tails than the normal):&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/norm_cauchy.PNG" alt="Cauchy and normal" style="width: 400px;"/&gt;&lt;/p&gt;
-&lt;p&gt;We can see this for ourselves with a simulation. Let's run the following simulation:&lt;/p&gt;
+&lt;p&gt;We can see this for ourselves with a Monte Carlo simulation:&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;Draw samples from a distribution&lt;/li&gt;
 &lt;li&gt;Every 100 sample, compute the running mean (from the very beginning)&lt;/li&gt;
-&lt;li&gt;Plot the running mean, together with the standard error&lt;/li&gt;
+&lt;li&gt;Plot the running mean, together with the &lt;a href="https://en.wikipedia.org/wiki/Standard_error"&gt;standard error&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;Like in the previous post, we'll use &lt;a href="https://www.scipy.org/"&gt;scipy&lt;/a&gt;. First let's do this for distributions that have a mean: uniform ($ \mu = 0.5 $), exponential ($ \mu = 1 $) and a standard normal ($ \mu = 0 $):&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;population_running_mean_plot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;population&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;sample_size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="mi"&gt;1000&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
@@ -49,11 +49,11 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Let's see how the running mean converges to the true sample mean after 10,000 samples:&lt;/p&gt;
+&lt;p&gt;Let's see how the running mean converges to the true sample mean after $N=10,000$ samples:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/running_mean_convergence.PNG" alt="Running mean converges for the uniform, exponential and normal distribution" style="width: 400px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Let's do the same for the Cauchy distribution, but let's let it run for 10,000,000 samples:&lt;/p&gt;
+&lt;p&gt;Let's do the same for the Cauchy distribution, but let's let it run for $N=10,000,000$ samples:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/running_mean_cauchy.PNG" alt="Running mean for Cauchy distribution" style="width: 400px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Notice how even after millions of samples, sometimes there is a big jump in the running mean. It does not converge, if we keep running it, it will keep jumping around, and it will jump to arbitrarily large values.&lt;/p&gt;
+&lt;p&gt;For the Cauchy even after millions of samples, sometimes there is a big jump in the running mean (unlike the previous distributions). It does not converge: if we keep running it, it will keep jumping around, and it will jump to arbitrarily large values.&lt;/p&gt;
 &lt;p&gt;Why is this? The Cauchy distribution can be visualized like this: imagine drawing the bottom part of a circle (a half-circle) around the center (x=0, y=1). Now, for each draw, pick an angle $ \theta \in ( -\pi/2, \pi/2) $ in a uniform way on the half circle, and then shoot a ray from the center at that angle to the half-circle, and then on to the x-axis. The x-coordinate of the x-axis is the returned value for the Cauchy sampling. Although the angle is uniform, the ray can shoot arbitrarily far on the x-axis to generate extremely large or small values, and this happens quite often. Note that eg. the normal distribution can also generate arbitrarily small or large values, but at a lower rate, so the mean still exists there.&lt;/p&gt;
 &lt;p&gt;Another way to see this is to look at a histogram of 100,000 draws and compare it with a normal distribution (top is normal, bottom is Cauchy):&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/scatter_norm_cauchy.PNG" alt="Scatter plot for normal and Cauchy distributions" style="width: 400px;"/&gt;&lt;/p&gt;
