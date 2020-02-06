@@ -220,7 +220,8 @@
 
 <p>We get this:</p>
 <p><img src="/images/bernoulli_p_small.PNG" alt="Bernoulli at p=0.001, N=1,000" style="width: 400px;"/></p>
-<p>Clearly, this does not (yet) look like a bell curve, and it's stronly asymmetric. What happens is that $Np=1$, so on average we just get 1 conversion, a lot of the time we will get just 0, sometimes 2, 3, and so on.. At such low $N$, we simply don't get enough signal. But, to be clear, in general the CLT still holds, for a low $p$ Bernoulli distribution, we just need to collect more samples, so we get enough conversions per sample to actually see the bell curve. Repeating the same, but at $N=100,000$ shows a beautiful bell curve centered around $p=0.001$:</p>
+<p>Clearly, this does not (yet) look like a bell curve, and it's strongly asymmetric. What happens is that $Np=1$, so on average we just get 1 conversion. A lot of the time we will get just 0, most often 1, sometimes 2, 3, and so on.. At such low $Np$, we need more samples, so we can more accurately explore the region around the true mean. If we run at say $N=10,000$, then $Np=10$, so sometimes we get $0, 1, 2, ... 10 ... $ we get the picture around the average 10.</p>
+<p>To be clear, the CLT still holds for a low $p$ Bernoulli distribution, we just need to collect more samples, so we get enough conversions per sample to actually see the bell curve. Let's repeat the previous simulation, but at $N=100,000$. It shows a beautiful bell curve centered around $p=0.001$:</p>
 <div class="highlight"><pre><span></span><span class="n">population_sample_mean_plot</span><span class="p">(</span><span class="n">bernoulli</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.001</span><span class="p">),</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">100</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span>
 </pre></div>
 
