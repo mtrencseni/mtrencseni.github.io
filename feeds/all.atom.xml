@@ -19,7 +19,7 @@
 &lt;p&gt;For a discrete random variable:&lt;/p&gt;
 &lt;p&gt;$ E[X] = \sum i p_i $, where $ \sum p_i = 1 $&lt;/p&gt;
 &lt;p&gt;The mean of a distribution does not exist if the integral or sum does not exist, ie. for a "pathological" $ f $ or $ p_i $.&lt;/p&gt;
-&lt;p&gt;One example is the &lt;a href="https://en.wikipedia.org/wiki/Cauchy_distribution"&gt;Cauchy-distribution&lt;/a&gt;, defined by $ f(x) = 1 \over{ \Pi ( 1 + x^2 )} $. If you plug this into the above integral, it does not exist.&lt;/p&gt;
+&lt;p&gt;One example is the &lt;a href="https://en.wikipedia.org/wiki/Cauchy_distribution"&gt;Cauchy-distribution&lt;/a&gt;, defined by $ f(x) = \frac{ 1 }{ \pi ( 1 + x^2 )} $. If you plug this into the above integral, it does not exist.&lt;/p&gt;
 &lt;p&gt;The Cauchy distribution looks like this:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/cauchy.PNG" alt="Cauchy" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;p&gt;We can see this for ourselves with a simulation. Let's run the following simulation:&lt;/p&gt;
