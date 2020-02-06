@@ -15,9 +15,9 @@
 &lt;li&gt;the sampled means will not converge to any value, they will keep jumping around&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;How is it even possible for a distribution not to have a mean? The mean, or &lt;a href="https://en.wikipedia.org/wiki/Expected_value"&gt;expected value&lt;/a&gt; $ E[X] $ of a continuous random variable $ X $ with pfd $ f $ is given by:&lt;/p&gt;
-&lt;p&gt;$ E[X] = \int f(x) x dx $, where $ \int f(x) dx = 1 $&lt;/p&gt;
+&lt;p&gt;$ E[X] = \int x f(x) dx $, where $ \int f(x) dx = 1 $&lt;/p&gt;
 &lt;p&gt;For a discrete random variable:&lt;/p&gt;
-&lt;p&gt;$ E[X] = \sum p_i i $, where $ \sum p_i = 1 $&lt;/p&gt;
+&lt;p&gt;$ E[X] = \sum i p_i $, where $ \sum p_i = 1 $&lt;/p&gt;
 &lt;p&gt;The mean of a distribution does not exist if the integral or sum does not exist, ie. for a "pathological" $ f $ or $ p_i $.&lt;/p&gt;
 &lt;p&gt;One example is the &lt;a href="https://en.wikipedia.org/wiki/Cauchy_distribution"&gt;Cauchy-distribution&lt;/a&gt;, defined by $ f(x) = 1 \over{ \Pi ( 1 + x^2 )} $. If you plug this into the above integral, it does not exist.&lt;/p&gt;
 &lt;p&gt;The Cauchy distribution looks like this:&lt;/p&gt;
