@@ -85,11 +85,10 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>In the previous post, <a href="http://bytepawn.com/ab-testing-and-the-central-limit-theorem.html">A/B testing and the Central Limit Theorem</a>, I talked about the importance of the <a href="https://en.wikipedia.org/wiki/Central_limit_theorem">Central Limit Theorem</a> (CLT) to A/B testing. Here we will explore cases when we cannot rely on the CLT to hold.</p>
-<p>Some of the use-cases discussed here are relevant to the everyday work of a Data Scientist (eg. low sample size), but others are not, they’re more mathematical peculiarities. I still find it good practice to explore this, because understanding when a theorem doesn’t hold is a good way to understand the theorem itself, and why it works. It’s a bit like writing tests for software and trying to break it.</p>
+<p>In the previous post, <a href="http://bytepawn.com/ab-testing-and-the-central-limit-theorem.html">A/B testing and the Central Limit Theorem</a>, I talked about the importance of the <a href="https://en.wikipedia.org/wiki/Central_limit_theorem">Central Limit Theorem</a> (CLT) to A/B testing. Here we will explore cases when we cannot rely on the CLT to hold. Exploring when a theorem doesn’t hold is a good way to deepen our understanding why the theorem works when it works. It’s a bit like writing tests for software and trying to break it.</p>
 <p>I will show 3 cases when we cannot rely on the CLT to hold:</p>
 <ol>
-<li>the distribution that does not have a mean, eg. the Cauchy distribution</li>
+<li>the distribution does not have a mean, eg. the Cauchy distribution</li>
 <li>violating the independence assumption in the CLT, eg. with a random walk</li>
 <li>small sample size, eg. when events such as fraudulent transactions have a very low probability</li>
 </ol>
