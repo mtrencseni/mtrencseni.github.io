@@ -111,7 +111,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;At $t=10,000$ steps:&lt;/p&gt;
+&lt;p&gt;At $t=10,000$ steps (if you remember your college math, you will know that the standard error is $s=100$, because $s=\sqrt(t)$ for such a random walk, see point B. below):&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/random_walk_after_10000.PNG" alt="Random walk sample means after 10,000 steps" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;B.&lt;/strong&gt; Cases like the random walk can be handled by an extension to the CLT called the &lt;a href="https://en.wikipedia.org/wiki/Martingale_central_limit_theorem"&gt;Martingale Central Limit Theorem&lt;/a&gt;. It essentially says that if you normalize the mean by a suitable function of the steps, then the mean will converge and exists:&lt;/p&gt;
 &lt;blockquote&gt;
