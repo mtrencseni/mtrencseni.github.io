@@ -5,8 +5,8 @@
 &lt;p&gt;I will show 3 cases when we cannot rely on the CLT to hold:&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;the distribution that does not have a mean, eg. the Cauchy distribution&lt;/li&gt;
-&lt;li&gt;violating the independence assumption in the CLT&lt;/li&gt;
-&lt;li&gt;small sample size&lt;/li&gt;
+&lt;li&gt;violating the independence assumption in the CLT, eg. with a random walk&lt;/li&gt;
+&lt;li&gt;small sample size, eg. when events such as fraudulent transactions have a very low probability&lt;/li&gt;
 &lt;/ol&gt;
 &lt;h2&gt;The distribution does not have a mean&lt;/h2&gt;
 &lt;p&gt;The CLT says that when we are approximating the mean of a distribution by sampling, the sample means follow a normal distribution. So the CLT is about approximating the mean of a distribution. What if the distribution does not have a mean? In cases like this, we can still sample it, and compute a mean, but:&lt;/p&gt;
