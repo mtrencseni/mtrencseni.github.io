@@ -134,19 +134,19 @@
 </pre></div>
 
 
-<p>Let's see how the running mean converges to the true sample mean after $N=10,000$ samples:</p>
+<p>Let's see how the running mean converges to the true sample mean after $N=10000$ samples:</p>
 <p><img src="/images/running_mean_convergence.PNG" alt="Running mean converges for the uniform, exponential and normal distribution" style="width: 400px;"/></p>
-<p>Let's do the same for the Cauchy distribution, but let's let it run for $N=10,000,000$ samples:</p>
+<p>Let's do the same for the Cauchy distribution, but let's let it run for $N=10000000$ samples:</p>
 <p><img src="/images/running_mean_cauchy.PNG" alt="Running mean for Cauchy distribution" style="width: 400px;"/></p>
 <p>For the Cauchy even after millions of samples, sometimes there is a big jump in the running mean (unlike the previous distributions). It does not converge: if we keep running it, it will keep jumping around, and it will jump to arbitrarily large values.</p>
 <p>Why is this? The Cauchy distribution can be visualized like this: imagine drawing the bottom part of a circle (a half-circle) around the center (x=0, y=1). Each time we want to sample a number from the Cauchy distribution, first we pick an angle $ \theta \in ( -\pi/2, \pi/2) $ in a uniform way on the half circle, and then shoot a ray from the center at that $\theta$ angle to the half-circle, and then on to the x-axis. The coordinate of the x-axis intercept is the returned value for the Cauchy sampling. Although the angle $\theta$ is uniform, the ray can shoot arbitrarily far on the x-axis to generate extremely large or small values, and this happens quite often (the fat tail). Note that the normal distribution can also generate arbitrarily small or large values, but at a lower rate, so the mean still exists there.</p>
-<p>Another way to see this is to look at a histogram of $N=100,000$ draws and compare it with a normal distribution (top is normal, bottom is Cauchy):</p>
+<p>Another way to see this is to look at a histogram of $N=100000$ draws and compare it with a normal distribution (top is normal, bottom is Cauchy):</p>
 <p><img src="/images/scatter_norm_cauchy.PNG" alt="Scatter plot for normal and Cauchy distributions" style="width: 400px;"/></p>
 <p>The normal doesn't produce extreme values, whereas the Cauchy does.</p>
 <h2>2. Violating the independence assumption of the CLT</h2>
 <p>The wikipedia quote for the CLT starts like this: <em>“...when <strong>independent</strong> random variables are added...”</em>. In other words, the samples we draw should be independent of each other. What does this mean for an A/B test? For example, if user X and user Y are both using the product, they should not talk to each other, they should not influence each other when making the conversion “decision”, or when "deciding" how much time to spend with the product.</p>
 <p>A simple thought experiment that shows how dependence breaks the CLT is the following: suppose a sociology PhD student is taking a salary survey, she sits in a room, test subjects go in and tell her their salary figure (like $50,000), she records it, they leave the room, and the next person goes in. Now suppose that the person who is about to go in asks the person who just left what salary number they said. Then, because they want to look good, they decide to inflate their number and say a bigger number than the previous person, just to impress the sociology PhD student. Putting aside the fact that the survey is flawed, the poor student, if she keeps a running mean of salaries, will see that it keeps going up, and it doesn’t converge. The problem is that she gave her subjects a chance to communicate, and the individual measurements are no longer independent. She needs to have 2 doors, one for incoming and one for outgoing subjects, and make sure people don’t talk to each other.</p>
-<p>In statistics, we can construct a similar case by using a <a href="https://en.wikipedia.org/wiki/Random_walk">random walk</a>: a frog starts at 0, and either goes to +1 or -1 with even probabilities, and so on. We can imagine the frog’s position to be the draws of a distribution, and clearly the subsequent draws are not independent: if the $t=42$ draw was 13 (the frog was at position 13 after 42 time steps), the $t=43$ draw is going to be either 12 or 14, it’s conditioned on the previous draw(s). Similarly to the PhD student’s case, if we keep sampling these numbers and compute the mean, it will not converge. Note that this is not the same as the Cauchy case: here, at each position (so each random variable in the series) the mean exists and is finite; the mean position at draw #42 or #43 can be computed and it’s a finite number. But averaging these dependent random variables yields a random variable that breaks the CLT, because the sum does not converge.</p>
+<p>In statistics, we can construct a similar case by using a <a href="https://en.wikipedia.org/wiki/Random_walk">random walk</a>: a frog starts at 0, and either goes to +1 or -1 with even probabilities, and so on. We can imagine the frog’s position to be the draws of a distribution, and clearly the subsequent draws are not independent: if the $t=42$ draw was 13 (the frog was at position 13 after 42 time steps), the $t=43$ draw is going to be either 12 or 14, it’s conditioned on the previous draw(s). Similarly to the PhD student’s case, if we keep sampling these numbers and compute the mean, it will not converge. Note that this is not the same as the Cauchy case: here, at each step $t$ (so each random variable in the series) the mean exists and is finite; the mean position at $t=42$ or $t=43$ can be computed and it’s a finite number (it must be 0, see below). But averaging these dependent random variables yields a random variable that breaks the CLT, because the sum does not converge.</p>
 <p>Let's see this in action:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">random_walk_draw</span><span class="p">(</span><span class="n">num_steps</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">bernoulli</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">num_steps</span><span class="p">)</span><span class="o">-</span><span class="mf">0.5</span><span class="p">))</span>
@@ -176,7 +176,7 @@
 </pre></div>
 
 
-<p>Even after $t=10,000,000$ steps, the running mean is still moving around (orange is the random walk itself, blue is the running mean):</p>
+<p>Even after $t=10000000$ steps, the running mean is still moving around (orange is the random walk itself, blue is the running mean):</p>
 <p><img src="/images/random_walk.PNG" alt="Random walk" style="width: 400px;"/></p>
 <p>Two interesting notes here:</p>
 <p><strong>A.</strong> As I mentioned, the mean at any $t$-th timestep in the random walk can be sampled, it exists, and the CLT works. This is because up until the $t$-th timestep, the frog can only get $t$ steps away from the origin ($-t$ or $t$), so at any $t$, the probability distribution is bounded, and the mean exists, and it will be 0 (the true population mean). We can see this for ourselves:</p>
@@ -196,13 +196,14 @@
 </pre></div>
 
 
-<p>At $t=10,000$ steps (if you're a physicist, you'll know that the standard error is $s=100$, because $s=\sqrt(t)$ for such a random walk, see point B. below):</p>
+<p>At $t=10000$ steps:</p>
 <p><img src="/images/random_walk_after_10000.PNG" alt="Random walk sample means after 10,000 steps" style="width: 400px;"/></p>
+<p>If you're a physicist, you'll know that the standard error is $s=100$, because $s=\sqrt(t)$ for such a random walk, see below.</p>
 <p><strong>B.</strong> Cases like the random walk can be handled by an extension to the CLT called the <a href="https://en.wikipedia.org/wiki/Martingale_central_limit_theorem">Martingale Central Limit Theorem</a>. It essentially says that if you normalize the mean by a suitable function of the steps, then the mean will converge and exists:</p>
 <blockquote>
 <p>In probability theory, the central limit theorem says that, under certain conditions, the sum of many independent identically-distributed random variables, when scaled appropriately, converges in distribution to a standard normal distribution. The martingale central limit theorem generalizes this result for random variables to martingales, which are stochastic processes where the change in the value of the process from time t to time t + 1 has expectation zero, even conditioned on previous outcomes.</p>
 </blockquote>
-<p>Because simple a random walk, after $ t $ timesteps will on average be $ \sqrt{t} $ steps away from the origin, the normalizing factor is $ \sqrt{t} $. With this, the normalized mean converges to 0, 0 because the whole setup is symmetric around the origin (orange is the random walk itself, blue is the running mean)::</p>
+<p>Because simple a random walk, after $ t $ timesteps will on average be $ \sqrt{t} $ steps away from the origin, the normalizing factor is $ \sqrt{t} $. With this, the normalized mean converges to 0. It must be 0 because the whole setup is symmetric around the origin (orange is the random walk itself, blue is the running mean)::</p>
 <div class="highlight"><pre><span></span>random_walk_running_mean_plot(sample_size=10*1000*1000, martingale_normalize=True)
 </pre></div>
 
@@ -221,7 +222,7 @@
 <p>We get this:</p>
 <p><img src="/images/bernoulli_p_small.PNG" alt="Bernoulli at p=0.001, N=1,000" style="width: 400px;"/></p>
 <p>Clearly, this does not (yet) look like a bell curve, and it's strongly asymmetric. What happens is that $Np=1$, so on average we just get 1 conversion. A lot of the time we will get just 0, most often 1, sometimes 2, 3, and so on.. At such low $Np$, we need more samples, so we can more accurately explore the region around the true mean. If we run at say $N=10,000$, then $Np=10$, so sometimes we get $0, 1, 2, ... 10 ... $ we get the picture around the average 10.</p>
-<p>To be clear, the CLT still holds for a low $p$ Bernoulli distribution, we just need to collect more samples, so we get enough conversions per sample to actually see the bell curve. Let's repeat the previous simulation, but at $N=100,000$. It shows a beautiful bell curve centered around $p=0.001$:</p>
+<p>To be clear, the CLT still holds for a low $p$ Bernoulli distribution, we just need to collect more samples, so we get enough conversions per sample to actually see the bell curve. Let's repeat the previous simulation, but at $N=100000$. It shows a beautiful bell curve centered around $p=0.001$:</p>
 <div class="highlight"><pre><span></span><span class="n">population_sample_mean_plot</span><span class="p">(</span><span class="n">bernoulli</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.001</span><span class="p">),</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">100</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span>
 </pre></div>
 
