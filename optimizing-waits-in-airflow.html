@@ -229,7 +229,7 @@ What's confusing to me is, why does Airflow need to re-read the file to notice t
 <ul>
 <li>Airflow is slow to make progress</li>
 <li>we often have to manually kill / clear / re-kick jobs</li>
-<li>we run two beefy EC2 nodes just for Airflow, which costs us ~$5k/year on AWS</li>
+<li>we run two EC2 nodes just for Airflow, which costs us ~$3k/year on AWS</li>
 </ul>
 <p>I definitely don’t regret using Airflow, but it would be nice if the core engine itself would be more efficient, performant, and less wasteful. 10 years ago I was a proud C++ programmer, <a href="https://github.com/scalien/scaliendb">building database kernels and storage engines</a>, optimizing away bits and bytes. Today, because I try to <em>move fast and focus on impact</em>—which is the right thing to do, despite these issues—throwing hardware and money at a simple problem of managing a small DAG is the best option. Feels weird.</p>
   </div>
