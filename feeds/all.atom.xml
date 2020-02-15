@@ -10,6 +10,7 @@
 &lt;blockquote&gt;
 &lt;p&gt;A Z-test is any statistical test for which the distribution of the test statistic under the null hypothesis can be approximated by a normal distribution.&lt;/p&gt;
 &lt;/blockquote&gt;
+&lt;p&gt;&lt;a href="https://github.com/mtrencseni/playground/blob/master/Conversion%20AB%20test%20with%20the%20Z-test.ipynb"&gt;The code shown below is up on Github.&lt;/a&gt;&lt;/p&gt;
 &lt;h2&gt;Statistical hypothesis testing&lt;/h2&gt;
 &lt;p&gt;In an A/B test setting, let’s assume it’s a conversion test, &lt;a href="https://en.wikipedia.org/wiki/Statistical_hypothesis_testing"&gt;statistical hypothesis testing&lt;/a&gt; is:&lt;/p&gt;
 &lt;ul&gt;
