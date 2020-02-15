@@ -254,11 +254,13 @@
 </pre></div>
 
 
-<p>If you run this repeatedly, sometimes it will indicate B is better, sometimes it will not. It will find B better more often:
-- at higher $ N $ (lower $s$)
-- at higher $ \beta $
-- at lower $ \alpha $
-- if the conversion advantage of B is greater in the hidden conversion parameters</p>
+<p>If you run this repeatedly, sometimes it will indicate B is better, sometimes it will not. It will find B better more often:</p>
+<ul>
+<li>at higher $ N $ (lower $s$)</li>
+<li>at higher $ \beta $</li>
+<li>at lower $ \alpha $</li>
+<li>if the conversion advantage of B is greater in the hidden conversion parameters</li>
+</ul>
 <h2>Consistency test for FPR ($\alpha$)</h2>
 <p>We can set the A and B hidden conversion parameters, repeatedly perform the A/B test, and count the ratio of times it finds B to be better than A at the $ \alpha $ level, ie. the ratio of false positives. It should be equal to the $ \alpha $ we set to compute the sample size!</p>
 <div class="highlight"><pre><span></span><span class="n">num_tests</span> <span class="o">=</span> <span class="mi">1000</span>
