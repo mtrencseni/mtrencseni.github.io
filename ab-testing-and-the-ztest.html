@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-1812620-2');
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="I discuss the Z-test as it relates to A/B testing and clear up common misconceptions." />
+<meta name="keywords" content="ab-testing">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="A/B testing and the Z-test"/>
+<meta property="og:description" content="I discuss the Z-test as it relates to A/B testing and clear up common misconceptions."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/ab-testing-and-the-ztest.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-02-15 00:00:00+01:00"/>
+<meta property="article:modified_time" content="2020-02-15 00:00:00+01:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data"/>
+<meta property="article:tag" content="ab-testing"/>
+<meta property="og:image" content="/images/sql-constr.jpg"/>
+
+  <title>Bytepawn &ndash; A/B testing and the Z-test</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="ab-testing-and-the-ztest">A/B testing and the Z-test</h1>
+    <p>Posted on Sat 15 February 2020 in <a href="/category/data.html">Data</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>In the previous two posts, we talked about the <a href="http://bytepawn.com/ab-testing-and-the-central-limit-theorem.html">A/B testing and the Central Limit Theorem</a> and discussed when the CLT doesn’t hold in <a href="http://bytepawn.com/beyond-the-central-limit-theorem.html">Beyond the Central Limit Theorem</a> (CLT). The next step in exploring A/B testing is to look at the Z-test, which is the most common and straightforward hypotehesis testing tool.</p>
+<p>With our understanding of the CLT, the Z-test is simple to explain. We’re running a Z-test if:</p>
+<ul>
+<li>our null hypothesis is the relationship between population means or other test statistics, and</li>
+<li>we can assume that the CLT holds and the test statistics follow a normal distribution</li>
+</ul>
+<p>The same from <a href="https://en.wikipedia.org/wiki/Z-test">Wikipedia</a>:</p>
+<blockquote>
+<p>A Z-test is any statistical test for which the distribution of the test statistic under the null hypothesis can be approximated by a normal distribution.</p>
+</blockquote>
+<h2>Statistical hypothesis testing</h2>
+<p>In an A/B test setting, let’s assume it’s a conversion test, <a href="https://en.wikipedia.org/wiki/Statistical_hypothesis_testing">statistical hypothesis testing</a> is:</p>
+<ul>
+<li>we have two versions A and B, and we’re trying to decide whether B is better than A</li>
+<li>if B is converting worse than A, then we’re done</li>
+<li>if B is converting better than A, we’d like to know how <strong>significant</strong> our results are; in hypothesis testing, we compute the probability that we’d get this result if B is actually not better than A; ie. we compute the probability of seeing this B is better than A result due to random chance, even if B is not better than A; this probability is called the <strong>p-value</strong></li>
+</ul>
+<p>To get a better feeling for the point above, imagine if somebody gives you a coin. They claim it’s a fair coin, meaning you get Heads and Tails half the time. You want to test this claim, ie. the null hypothesis. If you flip it 10 times, and you get 6 Hs and 4 Ts, how confident are you that it’s not a fair coin? You can’t be too sure, because you haven’t collected enough data, because the 6:4 result is a very likely outcome even if the coin is fair. The 6:4 result is not significant enough to disprove the null hypothesis of a fair coin. But if you flip it 1000 times, and you get 599 Hs and 401 Ts, that’s very suspicios. The probability of getting 599:401 from a fair coin is very very unlikely (it can be calculated explicitly, see below).</p>
+<h2>Types of Z-tests</h2>
+<p>Some points to make our thinking about the Z-test clear.</p>
+<p>The Z-test is not one specific test, it’s a family of tests, or a kind of test. Any time we make the above assumptions and work with a approximately normally distributed test statistic, we’re performing a Z-test. I will show different instances of Z-tests below.</p>
+<p>It’s called Z-test because when running the numbers, it’s common to transform the data to a standard normal distribution N(0, 1). In the old days, before computers, the p-value, ie. the portion of the normal distribution outside of the normalized test statistic (eg. the difference of the means) would be read off a printout table (eg. the back of statistics textbooks), and this statistic is conventionally denoted with the letter z.</p>
+<p>The practical bible of statistical testing, 100 Statistical Tests by Gopal Kanji, lists the following types of Z-tests:</p>
+<ul>
+<li>Test 1: Z-test for a population mean (variance known)</li>
+<li>Test 2: Z-test for two population means (variances known and equal)</li>
+<li>Test 3: Z-test for two population means (variances known and unequal)</li>
+<li>Test 4: Z-test for a proportion (binomial distribution)</li>
+<li>Test 5: Z-test for the equality of two proportions (binomial distribution)</li>
+<li>Test 6: Z-test for comparing two counts (Poisson distribution)</li>
+<li>Test 13: Z-test of a correlation coefficient</li>
+<li>Test 14: Z-test for two correlation coefficients</li>
+<li>Test 23: The Z-test for correlated proportions</li>
+<li>Test 83: Z-test for the uncertainty of events</li>
+<li>Test 84: Z-test for comparing sequential contingencies across two groups using the ‘log odds ratio’</li>
+</ul>
+<p><img src="/images/100_statistical_tests.jpg" alt="100 statistical tests" style="width: 400px;"/></p>
+<p>I listed out these to further the point that the Z-test is not just one test, it’s a type of test that makes sense in a variety of scenarios.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/ab-testing.html">ab-testing</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-1812620-2');
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "A/B testing and the Z-test",
+  "headline": "A/B testing and the Z-test",
+  "datePublished": "2020-02-15 00:00:00+01:00",
+  "dateModified": "2020-02-15 00:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/ab-testing-and-the-ztest.html",
+  "description": "I discuss the Z-test as it relates to A/B testing and clear up common misconceptions."
+}
+</script></body>
+</html>
