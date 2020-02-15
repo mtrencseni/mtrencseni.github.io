@@ -123,11 +123,13 @@
 <p>I listed out these to further the point that the Z-test is not just one test, it’s a type of test that makes sense in a variety of scenarios.</p>
 <h2>The maths</h2>
 <p>The math is similar to the discussion in the CLT post. We’re sampling a distribution and computing a test statistic, and assuming that it follows a normal distribution $ N(\mu, \sigma^2) $. In an A/B test, we have two normal distributions, $ N(\mu_A, \sigma_A^2) $ and $ N(\mu_B, \sigma_B^2) $ with samples sizes, and the test statistic is $ N(\mu_A, \sigma_A^2) - N(\mu_B, \sigma_B^2) = N(\mu = \mu_A - \mu_B, \sigma^2 = \sigma_A^2 + \sigma_B^2) $ by the <a href="https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables">addition rule for normal distributions</a>.</p>
-<p>The test statistic then is Z = mu/sigma, we use this to get the p-value for the experiment. This is simply the normalized distance from the mean of the distribution. With this normalized distance, we can use a table for standard normal distribution N(0, 1) table and read off the p-value. In the age of computers, we actually don’t have to do this final normalization step to get Z, we can just get the p-value from the original N(mu, sigma^2) distribution.</p>
-<p>In an A/B test setting, mu_A and mu_B are known. The trick is, what are the standard deviations sigma_A and sigma_B? We compute it from the sample standard devation s^2, like sigma^2=s^2/N.</p>
-<p>The sample standard deviation is computed like:
-for conversion, the population distribution is Bernoulli, then s^2=p(1-p) where p=mu, the conversion (for A and B)
-for timespent, you can compute the standard error from the data directly s^2 = 1/N \sum{(\mu - x_i)^2}, where x_i are the invididual timespents per user.</p>
+<p>The test statistic then is $ Z = \frac{ \mu }{ \sigma } $, we use this to get the p-value for the experiment. This is simply the normalized distance from the mean of the distribution. With this normalized distance, we can use a table for standard normal distribution $ N(0, 1) $ table and read off the p-value. In the age of computers, we actually don’t have to do this final normalization step to get Z, we can just get the p-value from the original $ N(\mu, \sigma^2) $ distribution.</p>
+<p>In an A/B test setting, \mu_A and \mu_B are known. The trick is, what are the standard deviations $ sigma_A^2 $ and $ sigma_B^2 $? We compute it from the sample standard devation $ s^2 $, like $ \sigma^2 = s^2/N $.</p>
+<p>The sample standard deviation is computed like:</p>
+<ul>
+<li>for conversion, the population distribution is Bernoulli, then $ s^2 = p(1-p) $ where $ p=\mu $, the conversion (for A and B)</li>
+<li>for timespent, you can compute the standard error from the data directly $ s^2 = 1/N \sum{(\mu - x_i)^2} $, where $x_i$ are the invididual timespents per user.</li>
+</ul>
   </div>
   <div class="tag-cloud">
     <p>
