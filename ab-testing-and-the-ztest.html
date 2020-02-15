@@ -259,6 +259,94 @@
 - at higher $ \beta $
 - at lower $ \alpha $
 - if the conversion advantage of B is greater in the hidden conversion parameters</p>
+<h2>Consistency test for FPR ($\alpha$)</h2>
+<p>We can set the A and B hidden conversion parameters, repeatedly perform the A/B test, and count the ratio of times it finds B to be better than A at the $ \alpha $ level, ie. the ratio of false positives. It should be equal to the $ \alpha $ we set to compute the sample size!</p>
+<div class="highlight"><pre><span></span><span class="n">num_tests</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.10</span>
+<span class="n">base_conversion</span> <span class="o">=</span> <span class="mf">0.10</span>
+<span class="n">valuable_diff</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="n">base_traffic_split</span> <span class="o">=</span> <span class="mf">0.8</span>
+<span class="n">hidden_conversion_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="mf">0.10</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span> <span class="mf">0.10</span> <span class="p">}</span>
+<span class="n">N</span> <span class="o">=</span> <span class="n">num_samples</span><span class="p">(</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+    <span class="n">mu_A</span><span class="o">=</span><span class="n">base_conversion</span><span class="p">,</span>
+    <span class="n">mu_delta</span><span class="o">=</span><span class="n">valuable_diff</span><span class="p">,</span>
+    <span class="n">traffic_ratio_A</span><span class="o">=</span><span class="n">base_traffic_split</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># get rid of this of the hashing, it&#39;s slow, we don&#39;t need it for a simulation</span>
+<span class="k">def</span> <span class="nf">funnel_user</span><span class="p">(</span><span class="n">base_traffic_split</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">base_traffic_split</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;A&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;B&#39;</span>
+
+<span class="k">def</span> <span class="nf">run_tests</span><span class="p">(</span><span class="n">num_tests</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">hidden_conversion_params</span><span class="p">,</span> <span class="n">funnel_user_func</span><span class="p">):</span>
+    <span class="n">num_successes</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_tests</span><span class="p">):</span>
+        <span class="n">test_outcomes</span> <span class="o">=</span> <span class="n">run_test</span><span class="p">(</span>
+            <span class="n">N</span><span class="p">,</span>
+            <span class="n">hidden_conversion_params</span><span class="p">,</span>
+            <span class="n">funnel_user_func</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">mu_A</span> <span class="o">=</span> <span class="n">test_outcomes</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">][</span><span class="s1">&#39;conversions&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">test_outcomes</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">][</span><span class="s1">&#39;N&#39;</span><span class="p">]</span>
+        <span class="n">mu_B</span> <span class="o">=</span> <span class="n">test_outcomes</span><span class="p">[</span><span class="s1">&#39;B&#39;</span><span class="p">][</span><span class="s1">&#39;conversions&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">test_outcomes</span><span class="p">[</span><span class="s1">&#39;B&#39;</span><span class="p">][</span><span class="s1">&#39;N&#39;</span><span class="p">]</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">p_value</span><span class="p">(</span><span class="n">test_outcomes</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">][</span><span class="s1">&#39;N&#39;</span><span class="p">],</span> <span class="n">mu_A</span><span class="p">,</span> <span class="n">test_outcomes</span><span class="p">[</span><span class="s1">&#39;B&#39;</span><span class="p">][</span><span class="s1">&#39;N&#39;</span><span class="p">],</span> <span class="n">mu_B</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;=</span> <span class="n">alpha</span><span class="p">:</span>
+            <span class="n">num_successes</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">num_successes</span>
+
+<span class="n">num_successes</span> <span class="o">=</span> <span class="n">run_tests</span><span class="p">(</span>
+    <span class="n">num_tests</span><span class="p">,</span>
+    <span class="n">N</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">,</span>
+    <span class="n">hidden_conversion_params</span><span class="p">,</span>
+    <span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="n">funnel_user</span><span class="p">(</span><span class="n">base_traffic_split</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">fpr</span> <span class="o">=</span> <span class="n">num_successes</span><span class="o">/</span><span class="n">num_tests</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;False Positive Rate = </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">fpr</span><span class="p">)</span>
+</pre></div>
+
+
+<p>It prints:</p>
+<div class="highlight"><pre><span></span>False Positive Rate = 0.10
+</pre></div>
+
+
+<h2>Consistency test for TPR ($\beta$)</h2>
+<p>We can set the A and B hidden conversion parameters exactly like the assumption we used to compute the sample size (ie. 10% and 11%), repeatedly perform the A/B test, and count the ratio of times it finds B to be better than A at the $ \alpha $ level. It should be equal to the $ \beta $ power we set to compute the sample size!</p>
+<div class="highlight"><pre><span></span><span class="n">num_tests</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.10</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="mf">0.80</span>
+<span class="n">base_conversion</span> <span class="o">=</span> <span class="mf">0.10</span>
+<span class="n">valuable_diff</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="n">base_traffic_split</span> <span class="o">=</span> <span class="mf">0.8</span>
+<span class="n">hidden_conversion_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="mf">0.10</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span> <span class="mf">0.11</span> <span class="p">}</span>
+<span class="n">N</span> <span class="o">=</span> <span class="n">num_samples</span><span class="p">(</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+    <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span>
+    <span class="n">mu_A</span><span class="o">=</span><span class="n">base_conversion</span><span class="p">,</span>
+    <span class="n">mu_delta</span><span class="o">=</span><span class="n">valuable_diff</span><span class="p">,</span>
+    <span class="n">traffic_ratio_A</span><span class="o">=</span><span class="n">base_traffic_split</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">num_successes</span> <span class="o">=</span> <span class="n">run_tests</span><span class="p">(</span>
+    <span class="n">num_tests</span><span class="p">,</span>
+    <span class="n">N</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">,</span>
+    <span class="n">hidden_conversion_params</span><span class="p">,</span>
+    <span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="n">funnel_user</span><span class="p">(</span><span class="n">base_traffic_split</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">tpr</span> <span class="o">=</span> <span class="n">num_successes</span><span class="o">/</span><span class="n">num_tests</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;True Positive Rate: </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">tpr</span><span class="p">)</span>
+</pre></div>
+
+
+<p>It prints:</p>
+<div class="highlight"><pre><span></span>True Positive Rate: 0.80
+</pre></div>
   </div>
   <div class="tag-cloud">
     <p>
