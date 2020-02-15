@@ -55,7 +55,7 @@
 &lt;h2&gt;Simulating an A/B test&lt;/h2&gt;
 &lt;p&gt;Let’s pretend we’re running an A/B test on funnel conversion. A is the current, B is the new version of the funnel. We want to know whether B is better. By looking at our funnel dashboard, we know that A is historically converting around 9-11%.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Step 1.&lt;/strong&gt; Formulate the action hypothesis: B has higher conversion than A, meaning we're doing a one-sided test.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Step 2.&lt;/strong&gt; We set $ \alpha = 0.10 $ and $ \beta = 0.80 $. This means we're okay with 10% false positives and we will capture 80% of improvements.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Step 2.&lt;/strong&gt; We set $ \alpha = 0.10 $ and $ 1 - \beta = 0.80 $. This means we're okay with 10% false positives and we will capture 80% of improvements.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Step 3.&lt;/strong&gt; Decide traffic split. Let’s say we will keep 80% in A, 20% in B. This is how much of a chance we take, B could be worse, buggy, etc.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Step 4.&lt;/strong&gt; Figure out how many samples we need to collect, given the historic conversion, traffic split, alpha and the kind of lift we’re looking. The code below computes sample size based on the math above:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;scipy.stats&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;norm&lt;/span&gt;
@@ -67,16 +67,16 @@
         &lt;span class="n"&gt;pos&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;alpha&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mf"&gt;2.0&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;norm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ppf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;pos&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;beta_to_z&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;beta&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-    &lt;span class="n"&gt;pos&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;beta&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;power_to_z&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;power&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;pos&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;power&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;norm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ppf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;pos&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;num_samples&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;alpha&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mu_A&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mu_delta&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;traffic_ratio_A&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;beta&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0.50&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;one_sided&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;num_samples&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;alpha&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mu_A&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mu_delta&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;traffic_ratio_A&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;power&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0.50&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;one_sided&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;z_alpha&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;alpha_to_z&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;alpha&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;one_sided&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-    &lt;span class="n"&gt;z_beta&lt;/span&gt;  &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;beta_to_z&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;beta&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;z_power&lt;/span&gt;  &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;power_to_z&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;power&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;mu_B&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;mu_A&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;mu_delta&lt;/span&gt;
     &lt;span class="n"&gt;traffic_ratio_B&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;traffic_ratio_A&lt;/span&gt;
-    &lt;span class="n"&gt;N&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="n"&gt;mu_A&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;mu_A&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;traffic_ratio_A&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;mu_B&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;mu_B&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;traffic_ratio_B&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;z_alpha&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;z_beta&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;mu_A&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;mu_B&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;  
+    &lt;span class="n"&gt;N&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="n"&gt;mu_A&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;mu_A&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;traffic_ratio_A&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;mu_B&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;mu_B&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;traffic_ratio_B&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;z_alpha&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;z_power&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;mu_A&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;mu_B&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;  
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;math&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ceil&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -123,7 +123,7 @@
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;
 
 &lt;span class="n"&gt;alpha&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.10&lt;/span&gt;
-&lt;span class="n"&gt;beta&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.50&lt;/span&gt;
+&lt;span class="n"&gt;power&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.80&lt;/span&gt;
 &lt;span class="n"&gt;base_conversion&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.10&lt;/span&gt;
 &lt;span class="n"&gt;valuable_diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.01&lt;/span&gt;
 &lt;span class="n"&gt;base_traffic_split&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.8&lt;/span&gt;
@@ -133,7 +133,7 @@
     &lt;span class="n"&gt;mu_A&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;base_conversion&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
     &lt;span class="n"&gt;mu_delta&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;valuable_diff&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
     &lt;span class="n"&gt;traffic_ratio_A&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;base_traffic_split&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;beta&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;beta&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;power&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;power&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
 &lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;N_actual&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;N_required&lt;/span&gt; &lt;span class="c1"&gt;# because eg. we run it for a whole week&lt;/span&gt;
 
@@ -165,17 +165,17 @@
 
 
 &lt;p&gt;The outcome depends on chance, here's one run:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;{&amp;#39;A&amp;#39;: {&amp;#39;N&amp;#39;: 15749, &amp;#39;conversions&amp;#39;: 1594}, &amp;#39;B&amp;#39;: {&amp;#39;N&amp;#39;: 4027, &amp;#39;conversions&amp;#39;: 472}}
-Measured conversion for A: 0.101
-Measured conversion for B: 0.117
-p-value: 0.002
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;{&amp;#39;A&amp;#39;: {&amp;#39;N&amp;#39;: 43464, &amp;#39;conversions&amp;#39;: 4620}, &amp;#39;B&amp;#39;: {&amp;#39;N&amp;#39;: 10812, &amp;#39;conversions&amp;#39;: 1222}}
+Measured conversion for A: 0.106
+Measured conversion for B: 0.113
+p-value: 0.023
 Action: B is better, deploy
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;If you run this repeatedly, sometimes it will indicate B is better, sometimes it will not. It will find B better more often:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;at higher $ N $ (lower $s$), if in fact B is better&lt;/li&gt;
+&lt;li&gt;at higher $ N $, if in fact B is better&lt;/li&gt;
 &lt;li&gt;if the conversion advantage of B is greater in the hidden conversion parameters&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2&gt;Consistency test for FPR ($\alpha$)&lt;/h2&gt;
@@ -224,27 +224,27 @@ Action: B is better, deploy
 &lt;span class="p"&gt;)&lt;/span&gt;
 
 &lt;span class="n"&gt;fpr&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;num_successes&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;num_tests&lt;/span&gt;
-&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;False Positive Rate = &lt;/span&gt;&lt;span class="si"&gt;%.2f&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;fpr&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;False Positive Rate = &lt;/span&gt;&lt;span class="si"&gt;%.2f&lt;/span&gt;&lt;span class="s2"&gt; (expected = &lt;/span&gt;&lt;span class="si"&gt;%.2f&lt;/span&gt;&lt;span class="s2"&gt;)&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fpr&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;alpha&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;It prints:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;False Positive Rate = 0.10
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;False Positive Rate = 0.10 (expected = 0.10)
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h2&gt;Consistency test for TPR ($\beta$)&lt;/h2&gt;
-&lt;p&gt;We can set the A and B hidden conversion parameters exactly like the assumption we used to compute the sample size (ie. 10% and 11%), repeatedly perform the A/B test, and count the ratio of times it finds B to be better than A at the $ \alpha $ level. It should be equal to the $ \beta $ power we set to compute the sample size!&lt;/p&gt;
+&lt;h2&gt;Consistency test for TPR ($1 - \beta$)&lt;/h2&gt;
+&lt;p&gt;We can set the A and B hidden conversion parameters exactly like the assumption we used to compute the sample size (ie. 10% and 11%), repeatedly perform the A/B test, and count the ratio of times it finds B to be better than A at the $ \alpha $ level. It should be equal to the $ 1 - \beta $ power we set to compute the sample size!&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;num_tests&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1000&lt;/span&gt;
 &lt;span class="n"&gt;alpha&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.10&lt;/span&gt;
-&lt;span class="n"&gt;beta&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.80&lt;/span&gt;
+&lt;span class="n"&gt;power&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.80&lt;/span&gt;
 &lt;span class="n"&gt;base_conversion&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.10&lt;/span&gt;
 &lt;span class="n"&gt;valuable_diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.01&lt;/span&gt;
 &lt;span class="n"&gt;base_traffic_split&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.8&lt;/span&gt;
 &lt;span class="n"&gt;hidden_conversion_params&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;A&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;B&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.11&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
 &lt;span class="n"&gt;N&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;num_samples&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
     &lt;span class="n"&gt;alpha&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;alpha&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;beta&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;beta&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;power&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;power&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
     &lt;span class="n"&gt;mu_A&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;base_conversion&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
     &lt;span class="n"&gt;mu_delta&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;valuable_diff&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
     &lt;span class="n"&gt;traffic_ratio_A&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;base_traffic_split&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
@@ -259,26 +259,26 @@ Action: B is better, deploy
 &lt;span class="p"&gt;)&lt;/span&gt;
 
 &lt;span class="n"&gt;tpr&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;num_successes&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;num_tests&lt;/span&gt;
-&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;True Positive Rate: &lt;/span&gt;&lt;span class="si"&gt;%.2f&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;tpr&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;True Positive Rate: &lt;/span&gt;&lt;span class="si"&gt;%.2f&lt;/span&gt;&lt;span class="s2"&gt; (expected = &lt;/span&gt;&lt;span class="si"&gt;%.2f&lt;/span&gt;&lt;span class="s2"&gt;)&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tpr&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;power&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;It prints:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;True Positive Rate: 0.80
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;True Positive Rate: 0.80 (expected = 0.80)
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;h2&gt;Scaling behaviour&lt;/h2&gt;
 &lt;p&gt;Let's fix all parameters but one, and see how many samples we need.&lt;/p&gt;
-&lt;p&gt;Vary base conversion $\mu_A$, with fixed $ \mu_B - \mu_A, \alpha, \beta$, traffic split. Because the formula for $z$ includes a term like $\mu_A(1-\mu_A)$, this should be highest at $\mu_A=0.5$.&lt;/p&gt;
+&lt;p&gt;Vary base conversion $\mu_A$, with fixed $ \mu_B - \mu_A, \alpha, 1 - \beta$, traffic split. Because the formula for $z$ includes a term like $\mu_A(1-\mu_A)$, this should be highest at $\mu_A=0.5$.&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/base_conversion_N.png" alt="Base conversion vs N" style="width: 400px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Vary conversion difference $\mu_B - \mu_A$, with fixed $ \mu_A, \alpha, \beta$, traffic split. A higher conversion difference requires less samples to detect.&lt;/p&gt;
+&lt;p&gt;Vary conversion difference $\mu_B - \mu_A$, with fixed $ \mu_A, \alpha, 1 - \beta$, traffic split. A higher conversion difference requires less samples to detect.&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/conversion_diff.png" alt="Conversion difference vs N" style="width: 400px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Vary $\alpha$, with fixed $ \mu_A, \mu_B - \mu_A, \beta$, traffic split. Lower $\alpha$ means we want less false positives, which requires more samples.&lt;/p&gt;
+&lt;p&gt;Vary $\alpha$, with fixed $ \mu_A, \mu_B - \mu_A, 1 - \beta$, traffic split. Lower $\alpha$ means we want less false positives, which requires more samples.&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/alpha_N.png" alt="Alpha vs N" style="width: 400px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Vary $\beta$, with fixed $ \mu_A, \mu_B - \mu_A, \alpha$, traffic split. Higher $\beta$ translates to higher probability of detecting positive outcomes, which requires more samples.&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/beta_N.png" alt="Beta vs N" style="width: 400px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Vary the traffic split to A, with fixed $ \mu_A, \mu_B - \mu_A, \alpha, \beta$. The sample size is constrained by the smaller sample size of the two, so an equal split requires the least amount of samples.&lt;/p&gt;
+&lt;p&gt;Vary $\beta$, with fixed $ \mu_A, \mu_B - \mu_A, \alpha$, traffic split. Higher $1 - \beta$ translates to higher probability of detecting positive outcomes, which requires more samples.&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/power_N.png" alt="Power vs N" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;Vary the traffic split to A, with fixed $ \mu_A, \mu_B - \mu_A, \alpha, 1 - \beta$. The sample size is constrained by the smaller sample size of the two, so an equal split requires the least amount of samples.&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/traffic_split_N.png" alt="Traffic split vs N" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;h2&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;Z-tests are simple, if you remember the CLT and are careful about controlling false positive rate and true negatives rates. If in doubt, write simulation code like above and make sure the way you set your parameters gets you the results you want. Also remember that there are other types of tests, such as the &lt;a href="https://en.wikipedia.org/wiki/Chi-squared_test"&gt;$\chi^2$-test&lt;/a&gt; and the &lt;a href="https://en.wikipedia.org/wiki/Student%27s_t-test"&gt;t-test&lt;/a&gt;, to be discussed in the next posts.&lt;/p&gt;

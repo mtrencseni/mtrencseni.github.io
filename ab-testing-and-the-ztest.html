@@ -138,7 +138,7 @@
 <h2>Simulating an A/B test</h2>
 <p>Let’s pretend we’re running an A/B test on funnel conversion. A is the current, B is the new version of the funnel. We want to know whether B is better. By looking at our funnel dashboard, we know that A is historically converting around 9-11%.</p>
 <p><strong>Step 1.</strong> Formulate the action hypothesis: B has higher conversion than A, meaning we're doing a one-sided test.</p>
-<p><strong>Step 2.</strong> We set $ \alpha = 0.10 $ and $ \beta = 0.80 $. This means we're okay with 10% false positives and we will capture 80% of improvements.</p>
+<p><strong>Step 2.</strong> We set $ \alpha = 0.10 $ and $ 1 - \beta = 0.80 $. This means we're okay with 10% false positives and we will capture 80% of improvements.</p>
 <p><strong>Step 3.</strong> Decide traffic split. Let’s say we will keep 80% in A, 20% in B. This is how much of a chance we take, B could be worse, buggy, etc.</p>
 <p><strong>Step 4.</strong> Figure out how many samples we need to collect, given the historic conversion, traffic split, alpha and the kind of lift we’re looking. The code below computes sample size based on the math above:</p>
 <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
@@ -150,16 +150,16 @@
         <span class="n">pos</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="o">/</span><span class="mf">2.0</span>
     <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">beta_to_z</span><span class="p">(</span><span class="n">beta</span><span class="p">):</span>
-    <span class="n">pos</span> <span class="o">=</span> <span class="n">beta</span>
+<span class="k">def</span> <span class="nf">power_to_z</span><span class="p">(</span><span class="n">power</span><span class="p">):</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">power</span>
     <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">num_samples</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">mu_A</span><span class="p">,</span> <span class="n">mu_delta</span><span class="p">,</span> <span class="n">traffic_ratio_A</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mf">0.50</span><span class="p">,</span> <span class="n">one_sided</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">num_samples</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">mu_A</span><span class="p">,</span> <span class="n">mu_delta</span><span class="p">,</span> <span class="n">traffic_ratio_A</span><span class="p">,</span> <span class="n">power</span><span class="o">=</span><span class="mf">0.50</span><span class="p">,</span> <span class="n">one_sided</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="n">z_alpha</span> <span class="o">=</span> <span class="n">alpha_to_z</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">one_sided</span><span class="p">)</span>
-    <span class="n">z_beta</span>  <span class="o">=</span> <span class="n">beta_to_z</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
+    <span class="n">z_power</span>  <span class="o">=</span> <span class="n">power_to_z</span><span class="p">(</span><span class="n">power</span><span class="p">)</span>
     <span class="n">mu_B</span> <span class="o">=</span> <span class="n">mu_A</span> <span class="o">+</span> <span class="n">mu_delta</span>
     <span class="n">traffic_ratio_B</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">traffic_ratio_A</span>
-    <span class="n">N</span> <span class="o">=</span> <span class="p">(</span> <span class="n">mu_A</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">mu_A</span><span class="p">)</span><span class="o">/</span><span class="n">traffic_ratio_A</span> <span class="o">+</span> <span class="n">mu_B</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">mu_B</span><span class="p">)</span><span class="o">/</span><span class="n">traffic_ratio_B</span> <span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="n">z_alpha</span><span class="o">+</span><span class="n">z_beta</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu_A</span> <span class="o">-</span> <span class="n">mu_B</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>  
+    <span class="n">N</span> <span class="o">=</span> <span class="p">(</span> <span class="n">mu_A</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">mu_A</span><span class="p">)</span><span class="o">/</span><span class="n">traffic_ratio_A</span> <span class="o">+</span> <span class="n">mu_B</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">mu_B</span><span class="p">)</span><span class="o">/</span><span class="n">traffic_ratio_B</span> <span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="n">z_alpha</span><span class="o">+</span><span class="n">z_power</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu_A</span> <span class="o">-</span> <span class="n">mu_B</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>  
     <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
 </pre></div>
 
@@ -206,7 +206,7 @@
     <span class="k">return</span> <span class="n">p</span>
 
 <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.10</span>
-<span class="n">beta</span> <span class="o">=</span> <span class="mf">0.50</span>
+<span class="n">power</span> <span class="o">=</span> <span class="mf">0.80</span>
 <span class="n">base_conversion</span> <span class="o">=</span> <span class="mf">0.10</span>
 <span class="n">valuable_diff</span> <span class="o">=</span> <span class="mf">0.01</span>
 <span class="n">base_traffic_split</span> <span class="o">=</span> <span class="mf">0.8</span>
@@ -216,7 +216,7 @@
     <span class="n">mu_A</span><span class="o">=</span><span class="n">base_conversion</span><span class="p">,</span>
     <span class="n">mu_delta</span><span class="o">=</span><span class="n">valuable_diff</span><span class="p">,</span>
     <span class="n">traffic_ratio_A</span><span class="o">=</span><span class="n">base_traffic_split</span><span class="p">,</span>
-    <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span>
+    <span class="n">power</span><span class="o">=</span><span class="n">power</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">N_actual</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">N_required</span> <span class="c1"># because eg. we run it for a whole week</span>
 
@@ -248,17 +248,17 @@
 
 
 <p>The outcome depends on chance, here's one run:</p>
-<div class="highlight"><pre><span></span>{&#39;A&#39;: {&#39;N&#39;: 15749, &#39;conversions&#39;: 1594}, &#39;B&#39;: {&#39;N&#39;: 4027, &#39;conversions&#39;: 472}}
-Measured conversion for A: 0.101
-Measured conversion for B: 0.117
-p-value: 0.002
+<div class="highlight"><pre><span></span>{&#39;A&#39;: {&#39;N&#39;: 43464, &#39;conversions&#39;: 4620}, &#39;B&#39;: {&#39;N&#39;: 10812, &#39;conversions&#39;: 1222}}
+Measured conversion for A: 0.106
+Measured conversion for B: 0.113
+p-value: 0.023
 Action: B is better, deploy
 </pre></div>
 
 
 <p>If you run this repeatedly, sometimes it will indicate B is better, sometimes it will not. It will find B better more often:</p>
 <ul>
-<li>at higher $ N $ (lower $s$), if in fact B is better</li>
+<li>at higher $ N $, if in fact B is better</li>
 <li>if the conversion advantage of B is greater in the hidden conversion parameters</li>
 </ul>
 <h2>Consistency test for FPR ($\alpha$)</h2>
@@ -307,27 +307,27 @@ Action: B is better, deploy
 <span class="p">)</span>
 
 <span class="n">fpr</span> <span class="o">=</span> <span class="n">num_successes</span><span class="o">/</span><span class="n">num_tests</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;False Positive Rate = </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">fpr</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;False Positive Rate = </span><span class="si">%.2f</span><span class="s2"> (expected = </span><span class="si">%.2f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="n">alpha</span><span class="p">))</span>
 </pre></div>
 
 
 <p>It prints:</p>
-<div class="highlight"><pre><span></span>False Positive Rate = 0.10
+<div class="highlight"><pre><span></span>False Positive Rate = 0.10 (expected = 0.10)
 </pre></div>
 
 
-<h2>Consistency test for TPR ($\beta$)</h2>
-<p>We can set the A and B hidden conversion parameters exactly like the assumption we used to compute the sample size (ie. 10% and 11%), repeatedly perform the A/B test, and count the ratio of times it finds B to be better than A at the $ \alpha $ level. It should be equal to the $ \beta $ power we set to compute the sample size!</p>
+<h2>Consistency test for TPR ($1 - \beta$)</h2>
+<p>We can set the A and B hidden conversion parameters exactly like the assumption we used to compute the sample size (ie. 10% and 11%), repeatedly perform the A/B test, and count the ratio of times it finds B to be better than A at the $ \alpha $ level. It should be equal to the $ 1 - \beta $ power we set to compute the sample size!</p>
 <div class="highlight"><pre><span></span><span class="n">num_tests</span> <span class="o">=</span> <span class="mi">1000</span>
 <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.10</span>
-<span class="n">beta</span> <span class="o">=</span> <span class="mf">0.80</span>
+<span class="n">power</span> <span class="o">=</span> <span class="mf">0.80</span>
 <span class="n">base_conversion</span> <span class="o">=</span> <span class="mf">0.10</span>
 <span class="n">valuable_diff</span> <span class="o">=</span> <span class="mf">0.01</span>
 <span class="n">base_traffic_split</span> <span class="o">=</span> <span class="mf">0.8</span>
 <span class="n">hidden_conversion_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="mf">0.10</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span> <span class="mf">0.11</span> <span class="p">}</span>
 <span class="n">N</span> <span class="o">=</span> <span class="n">num_samples</span><span class="p">(</span>
     <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
-    <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span>
+    <span class="n">power</span><span class="o">=</span><span class="n">power</span><span class="p">,</span>
     <span class="n">mu_A</span><span class="o">=</span><span class="n">base_conversion</span><span class="p">,</span>
     <span class="n">mu_delta</span><span class="o">=</span><span class="n">valuable_diff</span><span class="p">,</span>
     <span class="n">traffic_ratio_A</span><span class="o">=</span><span class="n">base_traffic_split</span><span class="p">,</span>
@@ -342,26 +342,26 @@ Action: B is better, deploy
 <span class="p">)</span>
 
 <span class="n">tpr</span> <span class="o">=</span> <span class="n">num_successes</span><span class="o">/</span><span class="n">num_tests</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;True Positive Rate: </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">tpr</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;True Positive Rate: </span><span class="si">%.2f</span><span class="s2"> (expected = </span><span class="si">%.2f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tpr</span><span class="p">,</span> <span class="n">power</span><span class="p">))</span>
 </pre></div>
 
 
 <p>It prints:</p>
-<div class="highlight"><pre><span></span>True Positive Rate: 0.80
+<div class="highlight"><pre><span></span>True Positive Rate: 0.80 (expected = 0.80)
 </pre></div>
 
 
 <h2>Scaling behaviour</h2>
 <p>Let's fix all parameters but one, and see how many samples we need.</p>
-<p>Vary base conversion $\mu_A$, with fixed $ \mu_B - \mu_A, \alpha, \beta$, traffic split. Because the formula for $z$ includes a term like $\mu_A(1-\mu_A)$, this should be highest at $\mu_A=0.5$.</p>
+<p>Vary base conversion $\mu_A$, with fixed $ \mu_B - \mu_A, \alpha, 1 - \beta$, traffic split. Because the formula for $z$ includes a term like $\mu_A(1-\mu_A)$, this should be highest at $\mu_A=0.5$.</p>
 <p><img src="/images/base_conversion_N.png" alt="Base conversion vs N" style="width: 400px;"/></p>
-<p>Vary conversion difference $\mu_B - \mu_A$, with fixed $ \mu_A, \alpha, \beta$, traffic split. A higher conversion difference requires less samples to detect.</p>
+<p>Vary conversion difference $\mu_B - \mu_A$, with fixed $ \mu_A, \alpha, 1 - \beta$, traffic split. A higher conversion difference requires less samples to detect.</p>
 <p><img src="/images/conversion_diff.png" alt="Conversion difference vs N" style="width: 400px;"/></p>
-<p>Vary $\alpha$, with fixed $ \mu_A, \mu_B - \mu_A, \beta$, traffic split. Lower $\alpha$ means we want less false positives, which requires more samples.</p>
+<p>Vary $\alpha$, with fixed $ \mu_A, \mu_B - \mu_A, 1 - \beta$, traffic split. Lower $\alpha$ means we want less false positives, which requires more samples.</p>
 <p><img src="/images/alpha_N.png" alt="Alpha vs N" style="width: 400px;"/></p>
-<p>Vary $\beta$, with fixed $ \mu_A, \mu_B - \mu_A, \alpha$, traffic split. Higher $\beta$ translates to higher probability of detecting positive outcomes, which requires more samples.</p>
-<p><img src="/images/beta_N.png" alt="Beta vs N" style="width: 400px;"/></p>
-<p>Vary the traffic split to A, with fixed $ \mu_A, \mu_B - \mu_A, \alpha, \beta$. The sample size is constrained by the smaller sample size of the two, so an equal split requires the least amount of samples.</p>
+<p>Vary $\beta$, with fixed $ \mu_A, \mu_B - \mu_A, \alpha$, traffic split. Higher $1 - \beta$ translates to higher probability of detecting positive outcomes, which requires more samples.</p>
+<p><img src="/images/power_N.png" alt="Power vs N" style="width: 400px;"/></p>
+<p>Vary the traffic split to A, with fixed $ \mu_A, \mu_B - \mu_A, \alpha, 1 - \beta$. The sample size is constrained by the smaller sample size of the two, so an equal split requires the least amount of samples.</p>
 <p><img src="/images/traffic_split_N.png" alt="Traffic split vs N" style="width: 400px;"/></p>
 <h2>Conclusion</h2>
 <p>Z-tests are simple, if you remember the CLT and are careful about controlling false positive rate and true negatives rates. If in doubt, write simulation code like above and make sure the way you set your parameters gets you the results you want. Also remember that there are other types of tests, such as the <a href="https://en.wikipedia.org/wiki/Chi-squared_test">$\chi^2$-test</a> and the <a href="https://en.wikipedia.org/wiki/Student%27s_t-test">t-test</a>, to be discussed in the next posts.</p>
