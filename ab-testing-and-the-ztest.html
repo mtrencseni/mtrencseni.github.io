@@ -345,15 +345,19 @@
 
 
 <h2>Scaling behaviour</h2>
-<p>Let's fix all parameters but one, and see how many samples we need to achieve a given $\alpha$, $\beta$, at assumed conversions.</p>
-<p>Vary base conversion $\mu_A$:</p>
+<p>Let's fix all parameters but one, and see how many samples we need.</p>
+<p>Vary base conversion $\mu_A$, with fixed $ \mu_B - \mu_A, \alpha, \beta$, traffic split. Because the formula for $z$ includes a term like $\mu_A(1-\mu_A)$, this should be highest at $\mu_A=0.5$.</p>
 <p><img src="/images/base_conversion_N.png" alt="Base conversion vs N" style="width: 400px;"/></p>
-<p>Vary conversion difference $\mu_B - \mu_A$:</p>
+<p>Vary conversion difference $\mu_B - \mu_A$, with fixed $ \mu_A, \alpha, \beta$, traffic split. A higher conversion difference requires less samples to detect.</p>
 <p><img src="/images/conversion_diff.png" alt="Conversion difference vs N" style="width: 400px;"/></p>
-<p>Vary $\alpha$:</p>
+<p>Vary $\alpha$, with fixed $ \mu_A, \mu_B - \mu_A, \beta$, traffic split. Lower $\alpha$ means we want less false positives, which requires more samples.</p>
 <p><img src="/images/alpha_N.png" alt="Alpha vs N" style="width: 400px;"/></p>
-<p>Vary $\beta$:</p>
+<p>Vary $\beta$, with fixed $ \mu_A, \mu_B - \mu_A, \alpha$, traffic split. Higher $\beta$ translates to higher probability of detecting positive outcomes, which requires more samples.</p>
 <p><img src="/images/beta_N.png" alt="Beta vs N" style="width: 400px;"/></p>
+<p>Vary the traffic split to A, with fixed $ \mu_A, \mu_B - \mu_A, \alpha, \beta$. The sample size is constrained by the smaller sample size of the two, so an equal split requires the least amount of samples.</p>
+<p><img src="/images/traffic_split_N.png" alt="Traffic split vs N" style="width: 400px;"/></p>
+<h2>Conclusion</h2>
+<p>Z-tests are simple, if you remember the CLT and are careful about controlling false positive rate and true negatives rates. If in doubt, write simulation code like above and make sure the way you set your parameters gets you the results you want. Also remember that there are other types of tests, such as the <a href="https://en.wikipedia.org/wiki/Chi-squared_test">$\chi^2$-test</a> and the <a href="https://en.wikipedia.org/wiki/Student%27s_t-test">t-test</a>, to be discussed in the next posts.</p>
 <p>Related links:</p>
 <ul>
 <li><a href="https://towardsdatascience.com/the-art-of-a-b-testing-5a10c9bb70a4">The Art of A/B Testing</a> - good post on the same topic</li>
