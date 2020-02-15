@@ -83,7 +83,7 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>In the previous two posts, we talked about the <a href="http://bytepawn.com/ab-testing-and-the-central-limit-theorem.html">A/B testing and the Central Limit Theorem</a> and discussed when the CLT doesn’t hold in <a href="http://bytepawn.com/beyond-the-central-limit-theorem.html">Beyond the Central Limit Theorem</a> (CLT). The next step in exploring A/B testing is to look at the Z-test, which is the most common and straightforward hypotehesis testing tool.</p>
+<p>In the previous two posts, we talked about the <a href="http://bytepawn.com/ab-testing-and-the-central-limit-theorem.html">A/B testing and the Central Limit Theorem</a> and discussed when the CLT doesn’t hold in <a href="http://bytepawn.com/beyond-the-central-limit-theorem.html">Beyond the Central Limit Theorem</a> (CLT). The next step in exploring A/B testing is to look at the Z-test, which is the most common and straightforward staistical test.</p>
 <p>With our understanding of the CLT, the Z-test is simple to explain. We’re running a Z-test if:</p>
 <ul>
 <li>our null hypothesis is the relationship between population means or other test statistics, and</li>
@@ -95,18 +95,17 @@
 </blockquote>
 <p><a href="https://github.com/mtrencseni/playground/blob/master/Conversion%20AB%20test%20with%20the%20Z-test.ipynb">The code shown below is up on Github.</a></p>
 <h2>Statistical hypothesis testing</h2>
-<p>In an A/B test setting, let’s assume it’s a conversion test, <a href="https://en.wikipedia.org/wiki/Statistical_hypothesis_testing">statistical hypothesis testing</a> is:</p>
+<p>In a conversion A/B test setting, <a href="https://en.wikipedia.org/wiki/Statistical_hypothesis_testing">statistical hypothesis testing</a> is:</p>
 <ul>
-<li>we have two versions A and B, and we’re trying to decide whether B is better than A</li>
+<li>we have a base version A and contender version B, and we’re trying to decide whether B is better than A</li>
 <li>if B is converting worse than A, then we’re done</li>
-<li>if B is converting better than A, we’d like to know how <strong>significant</strong> our results are; in hypothesis testing, we compute the probability that we’d get this result if B is actually not better than A; ie. we compute the probability of seeing this B is better than A result due to random chance, even if B is not better than A; this probability is called the <strong>p-value</strong></li>
+<li>if B is converting better than A, we’d like to know how <strong>significant</strong> our results are; in hypothesis testing, we compute the probability that we’d get this result if B is actually not better than A; ie. we compute the probability of getting the result that B is better than A due to random chance, even if B is not better than A; this probability is called the <strong>p-value</strong></li>
 </ul>
-<p>To get a better feeling for the point above, imagine if somebody gives you a coin. They claim it’s a fair coin, meaning you get Heads and Tails half the time. You want to test this claim, ie. the null hypothesis. If you flip it 10 times, and you get 6 Hs and 4 Ts, how confident are you that it’s not a fair coin? You can’t be too sure, because you haven’t collected enough data, because the 6:4 result is a very likely outcome even if the coin is fair. The 6:4 result is not significant enough to disprove the null hypothesis of a fair coin. But if you flip it 1000 times, and you get 599 Hs and 401 Ts, that’s very suspicios. The probability of getting 599:401 from a fair coin is very very unlikely (it can be calculated explicitly, see below).</p>
+<p>To get a better feeling for the point above, imagine if somebody gives you a coin. They claim it’s a fair coin, meaning you get Heads and Tails half the time. You want to test this claim, ie. the null hypothesis of a fair coin. If you flip it 10 times, and you get 6 Hs and 4 Ts, how confident are you that it’s not a fair coin? You can’t be too sure, because you haven’t collected enough samples, because the 6:4 result is a very likely outcome even if the coin is fair. The 6:4 result is not significant enough to disprove the null hypothesis of a fair coin. But if you flip it 1000 times, and you get 599 Hs and 401 Ts, that’s quite suspicious. Getting 599:401 from a fair coin is unlikely (it can be calculated explicitly, see below).</p>
 <h2>Types of Z-tests</h2>
 <p>Some points to make our thinking about the Z-test clear.</p>
-<p>The Z-test is not one specific test, it’s a family of tests, or a kind of test. Any time we make the above assumptions and work with a approximately normally distributed test statistic, we’re performing a Z-test. I will show different instances of Z-tests below.</p>
-<p>It’s called Z-test because when running the numbers, it’s common to transform the data to a standard normal distribution N(0, 1). In the old days, before computers, the p-value, ie. the portion of the normal distribution outside of the normalized test statistic (eg. the difference of the means) would be read off a printout table (eg. the back of statistics textbooks), and this statistic is conventionally denoted with the letter z.</p>
-<p>The practical bible of statistical testing, <a href="https://www.amazon.com/Statistical-Tests-Third-Gopal-Kanji/dp/141292376X">100 Statistical Tests</a> by Gopal Kanji, lists the following types of Z-tests:</p>
+<p>It’s called Z-test because when running the numbers, it’s common to transform the data to a standard normal distribution $N(0, 1)$. In the old days, before computers, the p-value, ie. the portion of the normal distribution outside the normalized test statistic (eg. the difference of the means) would be read off a printout table (eg. the back of statistics textbooks), and this statistic is conventionally denoted with the letter z. A more verbose, but descriptive name would be <strong>test-for-normally-distributed-test-statistics</strong>.</p>
+<p>The Z-test is not one specific test, it’s a kind of test. Any time we work with an approximately normally distributed test statistic, we’re performing a Z-test. The practical bible of statistical testing, <a href="https://www.amazon.com/Statistical-Tests-Third-Gopal-Kanji/dp/141292376X">100 Statistical Tests</a> by Gopal Kanji, lists the following types of Z-tests:</p>
 <ul>
 <li>Test 1: Z-test for a population mean (variance known)</li>
 <li>Test 2: Z-test for two population means (variances known and equal)</li>
@@ -358,7 +357,7 @@
 <p><img src="/images/traffic_split_N.png" alt="Traffic split vs N" style="width: 400px;"/></p>
 <h2>Conclusion</h2>
 <p>Z-tests are simple, if you remember the CLT and are careful about controlling false positive rate and true negatives rates. If in doubt, write simulation code like above and make sure the way you set your parameters gets you the results you want. Also remember that there are other types of tests, such as the <a href="https://en.wikipedia.org/wiki/Chi-squared_test">$\chi^2$-test</a> and the <a href="https://en.wikipedia.org/wiki/Student%27s_t-test">t-test</a>, to be discussed in the next posts.</p>
-<p>Related links:</p>
+<p><strong>Related links:</strong></p>
 <ul>
 <li><a href="https://towardsdatascience.com/the-art-of-a-b-testing-5a10c9bb70a4">The Art of A/B Testing</a> - good post on the same topic</li>
 </ul>
