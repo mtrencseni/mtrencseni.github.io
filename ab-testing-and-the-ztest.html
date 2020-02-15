@@ -37,11 +37,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="" />
 <meta name="author" content="Marton Trencseni" />
-<meta name="description" content="I discuss the Z-test as it relates to A/B testing and clear up common misconceptions." />
+<meta name="description" content="We discuss the Z-test as it relates to A/B testing, clear up common misconceptions. I show how to compute parameters from first principles and show how to simulate an A/B test and validate the parameters." />
 <meta name="keywords" content="ab-testing">
 <meta property="og:site_name" content="Bytepawn"/>
 <meta property="og:title" content="A/B testing and the Z-test"/>
-<meta property="og:description" content="I discuss the Z-test as it relates to A/B testing and clear up common misconceptions."/>
+<meta property="og:description" content="We discuss the Z-test as it relates to A/B testing, clear up common misconceptions. I show how to compute parameters from first principles and show how to simulate an A/B test and validate the parameters."/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="/ab-testing-and-the-ztest.html"/>
 <meta property="og:type" content="article"/>
@@ -50,7 +50,7 @@
 <meta property="article:author" content="/author/marton-trencseni.html">
 <meta property="article:section" content="Data"/>
 <meta property="article:tag" content="ab-testing"/>
-<meta property="og:image" content="/images/100_statistical_tests.jpg"/>
+<meta property="og:image" content="/images/conversion_diff.png"/>
 
   <title>Bytepawn &ndash; A/B testing and the Z-test</title>
 </head>
@@ -344,6 +344,16 @@
 </pre></div>
 
 
+<h2>Scaling behaviour</h2>
+<p>Let's fix all parameters but one, and see how many samples we need to achieve a given $\alpha$, $\beta$, at assumed conversions.</p>
+<p>Vary base conversion $\mu_A$:</p>
+<p><img src="/images/base_conversion_N.png" alt="Base conversion vs N" style="width: 400px;"/></p>
+<p>Vary conversion difference $\mu_B - \mu_A$:</p>
+<p><img src="/images/conversion_diff.png" alt="Conversion difference vs N" style="width: 400px;"/></p>
+<p>Vary $\alpha$:</p>
+<p><img src="/images/alpha_N.png" alt="Alpha vs N" style="width: 400px;"/></p>
+<p>Vary $\beta$:</p>
+<p><img src="/images/beta_N.png" alt="Beta vs N" style="width: 400px;"/></p>
 <p>Related links:</p>
 <ul>
 <li><a href="https://towardsdatascience.com/the-art-of-a-b-testing-5a10c9bb70a4">The Art of A/B Testing</a> - good post on the same topic</li>
@@ -384,7 +394,7 @@
   },
   "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
   "url": "/ab-testing-and-the-ztest.html",
-  "description": "I discuss the Z-test as it relates to A/B testing and clear up common misconceptions."
+  "description": "We discuss the Z-test as it relates to A/B testing, clear up common misconceptions. I show how to compute parameters from first principles and show how to simulate an A/B test and validate the parameters."
 }
 </script></body>
 </html>

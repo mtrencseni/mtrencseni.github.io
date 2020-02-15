@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Data</title><link href="/" rel="alternate"></link><link href="/feeds/data.atom.xml" rel="self"></link><id>/</id><updated>2020-02-15T00:00:00+01:00</updated><entry><title>A/B testing and the Z-test</title><link href="/ab-testing-and-the-ztest.html" rel="alternate"></link><published>2020-02-15T00:00:00+01:00</published><updated>2020-02-15T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-02-15:/ab-testing-and-the-ztest.html</id><summary type="html">&lt;p&gt;I discuss the Z-test as it relates to A/B testing and clear up common misconceptions. &lt;br/&gt;&lt;br/&gt; &lt;img src="/images/100_statistical_tests.jpg" alt="100 statistical tests" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Data</title><link href="/" rel="alternate"></link><link href="/feeds/data.atom.xml" rel="self"></link><id>/</id><updated>2020-02-15T00:00:00+01:00</updated><entry><title>A/B testing and the Z-test</title><link href="/ab-testing-and-the-ztest.html" rel="alternate"></link><published>2020-02-15T00:00:00+01:00</published><updated>2020-02-15T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-02-15:/ab-testing-and-the-ztest.html</id><summary type="html">&lt;p&gt;We discuss the Z-test as it relates to A/B testing, clear up common misconceptions. I show how to compute parameters from first principles and show how to simulate an A/B test and validate the parameters. &lt;br/&gt;&lt;br/&gt; &lt;img src="/images/conversion_diff.png" alt="Conversion difference vs N" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;In the previous two posts, we talked about the &lt;a href="http://bytepawn.com/ab-testing-and-the-central-limit-theorem.html"&gt;A/B testing and the Central Limit Theorem&lt;/a&gt; and discussed when the CLT doesn’t hold in &lt;a href="http://bytepawn.com/beyond-the-central-limit-theorem.html"&gt;Beyond the Central Limit Theorem&lt;/a&gt; (CLT). The next step in exploring A/B testing is to look at the Z-test, which is the most common and straightforward hypotehesis testing tool.&lt;/p&gt;
 &lt;p&gt;With our understanding of the CLT, the Z-test is simple to explain. We’re running a Z-test if:&lt;/p&gt;
 &lt;ul&gt;
@@ -261,6 +261,16 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
+&lt;h2&gt;Scaling behaviour&lt;/h2&gt;
+&lt;p&gt;Let's fix all parameters but one, and see how many samples we need to achieve a given $\alpha$, $\beta$, at assumed conversions.&lt;/p&gt;
+&lt;p&gt;Vary base conversion $\mu_A$:&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/base_conversion_N.png" alt="Base conversion vs N" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;Vary conversion difference $\mu_B - \mu_A$:&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/conversion_diff.png" alt="Conversion difference vs N" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;Vary $\alpha$:&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/alpha_N.png" alt="Alpha vs N" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;Vary $\beta$:&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/beta_N.png" alt="Beta vs N" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Related links:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href="https://towardsdatascience.com/the-art-of-a-b-testing-5a10c9bb70a4"&gt;The Art of A/B Testing&lt;/a&gt; - good post on the same topic&lt;/li&gt;
