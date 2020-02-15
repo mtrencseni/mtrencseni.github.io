@@ -276,7 +276,7 @@ Action: B is better, deploy
 &lt;p&gt;&lt;img src="/images/conversion_diff.png" alt="Conversion difference vs N" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Vary $\alpha$, with fixed $ \mu_A, \mu_B - \mu_A, 1 - \beta$, traffic split. Lower $\alpha$ means we want less false positives, which requires more samples.&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/alpha_N.png" alt="Alpha vs N" style="width: 400px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Vary $\beta$, with fixed $ \mu_A, \mu_B - \mu_A, \alpha$, traffic split. Higher $1 - \beta$ translates to higher probability of detecting positive outcomes, which requires more samples.&lt;/p&gt;
+&lt;p&gt;Vary the power $1 - \beta$, with fixed $ \mu_A, \mu_B - \mu_A, \alpha$, traffic split. Higher $1 - \beta$ translates to higher probability of detecting positive outcomes, which requires more samples.&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/power_N.png" alt="Power vs N" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Vary the traffic split to A, with fixed $ \mu_A, \mu_B - \mu_A, \alpha, 1 - \beta$. The sample size is constrained by the smaller sample size of the two, so an equal split requires the least amount of samples.&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/traffic_split_N.png" alt="Traffic split vs N" style="width: 400px;"/&gt;&lt;/p&gt;
