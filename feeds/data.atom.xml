@@ -175,9 +175,7 @@ Action: B is better, deploy
 
 &lt;p&gt;If you run this repeatedly, sometimes it will indicate B is better, sometimes it will not. It will find B better more often:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;at higher $ N $ (lower $s$)&lt;/li&gt;
-&lt;li&gt;at higher $ \beta $&lt;/li&gt;
-&lt;li&gt;at lower $ \alpha $&lt;/li&gt;
+&lt;li&gt;at higher $ N $ (lower $s$), if in fact B is better&lt;/li&gt;
 &lt;li&gt;if the conversion advantage of B is greater in the hidden conversion parameters&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2&gt;Consistency test for FPR ($\alpha$)&lt;/h2&gt;
