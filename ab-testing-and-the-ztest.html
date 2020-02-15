@@ -128,8 +128,137 @@
 <p>The sample standard deviation is computed like:</p>
 <ul>
 <li>for conversion, the population distribution is Bernoulli, then $ s^2 = p(1-p) $ where $ p=\mu $, the conversion (for A and B)</li>
-<li>for timespent, you can compute the standard error from the data directly $ s^2 = \frac{1}{N} \sum{(\mu - x_i)^2} $, where $x_i$ are the invididual timespents per user.</li>
+<li>for timespent, you can compute the standard error from the data directly $ s^2 = \frac{1}{N} \sum{(\mu - x_i)^2} $, where $x_i$ are the invididual timespents per user, and $ \mu = \frac{1}{N} \sum{ x_i } $.</li>
 </ul>
+<h2>Sample size</h2>
+<p>Before running an A/B test, we have to decide 2 things:
+- $ \alpha $, aka False Positive Rate (FPR): if B is actually not better than A, by chance the measurement can still show B to be better. We can reduce this by collecting more samples. But we need to set an FPR that we are okay with with. Usually people set this to 0.05, but as I discuss this in the previous post <a href="http://bytepawn.com/ab-tests-moving-fast-vs-being-sure.html">A/B tests: Moving Fast vs Being Sure</a>, startups should favor velocity over certainty, using 0.1 or 0.2 is fine.
+- $ 1 - \beta $, the True Positive Rate (TPR): if B is actually better than A, how likely are we to actually measure B to be better at the above $ \alpha $? If we don't account for this, by default the math will work out set $ \beta = 0.5 $, which means we will only find half of the good Bs. For more on power, see <a href="https://influentialpoints.com/Training/statistical_power_and_sample_size-principles-properties-assumptions.htm">this aerticle</a>. We usually set power to 0.8.</p>
+<h2>Running an A/B test</h2>
+<p>Let’s pretend we’re running an A/B test on funnel conversion. A is the current, B is the new version of the funnel. We want to know whether B is better. By looking at our funnel dashboard, we know that A is historically converting around 9-11%.</p>
+<ol>
+<li>Formulate the action hypothesis: B has higher conversion than A, meaning we're doing a one-sided test.</li>
+<li>We set $ \alpha = 0.10 $ and $ \beta = 0.80 $. This means we're okay with 10% false positives and we will capture 80% of improvements.</li>
+<li>Decide traffic split. Let’s say we will keep 80% in A, 20% in B. This is how much of a chance we take, B could be worse, buggy, etc.</li>
+<li>Figure out how many samples we need to collect, given the historic conversion, traffic split, alpha and the kind of lift we’re looking. The code below computes sample size based on the math above:</li>
+</ol>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+
+<span class="k">def</span> <span class="nf">alpha_to_z</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">one_sided</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">one_sided</span><span class="p">:</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="o">/</span><span class="mf">2.0</span>
+    <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">beta_to_z</span><span class="p">(</span><span class="n">beta</span><span class="p">):</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">beta</span>
+    <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">num_samples</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">mu_A</span><span class="p">,</span> <span class="n">mu_delta</span><span class="p">,</span> <span class="n">traffic_ratio_A</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mf">0.50</span><span class="p">,</span> <span class="n">one_sided</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="n">z_alpha</span> <span class="o">=</span> <span class="n">alpha_to_z</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">one_sided</span><span class="p">)</span>
+    <span class="n">z_beta</span>  <span class="o">=</span> <span class="n">beta_to_z</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
+    <span class="n">mu_B</span> <span class="o">=</span> <span class="n">mu_A</span> <span class="o">+</span> <span class="n">mu_delta</span>
+    <span class="n">traffic_ratio_B</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">traffic_ratio_A</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="p">(</span> <span class="n">mu_A</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">mu_A</span><span class="p">)</span><span class="o">/</span><span class="n">traffic_ratio_A</span> <span class="o">+</span> <span class="n">mu_B</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">mu_B</span><span class="p">)</span><span class="o">/</span><span class="n">traffic_ratio_B</span> <span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="n">z_alpha</span><span class="o">+</span><span class="n">z_beta</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu_A</span> <span class="o">-</span> <span class="n">mu_B</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>  
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Note that in real-life, there are other considerations. For example, if possible we should run tests for complete days and/or weeks, to capture users who are active at different times. So when we calculate the sample size, in real life we compare that to the number of users going through the funnel per day/week, and "round up". To take this into account in the simulation below, I will multiply by 2.</p>
+<ol>
+<li>Create a random seed for the A/B test and save it server-side. We generate a new seed for each A/B test. Let’s say we generate the string for this one: <code>OkMdZa18pfr8m5sy2IL52pW9ol2EpLekgakJAIZFBbgZ</code></li>
+<li>Perform test by splitting users randomly between A and B according to the above proportions. Users coming, identified by a <code>user_id</code> (or <code>cookie_id</code>), should be put in the same funnel. We can accomplish this by hashing the <code>test_id</code>, where <code>test_id = seed + user_id</code>:</li>
+</ol>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">hashlib</span>
+
+<span class="n">test_seed</span> <span class="o">=</span> <span class="s1">&#39;OkMdZa18pfr8m5sy2IL52pW9ol2EpLekgakJAIZFBbgZ&#39;</span>
+
+<span class="k">def</span> <span class="nf">funnel_user</span><span class="p">(</span><span class="n">base_traffic_split</span><span class="p">,</span> <span class="n">test_seed</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+    <span class="n">test_id</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">test_seed</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+    <span class="n">bits</span> <span class="o">=</span> <span class="nb">bin</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">test_id</span><span class="p">,</span> <span class="mi">16</span><span class="p">))[</span><span class="mi">3</span><span class="p">:]</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">bit</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mf">0.5</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">bit</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bits</span><span class="p">)])</span>
+    <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="n">base_traffic_split</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;A&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;B&#39;</span>
+</pre></div>
+
+
+<ol>
+<li>Run the test. We're simulating the real-world here, so we will have to pick the actual conversions for A and B. This is not known to the test, this is what it's trying to estimate, so we will call this a hidden variable:</li>
+</ol>
+<div class="highlight"><pre><span></span><span class="n">hidden_conversion_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="mf">0.105</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span> <span class="mf">0.115</span> <span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">run_test</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">hidden_conversion_params</span><span class="p">,</span> <span class="n">funnel_user_func</span><span class="p">):</span>
+    <span class="n">test_outcomes</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;N&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;conversions&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;N&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;conversions&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}}</span>
+    <span class="k">for</span> <span class="n">user_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">which_funnel</span> <span class="o">=</span> <span class="n">funnel_user_func</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span> <span class="c1"># returns &#39;A&#39; or &#39;B&#39;</span>
+        <span class="n">test_outcomes</span><span class="p">[</span><span class="n">which_funnel</span><span class="p">][</span><span class="s1">&#39;N&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">hidden_conversion_params</span><span class="p">[</span><span class="n">which_funnel</span><span class="p">]:</span>
+            <span class="n">test_outcomes</span><span class="p">[</span><span class="n">which_funnel</span><span class="p">][</span><span class="s1">&#39;conversions&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">test_outcomes</span>
+</pre></div>
+
+
+<ol>
+<li>Compute the p-value and compare it with the $ \alpha $ we set to decide whether to accept or reject B:</li>
+</ol>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">p_value</span><span class="p">(</span><span class="n">N_A</span><span class="p">,</span> <span class="n">mu_A</span><span class="p">,</span> <span class="n">N_B</span><span class="p">,</span> <span class="n">mu_B</span><span class="p">,</span> <span class="n">one_sided</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="n">sigma_A_squared</span> <span class="o">=</span> <span class="n">mu_A</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mu_A</span><span class="p">)</span> <span class="o">/</span> <span class="n">N_A</span>
+    <span class="n">sigma_B_squared</span> <span class="o">=</span> <span class="n">mu_B</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mu_B</span><span class="p">)</span> <span class="o">/</span> <span class="n">N_B</span>
+    <span class="n">sigma_squared</span> <span class="o">=</span> <span class="n">sigma_A_squared</span> <span class="o">+</span> <span class="n">sigma_B_squared</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">mu_B</span> <span class="o">-</span> <span class="n">mu_A</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma_squared</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">z_to_p</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">one_sided</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span>
+
+<span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.10</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="mf">0.50</span>
+<span class="n">base_conversion</span> <span class="o">=</span> <span class="mf">0.10</span>
+<span class="n">valuable_diff</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="n">base_traffic_split</span> <span class="o">=</span> <span class="mf">0.8</span>
+
+<span class="n">N_required</span> <span class="o">=</span> <span class="n">num_samples</span><span class="p">(</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+    <span class="n">mu_A</span><span class="o">=</span><span class="n">base_conversion</span><span class="p">,</span>
+    <span class="n">mu_delta</span><span class="o">=</span><span class="n">valuable_diff</span><span class="p">,</span>
+    <span class="n">traffic_ratio_A</span><span class="o">=</span><span class="n">base_traffic_split</span><span class="p">,</span>
+    <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">N_actual</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">N_required</span> <span class="c1"># because eg. we run it for a whole week</span>
+
+<span class="c1"># hidden_conversion_params is how our funnels actually perform:</span>
+<span class="c1"># the difference between the two is what we&#39;re trying to establish</span>
+<span class="c1"># with statistical confidence, using an A/B test</span>
+<span class="n">hidden_conversion_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="mf">0.105</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span> <span class="mf">0.115</span> <span class="p">}</span>
+<span class="n">test_seed</span> <span class="o">=</span> <span class="s1">&#39;OkMdZa18pfr8m5sy2IL52pW9ol2EpLekgakJAIZFBbgZ&#39;</span>
+<span class="n">test_outcomes</span> <span class="o">=</span> <span class="n">run_test</span><span class="p">(</span>
+    <span class="n">N_actual</span><span class="p">,</span>
+    <span class="n">hidden_conversion_params</span><span class="p">,</span>
+    <span class="k">lambda</span> <span class="n">user_id</span><span class="p">:</span> <span class="n">funnel_user</span><span class="p">(</span><span class="n">base_traffic_split</span><span class="p">,</span> <span class="n">test_seed</span><span class="p">,</span> <span class="n">user_id</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">test_outcomes</span><span class="p">)</span>
+
+<span class="n">mu_A</span> <span class="o">=</span> <span class="n">test_outcomes</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">][</span><span class="s1">&#39;conversions&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">test_outcomes</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">][</span><span class="s1">&#39;N&#39;</span><span class="p">]</span>
+<span class="n">mu_B</span> <span class="o">=</span> <span class="n">test_outcomes</span><span class="p">[</span><span class="s1">&#39;B&#39;</span><span class="p">][</span><span class="s1">&#39;conversions&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">test_outcomes</span><span class="p">[</span><span class="s1">&#39;B&#39;</span><span class="p">][</span><span class="s1">&#39;N&#39;</span><span class="p">]</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Measured conversion for A: </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">mu_A</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Measured conversion for B: </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">mu_B</span><span class="p">)</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">p_value</span><span class="p">(</span><span class="n">test_outcomes</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">][</span><span class="s1">&#39;N&#39;</span><span class="p">],</span> <span class="n">mu_A</span><span class="p">,</span> <span class="n">test_outcomes</span><span class="p">[</span><span class="s1">&#39;B&#39;</span><span class="p">][</span><span class="s1">&#39;N&#39;</span><span class="p">],</span> <span class="n">mu_B</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;p-value: </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">p</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">p</span> <span class="o">&lt;=</span> <span class="n">alpha</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;B is better, deploy&quot;&quot;&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;We&#39;re not sure if B is better than A&quot;&quot;&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>If you run this repeatedly, sometimes it will indicate B is better, sometimes it will not. It will find B better more often:
+- at higher $ N $ (lower $s$)
+- at higher $ \beta $
+- at lower $ \alpha $
+- if the conversion advantage of B is greater in the hidden conversion parameters</p>
   </div>
   <div class="tag-cloud">
     <p>
