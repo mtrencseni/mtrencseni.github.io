@@ -121,7 +121,7 @@
 </ul>
 <p><img src="/images/100_statistical_tests.jpg" alt="100 statistical tests" style="width: 300px;"/></p>
 <p>I listed out these to further the point that the Z-test is not just one test, it’s a type of test that makes sense in a variety of scenarios.</p>
-<h2>The maths</h2>
+<h2>Formulas</h2>
 <p>The math is similar to the discussion in the CLT post. We’re sampling a distribution and computing a test statistic, and assuming that it follows a normal distribution $ N(\mu, \sigma^2) $. In an A/B test, we have two normal distributions, $ N(\mu_A, \sigma_A^2) $ and $ N(\mu_B, \sigma_B^2) $ with samples sizes $N_A$ and $N_B$, and the test statistic is $ N(\mu_A, \sigma_A^2) - N(\mu_B, \sigma_B^2) = N(\mu = \mu_B - \mu_A, \sigma^2 = \sigma_A^2 + \sigma_B^2) $ by the <a href="https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables">addition rule for normal distributions</a>.</p>
 <p>The test statistic then is $ Z = \frac{ \mu }{ \sigma } $, we use this to get the p-value for the experiment. This is simply the normalized distance from the mean of the distribution. With this normalized distance, we can use a table for a standard normal distribution table and read off the p-value. In the age of computers, we actually don’t have to do this final normalization step to get Z, we can just get the p-value from the original $ N(\mu, \sigma^2) $ distribution.</p>
 <p>In an A/B test setting, $ \mu_A $ and $ \mu_B $ are known. The trick is, what are the standard deviations $ \sigma_A^2 $ and $ \sigma_B^2 $? We compute it from the sample standard devation $ s^2 $, like $ \sigma^2 = s^2/N $. The sample standard deviation is:</p>
@@ -132,8 +132,8 @@
 <h2>Sample size</h2>
 <p>Before running an A/B test, we have to decide 2 things:</p>
 <ul>
-<li>$ \alpha $, aka False Positive Rate (FPR): if B is actually not better than A, by chance the measurement can still show B to be better. We can reduce this by collecting more samples. But we need to set an FPR that we are okay with with. Usually people set this to 0.05, but as I discuss this in the previous post <a href="http://bytepawn.com/ab-tests-moving-fast-vs-being-sure.html">A/B tests: Moving Fast vs Being Sure</a>, startups should favor velocity over certainty, using 0.1 or 0.2 is fine.</li>
-<li>$ 1 - \beta $, the True Positive Rate (TPR): if B is actually better than A, how likely are we to actually measure B to be better at the above $ \alpha $? If we don't account for this, by default the math will work out set $ \beta = 0.5 $, which means we will only find half of the good Bs. For more on power, see <a href="https://influentialpoints.com/Training/statistical_power_and_sample_size-principles-properties-assumptions.htm">this aerticle</a>. We usually set power to 0.8.</li>
+<li>$ \alpha $, the False Positive Rate (FPR): if B is actually not better than A, by chance the measurement can still show B to be better. We can reduce this by collecting more samples. But we need to set an FPR that we are okay with with. Usually people set this to 0.05, but as I discuss this in the previous post <a href="http://bytepawn.com/ab-tests-moving-fast-vs-being-sure.html">A/B tests: Moving Fast vs Being Sure</a>, startups should favor velocity over certainty, using 0.1 or 0.2 is fine.</li>
+<li>$ 1 - \beta $, the True Positive Rate (TPR) or power: if B is actually better than A, how likely are we to actually measure B to be better at the above $ \alpha $? If we don't account for this, by default the math will work out set $ \beta = 0.5 $, which means we will only find half of the good Bs. In real life we usually set power to 0.8. For more on power, see <a href="https://influentialpoints.com/Training/statistical_power_and_sample_size-principles-properties-assumptions.htm">this article</a>. We usually set power to 0.8.</li>
 </ul>
 <h2>Simulating an A/B test</h2>
 <p>Let’s pretend we’re running an A/B test on funnel conversion. A is the current, B is the new version of the funnel. We want to know whether B is better. By looking at our funnel dashboard, we know that A is historically converting around 9-11%.</p>
@@ -182,7 +182,7 @@
 </pre></div>
 
 
-<p><strong>Step 7.</strong> Run the test. We're simulating the real-world here, so we will have to pick the actual conversions for A and B. This is not known to the test, this is what it's trying to estimate, so we will call this a hidden variable:</p>
+<p><strong>Step 7.</strong> Run the test. We're simulating the real-world here, so we will have to pick the actual conversions for A and B. This is not known to the test, this is what it's trying to estimate, so we call this a hidden variable:</p>
 <div class="highlight"><pre><span></span><span class="n">hidden_conversion_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="mf">0.105</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span> <span class="mf">0.115</span> <span class="p">}</span>
 
 <span class="k">def</span> <span class="nf">run_test</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">hidden_conversion_params</span><span class="p">,</span> <span class="n">funnel_user_func</span><span class="p">):</span>
@@ -244,6 +244,15 @@
     <span class="k">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;B is better, deploy&quot;&quot;&quot;</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="k">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;We&#39;re not sure if B is better than A&quot;&quot;&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The outcome depends on chance, here's one run:</p>
+<div class="highlight"><pre><span></span>{&#39;A&#39;: {&#39;N&#39;: 15749, &#39;conversions&#39;: 1594}, &#39;B&#39;: {&#39;N&#39;: 4027, &#39;conversions&#39;: 472}}
+Measured conversion for A: 0.101
+Measured conversion for B: 0.117
+p-value: 0.002
+Action: B is better, deploy
 </pre></div>
 
 
