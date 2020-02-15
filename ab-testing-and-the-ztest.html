@@ -119,7 +119,7 @@
 <li>Test 83: Z-test for the uncertainty of events</li>
 <li>Test 84: Z-test for comparing sequential contingencies across two groups using the ‘log odds ratio’</li>
 </ul>
-<p><img src="/images/100_statistical_tests.jpg" alt="100 statistical tests" style="width: 400px;"/></p>
+<p><img src="/images/100_statistical_tests.jpg" alt="100 statistical tests" style="width: 300px;"/></p>
 <p>I listed out these to further the point that the Z-test is not just one test, it’s a type of test that makes sense in a variety of scenarios.</p>
 <h2>The maths</h2>
 <p>The math is similar to the discussion in the CLT post. We’re sampling a distribution and computing a test statistic, and assuming that it follows a normal distribution $ N(\mu, \sigma^2) $. In an A/B test, we have two normal distributions, $ N(\mu_A, \sigma_A^2) $ and $ N(\mu_B, \sigma_B^2) $ with samples sizes, and the test statistic is $ N(\mu_A, \sigma_A^2) - N(\mu_B, \sigma_B^2) = N(\mu = \mu_A - \mu_B, \sigma^2 = \sigma_A^2 + \sigma_B^2) $ by the <a href="https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables">addition rule for normal distributions</a>.</p>
