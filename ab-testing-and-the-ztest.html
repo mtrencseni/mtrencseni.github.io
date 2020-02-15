@@ -126,7 +126,7 @@
 <p>The test statistic then is $ Z = \frac{ \mu }{ \sigma } $, we use this to get the p-value for the experiment. This is simply the normalized distance from the mean of the distribution. With this normalized distance, we can use a table for a standard normal distribution table and read off the p-value. In the age of computers, we actually don’t have to do this final normalization step to get Z, we can just get the p-value from the original $ N(\mu, \sigma^2) $ distribution.</p>
 <p>In an A/B test setting, $ \mu_A $ and $ \mu_B $ are known. The trick is, what are the standard deviations $ \sigma_A^2 $ and $ \sigma_B^2 $? We compute it from the sample standard devation $ s^2 $, like $ \sigma^2 = s^2/N $. The sample standard deviation is:</p>
 <ul>
-<li>for conversion, the population distribution is Bernoulli, $ s^2 = \mu(1-\mu) $</li>
+<li>for conversion, the population distribution is <a href="https://en.wikipedia.org/wiki/Bernoulli_distribution">Bernoulli</a>, so $ s^2 = \mu(1-\mu) $</li>
 <li>for timespent, you can compute the standard error from the data directly $ s^2 = \frac{1}{N} \sum{(\mu - x_i)^2} $, where $x_i$ are the invididual timespents per user, and $ \mu = \frac{1}{N} \sum{ x_i } $.</li>
 </ul>
 <h2>Sample size</h2>
