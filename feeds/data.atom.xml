@@ -33,7 +33,7 @@
 &lt;li&gt;Test 6: Z-test for comparing two counts (Poisson distribution)&lt;/li&gt;
 &lt;li&gt;Test 13: Z-test of a correlation coefficient&lt;/li&gt;
 &lt;li&gt;Test 14: Z-test for two correlation coefficients&lt;/li&gt;
-&lt;li&gt;Test 23: The Z-test for correlated proportions&lt;/li&gt;
+&lt;li&gt;Test 23: Z-test for correlated proportions&lt;/li&gt;
 &lt;li&gt;Test 83: Z-test for the uncertainty of events&lt;/li&gt;
 &lt;li&gt;Test 84: Z-test for comparing sequential contingencies across two groups using the ‘log odds ratio’&lt;/li&gt;
 &lt;/ul&gt;
