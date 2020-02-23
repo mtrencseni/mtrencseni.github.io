@@ -17,7 +17,7 @@
 &lt;blockquote&gt;
 &lt;p&gt;In probability and statistics, Student's t-distribution (or simply the t-distribution) is any member of a family of continuous probability distributions that arises when estimating the mean of a normally distributed population in situations where the sample size is small and the population standard deviation is unknown. If we take a sample of n observations from a normal distribution, then the t-distribution with $ \nu =n-1 $ degrees of freedom can be defined as the distribution of the location of the sample mean relative to the true mean, divided by the sample standard deviation, after multiplying by the standardizing term $ \sqrt {n} $. In this way, the t-distribution can be used to construct a confidence interval for the true mean.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;The most important thing to know is this: as $ N \rightarrow \infty $:&lt;/p&gt;
+&lt;p&gt;As $ N \rightarrow \infty $:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;the t-distribution becomes a normal distribution&lt;/li&gt;
 &lt;li&gt;the final outcome of hypothesis testing, the p-value becomes identical for a t-test and a z-test.&lt;/li&gt;
