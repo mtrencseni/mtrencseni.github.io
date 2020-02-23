@@ -83,9 +83,11 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>In the last post, I showed how to do <a href="http://bytepawn.com/ab-testing-and-the-ztest.html">A/B testing with the z-test</a>. I used two examples:
-- conversions, ie. proportions ($X_A$ out of $N_A$ converted)
-- timespents (timespents for A were $x_i, x_2 ... x_N$)</p>
+<p>In the last post, I showed how to do <a href="http://bytepawn.com/ab-testing-and-the-ztest.html">A/B testing with the z-test</a>. I used two examples:</p>
+<ul>
+<li>conversions, ie. proportions ($X_A$ out of $N_A$ converted)</li>
+<li>timespents (timespents for A were $x_i, x_2 ... x_N$)</li>
+</ul>
 <p>In this post, let’s concentrate on timespent data. The t-test is a better version of z-tests for timespent data, because it explicitly models the uncertainty of the variance due to sampling. The <a href="https://en.wikipedia.org/wiki/Student%27s_t-test">Wikipedia page for Student’s t-test</a>:</p>
 <blockquote>
 <p>The t-test is any statistical hypothesis test in which the test statistic follows a Student's t-distribution under the null hypothesis. A t-test is most commonly applied when the test statistic would follow a normal distribution if the value of a scaling term in the test statistic were known. When the scaling term is unknown and is replaced by an estimate based on the data, the test statistics (under certain conditions) follow a Student's t distribution. The t-test can be used, for example, to determine if the means of two sets of data are significantly different from each other.</p>
@@ -98,9 +100,11 @@
 <blockquote>
 <p>In probability and statistics, Student's t-distribution (or simply the t-distribution) is any member of a family of continuous probability distributions that arises when estimating the mean of a normally distributed population in situations where the sample size is small and the population standard deviation is unknown. If we take a sample of n observations from a normal distribution, then the t-distribution with $ \nu =n-1 $ degrees of freedom can be defined as the distribution of the location of the sample mean relative to the true mean, divided by the sample standard deviation, after multiplying by the standardizing term $ \sqrt {n} $. In this way, the t-distribution can be used to construct a confidence interval for the true mean.</p>
 </blockquote>
-<p>The most important thing to know is this: as $ N \rightarrow \infty $:
-- the t-distribution becomes a normal distribution
-- the final outcome of hypothesis testing, the p-value becomes identical for a t-test and a z-test.</p>
+<p>The most important thing to know is this: as $ N \rightarrow \infty $:</p>
+<ul>
+<li>the t-distribution becomes a normal distribution</li>
+<li>the final outcome of hypothesis testing, the p-value becomes identical for a t-test and a z-test.</li>
+</ul>
 <p>The difference effectively disappears between around $N=30-100$ sample size. So if you’re performing a timespent A/B test, and you have 100s or more samples in each bucket, the t-test and the z-test will yield numerically identical results. This is becauce at such sample sizes, the estimate of $s^2$ for $\sigma_p^2$ becomes really good for estimating the mean, and it’s divided by $N$, so the importance of the estimate goes down with increasing $N$.</p>
 <h2>Confusing advice</h2>
 <p>When googling for “z test vs t test”, a lot of advice goes like “use the t-test if you don’t know the variance” and “use the t-test for $N&lt;30$. This is not incorrect, but it’s a bit confusing.</p>

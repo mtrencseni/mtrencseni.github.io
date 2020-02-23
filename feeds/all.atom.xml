@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn</title><link href="/" rel="alternate"></link><link href="/feeds/all.atom.xml" rel="self"></link><id>/</id><updated>2020-02-23T00:00:00+01:00</updated><entry><title>A/B testing and the t-test</title><link href="/ab-testing-and-the-ttest.html" rel="alternate"></link><published>2020-02-23T00:00:00+01:00</published><updated>2020-02-23T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-02-23:/ab-testing-and-the-ttest.html</id><summary type="html">&lt;p&gt;The t-test is a better version of z-tests for timespent data, because it explicitly models the uncertainty of the variance due to sampling.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/t-test-5-10.png" alt="normal distribution vs t-distribution" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
-&lt;p&gt;In the last post, I showed how to do &lt;a href="http://bytepawn.com/ab-testing-and-the-ztest.html"&gt;A/B testing with the z-test&lt;/a&gt;. I used two examples:
-- conversions, ie. proportions ($X_A$ out of $N_A$ converted)
-- timespents (timespents for A were $x_i, x_2 ... x_N$)&lt;/p&gt;
+&lt;p&gt;In the last post, I showed how to do &lt;a href="http://bytepawn.com/ab-testing-and-the-ztest.html"&gt;A/B testing with the z-test&lt;/a&gt;. I used two examples:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;conversions, ie. proportions ($X_A$ out of $N_A$ converted)&lt;/li&gt;
+&lt;li&gt;timespents (timespents for A were $x_i, x_2 ... x_N$)&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;In this post, let’s concentrate on timespent data. The t-test is a better version of z-tests for timespent data, because it explicitly models the uncertainty of the variance due to sampling. The &lt;a href="https://en.wikipedia.org/wiki/Student%27s_t-test"&gt;Wikipedia page for Student’s t-test&lt;/a&gt;:&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;The t-test is any statistical hypothesis test in which the test statistic follows a Student's t-distribution under the null hypothesis. A t-test is most commonly applied when the test statistic would follow a normal distribution if the value of a scaling term in the test statistic were known. When the scaling term is unknown and is replaced by an estimate based on the data, the test statistics (under certain conditions) follow a Student's t distribution. The t-test can be used, for example, to determine if the means of two sets of data are significantly different from each other.&lt;/p&gt;
@@ -15,9 +17,11 @@
 &lt;blockquote&gt;
 &lt;p&gt;In probability and statistics, Student's t-distribution (or simply the t-distribution) is any member of a family of continuous probability distributions that arises when estimating the mean of a normally distributed population in situations where the sample size is small and the population standard deviation is unknown. If we take a sample of n observations from a normal distribution, then the t-distribution with $ \nu =n-1 $ degrees of freedom can be defined as the distribution of the location of the sample mean relative to the true mean, divided by the sample standard deviation, after multiplying by the standardizing term $ \sqrt {n} $. In this way, the t-distribution can be used to construct a confidence interval for the true mean.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;The most important thing to know is this: as $ N \rightarrow \infty $:
-- the t-distribution becomes a normal distribution
-- the final outcome of hypothesis testing, the p-value becomes identical for a t-test and a z-test.&lt;/p&gt;
+&lt;p&gt;The most important thing to know is this: as $ N \rightarrow \infty $:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;the t-distribution becomes a normal distribution&lt;/li&gt;
+&lt;li&gt;the final outcome of hypothesis testing, the p-value becomes identical for a t-test and a z-test.&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;The difference effectively disappears between around $N=30-100$ sample size. So if you’re performing a timespent A/B test, and you have 100s or more samples in each bucket, the t-test and the z-test will yield numerically identical results. This is becauce at such sample sizes, the estimate of $s^2$ for $\sigma_p^2$ becomes really good for estimating the mean, and it’s divided by $N$, so the importance of the estimate goes down with increasing $N$.&lt;/p&gt;
 &lt;h2&gt;Confusing advice&lt;/h2&gt;
 &lt;p&gt;When googling for “z test vs t test”, a lot of advice goes like “use the t-test if you don’t know the variance” and “use the t-test for $N&amp;lt;30$. This is not incorrect, but it’s a bit confusing.&lt;/p&gt;
