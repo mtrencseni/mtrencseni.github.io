@@ -68,7 +68,7 @@
 &lt;p&gt;&lt;img src="/images/pz-same.png" alt="p-values for t and z tests" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Note that:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;the difference tend to 0 with increasing sample size&lt;/li&gt;
+&lt;li&gt;the difference tends to 0 with increasing sample size&lt;/li&gt;
 &lt;li&gt;the p-value differences shown are on the order of 0.001, in real life we usually work with p-values between 0.01 and 0.05&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Let’s see what happens when the A/B test is actually working, B has better timespent on average (so the null hypothesis is false). To make the effect more visible, let’s pretend that timespent doubled. For this, we just have to change the lines:&lt;/p&gt;
