@@ -100,22 +100,69 @@
 <blockquote>
 <p>In probability and statistics, Student's t-distribution (or simply the t-distribution) is any member of a family of continuous probability distributions that arises when estimating the mean of a normally distributed population in situations where the sample size is small and the population standard deviation is unknown. If we take a sample of n observations from a normal distribution, then the t-distribution with $ \nu =n-1 $ degrees of freedom can be defined as the distribution of the location of the sample mean relative to the true mean, divided by the sample standard deviation, after multiplying by the standardizing term $ \sqrt {n} $. In this way, the t-distribution can be used to construct a confidence interval for the true mean.</p>
 </blockquote>
-<p>As $ N \rightarrow \infty $:</p>
-<ul>
-<li>the t-distribution becomes a normal distribution</li>
-<li>the final outcome of hypothesis testing, the p-value becomes identical for a t-test and a z-test.</li>
-</ul>
-<p>The difference effectively disappears between around $N=30-100$ sample size. So if you’re performing a timespent A/B test, and you have 100s or more samples in each bucket, the t-test and the z-test will yield numerically identical results. This is becauce at such sample sizes, the estimate of $s^2$ for $\sigma_p^2$ becomes really good for estimating the mean, and it’s divided by $N$, so the importance of the estimate goes down with increasing $N$.</p>
-<h2>Confusing advice</h2>
-<p>When googling for “z test vs t test”, a lot of advice goes like “use the t-test if you don’t know the variance” and “use the t-test for $N&lt;30$. This is not incorrect, but it’s a bit confusing.</p>
-<p>For A/B testing, a clear and concise statement is: <strong>in A/B testing you never know the population mean, you’re just estimating it, so always use the t-test. For $N&gt;30-100$, the t-test numerically yields the same results as the z-test, there's no difference.</strong></p>
 <h2>The normal distribution vs the t-distribution</h2>
 <p>As in the previous posts, we use the <a href="https://docs.scipy.org/doc/scipy/reference/stats.html">scipy.stats</a> module, which has pdfs for both normal and t-distributions. Compared to a standard normal distribution, the t-distribution has an additional parameter called $\nu$ or degrees of freedom (dof). When using the t-distribution on sample size $N$, $ \nu = N-1 $. Let’s plot a standard normal (blue) and t’s with $\nu=5$ (green) and $\nu=10$ (orange):</p>
 <p><img src="/images/t-test-5-10.png" alt="Normal distribution vs t-distribution" style="width: 400px;"/></p>
 <p>Note how the t-distributions have a bell shape like the normal, but have lower maximum and fatter tails.</p>
 <p>Next, let’s plot a standard normal (blue) and a t with $\nu=100$ (green):</p>
 <p><img src="/images/t-test-100.png" alt="Normal distribution vs t-distribution" style="width: 400px;"/></p>
-<p>There is effectively no difference between the distributions. This is one way to show that even at a moderate sample size of $N=100$, it’s hard to tell the difference.</p>
+<p>At a moderate sample size of $N=100$ there is effectively no difference between the distributions.</p>
+<h2>The t-test becomes the z-test at $ N = 50-100 $</h2>
+<p>As $ N \rightarrow \infty $:</p>
+<ul>
+<li>the t-distribution becomes a normal distribution</li>
+<li>the final outcome of hypothesis testing, the p-value becomes identical for a t-test and a z-test.</li>
+</ul>
+<p>The difference effectively disappears between around $N=50-100$ sample size. So if you’re performing a timespent A/B test, and you have 100s or more samples in each bucket, the t-test and the z-test will yield numerically identical results. This is becauce at such sample sizes, the estimate of $s^2$ for $\sigma_p^2$ becomes really good for estimating the mean, and it’s divided by $N$ anyway, so the importance of the estimate goes down with increasing $N$.</p>
+<p>When googling for “z test vs t test”, a lot of advice goes like “use the t-test if you don’t know the variance” and “use the t-test for $N&lt;50$. This is not incorrect, but it’s a bit confusing. For A/B testing, a clear and concise statement is: <strong>in A/B testing you never know the population mean, you’re just estimating it, so always use the t-test. For $N&gt;50$, the t-test numerically yields the same results as the z-test, there's no difference.</strong></p>
+<h2>Simulating p-values</h2>
+<p>Let’s perform a Monte-Carlo simulation of A/B tests. Let’s assume we have true populations for A and B, we take some samples from both to estimate the mean, and we perform both a t-test and a z-test to get 1-sided p-values. We then compute the average and maximum absolute p-value difference:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">simulate_p_values</span><span class="p">(</span><span class="n">population_A</span><span class="p">,</span> <span class="n">population_B</span><span class="p">,</span> <span class="n">sample_size_A</span><span class="p">,</span> <span class="n">sample_size_B</span><span class="p">,</span> <span class="n">num_simulations</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="n">p_diffs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_simulations</span><span class="p">):</span>
+        <span class="n">sample_A</span> <span class="o">=</span> <span class="n">population_A</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">sample_size_A</span><span class="p">)</span>
+        <span class="n">sample_B</span> <span class="o">=</span> <span class="n">population_B</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">sample_size_B</span><span class="p">)</span>
+        <span class="n">t_stat</span> <span class="o">=</span> <span class="n">ttest_ind</span><span class="p">(</span><span class="n">sample_A</span><span class="p">,</span> <span class="n">sample_B</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s1">&#39;larger&#39;</span><span class="p">)</span>
+        <span class="n">z_stat</span> <span class="o">=</span> <span class="n">ztest</span><span class="p">(</span><span class="n">sample_A</span><span class="p">,</span> <span class="n">sample_B</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s1">&#39;larger&#39;</span><span class="p">)</span>
+        <span class="n">p_diff</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">z_stat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span>  <span class="n">t_stat</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">p_diffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_diff</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mean</span><span class="p">(</span><span class="n">p_diffs</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">p_diffs</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Let’s see what happens if we assume that both A and B are identical exponentials (so the null hypothesis is true), and we very sample size from 10 to 500:</p>
+<div class="highlight"><pre><span></span><span class="n">p_diffs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">sample_size</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">500</span><span class="p">):</span>
+    <span class="n">p_diff</span> <span class="o">=</span> <span class="n">simulate_p_values</span><span class="p">(</span>
+        <span class="n">population_A</span><span class="o">=</span><span class="n">expon</span><span class="p">,</span>
+        <span class="n">population_B</span><span class="o">=</span><span class="n">expon</span><span class="p">,</span>
+        <span class="n">sample_size_A</span><span class="o">=</span><span class="n">sample_size</span><span class="p">,</span>
+        <span class="n">sample_size_B</span><span class="o">=</span><span class="n">sample_size</span>
+    <span class="p">)</span>
+    <span class="n">p_diffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_diff</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;sample size&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;|p z-test - p t-test|&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">p_diffs</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p>The output is (blue is mean, orange is maximum p-value difference across 100 A/B tests performed at each sample size):</p>
+<p><img src="/images/pz-same.png" alt="p-values for t and z tests" style="width: 400px;"/></p>
+<p>Note that:</p>
+<ul>
+<li>the difference tend to 0 with increasing sample size</li>
+<li>the p-value differences shown are on the order of 0.001, in real life we usually work with p-values between 0.01 and 0.05</li>
+</ul>
+<p>Let’s see what happens when the A/B test is actually working, B has better timespent on average (so the null hypothesis is false). To make the effect more visible, let’s pretend that timespent doubled. For this, we just have to change the lines:</p>
+<div class="highlight"><pre><span></span>    <span class="n">population_A</span><span class="o">=</span><span class="n">expon</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="n">population_B</span><span class="o">=</span><span class="n">expon</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+</pre></div>
+
+
+<p>in the above code. This yields:</p>
+<p><img src="/images/pz-different.png" alt="p-values for t and z tests" style="width: 400px;"/></p>
+<p>Comparing with the above (null hypothesis is true), in such a case the p-value difference drops even quicker. This makes sense: if there is an effect (null hypothesis is false), the tests return a lower p-value, so the difference will also be lower.</p>
   </div>
   <div class="tag-cloud">
     <p>
