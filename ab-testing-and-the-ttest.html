@@ -98,8 +98,10 @@
 <blockquote>
 <p>In probability and statistics, Student's t-distribution (or simply the t-distribution) is any member of a family of continuous probability distributions that arises when estimating the mean of a normally distributed population in situations where the sample size is small and the population standard deviation is unknown. If we take a sample of n observations from a normal distribution, then the t-distribution with $ \nu =n-1 $ degrees of freedom can be defined as the distribution of the location of the sample mean relative to the true mean, divided by the sample standard deviation, after multiplying by the standardizing term $ \sqrt {n} $. In this way, the t-distribution can be used to construct a confidence interval for the true mean.</p>
 </blockquote>
-<p>The most important thing to know is that, as $ N \rightarrow \infty $, the t-distribution becomes a normal distribution, and the final outcome of hypothesis testing, the p-value becomes identical for a t-test and a z-test. The difference effectively disappears between around $N=30-50$ sample size. So if you’re performing a timespent A/B test, and you have 100s or more samples in each bucket, the t-test and the z-test will yield numerically identical results.
-This is becauce at such sample sizes, the estimate of $s^2$ for $\sigma_p^2$ becomes really good for estimating the mean (it’s divided by $N$, so the importance goes down with increasing $N$).</p>
+<p>The most important thing to know is this: as $ N \rightarrow \infty $:
+- the t-distribution becomes a normal distribution
+- the final outcome of hypothesis testing, the p-value becomes identical for a t-test and a z-test.</p>
+<p>The difference effectively disappears between around $N=30-100$ sample size. So if you’re performing a timespent A/B test, and you have 100s or more samples in each bucket, the t-test and the z-test will yield numerically identical results. This is becauce at such sample sizes, the estimate of $s^2$ for $\sigma_p^2$ becomes really good for estimating the mean, and it’s divided by $N$, so the importance of the estimate goes down with increasing $N$.</p>
   </div>
   <div class="tag-cloud">
     <p>
