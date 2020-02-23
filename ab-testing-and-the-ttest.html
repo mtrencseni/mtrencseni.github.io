@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-1812620-2');
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="The t-test is a better version of z-tests for timespent data, because it explicitly models the uncertainty of the variance due to sampling." />
+<meta name="keywords" content="ab-testing">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="A/B testing and the t-test"/>
+<meta property="og:description" content="The t-test is a better version of z-tests for timespent data, because it explicitly models the uncertainty of the variance due to sampling."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/ab-testing-and-the-ttest.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-02-23 00:00:00+01:00"/>
+<meta property="article:modified_time" content="2020-02-23 00:00:00+01:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data"/>
+<meta property="article:tag" content="ab-testing"/>
+<meta property="og:image" content="/images/t-test-5-10.png"/>
+
+  <title>Bytepawn &ndash; A/B testing and the t-test</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="ab-testing-and-the-ttest">A/B testing and the t-test</h1>
+    <p>Posted on Sun 23 February 2020 in <a href="/category/data.html">Data</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>In the last post, I showed how to do <a href="http://bytepawn.com/ab-testing-and-the-ztest.html">A/B testing with the z-test</a>. I used two examples:
+- conversions, ie. proportions ($X_A$ out of $N_A$ converted)
+- timespents (timespents for A were $x_i, x_2 ... X_N$)</p>
+<p>In this post, let’s concentrate on timespent data. The t-test is a better version of z-tests for timespent data, because it explicitly models the uncertainty of the variance due to sampling. The <a href="https://en.wikipedia.org/wiki/Student%27s_t-test">Wikipedia page for Student’s t-test</a>:</p>
+<blockquote>
+<p>The t-test is any statistical hypothesis test in which the test statistic follows a Student's t-distribution under the null hypothesis. A t-test is most commonly applied when the test statistic would follow a normal distribution if the value of a scaling term in the test statistic were known. When the scaling term is unknown and is replaced by an estimate based on the data, the test statistics (under certain conditions) follow a Student's t distribution. The t-test can be used, for example, to determine if the means of two sets of data are significantly different from each other.</p>
+</blockquote>
+<p><a href="https://github.com/mtrencseni/playground/blob/master/AB%20testing%20and%20the%20ttest.ipynb">The code shown below is up on Github.</a></p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/ab-testing.html">ab-testing</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-1812620-2');
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "A/B testing and the t-test",
+  "headline": "A/B testing and the t-test",
+  "datePublished": "2020-02-23 00:00:00+01:00",
+  "dateModified": "2020-02-23 00:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/ab-testing-and-the-ttest.html",
+  "description": "The t-test is a better version of z-tests for timespent data, because it explicitly models the uncertainty of the variance due to sampling."
+}
+</script></body>
+</html>
