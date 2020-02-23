@@ -109,6 +109,13 @@
 <h2>Confusing advice</h2>
 <p>When googling for “z test vs t test”, a lot of advice goes like “use the t-test if you don’t know the variance” and “use the t-test for $N&lt;30$. This is not incorrect, but it’s a bit confusing.</p>
 <p>For A/B testing, a clear and concise statement is: <strong>in A/B testing you never know the population mean, you’re just estimating it, so always use the t-test. For $N&gt;30-100$, the t-test numerically yields the same results as the z-test, there's no difference.</strong></p>
+<h2>The normal distribution vs the t-distribution</h2>
+<p>As in the previous posts, we use the <a href="https://docs.scipy.org/doc/scipy/reference/stats.html">scipy.stats</a> module, which has pdfs for both normal and t-distributions. Compared to a standard normal distribution, the t-distribution has an additional parameter called $\nu$ or degrees of freedom (dof). When using the t-distribution on sample size $N$, $ \nu = N-1 $. Let’s plot a standard normal (blue) and t’s with $\nu=5$ (green) and $\nu=10$ (orange):</p>
+<p><img src="/images/t-test-5-10.png" alt="Normal distribution vs t-distribution" style="width: 400px;"/></p>
+<p>Note how the t-distributions have a bell shape like the normal, but have lower maximum and fatter tails.</p>
+<p>Next, let’s plot a standard normal (blue) and a t with $\nu=100$ (green):</p>
+<p><img src="/images/t-test-100.png" alt="Normal distribution vs t-distribution" style="width: 400px;"/></p>
+<p>There is effectively no difference between the distributions. This is one way to show that even at a moderate sample size of $N=100$, it’s hard to tell the difference.</p>
   </div>
   <div class="tag-cloud">
     <p>
