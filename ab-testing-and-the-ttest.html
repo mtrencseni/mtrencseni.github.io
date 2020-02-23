@@ -102,6 +102,9 @@
 - the t-distribution becomes a normal distribution
 - the final outcome of hypothesis testing, the p-value becomes identical for a t-test and a z-test.</p>
 <p>The difference effectively disappears between around $N=30-100$ sample size. So if you’re performing a timespent A/B test, and you have 100s or more samples in each bucket, the t-test and the z-test will yield numerically identical results. This is becauce at such sample sizes, the estimate of $s^2$ for $\sigma_p^2$ becomes really good for estimating the mean, and it’s divided by $N$, so the importance of the estimate goes down with increasing $N$.</p>
+<h2>Confusing advice</h2>
+<p>When googling for “z test vs t test”, a lot of advice goes like “use the t-test if you don’t know the variance” and “use the t-test for $N&lt;30$. This is not incorrect, but it’s a bit confusing.</p>
+<p>For A/B testing, a clear and concise statement is: <strong>in A/B testing you never know the population mean, you’re just estimating it, so always use the t-test. For $N&gt;30-100$, the t-test numerically yields the same results as the z-test, there's no difference.</strong></p>
   </div>
   <div class="tag-cloud">
     <p>
