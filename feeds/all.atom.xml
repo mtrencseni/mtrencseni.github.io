@@ -24,7 +24,7 @@
 &lt;p&gt;Next, let’s plot a standard normal (blue) and a t with $\nu=100$ (green):&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/t-test-100.png" alt="Normal distribution vs t-distribution" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;p&gt;At a moderate sample size of $N=100$ there is effectively no difference between the distributions.&lt;/p&gt;
-&lt;h2&gt;The t-test becomes the z-test at $ N = 50-100 $&lt;/h2&gt;
+&lt;h2&gt;The t-test becomes the z-test at $ N = 50 $&lt;/h2&gt;
 &lt;p&gt;As $ N \rightarrow \infty $:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;the t-distribution becomes a normal distribution&lt;/li&gt;
