@@ -64,7 +64,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;The output is (blue is mean, orange is maximum p-value difference across 100 A/B tests performed at each sample size):&lt;/p&gt;
+&lt;p&gt;The output is (blue is mean, orange is maximum absolute p-value difference across 100 A/B tests performed at each sample size):&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/pz-same.png" alt="p-values for t and z tests" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Note that:&lt;/p&gt;
 &lt;ul&gt;
