@@ -163,8 +163,6 @@
 <p>in the above code. This yields:</p>
 <p><img src="/images/pz-different.png" alt="p-values for t and z tests" style="width: 400px;"/></p>
 <p>Comparing with the above (null hypothesis is true), in such a case the p-value difference drops even quicker. This makes sense: if there is an effect (null hypothesis is false), the tests return a lower p-value, so the difference will also be lower.</p>
-<h2>Conversions</h2>
-<p>Are t-tests also better then z-tests for conversions? When dealing with conversions, we always know the underlying distribution is a <a href="https://en.wikipedia.org/wiki/Binomial_distribution">binomial</a>, with variance $np(1-p)$. But we don’t know $p$, that’s what we’re trying to measure. In any case, for conversions, the better solution versus the z-test is not the t-test, it’s the $\chi^2$-test, which I’ll cover in the next post. The reason the $\chi^2$-test is better than both the z and and t-test is that is explicitly models the binomial, and the fact that p is bounded between 0 and 1 (and the difference between A and B is bounded between -1 and 1).</p>
 <h2>Conclusion</h2>
 <p>In a timespent A/B test scenario, we should always use the t-test. Both the t and z-tests are a library call, so there’s no difference in effort. For real-life high sample size use-cases, numerically there’s no difference in the p-values computed. However, the z-test is a much simpler mental model, as it models the test statistic as the intuitive normal distribution and there’s no degrees of freedom involved like in the t-distribution. So, my rule of thumb: <strong>use the t-test, pretend it’s a z-test</strong>.</p>
   </div>
