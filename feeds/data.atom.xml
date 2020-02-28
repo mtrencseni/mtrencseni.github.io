@@ -198,6 +198,9 @@ Z-test p = 0.240
 &lt;/pre&gt;&lt;/div&gt;
 
 
+&lt;h2&gt;Degrees of freedom&lt;/h2&gt;
+&lt;p&gt;When we're doing hypothesis testing, we're computing a p value. The p value is the probability that we'd get the measured outcome, or more extreme outcomes, assuming the null hypothesis is true. There is one caveat here, hidden in the "or more extreme": the statistically correct way to evaluate this "more extreme" part is by keeping the marginals (see above), both row and column marginals fixed. Ie. what are all the ways (their probabilities) that we can put different numbers in the contingency table, but while keeping the marginals fixed. Although the $\chi^2$ is not calculating this probability directly, thanks to the CLT, this is in fact what it's approximating in the $N-&amp;gt;\infty$ limit. And given a $F x C$ table with the marginals fixed, you can only change $(F-1)(C-1)$ numbers freely ("degrees of freedom", the rest are fixed by the marginals.&lt;/p&gt;
+&lt;p&gt;In the next post, I will talk about &lt;a href="https://en.wikipedia.org/wiki/Fisher%27s_exact_test"&gt;Fisher's exact test&lt;/a&gt;, which will give more intuition about this, because that test explicitly calculates this probability.&lt;/p&gt;
 &lt;h2&gt;Conclusion: usage and limitations&lt;/h2&gt;
 &lt;p&gt;&lt;strong&gt;Z-test.&lt;/strong&gt; In the 2x2 case, the $\chi^2$ yields exactly the same results as a two-tailed Z-test (or t-test).
 &lt;strong&gt;Central limit theorem.&lt;/strong&gt; Like the Z-test, we need enough sample size for the normal approximation to be correct. I would not be comfortable unless each cell int he contingency table is at least $X&amp;gt;100$.
