@@ -297,7 +297,7 @@ Z-test p = 0.240
 <p>In the next post, I will talk about <a href="https://en.wikipedia.org/wiki/Fisher%27s_exact_test">Fisher's exact test</a>, which will give more intuition about this, because that test explicitly calculates this probability.</p>
 <h2>Conclusion: usage and limitations</h2>
 <p><strong>Z-test.</strong> In the 2x2 case, the $\chi^2$ test yields exactly the same results as a two-tailed Z-test (or t-test).</p>
-<p><strong>Central limit theorem.</strong> Like the Z-test, we need enough sample size for the normal approximation to be correct. I would not be comfortable unless each cell int he contingency table is at least $X&gt;100$.</p>
+<p><strong>Central Limit Theorem.</strong> Like the Z-test, we need enough sample size for the normal approximation to be correct. I would not be comfortable unless each cell int he contingency table is at least $X&gt;100$.</p>
 <p><strong>Multiple funnels, multiple outcomes.</strong> Unlike the Z-test, the $\chi^2$ test can test multiple funnels and multiple outcomes at the same time.</p>
 <p><strong>One-tailed distribution.</strong> Unlike the Z-test, the $\chi^2$ test is directionless (technically one-tailed, but corresponds to the two-tailed Z-test in the 2x2 case).</p>
 <p><strong>Degrees of freedom.</strong> For a test with F funnels and C outcomes, if you’re doing it manually, you have to use the $k=(F-1)(C-1)$ degree of freedom $\chi^2$ distribution to look up the p-value.</p>
