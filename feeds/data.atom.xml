@@ -48,8 +48,8 @@
 &lt;h2&gt;The $\chi^2$ test&lt;/h2&gt;
 &lt;p&gt;For A/B testing, we can think of the $\chi^2$ test as a generalized Z-test. Generalized in the following sense:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;each of the funnels can have multiple outcomes, not just conversion and no-conversion; eg. imagine a funnel with multiple drop-offs (multiple mutually exclusive non-conversions) and multiple conversions such as buying a Monthly or an Annual license.&lt;/li&gt;
-&lt;li&gt;we can test more than 2 funnel versions at once, so we’re doing an A/B/C/D.. test.&lt;/li&gt;
+&lt;li&gt;each of the funnels can have multiple outcomes, not just &lt;strong&gt;Conversion&lt;/strong&gt; and &lt;strong&gt;No Conversion&lt;/strong&gt;. Eg. imagine a funnel with multiple drop-off events and multiple conversions such as buying a Monthly or an Annual license (all of them mutually exclusive).&lt;/li&gt;
+&lt;li&gt;we can test more than 2 funnel versions at once, so we can run an A/B/C/D.. test.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Let’s see this in action, eg. we have 3 outcomes and 4 funnels:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;funnels&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
