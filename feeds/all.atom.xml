@@ -165,7 +165,7 @@ Z-test p = 0.240
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;If you compare the formulas above with the formulas from the Z-test for a conversion test in the previous post it, works out that one test statistic is the square of the other one, and the $\chi^2$ distribution is the square of the standard normal.&lt;/p&gt;
+&lt;p&gt;If you compare the $\chi^2$ formulas with the z-test formulas from the previous post, it works out that $z^2 = \chi^2$.&lt;/p&gt;
 &lt;h2&gt;One tailed vs two tailed&lt;/h2&gt;
 &lt;p&gt;In the case of the z-test (and t-test), we have a choice between a one-tailed and a two-tailed test, to decide whether we want the test to go off for deviations in just one or both directions. In the case of the $\chi^2$ test, we do not have a choice:&lt;/p&gt;
 &lt;ul&gt;
