@@ -131,9 +131,9 @@
 
 
 &lt;h2&gt;Intuition&lt;/h2&gt;
-&lt;p&gt;The intuition behind the $\chi^2$ is this: if the null hypothesis is true, then all rows should follow the same conversion ratios, which is also the marginal conversion ratio vector. When we subtract the expected number from the actual number (and normalize), similar to the z-test, we get a standard normal variable. Since we have multiple cells, we need to add these variables to get an overall statistic, but we don’t want positive and negative fluctuations to cancel out. Hence we first square, and then add. So the $\chi^2$ is a sum of squares of standard normals. This is exactly what the $\chi^2$ distribution is: a $\chi^2$ distribution with degree of freedom $k$ is the result of adding up $k$ independent standard normal variables squared. In the subsequent discussion we will get more intuition why the degree of freedom is $k=(F-1)(C-1)$. Note that the standard normal goes from $-\infty$ to $\infty$, but the $\chi^2$, being its square, goes from $0$ to $\infty$. This has implications wrt one-sided vs two-sided testing, see later.&lt;/p&gt;
+&lt;p&gt;The intuition behind the $\chi^2$ is this: if the null hypothesis is true, then all rows should follow the same conversion ratios, which is also the marginal conversion ratio vector. When we subtract the expected number from the actual number (and normalize), similar to the Z-test, we get a standard normal variable. Since we have multiple cells, we need to add these variables to get an overall statistic, but we don’t want positive and negative fluctuations to cancel out. Hence we first square, and then add. So the $\chi^2$ is a sum of squares of standard normals. This is exactly what the $\chi^2$ distribution is: a $\chi^2$ distribution with degree of freedom $k$ is the result of adding up $k$ independent standard normal variables squared. In the subsequent discussion we will get more intuition why the degree of freedom is $k=(F-1)(C-1)$. Note that the standard normal goes from $-\infty$ to $\infty$, but the $\chi^2$, being its square, goes from $0$ to $\infty$. This has implications for one tailed vs two tailed testing, see later.&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/chi2.png" alt="Chi-squared distribution" style="width: 400px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Finally, in the 2x2 case, why is this exactly the same as the z-test? The answer is simple: in the 2x2 case, the degree of freedom is 1, the $\chi^2$ test is doing exactly the same thing as a 2-sided Z-test, and in fact the $\chi^2$ test statistic in this case is $z^2$. We can see this numerically:&lt;/p&gt;
+&lt;p&gt;In the 2x2 case, why is this exactly the same as the z-test? The answer is simple: in the 2x2 case, the degree of freedom is 1, the $\chi^2$ test is doing exactly the same thing as a 2-sided Z-test, and in fact the $\chi^2$ test statistic in this case is $z^2$. We can see this numerically:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;funnels&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
     &lt;span class="p"&gt;[[&lt;/span&gt;&lt;span class="mf"&gt;0.80&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;0.20&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="mf"&gt;0.6&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="c1"&gt;# the first vector is the actual outcomes,&lt;/span&gt;
     &lt;span class="p"&gt;[[&lt;/span&gt;&lt;span class="mf"&gt;0.80&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;0.20&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="mf"&gt;0.4&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="c1"&gt;# the second is the traffic split&lt;/span&gt;
@@ -160,16 +160,16 @@
 Chi-sq test statistic = 1.378
 Chi-sq p = 0.240
 Z-test z = 1.174
-Z-test z^2 = 1.378 # NOTICE: it’s the same as the Chi-sq test statistic
+Z-test z^2 = 1.378 # z^2 is the same as the Chi-sq test statistic
 Z-test p = 0.240
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;If you compare the $\chi^2$ formulas with the z-test formulas from the previous post, it works out that $z^2 = \chi^2$.&lt;/p&gt;
+&lt;p&gt;If you compare the $\chi^2$ formulas with the Z-test formulas from the previous post, it works out that $z^2 = \chi^2$.&lt;/p&gt;
 &lt;h2&gt;One tailed vs two tailed&lt;/h2&gt;
-&lt;p&gt;In the case of the z-test (and t-test), we have a choice between a one-tailed and a two-tailed test, to decide whether we want the test to go off for deviations in just one or both directions. In the case of the $\chi^2$ test, we do not have a choice:&lt;/p&gt;
+&lt;p&gt;In the case of the Z-test (and t-test), we have a choice between a one tailed and a two tailed test, dependening on if we want the test to go off for deviations in just one or both directions. In the case of the $\chi^2$ test, we do not have a choice:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;the $\chi^2$ distribution is asymmetric (from $0$ to $\infty$), so technically the $\chi^2$ test is always one-tailed&lt;/li&gt;
+&lt;li&gt;the $\chi^2$ distribution is asymmetric (from $0$ to $\infty$), so technically the $\chi^2$ test is always one tailed&lt;/li&gt;
 &lt;li&gt;however, since it’s the squared of normals, both tails of the normal are folded together, so it corresponds to a two-tailed Z-test [in the 2x2 case]&lt;/li&gt;
 &lt;li&gt;this is not just a mathematical artefact; when dealing with multiple conversion events, there is no such thing as “positive” and “negative” directions; for example, in a 2x3 conversion example, if the baseline is $80-20-20$ for &lt;strong&gt;No Conversion - Monthly - Annual&lt;/strong&gt;, and our test comes out at $79-21-20$ or $79-20-21$, which is “positive” and “negative”? If both are “positive”, then merge the conversions, and do a 2x2 one-tailed Z-test (or t-test).&lt;/li&gt;
 &lt;/ul&gt;
