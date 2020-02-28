@@ -244,7 +244,7 @@ Z-test p = 0.240
 <ul>
 <li>the $\chi^2$ distribution is asymmetric (from $0$ to $\infty$), so technically the $\chi^2$ test is always one-tailed</li>
 <li>however, since it’s the squared of normals, both tails of the normal are folded together, so it corresponds to a two-tailed Z-test [in the 2x2 case]</li>
-<li>this is not just a mathematical artefact; when dealing with multiple conversion events, there is no such thing as “positive” and “negative” directions; for example, in a 2x3 conversion example, if the baseline is 80-20-20 for No Conversion - Monthly - Annual, and our test comes out at 79-21-20 or 79-20-21, which is “positive” and “negative”? If both are “positive”, then merge the conversions, and do a 2x2 Z one-tailed Z-test (or t-test).</li>
+<li>this is not just a mathematical artefact; when dealing with multiple conversion events, there is no such thing as “positive” and “negative” directions; for example, in a 2x3 conversion example, if the baseline is $80-20-20$ for <strong>No Conversion - Monthly - Annual</strong>, and our test comes out at $79-21-20$ or $79-20-21$, which is “positive” and “negative”? If both are “positive”, then merge the conversions, and do a 2x2 one-tailed Z-test (or t-test).</li>
 </ul>
 <p>We can check this simply:</p>
 <div class="highlight"><pre><span></span><span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
