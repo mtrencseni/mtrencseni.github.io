@@ -82,7 +82,7 @@
     <p>Posted on Fri 28 February 2020 in <a href="/category/data.html">Data</a></p>
   </header>
   <div>
-    <p>In an ealier post, I wrote about <a href="http://bytepawn.com/ab-testing-and-the-ztest.html">A/B testing conversion data with the Z-test</a>. The Chi-squared test is a more general test for conversion data, because it can work with multiple conversion (and non-conversion) events, and multiple funnels being tested (A/B/C/D/..).</p>
+    <p>In an ealier post, I wrote about <a href="http://bytepawn.com/ab-testing-and-the-ztest.html">A/B testing conversion data with the Z-test</a>. The $\chi^2$ test is a more general test for conversion data, because it can work with multiple conversion (and non-conversion) events, and multiple funnels being tested (A/B/C/D/..).</p>
 <p>Before we go on, let’s use a $\chi^2$ for a simple A/B conversion test and compare the results with the Z-test and the <a href="http://bytepawn.com/ab-testing-and-the-ttest.html">t-test</a> (two-taileds). First, a Monte Carlo algorithm to simulate A/B tests:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">choice</span><span class="p">(</span><span class="n">ps</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ps</span><span class="p">),</span> <span class="n">p</span><span class="o">=</span><span class="n">ps</span><span class="p">)</span>
@@ -98,7 +98,7 @@
 </pre></div>
 
 
-<p>Next, let’s pretend we’re running a conversion A/B test that’s not working on N=10,000, and use the <a href="https://www.statsmodels.org/">statsmodel</a> and <a href="https://docs.scipy.org/doc/scipy/reference/stats.html">scipy stats</a> to run all three tests on the results:</p>
+<p>Next, let’s pretend we’re running a conversion A/B test that’s not working on $N=10,000$, and use the <a href="https://www.statsmodels.org/">statsmodel</a> and <a href="https://docs.scipy.org/doc/scipy/reference/stats.html">scipy stats</a> to run all three tests on the results:</p>
 <div class="highlight"><pre><span></span><span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">[[</span><span class="mf">0.80</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">],</span> <span class="mf">0.6</span><span class="p">],</span> <span class="c1"># the first vector element is the actual outcomes, </span>
     <span class="p">[[</span><span class="mf">0.80</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">],</span> <span class="mf">0.4</span><span class="p">],</span> <span class="c1"># the second is the traffic split</span>
@@ -117,7 +117,42 @@
 </pre></div>
 
 
-<p>All three yield the same p-value. We’re not surprised for the Z and the t-test, because as we saw in the previous post, above $N=100$, the t-distribution is a normal distribution, and the two yield the same p-value. For this simple case (two outcomes: conversion or no conversion, and two funnels: A and B), the $\Chi^2$ is also identical to the Z-test, with the same limitation (below $N=100$ not reliable).</p>
+<p>All three yield the same p-value. We’re not surprised for the Z and the t-test, because as we saw in the previous post, above $N=100$, the t-distribution is a normal distribution, and the two yield the same p-value. For this simple case (two outcomes: conversion or no conversion, and two funnels: A and B), the $\chi^2$ is also identical to the Z-test, with the same limitation (below $N=100$ not reliable).</p>
+<h2>The $\chi^2$ test</h2>
+<p>For A/B testing, we can think of the $\chi^2$ test as a generalized Z-test. Generalized in the following sense:</p>
+<ul>
+<li>each of the funnels can have multiple outcomes, not just conversion and no-conversion; eg. imagine a funnel with multiple drop-offs (multiple mutually exclusive non-conversions) and multiple conversions such as buying a Monthly or an Annual license.</li>
+<li>we can test more than 2 funnel versions at once, so we’re doing an A/B/C/D.. test.</li>
+</ul>
+<p>Let’s see this in action, eg. we have 3 outcomes and 4 funnels:</p>
+<div class="highlight"><pre><span></span><span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[[</span><span class="mf">0.80</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">],</span> <span class="mf">0.6</span><span class="p">],</span> <span class="c1"># the first vector is the actual outcomes,</span>
+    <span class="p">[[</span><span class="mf">0.80</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">],</span> <span class="mf">0.2</span><span class="p">],</span> <span class="c1"># the second is the traffic split</span>
+    <span class="p">[[</span><span class="mf">0.79</span><span class="p">,</span> <span class="mf">0.11</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">],</span> <span class="mf">0.1</span><span class="p">],</span>
+    <span class="p">[[</span><span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">],</span> <span class="mf">0.1</span><span class="p">],</span>
+<span class="p">]</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="mi">1000</span>
+
+<span class="n">observations</span> <span class="o">=</span> <span class="n">simulate_abtest</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Observations:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">observations</span><span class="p">)</span>
+<span class="n">ch</span> <span class="o">=</span> <span class="n">chi2_contingency</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">correction</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Chi-sq p = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ch</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+
+
+<p>Prints something like:</p>
+<div class="highlight"><pre><span></span><span class="n">Observations</span><span class="p">:</span>
+ <span class="p">[[</span><span class="mf">4748.</span>  <span class="mf">595.</span>  <span class="mf">573.</span><span class="p">]</span>
+ <span class="p">[</span><span class="mf">1657.</span>  <span class="mf">197.</span>  <span class="mf">231.</span><span class="p">]</span>
+ <span class="p">[</span> <span class="mf">807.</span>   <span class="mf">98.</span>  <span class="mf">103.</span><span class="p">]</span>
+ <span class="p">[</span> <span class="mf">710.</span>  <span class="mf">195.</span>   <span class="mf">86.</span><span class="p">]]</span>
+<span class="n">Chi</span><span class="o">-</span><span class="n">sq</span> <span class="n">p</span> <span class="o">=</span> <span class="mf">0.000</span>
+</pre></div>
+
+
+<p>What’s happening under the hood? Using the above 4x3 outcome table, first we construct the contingency table. We simply add the numbers row-wise and column-wise and write them at the end / bottom:</p>
+<p><img src="/images/contingency_table.PNG" alt="Contingency table" style="width: 400px;"/></p>
+<p>Then, for each obsevation cell, we calculate the expected value. Expected here means according to the null hypothesis, which is that all funnels are the same; our best guess for the null hypothesis are the blended bottom numbers: $7922/10000$ for no conversion, $195/10000$, etc. So for Funnel A, which has 5916 samples, our expected no conversion number would be $5916*7922/10000=4686.6$. We do this for each cell. Then we subtract the actual observation from the expected, square it, and divide by the expected, like $(4748-4686.6)^2/4686.6=0.8$. We do this for each cell, and sum up the numbers and we get the $\chi^2$ test statistic. We can then look this up in a $\chi^2$ distribution table. We have to use a degree of freedom of $(F-1)(C-1)$, where $F$ is the number of funnels, $C$ is the number of (no) conversion events, $F=4, C=3$ above.</p>
   </div>
   <div class="tag-cloud">
     <p>
