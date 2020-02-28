@@ -170,7 +170,7 @@ Z-test p = 0.240
 &lt;p&gt;In the case of the Z-test (and t-test), we have a choice between a one tailed and a two tailed test, dependening on if we want the test to go off for deviations in just one or both directions. In the case of the $\chi^2$ test, we do not have a choice:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;the $\chi^2$ distribution is asymmetric (from $0$ to $\infty$), so technically the $\chi^2$ test is always one tailed&lt;/li&gt;
-&lt;li&gt;however, since it’s the squared of normals, both tails of the normal are folded together, so it corresponds to a two-tailed Z-test [in the 2x2 case]&lt;/li&gt;
+&lt;li&gt;however, since it’s the square of normals, both tails of the normal are folded together, so it corresponds to a two-tailed Z-test [in the 2x2 case]&lt;/li&gt;
 &lt;li&gt;this is not just a mathematical artefact; when dealing with multiple conversion events, there is no such thing as “positive” and “negative” directions; for example, in a 2x3 conversion example, if the baseline is $80-20-20$ for &lt;strong&gt;No Conversion - Monthly - Annual&lt;/strong&gt;, and our test comes out at $79-21-20$ or $79-20-21$, which is “positive” and “negative”? If both are “positive”, then merge the conversions, and do a 2x2 one-tailed Z-test (or t-test).&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;We can check this simply:&lt;/p&gt;
