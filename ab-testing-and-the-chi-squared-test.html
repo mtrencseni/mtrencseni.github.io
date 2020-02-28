@@ -83,6 +83,7 @@
   </header>
   <div>
     <p>In an ealier post, I wrote about <a href="http://bytepawn.com/ab-testing-and-the-ztest.html">A/B testing conversion data with the Z-test</a>. The $\chi^2$ test is a more general test for conversion data, because it can work with multiple conversion events and multiple funnels being tested (A/B/C/D/..).</p>
+<p><a href="https://github.com/mtrencseni/playground/blob/master/AB%20testing%20and%20the%20Chi-squared%20test.ipynb">The code shown below is up on Github.</a></p>
 <p>Before we go on, let’s use a $\chi^2$ test for a simple A/B conversion use-case and compare the results with the Z-test and the <a href="http://bytepawn.com/ab-testing-and-the-ttest.html">t-test</a> (both two taileds). First, a Monte Carlo algorithm to simulate A/B tests:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">choice</span><span class="p">(</span><span class="n">ps</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ps</span><span class="p">),</span> <span class="n">p</span><span class="o">=</span><span class="n">ps</span><span class="p">)</span>
