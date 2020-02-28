@@ -34,7 +34,17 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;All three yield the same p-value. We’re not surprised for the Z and the t-test, because as we saw in the previous post, above $N=100$, the t-distribution is a normal distribution, and the two yield the same p-value. For this simple case (two outcomes: conversion or no conversion, and two funnels: A and B), the $\chi^2$ is also identical to the Z-test, with the same limitation (below $N=100$ not reliable).&lt;/p&gt;
+&lt;p&gt;All three yield the same p-value:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;Observations&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+ &lt;span class="p"&gt;[[&lt;/span&gt;&lt;span class="mf"&gt;4825.&lt;/span&gt; &lt;span class="mf"&gt;1183.&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+ &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mf"&gt;3211.&lt;/span&gt;  &lt;span class="mf"&gt;781.&lt;/span&gt;&lt;span class="p"&gt;]]&lt;/span&gt;
+&lt;span class="n"&gt;Chi&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;sq&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.876&lt;/span&gt;
+&lt;span class="n"&gt;Z&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;test&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.876&lt;/span&gt;
+&lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;test&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.876&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We’re not surprised for the Z and the t-test, because as we saw in the previous post, above $N=100$, the t-distribution is a normal distribution, and the two yield the same p-value. For this simple case (two outcomes: conversion or no conversion, and two funnels: A and B), the $\chi^2$ is also identical to the Z-test, with the same limitation (below $N=100$ not reliable).&lt;/p&gt;
 &lt;h2&gt;The $\chi^2$ test&lt;/h2&gt;
 &lt;p&gt;For A/B testing, we can think of the $\chi^2$ test as a generalized Z-test. Generalized in the following sense:&lt;/p&gt;
 &lt;ul&gt;
