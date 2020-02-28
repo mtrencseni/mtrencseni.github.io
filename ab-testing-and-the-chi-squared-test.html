@@ -160,9 +160,9 @@
 </pre></div>
 
 
-<p>What’s happening under the hood? Using the above 4x3 outcome table, first we construct the contingency table. We simply add the numbers row-wise and column-wise and write them at the end / bottom:</p>
+<p>What’s happening under the hood? Using the above 4x3 outcome table, first we construct the contingency table. We simply add the numbers row-wise and column-wise and write them at the right and bottom. These are called the marginals:</p>
 <p><img src="/images/contingency_table.PNG" alt="Contingency table" style="width: 600px;"/></p>
-<p>Then, for each obsevation cell, we calculate the expected value. Expected here means according to the null hypothesis, which is that all funnels are the same; our best guess for the null hypothesis are the blended bottom numbers: $7922/10000$ for no conversion, $195/10000$, etc. So for Funnel A, which has 5916 samples, our expected no conversion number would be $5916*7922/10000=4686.6$. We do this for each cell. Then we subtract the actual observation from the expected, square it, and divide by the expected, like $(4748-4686.6)^2/4686.6=0.8$. We do this for each cell, and sum up the numbers and we get the $\chi^2$ test statistic. We can then look this up in a $\chi^2$ distribution table. We have to use a degree of freedom of $k=(F-1)(C-1)$, where $F$ is the number of funnels, $C$ is the number of (no) conversion events, $F=4, C=3$ above.</p>
+<p>Then, for each obsevation cell, we calculate the expected value. Expected here means according to the null hypothesis, which is that all funnels are the same. Our best guess for the null hypothesis are the blended bottom numbers: $7922/10000$ for <strong>No Conversion</strong>, $195/10000$ for <strong>Monthly</strong>, etc. So for Funnel A, which has 5916 samples, our expected <strong>No Conversion</strong> number is $5916*7922/10000=4686.6$. We do this for each cell. Then we subtract the actual observation from the expected, square it, and divide by the expected, like $(4748-4686.6)^2/4686.6=0.8$. We do this for each cell, and sum up the numbers to we get the $\chi^2$ test statistic. We then look this up in a $\chi^2$ distribution table to get a p value. We have to use a degree of freedom of $k=(F-1)(C-1)$, where $F$ is the number of funnels, $C$ is the number of conversion events, $F=4, C=3$ above.</p>
 <h2>Implementation</h2>
 <p>This is so simple, we can implement it ourselves:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">chi_squared</span><span class="p">(</span><span class="n">observations</span><span class="p">):</span>
@@ -180,7 +180,7 @@
 </pre></div>
 
 
-<p>We can verify we calculate the same test statistic and p-value as the scipy library function:</p>
+<p>We can verify we calculate the same test statistic and p value as the library function:</p>
 <div class="highlight"><pre><span></span><span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">[[</span><span class="mf">0.80</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">],</span> <span class="mf">0.6</span><span class="p">],</span> <span class="c1"># the first vector is the actual outcomes,</span>
     <span class="p">[[</span><span class="mf">0.80</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">],</span> <span class="mf">0.2</span><span class="p">],</span> <span class="c1"># the second is the traffic split</span>
@@ -192,11 +192,11 @@
 <span class="n">observations</span> <span class="o">=</span> <span class="n">simulate_abtest</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Observations:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">observations</span><span class="p">)</span>
 <span class="n">ch_scipy</span> <span class="o">=</span> <span class="n">chi2_contingency</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">correction</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Statsmodel chi-sq test statistic = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ch_scipy</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Statsmodel chi-sq p = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ch_scipy</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 <span class="n">ch_our</span> <span class="o">=</span> <span class="n">chi_squared</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Our chi-sq test statistic = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ch_our</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Our chi-sq p = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ch_our</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Statsmodel chi-sq test statistic = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ch_scipy</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Our chi-sq test statistic        = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ch_our</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Statsmodel chi-sq p = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ch_scipy</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Our chi-sq p        = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ch_our</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
 
 
@@ -207,9 +207,9 @@
  <span class="p">[</span> <span class="mf">767.</span>  <span class="mf">100.</span>   <span class="mf">98.</span><span class="p">]</span>
  <span class="p">[</span> <span class="mf">824.</span>   <span class="mf">84.</span>  <span class="mf">109.</span><span class="p">]]</span>
 <span class="n">Statsmodel</span> <span class="n">chi</span><span class="o">-</span><span class="n">sq</span> <span class="n">test</span> <span class="n">statistic</span> <span class="o">=</span> <span class="mf">7.324</span>
+<span class="n">Our</span> <span class="n">chi</span><span class="o">-</span><span class="n">sq</span> <span class="n">test</span> <span class="n">statistic</span>        <span class="o">=</span> <span class="mf">7.324</span>
 <span class="n">Statsmodel</span> <span class="n">chi</span><span class="o">-</span><span class="n">sq</span> <span class="n">p</span> <span class="o">=</span> <span class="mf">0.292</span>
-<span class="n">Our</span> <span class="n">chi</span><span class="o">-</span><span class="n">sq</span> <span class="n">test</span> <span class="n">statistic</span> <span class="o">=</span> <span class="mf">7.324</span>
-<span class="n">Our</span> <span class="n">chi</span><span class="o">-</span><span class="n">sq</span> <span class="n">p</span> <span class="o">=</span> <span class="mf">0.292</span>
+<span class="n">Our</span> <span class="n">chi</span><span class="o">-</span><span class="n">sq</span> <span class="n">p</span>        <span class="o">=</span> <span class="mf">0.292</span>
 </pre></div>
 
 
