@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Data</title><link href="/" rel="alternate"></link><link href="/feeds/data.atom.xml" rel="self"></link><id>/</id><updated>2020-02-28T00:00:00+01:00</updated><entry><title>A/B testing and the Chi-squared test</title><link href="/ab-testing-and-the-chi-squared-test.html" rel="alternate"></link><published>2020-02-28T00:00:00+01:00</published><updated>2020-02-28T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-02-28:/ab-testing-and-the-chi-squared-test.html</id><summary type="html">&lt;p&gt;In an ealier post, I wrote about A/B testing conversion data with the Z-test. The Chi-squared test is a more general test for conversion data, because it can work with multiple conversion events and multiple funnels being tested (A/B/C/D/..).&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/chi2.png" alt="Chi-squared distribution" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;p&gt;In an ealier post, I wrote about &lt;a href="http://bytepawn.com/ab-testing-and-the-ztest.html"&gt;A/B testing conversion data with the Z-test&lt;/a&gt;. The $\chi^2$ test is a more general test for conversion data, because it can work with multiple conversion events and multiple funnels being tested (A/B/C/D/..).&lt;/p&gt;
-&lt;p&gt;Before we go on, let’s use a $\chi^2$ test for a simple A/B conversion use-case and compare the results with the Z-test and the &lt;a href="http://bytepawn.com/ab-testing-and-the-ttest.html"&gt;t-test&lt;/a&gt; (both two-taileds). First, a Monte Carlo algorithm to simulate A/B tests:&lt;/p&gt;
+&lt;p&gt;Before we go on, let’s use a $\chi^2$ test for a simple A/B conversion use-case and compare the results with the Z-test and the &lt;a href="http://bytepawn.com/ab-testing-and-the-ttest.html"&gt;t-test&lt;/a&gt; (both two taileds). First, a Monte Carlo algorithm to simulate A/B tests:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;choice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ps&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;choice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ps&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ps&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
@@ -48,7 +48,7 @@
 &lt;h2&gt;The $\chi^2$ test&lt;/h2&gt;
 &lt;p&gt;For A/B testing, we can think of the $\chi^2$ test as a generalized Z-test. Generalized in the following sense:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;each of the funnels can have multiple outcomes, not just &lt;strong&gt;Conversion&lt;/strong&gt; and &lt;strong&gt;No Conversion&lt;/strong&gt;. Eg. imagine a funnel with multiple drop-off events and multiple conversions such as buying a Monthly or an Annual license (all of them mutually exclusive).&lt;/li&gt;
+&lt;li&gt;each of the funnels can have multiple outcomes, not just &lt;strong&gt;Conversion&lt;/strong&gt; and &lt;strong&gt;No Conversion&lt;/strong&gt;. Eg. imagine a funnel with multiple drop-off events and multiple conversions such as buying a &lt;strong&gt;Monthly&lt;/strong&gt; or an &lt;strong&gt;Annual&lt;/strong&gt; license (all of them mutually exclusive).&lt;/li&gt;
 &lt;li&gt;we can test more than 2 funnel versions at once, so we can run an A/B/C/D.. test.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Let’s see this in action, eg. we have 3 outcomes and 4 funnels:&lt;/p&gt;
@@ -214,7 +214,7 @@ Z-test p = 0.240
 &lt;h2&gt;Conclusion: usage and limitations&lt;/h2&gt;
 &lt;p&gt;&lt;strong&gt;Z-test.&lt;/strong&gt; In the 2x2 case, the $\chi^2$ test yields exactly the same results as a two-tailed Z-test (or t-test).
 &lt;br/&gt;
-&lt;strong&gt;Central Limit Theorem.&lt;/strong&gt; Like the Z-test, we need enough sample size for the normal approximation to be correct. I would not be comfortable unless each cell in the contingency table is at least $X&amp;gt;100$.
+&lt;strong&gt;Central Limit Theorem.&lt;/strong&gt; Like the Z-test, we need enough sample size for the normal approximation to be correct. I would not be comfortable unless each cell in the contingency table is at least $X&amp;gt;100$. See earlier post &lt;a href="http://bytepawn.com/ab-testing-and-the-central-limit-theorem.html"&gt;A/B Testing and the Central Limit Theorem.&lt;/a&gt;
 &lt;br/&gt;
 &lt;strong&gt;Multiple funnels, multiple outcomes.&lt;/strong&gt; Unlike the Z-test, the $\chi^2$ test can test multiple funnels and multiple outcomes at the same time.
 &lt;br/&gt;
