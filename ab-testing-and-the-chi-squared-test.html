@@ -37,11 +37,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="" />
 <meta name="author" content="Marton Trencseni" />
-<meta name="description" content="In an ealier post, I wrote about A/B testing conversion data with the Z-test. The Chi-squared test is a more general test for conversion data, because it can work with multiple conversion (and non-conversion) events, and multiple funnels being tested (A/B/C/D/..)." />
+<meta name="description" content="In an ealier post, I wrote about A/B testing conversion data with the Z-test. The Chi-squared test is a more general test for conversion data, because it can work with multiple conversion events and multiple funnels being tested (A/B/C/D/..)." />
 <meta name="keywords" content="ab-testing">
 <meta property="og:site_name" content="Bytepawn"/>
 <meta property="og:title" content="A/B testing and the Chi-squared test"/>
-<meta property="og:description" content="In an ealier post, I wrote about A/B testing conversion data with the Z-test. The Chi-squared test is a more general test for conversion data, because it can work with multiple conversion (and non-conversion) events, and multiple funnels being tested (A/B/C/D/..)."/>
+<meta property="og:description" content="In an ealier post, I wrote about A/B testing conversion data with the Z-test. The Chi-squared test is a more general test for conversion data, because it can work with multiple conversion events and multiple funnels being tested (A/B/C/D/..)."/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="/ab-testing-and-the-chi-squared-test.html"/>
 <meta property="og:type" content="article"/>
@@ -82,8 +82,8 @@
     <p>Posted on Fri 28 February 2020 in <a href="/category/data.html">Data</a></p>
   </header>
   <div>
-    <p>In an ealier post, I wrote about <a href="http://bytepawn.com/ab-testing-and-the-ztest.html">A/B testing conversion data with the Z-test</a>. The $\chi^2$ test is a more general test for conversion data, because it can work with multiple conversion (and non-conversion) events, and multiple funnels being tested (A/B/C/D/..).</p>
-<p>Before we go on, let’s use a $\chi^2$ for a simple A/B conversion test and compare the results with the Z-test and the <a href="http://bytepawn.com/ab-testing-and-the-ttest.html">t-test</a> (two-taileds). First, a Monte Carlo algorithm to simulate A/B tests:</p>
+    <p>In an ealier post, I wrote about <a href="http://bytepawn.com/ab-testing-and-the-ztest.html">A/B testing conversion data with the Z-test</a>. The $\chi^2$ test is a more general test for conversion data, because it can work with multiple conversion events and multiple funnels being tested (A/B/C/D/..).</p>
+<p>Before we go on, let’s use a $\chi^2$ test for a simple A/B conversion use-case and compare the results with the Z-test and the <a href="http://bytepawn.com/ab-testing-and-the-ttest.html">t-test</a> (both two-taileds). First, a Monte Carlo algorithm to simulate A/B tests:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">choice</span><span class="p">(</span><span class="n">ps</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ps</span><span class="p">),</span> <span class="n">p</span><span class="o">=</span><span class="n">ps</span><span class="p">)</span>
 
@@ -98,7 +98,7 @@
 </pre></div>
 
 
-<p>Next, let’s pretend we’re running a conversion A/B test that’s not working on $N=10,000$, and use the <a href="https://www.statsmodels.org/">statsmodel</a> and <a href="https://docs.scipy.org/doc/scipy/reference/stats.html">scipy stats</a> to run all three tests on the results:</p>
+<p>Next, let’s pretend we’re running a conversion A/B test that’s not working (A and B conversions the same) on $N=10,000$, and use the <a href="https://www.statsmodels.org/">statsmodel</a> and <a href="https://docs.scipy.org/doc/scipy/reference/stats.html">scipy stats</a> libraries to run all three tests on the results:</p>
 <div class="highlight"><pre><span></span><span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">[[</span><span class="mf">0.80</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">],</span> <span class="mf">0.6</span><span class="p">],</span> <span class="c1"># the first vector element is the actual outcomes, </span>
     <span class="p">[[</span><span class="mf">0.80</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">],</span> <span class="mf">0.4</span><span class="p">],</span> <span class="c1"># the second is the traffic split</span>
@@ -117,7 +117,7 @@
 </pre></div>
 
 
-<p>All three yield the same p-value:</p>
+<p>All three yield the same p value:</p>
 <div class="highlight"><pre><span></span><span class="n">Observations</span><span class="p">:</span>
  <span class="p">[[</span><span class="mf">4825.</span> <span class="mf">1183.</span><span class="p">]</span>
  <span class="p">[</span><span class="mf">3211.</span>  <span class="mf">781.</span><span class="p">]]</span>
@@ -127,7 +127,7 @@
 </pre></div>
 
 
-<p>We’re not surprised for the Z and the t-test, because as we saw in the previous post, above $N=100$, the t-distribution is a normal distribution, and the two yield the same p-value. For this simple case (two outcomes: conversion or no conversion, and two funnels: A and B), the $\chi^2$ is also identical to the Z-test, with the same limitation (below $N=100$ not reliable).</p>
+<p>We’re not surprised that the Z-test and the t-test yield identical results. We saw in the previous post that above $N=100$ the t-distribution is a normal distribution, and the two tests yield the same p value. For this simple case (two outcomes: conversion or no conversion, and two funnels: A and B), the $\chi^2$ test is also identical to the Z-test, with the same limitation (below $N=100$ not reliable).</p>
 <h2>The $\chi^2$ test</h2>
 <p>For A/B testing, we can think of the $\chi^2$ test as a generalized Z-test. Generalized in the following sense:</p>
 <ul>
@@ -337,7 +337,7 @@ Z-test p = 0.240
   },
   "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
   "url": "/ab-testing-and-the-chi-squared-test.html",
-  "description": "In an ealier post, I wrote about A/B testing conversion data with the Z-test. The Chi-squared test is a more general test for conversion data, because it can work with multiple conversion (and non-conversion) events, and multiple funnels being tested (A/B/C/D/..)."
+  "description": "In an ealier post, I wrote about A/B testing conversion data with the Z-test. The Chi-squared test is a more general test for conversion data, because it can work with multiple conversion events and multiple funnels being tested (A/B/C/D/..)."
 }
 </script></body>
 </html>
