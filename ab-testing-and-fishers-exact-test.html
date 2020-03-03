@@ -108,6 +108,45 @@
         <span class="n">p_value</span> <span class="o">+=</span> <span class="n">binom</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span><span class="o">**</span><span class="n">i</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">p</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="n">i</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">p_value</span>
 </pre></div>
+
+
+<p>This is a direct p value calculation, it works at any $N$. Let’s double-check what we know. According to the CLT, at high $N$ the average ratio of heads will follow a normal distribution, so we can use the Z-test, and it should yield the same result as the direct calculation above:</p>
+<div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="mi">1000</span>
+<span class="n">H</span> <span class="o">=</span> <span class="mi">5100</span> <span class="c1"># delta of +1% lift</span>
+<span class="n">p</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="c1"># the null hypothesis</span>
+<span class="n">raw_data</span> <span class="o">=</span> <span class="n">H</span> <span class="o">*</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">N</span><span class="o">-</span><span class="n">H</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Binom test p: </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">binom_test</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Z-test p:     </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ztest</span><span class="p">(</span><span class="n">x1</span><span class="o">=</span><span class="n">raw_data</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">p</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+
+
+<p>Prints:</p>
+<div class="highlight"><pre><span></span><span class="n">Binom</span> <span class="n">test</span> <span class="n">p</span><span class="p">:</span> <span class="mf">0.047</span>
+<span class="n">Z</span><span class="o">-</span><span class="n">test</span> <span class="n">p</span><span class="p">:</span>     <span class="mf">0.045</span>
+</pre></div>
+
+
+<p>Not quite the same, but pretty close. We can see how the exact binomial and the normal estimated Z-test p values converge thanks to the CLT:</p>
+<div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="c1"># the null hypothesis</span>
+<span class="n">actual_lift</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="o">*</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+    <span class="n">H</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">p</span> <span class="o">+</span> <span class="n">actual_lift</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
+    <span class="n">raw_data</span> <span class="o">=</span> <span class="n">H</span> <span class="o">*</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">N</span><span class="o">-</span><span class="n">H</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">p_binom</span> <span class="o">=</span> <span class="n">binom_test</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+    <span class="n">p_z</span> <span class="o">=</span> <span class="n">ztest</span><span class="p">(</span><span class="n">x1</span><span class="o">=</span><span class="n">raw_data</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">p</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">p_diff</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">p_binom</span> <span class="o">-</span> <span class="n">p_z</span><span class="p">)</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">p_diff</span><span class="p">))</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;sample size&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;|p z-test - p exact binomial|&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results</span><span class="p">],</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p>The difference goes to zero in the $N \rightarrow \infty $ limit:</p>
+<p><img src="/images/fisher1.png" alt="Binomial test and Z-test p value difference" style="width: 600px;"/></p>
   </div>
   <div class="tag-cloud">
     <p>
