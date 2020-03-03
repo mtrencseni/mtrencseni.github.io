@@ -248,6 +248,75 @@
 <span class="n">fisher</span><span class="s1">&#39;s exact p = 0.830</span>
 <span class="n">monte</span> <span class="n">carlo</span> <span class="n">p</span> <span class="o">=</span> <span class="mf">0.831</span>
 </pre></div>
+
+
+<p>The p value coming from <code>fisher_exact()</code> is exact, the one coming from <code>chi2_contingency()</code> assumes the Central Limit Theorem, while the one coming from our own <code>fisher_monte_carlo()</code> involves a Monte Carlo approximation. Similar to the binomial toin coss example above, let’s see what happens to the differences in $p$ values with increasing $N$, given two funnels and an actual conversion lift of 1%:</p>
+<div class="highlight"><pre><span></span><span class="n">base_conversion</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">traffic_split</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">actual_lift</span> <span class="o">=</span> <span class="mf">0.01</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="o">*</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">200</span><span class="p">):</span>
+    <span class="n">observations</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">base_conversion</span> <span class="o">*</span> <span class="n">traffic_split</span> <span class="o">*</span> <span class="n">N</span><span class="p">),</span> <span class="nb">int</span><span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">base_conversion</span><span class="p">)</span> <span class="o">*</span> <span class="n">traffic_split</span> <span class="o">*</span> <span class="n">N</span><span class="p">)],</span>
+        <span class="p">[</span><span class="nb">int</span><span class="p">((</span><span class="n">base_conversion</span><span class="o">+</span><span class="n">actual_lift</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">traffic_split</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">),</span> <span class="nb">int</span><span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="p">(</span><span class="n">base_conversion</span><span class="o">+</span><span class="n">actual_lift</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">traffic_split</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">)],</span>
+    <span class="p">]</span>
+    <span class="n">p_chi2</span> <span class="o">=</span> <span class="n">chi2_contingency</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">correction</span><span class="o">=</span><span class="bp">False</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">p_fish</span> <span class="o">=</span> <span class="n">fisher_exact</span><span class="p">(</span><span class="n">observations</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">p_fmc</span> <span class="o">=</span> <span class="n">fisher_monte_carlo</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">num_simulations</span><span class="o">=</span><span class="mi">100</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span>
+    <span class="n">p_diff_chi2_fish</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">p_chi2</span> <span class="o">-</span> <span class="n">p_fish</span><span class="p">)</span>
+    <span class="n">p_diff_chi2_fmc</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">p_chi2</span> <span class="o">-</span> <span class="n">p_fmc</span><span class="p">)</span>
+    <span class="n">p_diff_fish_fmc</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">p_fish</span> <span class="o">-</span> <span class="n">p_fmc</span><span class="p">)</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">p_diff_chi2_fish</span><span class="p">,</span> <span class="n">p_diff_chi2_fmc</span><span class="p">,</span> <span class="n">p_diff_fish_fmc</span><span class="p">))</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;sample size&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;p diff&quot;&quot;&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results</span><span class="p">],</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results</span><span class="p">],</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results</span><span class="p">],</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s1">&#39;| chi^2 - fisher exact |&#39;</span><span class="p">,</span> <span class="s1">&#39;| chi^2 - fisher mc |&#39;</span><span class="p">,</span> <span class="s1">&#39;| fisher exact - fisher mc |&#39;</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p>The result is:</p>
+<p><img src="/images/fisher2.png" alt="Fisher's test, Fisher Monte Carlo and Chi-squared test p values" style="width: 600px;"/></p>
+<p>This is a very interesting plot:</p>
+<ul>
+<li>The difference between Fisher’s exact and the MC is wiggling around 0 (green line), not exactly 0 because of the random nature of MC.</li>
+<li>The difference between Fisher’s exact and the $chi^2$ (blue line) converges to 0 smoothly, like the difference between the z-test and - the binomial test in the introduction.</li>
+<li>The difference between the $chi^2$ and the MC (orange line) follows the blue line, but is a bit more random, again because of the random nature of MC.</li>
+<li>We could get the MC to be smoother by letting it run longer, here it sampled m=100,000, we could let it run 10x longer for more smoothness.</li>
+</ul>
+<p>This gives us confidence that our MC implementation is correct. However, unlike Fisher’s exact test, like the $\chi^2$ test, our Monte Carlo version also works on bigger contingency tables:</p>
+<div class="highlight"><pre><span></span><span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[[</span><span class="mf">0.60</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">],</span> <span class="mf">0.6</span><span class="p">],</span> <span class="c1"># the first vector is the actual outcomes, the second is the traffic split</span>
+    <span class="p">[[</span><span class="mf">0.60</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">],</span> <span class="mf">0.2</span><span class="p">],</span>
+    <span class="p">[[</span><span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">],</span> <span class="mf">0.2</span><span class="p">],</span>
+<span class="p">]</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">1000</span>
+
+<span class="n">observations</span> <span class="o">=</span> <span class="n">simulate_abtest</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+<span class="n">ch</span> <span class="o">=</span> <span class="n">chi2_contingency</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">correction</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;chi-squared p = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ch</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">mcp</span> <span class="o">=</span> <span class="n">fisher_monte_carlo</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">num_simulations</span><span class="o">=</span><span class="mi">100</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;monte carlo p = </span><span class="si">%.3f</span><span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">mcp</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Prints something like:</p>
+<div class="highlight"><pre><span></span><span class="k">[[368. 113. 112.]</span>
+ <span class="k">[126.  45.  55.]</span>
+ <span class="k">[125.  26.  30.]]</span>
+<span class="na">chi-squared p</span> <span class="o">=</span> <span class="s">0.076</span>
+<span class="na">monte carlo p</span> <span class="o">=</span> <span class="s">0.078</span>
+</pre></div>
+
+
+<h2>Conclusion</h2>
+<p>At this point we have 3 tests we can use for conversion tests: Fisher’s exact, Fisher MC and $\chi^2$. At low $N$, the Fisher ones are more accurate, the exact one (the scipy stats library implementation) only works on 2x2 contingency tables, while our MC one works for any $F \times C$ case. At high $N$, all 3 yield the same results numerically, the simplest thing to do is use the $\chi^2$ test.</p>
   </div>
   <div class="tag-cloud">
     <p>
