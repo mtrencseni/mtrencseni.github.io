@@ -84,6 +84,9 @@
   <div>
     <h2>Introduction</h2>
 <p>Fisher’s exact test directly computes the same p value as the <a href="https://en.wikipedia.org/wiki/Chi-squared_test">$\chi^2$ test</a>, without relying on the <a href="https://en.wikipedia.org/wiki/Central_limit_theorem">Central Limit Theorem</a> (CLT) to hold (normal approximations), so it is accurate at low $N$. See the previous post on <a href="http://bytepawn.com/ab-testing-and-the-chi-squared-test.html">A/B testing and the Chi-squared test</a>. The trade-off is that it’s significantly more intenstive computationally, so even at moderate $N$s <a href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte Carlo sampling</a> is the preferred route.</p>
+<h2>The Binomial test</h2>
+<p>The best way to understand Fisher’s test is by a simpler analogue, coin flips. Suppose somebody gives you a coin, and you’re trying to decide whether it’s a fair coin or not. If you can flip it a lot of times, you can use a <a href="https://en.wikipedia.org/wiki/Z-test">Z-test</a> to decide whether it’s fair or not, because at high $N$, the CLT holds, and the distribution of heads follows a normal distribution.</p>
+<p>But, what if you’re only allowed to flip it $N=24$ times and you get $H=18$ heads? This is a low $N$, so the Z-test will not work. But, we can just directly compute the p value by computing $P(H &gt;= 18 or H &lt;= 6)$ assuming the null hypothesis of a fair toin coss. Note that here we’re doing a two-tailed test here. The expression is  $P(H = 1) + ... + P(H = 6) + P(H = 18) + ... + P(H = 24)$, where $P(H = k) = {n \choose k} p^(k) q^(n-k)$, where $p = 0.5, q = 1 - p = 0.5$ in this case from the null hypothesis (p is the probability of H, q of T).</p>
   </div>
   <div class="tag-cloud">
     <p>
