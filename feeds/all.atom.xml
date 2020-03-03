@@ -73,7 +73,7 @@
 &lt;li&gt;row marginals: how many users were randomly assigned into each funnel in the A/B test&lt;/li&gt;
 &lt;li&gt;column marginals: across the tested funnels, conversion event totals&lt;/li&gt;
 &lt;li&gt;given the marginals, what is the probability of the observed outcomes&lt;/li&gt;
-&lt;li&gt;for all the ways we can change numbers in the contingency tables while keeping the marginals fixed, take the ones that have equal or lower probability then the actual outcome, and add up those probabilities; this is the p value&lt;/li&gt;
+&lt;li&gt;for all the ways we can change numbers in the contingency table while keeping the marginals fixed, take the ones that have equal or lower probability then the actual outcome, and add up those probabilities; this is the p value&lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;The trick, how to calculate the quantity “given the marginals, what is the probability of a specific outcome  (numbers in the contingency table that add up to the marginals)”; we need this in both step 2. and 3. For this we have to use the &lt;a href="https://en.wikipedia.org/wiki/Hypergeometric_distribution"&gt;hypergeometric distribution&lt;/a&gt;, the distribution for “urn draws”. Let’s reuse the contingency table from the previous post:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/contingency_table3.PNG" alt="Contingency table" style="width: 600px;"/&gt;&lt;/p&gt;
