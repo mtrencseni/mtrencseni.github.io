@@ -303,7 +303,7 @@
 <li>The difference between the $\chi^2$ and the MC (orange line) follows the blue line, but is a bit more random, again because of the random nature of MC.</li>
 <li>We could get the MC to be smoother by letting it run longer, here it sampled $m=100,000$, we could let it run 10x longer for more smoothness.</li>
 </ul>
-<p>This gives us confidence that our MC implementation is correct. However, unlike Fisher’s exact test, like the $\chi^2$ test, our Monte Carlo version also works on bigger contingency tables:</p>
+<p>This gives us confidence that our MC implementation is correct. However, unlike Fisher’s exact test, and like the $\chi^2$ test, our Monte Carlo version also works on bigger contingency tables:</p>
 <div class="highlight"><pre><span></span><span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">[[</span><span class="mf">0.60</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">],</span> <span class="mf">0.6</span><span class="p">],</span> <span class="c1"># the first vector is the actual outcomes,</span>
     <span class="p">[[</span><span class="mf">0.60</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">],</span> <span class="mf">0.2</span><span class="p">],</span> <span class="c1"># the second is the traffic split</span>
