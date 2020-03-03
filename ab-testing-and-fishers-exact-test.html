@@ -243,7 +243,7 @@
 <span class="n">ch</span> <span class="o">=</span> <span class="n">chi2_contingency</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">correction</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s1">&#39;chi-squared p = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ch</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 <span class="n">fs</span> <span class="o">=</span> <span class="n">fisher_exact</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;fisher&#39;s exact p = </span><span class="si">%.3f</span><span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">fs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;fishers exact p = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">fs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 <span class="n">fmc</span> <span class="o">=</span> <span class="n">fisher_monte_carlo</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;monte carlo p = </span><span class="si">%.3f</span><span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">fmc</span><span class="p">)</span>
 </pre></div>
@@ -253,7 +253,7 @@
 <div class="highlight"><pre><span></span><span class="p">[[</span><span class="mf">37.</span> <span class="mf">16.</span><span class="p">]</span>
  <span class="p">[</span><span class="mf">31.</span> <span class="mf">16.</span><span class="p">]]</span>
 <span class="n">chi</span><span class="o">-</span><span class="n">squared</span> <span class="n">p</span> <span class="o">=</span> <span class="mf">0.680</span>
-<span class="n">fisher</span><span class="s1">&#39;s exact p = 0.830</span>
+<span class="n">fishers</span> <span class="n">exact</span> <span class="n">p</span> <span class="o">=</span> <span class="mf">0.830</span>
 <span class="n">monte</span> <span class="n">carlo</span> <span class="n">p</span> <span class="o">=</span> <span class="mf">0.831</span>
 </pre></div>
 
