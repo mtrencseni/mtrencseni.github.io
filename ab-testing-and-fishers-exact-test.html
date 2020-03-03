@@ -152,9 +152,11 @@
 <p>What the binomial test is to the Z-test, <a href="https://en.wikipedia.org/wiki/Fisher%27s_exact_test">Fisher’s exact test</a> is to the $\chi^2$ test. It’s a direct calculation of the p value in case of a $F \times C$ contingency table. Fisher’s exact test is accurate at all $N$s, and the $\chi^2$ test’s p converges to it at high $N$s, similar to the above case.</p>
 <p>The null hypothesis is that all funnels have the same conversion event probabilities. Given the $F \times C$ contingency table outcome of an A/B test ($F$ funnels tested, $C$ mutually exclusive conversion events), the calculation of the p value is:</p>
 <ol>
-<li>first, calculate the marginals:</li>
+<li>first, calculate the marginals:<ul>
 <li>row marginals: how many users were randomly assigned into each funnel in the A/B test</li>
 <li>column marginals: across the tested funnels, conversion event totals</li>
+</ul>
+</li>
 <li>given the marginals, what is the probability of the observed outcomes</li>
 <li>for all the ways we can change numbers in the contingency table while keeping the marginals fixed, take the ones that have equal or lower probability then the actual outcome, and add up those probabilities; this is the p value</li>
 </ol>
