@@ -206,7 +206,7 @@
 &lt;ul&gt;
 &lt;li&gt;The difference between Fisher’s exact and the MC is wiggling around 0 (green line), not exactly 0 because of the random nature of MC.&lt;/li&gt;
 &lt;li&gt;The difference between Fisher’s exact and the $chi^2$ (blue line) converges to 0 smoothly, like the difference between the z-test and - the binomial test in the introduction.&lt;/li&gt;
-&lt;li&gt;The difference between the $chi^2$ and the MC (orange line) follows the blue line, but is a bit more random, again because of the random nature of MC.&lt;/li&gt;
+&lt;li&gt;The difference between the $\chi^2$ and the MC (orange line) follows the blue line, but is a bit more random, again because of the random nature of MC.&lt;/li&gt;
 &lt;li&gt;We could get the MC to be smoother by letting it run longer, here it sampled m=100,000, we could let it run 10x longer for more smoothness.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;This gives us confidence that our MC implementation is correct. However, unlike Fisher’s exact test, like the $\chi^2$ test, our Monte Carlo version also works on bigger contingency tables:&lt;/p&gt;
