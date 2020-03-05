@@ -144,7 +144,7 @@
 </pre></div>
 
 
-<p>This is what we expect. If the null hypothesis is true (A and B are the same), we expect to get $alpha$ false positives, that’s exactly what $alpha$ controls. Let’s see what happens if we collect the same amount of total samples, but follow the early stopping protocol with 2 extra peaks:</p>
+<p>This is what we expect. If the null hypothesis is true (A and B are the same), we expect to get $\alpha$ false positives, that’s exactly what $\alpha$ controls. Let’s see what happens if we collect the same amount of total samples, but follow the early stopping protocol with 2 extra peaks:</p>
 <div class="highlight"><pre><span></span><span class="n">Ns</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1000</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
 <span class="n">alphas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
 
@@ -158,7 +158,7 @@
 </pre></div>
 
 
-<p>This is the problem with early stopping! If we repeatedly perform the significance test at the same $alpha$ level, the overall $alpha$ level will be higher. If we do this, we will on average have a higher false positive rate than we think; in this simulation, with 2 extra peeks, at equal $N$ intervals, the FPR roughly doubles!</p>
+<p>This is the problem with early stopping! If we repeatedly perform the significance test at the same $\alpha$ level, the overall $alpha$ level will be higher. If we do this, we will on average have a higher false positive rate than we think; in this simulation, with 2 extra peeks, at equal $N$ intervals, the FPR roughly doubles!</p>
   </div>
   <div class="tag-cloud">
     <p>
