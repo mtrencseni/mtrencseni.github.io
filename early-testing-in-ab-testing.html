@@ -94,7 +94,7 @@
 </ol>
 <p><a href="https://github.com/mtrencseni/playground/blob/master/AB%20testing%20and%20the%20pitfall%20of%20early%20stopping.ipynb">The code shown below is up on Github.</a></p>
 <h2>Early stopping</h2>
-<p>What happens if the tester follows a different protocol, and because they’re curious/impatient, peaks at the data repeatedly to see if it’s “already significant”. So instead of steps 5-6 above, they:</p>
+<p>What happens if the tester follows a different protocol, and because they’re curious/impatient, peeks at the data repeatedly to see if it’s “already significant”. So instead of steps 5-6 above, they:</p>
 <ul>
 <li>collect $N_1$ samples, run hypothesis test on $N’ := N_1$ samples, compute $p$ value, if $p &lt;= \alpha$ reject the null hypothesis and stop, else go on</li>
 <li>collect $N_2$ more samples, run hypothesis test on $N’ = N + N_2$ samples, compute $p$ value, if $p &lt;= \alpha$ reject the null hypothesis and stop, else go on</li>
@@ -145,7 +145,7 @@
 </pre></div>
 
 
-<p>This is what we expect. If the null hypothesis is true (A and B are the same), we expect to get $\alpha$ false positives, that’s exactly what $\alpha$ controls. Let’s see what happens if we collect the same amount of total samples, but follow the early stopping protocol with 2 extra peaks:</p>
+<p>This is what we expect. If the null hypothesis is true (A and B are the same), we expect to get $\alpha$ false positives, that’s exactly what $\alpha$ controls. Let’s see what happens if we collect the same amount of total samples, but follow the early stopping protocol with 2 extra peeks:</p>
 <div class="highlight"><pre><span></span><span class="n">Ns</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1000</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
 <span class="n">alphas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
 
@@ -239,7 +239,7 @@
 
 
 <p>Obviously, there are countless protocols like this we can construct. A final option is to not do this, never to stop the experiment until the original sample count of $N$ is reached. This is what I recommend to do. Note that peeking itself is not a problem, as long as we don’t stop the experiment. Some A/B testing tools go the extra mile and don’t show (blur out) the result before the agreed-upon sample size is reached.</p>
-<p>What is the actual formula for the final $\alpha$, if we follow a protocol of testing at $\alpha_i$ at $N_i$ with early stopping? I’m not going to derive it here, we can just run the simulation above and see what it is. In the real-world, we don’t follow exact protocols like this anyway (peak at exact $N$ steps). In my opinion, it’s enough to be aware of this issue, and control our behaviour.</p>
+<p>What is the actual formula for the final $\alpha$, if we follow a protocol of testing at $\alpha_i$ at $N_i$ with early stopping? I’m not going to derive it here, we can just run the simulation above and see what it is. In the real-world, we don’t follow exact protocols like this anyway (peek at exact $N$ steps). In my opinion, it’s enough to be aware of this issue, and control our behaviour.</p>
 <h2>What’s the big deal?</h2>
 <p>This question goes to the heart of A/B testing itself!</p>
 <p>Why do we even use A/B testing? Why not just split the population in two, show A and B versions, evaluate the metric, and eyeball the difference? After all, in a typical SaaS A/B testing setting, lives are not at stake, unlike in <a href="https://en.wikipedia.org/wiki/Clinical_trial">clinical trials</a>.</p>
