@@ -165,14 +165,14 @@
 &lt;p&gt;Another thing to keep in mind that early stopping affects $\alpha$, the false positive rate. But false positives only matter for experiments that are not working, ie. when there is no lift from A to B. In the extreme case of all our experiments working, early stopping is actually good, because we will spend less time deciding, and we're "erring" in the right direction. But this is a extreme case, if all our experiments always work out, there’s no need to A/B test anyway.&lt;/p&gt;
 &lt;p&gt;We can do a back-of-the-envelope calculation to see what happens if we follow an early stopping protocol and (accidentally, or knowingly) run at $\alpha=0.10$ insteaf of $\alpha=0.05$. Let’s suppose that 1 in 4 ($\gamma=0.25$) experiment actually works, and we’re running at $1-\beta = 0.8$ power, ie. when an experiment works, we catch it 80% of the time. If we run 100 experiments a year:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;25 will work, and we will catch 20 of these, 5 we will mis-classify as not working&lt;/li&gt;
+&lt;li&gt;25 will work, and we will catch 20 of these, 5 good ones will be misclassified as not working&lt;/li&gt;
 &lt;li&gt;75 will not work, if we run at:&lt;ul&gt;
-&lt;li&gt;$\alpha=0.05$ we will mis-classify 3.75 as working&lt;/li&gt;
-&lt;li&gt;$\alpha=0.10$ we will mis-classify 7.5 as working&lt;/li&gt;
+&lt;li&gt;$\alpha=0.05$ 3.75 bad ones will be misclassified as working&lt;/li&gt;
+&lt;li&gt;$\alpha=0.10$ 7.5 bad ones will be misclassified as working&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;The mis-classification rate due to a $\Delta \alpha$ is $(1 - \gamma) \Delta \alpha$.&lt;/p&gt;
+&lt;p&gt;The misclassification rate due to a $\Delta \alpha$ is $(1 - \gamma) \Delta \alpha$.&lt;/p&gt;
 &lt;h2&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;Increased false positive rate due to early stopping is beautiful nuance of statistical testing. It is equivalent to running at an overall higher $\alpha$. Data scientists need to be aware of this phenomenon so they can control it and keep their organizations honest about their experimental results.&lt;/p&gt;
 &lt;h2&gt;Links&lt;/h2&gt;

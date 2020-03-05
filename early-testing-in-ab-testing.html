@@ -248,14 +248,14 @@
 <p>Another thing to keep in mind that early stopping affects $\alpha$, the false positive rate. But false positives only matter for experiments that are not working, ie. when there is no lift from A to B. In the extreme case of all our experiments working, early stopping is actually good, because we will spend less time deciding, and we're "erring" in the right direction. But this is a extreme case, if all our experiments always work out, there’s no need to A/B test anyway.</p>
 <p>We can do a back-of-the-envelope calculation to see what happens if we follow an early stopping protocol and (accidentally, or knowingly) run at $\alpha=0.10$ insteaf of $\alpha=0.05$. Let’s suppose that 1 in 4 ($\gamma=0.25$) experiment actually works, and we’re running at $1-\beta = 0.8$ power, ie. when an experiment works, we catch it 80% of the time. If we run 100 experiments a year:</p>
 <ul>
-<li>25 will work, and we will catch 20 of these, 5 we will mis-classify as not working</li>
+<li>25 will work, and we will catch 20 of these, 5 good ones will be misclassified as not working</li>
 <li>75 will not work, if we run at:<ul>
-<li>$\alpha=0.05$ we will mis-classify 3.75 as working</li>
-<li>$\alpha=0.10$ we will mis-classify 7.5 as working</li>
+<li>$\alpha=0.05$ 3.75 bad ones will be misclassified as working</li>
+<li>$\alpha=0.10$ 7.5 bad ones will be misclassified as working</li>
 </ul>
 </li>
 </ul>
-<p>The mis-classification rate due to a $\Delta \alpha$ is $(1 - \gamma) \Delta \alpha$.</p>
+<p>The misclassification rate due to a $\Delta \alpha$ is $(1 - \gamma) \Delta \alpha$.</p>
 <h2>Conclusion</h2>
 <p>Increased false positive rate due to early stopping is beautiful nuance of statistical testing. It is equivalent to running at an overall higher $\alpha$. Data scientists need to be aware of this phenomenon so they can control it and keep their organizations honest about their experimental results.</p>
 <h2>Links</h2>
