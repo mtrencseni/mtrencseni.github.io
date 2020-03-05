@@ -12,8 +12,8 @@
 &lt;h2&gt;Early stopping&lt;/h2&gt;
 &lt;p&gt;What happens if the tester follows a different protocol, and because they’re curious/impatient, peaks at the data repeatedly to see if it’s “already significant”. So instead of steps 5-6 above, they:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;collect $N_1$ samples, run hypothesis test on $N’ := N_1$ samples, compute $p$ value, if $p &amp;lt;= alpha$ reject the null hypothesis and stop, else go on&lt;/li&gt;
-&lt;li&gt;collect $N_2$ more samples, run hypothesis test on $N’ += N_2$ samples, compute $p$ value, if $p &amp;lt;= alpha$ reject the null hypothesis and stop, else go on&lt;/li&gt;
+&lt;li&gt;collect $N_1$ samples, run hypothesis test on $N’ := N_1$ samples, compute $p$ value, if $p &amp;lt;= \alpha$ reject the null hypothesis and stop, else go on&lt;/li&gt;
+&lt;li&gt;collect $N_2$ more samples, run hypothesis test on $N’ += N_2$ samples, compute $p$ value, if $p &amp;lt;= \alpha$ reject the null hypothesis and stop, else go on&lt;/li&gt;
 &lt;li&gt;collect $N_3$ more samples...&lt;/li&gt;
 &lt;li&gt;stop if $N’ &amp;gt;= N$&lt;/li&gt;
 &lt;/ul&gt;
