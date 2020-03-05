@@ -172,7 +172,7 @@
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;The mis-classification rate due to a $\delta \alpha$ is $(1 - \gamma) \delta \alpha$.&lt;/p&gt;
+&lt;p&gt;The mis-classification rate due to a $\Delta \alpha$ is $(1 - \gamma) \Delta \alpha$.&lt;/p&gt;
 &lt;h2&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;Increased false positive rate due to early stopping is beautiful nuance of statistical testing. It is equivalent to running at an overall higher $\alpha$. Data scientists need to be aware of this phenomenon so they can control it and keep their organizations honest about their experimental results.&lt;/p&gt;
 &lt;h2&gt;Links&lt;/h2&gt;
