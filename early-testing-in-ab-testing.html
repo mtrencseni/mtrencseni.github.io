@@ -159,7 +159,7 @@
 </pre></div>
 
 
-<p>This is the problem with early stopping! If we repeatedly perform the significance test at the same $\alpha$ level, the overall $alpha$ level will be higher. If we do this, we will on average have a higher false positive rate than we think; in this simulation, with 2 extra peeks, at equal $N$ intervals, the FPR roughly doubles!</p>
+<p>This is the problem with early stopping! <strong>If we repeatedly perform the significance test at the same $\alpha$ level, the overall $\alpha$ level will be higher.</strong> If we do this, we will on average have a higher false positive rate than we think; in this simulation, with 2 extra peeks, at equal $N$ intervals, the FPR roughly doubles!</p>
 <h2>Intuition</h2>
 <p>Why does the False Positive Rate go up in the case of early stopping? The best way to see this is to evaluate the p value a lot of times, and plot the results. The simulation code is straightforward:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">repeated_significances</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">episodes</span><span class="p">):</span>
