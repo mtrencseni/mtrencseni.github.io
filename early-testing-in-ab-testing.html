@@ -101,7 +101,7 @@
 <li>collect $N_3$ more samples...</li>
 <li>stop if $N’ &gt;= N$</li>
 </ul>
-<p>What happens if the tester follows this early stopping protocol? We can simulate this protocol:</p>
+<p>We can simulate this <strong>early stopping protocol</strong> with Monte Carlo code:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">abtest_episode</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">prior_observations</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="n">observations</span> <span class="o">=</span> <span class="n">simulate_abtest</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">prior_observations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
