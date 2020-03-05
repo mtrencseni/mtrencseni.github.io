@@ -224,7 +224,7 @@
 <p>It works!</p>
 <p>The <a href="https://en.wikipedia.org/wiki/Haybittle%E2%80%93Peto_boundary">Haybittle–Peto boundary</a> is much simpler, but it’s not an exact rule. It essentially says, perform the in-between tests at a very low $\alpha=0.001$, and the final test at the desired $\alpha=0.05$. Because the the early steps were performed at such low $\alpha$, it doesn’t change the overall $\alpha$ by much.</p>
 <p><img src="/images/haybittle-peto.png" alt="Haybittle-Peto table" style="width: 400px;"/></p>
-<p>What this is essentially saying is: if you peek early and the null hypothesis is without a reasonable doubt wrong, ie. the treatment is without a reasonable doubt better than the control group already at lower $N$s, then stop, else keep going.</p>
+<p>What this is essentially saying is: if you peek early and the null hypothesis is without a reasonable doubt wrong, ie. the treatment is without a reasonable doubt better than the control group already at lower $N$s, then stop, else keep going. More mathy, peak at some low $\alpha=\epsilon$, and your additional overall $\alpha$ will be some $\delta_\epsilon$ that is also low.</p>
 <div class="highlight"><pre><span></span><span class="n">Ns</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1000</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
 <span class="n">alphas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">]</span>
 
