@@ -239,6 +239,24 @@
 
 <p>Obviously, there are countless protocols like this we can construct. A final option is to not do this, never to stop the experiment until the original sample count of $N$ is reached. This is what I recommend to do. Note that peeking itself is not a problem, as long as we don’t stop the experiment. Some A/B testing tools go the extra mile and don’t show (blur out) the result before the agreed-upon sample size is reached.</p>
 <p>What is the actual formula for the final $\alpha$, if we follow a protocol of testing at $\alpha_i$ at $N_i$ with early stopping? I’m not going to derive it here, we can just run the simulation above and see what it is. In the real-world, we don’t follow exact protocols like this anyway (peak at exact $N$ steps). In my opinion, it’s enough to be aware of this issue, and control our behaviour.</p>
+<h2>What’s the big deal?</h2>
+<p>This question goes to the heart of A/B testing itself!</p>
+<p>Why do we even use A/B testing? Why not just split the population in two, show A and B versions, evaluate the metric, and eyeball the difference? After all, in a typical SaaS A/B testing setting, lives are not at stake, unlike in <a href="https://en.wikipedia.org/wiki/Clinical_trial">clinical trials</a>.</p>
+<p>We use formal A/B testing so we don’t fool ourselves. Usually the person or team performing the test has some attachment to the test, because it’s their idea, their code, they invested time into running the experiment, their bonus depends on their impact. We’re biased. By agreeing with ourselves or the team that we will follow a certain protocol to evaluate the experiment (sample size $N$, metric, $alpha$), we’re eliminating this bias.</p>
+<p>But, we have to be mindful that A/B testing shouldn’t hold us back. In the post <a href="http://bytepawn.com/ab-tests-moving-fast-vs-being-sure.html#ab-tests-moving-fast-vs-being-sure">A/B tests: Moving Fast vs Being Sure</a> I’ve argued that in startup settings it may makes sense to run at higher $\alpha$ (and collect less samples per experiment), accept more false positives, because it will allow us to perform more experiments per year, which ultimately may be worth it.</p>
+<p>Another thing to keep in mind that early stopping affects $\alpha$, the false positive rate. But false positives only matter for experiments that are not working, ie. when there is no lift from A to B. In the extreme case of all our experiments working, early stopping is actually good, because we will spend less time deciding. But this is a perverse case, if all our experiments always work out, then there’s no need to A/B test anyway.</p>
+<p>We can do a back-of-the-envelope calculation to see what happens if we follow an early stopping protocol and (accidentally, or knowingly) run at $\alpha=0.10$ insteaf of $\alpha=0.05$. Let’s suppose that 1 in 4 ($\gamma=0.25$) experiment actually works, and we’re running at 0.8 power, ie. when an experiment works, we catch it 80% of the time. If we run 100 experiments a year:</p>
+<ul>
+<li>25 will work, and we will catch 20 of these, 5 we will mis-classify as not working</li>
+<li>75 will not work, if we run at:<ul>
+<li>$\alpha=0.05$ we will mis-classify 3.75 as working</li>
+<li>$\alpha=0.10$ we will mis-classify 7.5 as working</li>
+</ul>
+</li>
+</ul>
+<p>The mis-classification rate due to a $\delta \alpha$ is $(1 - \gamma) \delta \alpha$.</p>
+<h2>Conclusion</h2>
+<p>Increased false positive rate due to early stopping is beautiful nuance of statistical testing. It is equivalent to running at an overall higher $\alpha$. Data scientists need to be aware of this phenomenon so they can control it and keep their organizations honest about their experimental results.</p>
   </div>
   <div class="tag-cloud">
     <p>
