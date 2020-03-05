@@ -167,8 +167,8 @@
 &lt;ul&gt;
 &lt;li&gt;25 will work, and we will catch 20 of these, 5 good ones will be misclassified as not working&lt;/li&gt;
 &lt;li&gt;75 will not work, if we run at:&lt;ul&gt;
-&lt;li&gt;$\alpha=0.05$ 3.75 bad ones will be misclassified as working&lt;/li&gt;
-&lt;li&gt;$\alpha=0.10$ 7.5 bad ones will be misclassified as working&lt;/li&gt;
+&lt;li&gt;$\alpha=0.05$, then 3.75 bad ones will be misclassified as working&lt;/li&gt;
+&lt;li&gt;$\alpha=0.10$, then 7.50 bad ones will be misclassified as working&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
