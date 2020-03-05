@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn</title><link href="/" rel="alternate"></link><link href="/feeds/all.atom.xml" rel="self"></link><id>/</id><updated>2020-03-05T00:00:00+01:00</updated><entry><title>Early stopping in A/B testing</title><link href="/early-testing-in-ab-testing.html" rel="alternate"></link><published>2020-03-05T00:00:00+01:00</published><updated>2020-03-05T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-03-05:/early-testing-in-ab-testing.html</id><summary type="html">&lt;p&gt;Increased false positive rate due to early stopping is beautiful nuance of statistical testing. It is equivalent to running at an overall higher alpha. Data scientists need to be aware of this phenomenon so they can control it and keep their organizations honest about their experimental results.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/early_stopping.png" alt="Early stopping" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;In the past posts we’ve been computing p values for various &lt;a href="https://en.wikipedia.org/wiki/Frequentist_inference"&gt;frequentist&lt;/a&gt; statistical tests that are useful for A/B testing (&lt;a href="http://bytepawn.com/ab-testing-and-the-ztest.html#ab-testing-and-the-ztest"&gt;Z-test&lt;/a&gt;, &lt;a href="http://bytepawn.com/ab-testing-and-the-ttest.html#ab-testing-and-the-ttest"&gt;t-test&lt;/a&gt;, &lt;a href="http://bytepawn.com/ab-testing-and-the-chi-squared-test.html#ab-testing-and-the-chi-squared-test"&gt;Chi-squared&lt;/a&gt;, &lt;a href="http://bytepawn.com/ab-testing-and-fishers-exact-test.html#ab-testing-and-fishers-exact-test"&gt;Fisher's exact&lt;/a&gt;). When we modeled the A/B test, we assumed the protocol is:&lt;/p&gt;
 &lt;ol&gt;
-&lt;li&gt;decide what metric (eg. conversion, timespent, DAU) we will use to evaluate the test&lt;/li&gt;
+&lt;li&gt;decide what metric we will use to evaluate the test (eg. conversion, timespent, DAU)&lt;/li&gt;
 &lt;li&gt;dedice how many $N$ samples we will collect&lt;/li&gt;
 &lt;li&gt;decide what type of test (eg. t-test or $\chi^2$) we will use&lt;/li&gt;
 &lt;li&gt;decide $\alpha$ acceptable false positive rate (FPR)&lt;/li&gt;
@@ -11,7 +11,7 @@
 &lt;/ol&gt;
 &lt;p&gt;&lt;a href="https://github.com/mtrencseni/playground/blob/master/AB%20testing%20and%20the%20pitfall%20of%20early%20stopping.ipynb"&gt;The code shown below is up on Github.&lt;/a&gt;&lt;/p&gt;
 &lt;h2&gt;Early stopping&lt;/h2&gt;
-&lt;p&gt;What happens if the tester follows a different protocol, and because they’re curious/impatient, peeks at the data repeatedly to see if it’s “already significant”. So instead of steps 5-6 above, they:&lt;/p&gt;
+&lt;p&gt;What happens if the tester is curious or impatient and follows a different protocol and peeks at the data repeatedly to see if it’s “already significant”. So instead of steps 5-6 above, they:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;collect $N_1$ samples, run hypothesis test on $N’ := N_1$ samples, compute $p$ value, if $p &amp;lt;= \alpha$ reject the null hypothesis and stop, else go on&lt;/li&gt;
 &lt;li&gt;collect $N_2$ more samples, run hypothesis test on $N’ = N + N_2$ samples, compute $p$ value, if $p &amp;lt;= \alpha$ reject the null hypothesis and stop, else go on&lt;/li&gt;

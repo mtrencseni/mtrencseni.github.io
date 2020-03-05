@@ -85,7 +85,7 @@
     <h2>Introduction</h2>
 <p>In the past posts we’ve been computing p values for various <a href="https://en.wikipedia.org/wiki/Frequentist_inference">frequentist</a> statistical tests that are useful for A/B testing (<a href="http://bytepawn.com/ab-testing-and-the-ztest.html#ab-testing-and-the-ztest">Z-test</a>, <a href="http://bytepawn.com/ab-testing-and-the-ttest.html#ab-testing-and-the-ttest">t-test</a>, <a href="http://bytepawn.com/ab-testing-and-the-chi-squared-test.html#ab-testing-and-the-chi-squared-test">Chi-squared</a>, <a href="http://bytepawn.com/ab-testing-and-fishers-exact-test.html#ab-testing-and-fishers-exact-test">Fisher's exact</a>). When we modeled the A/B test, we assumed the protocol is:</p>
 <ol>
-<li>decide what metric (eg. conversion, timespent, DAU) we will use to evaluate the test</li>
+<li>decide what metric we will use to evaluate the test (eg. conversion, timespent, DAU)</li>
 <li>dedice how many $N$ samples we will collect</li>
 <li>decide what type of test (eg. t-test or $\chi^2$) we will use</li>
 <li>decide $\alpha$ acceptable false positive rate (FPR)</li>
@@ -94,7 +94,7 @@
 </ol>
 <p><a href="https://github.com/mtrencseni/playground/blob/master/AB%20testing%20and%20the%20pitfall%20of%20early%20stopping.ipynb">The code shown below is up on Github.</a></p>
 <h2>Early stopping</h2>
-<p>What happens if the tester follows a different protocol, and because they’re curious/impatient, peeks at the data repeatedly to see if it’s “already significant”. So instead of steps 5-6 above, they:</p>
+<p>What happens if the tester is curious or impatient and follows a different protocol and peeks at the data repeatedly to see if it’s “already significant”. So instead of steps 5-6 above, they:</p>
 <ul>
 <li>collect $N_1$ samples, run hypothesis test on $N’ := N_1$ samples, compute $p$ value, if $p &lt;= \alpha$ reject the null hypothesis and stop, else go on</li>
 <li>collect $N_2$ more samples, run hypothesis test on $N’ = N + N_2$ samples, compute $p$ value, if $p &lt;= \alpha$ reject the null hypothesis and stop, else go on</li>
