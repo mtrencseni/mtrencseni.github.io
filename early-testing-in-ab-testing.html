@@ -159,6 +159,40 @@
 
 
 <p>This is the problem with early stopping! If we repeatedly perform the significance test at the same $\alpha$ level, the overall $alpha$ level will be higher. If we do this, we will on average have a higher false positive rate than we think; in this simulation, with 2 extra peeks, at equal $N$ intervals, the FPR roughly doubles!</p>
+<h2>Intuition</h2>
+<p>Why does the False Positive Rate go up in the case of early stopping? The best way to see this is to evaluate the p value a lot of times, and plot the results. The simulation code is straightforward:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">repeated_significances</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">episodes</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">observations</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">episodes</span><span class="p">)):</span>
+        <span class="n">observations</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">abtest_episode</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">episodes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">observations</span><span class="p">)</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">results</span>
+</pre></div>
+
+
+<p>Let’s evaluate at every 100 samples, 100 times (total $N=10,000$), and run it 3 times:</p>
+<div class="highlight"><pre><span></span><span class="n">Ns</span> <span class="o">=</span> <span class="p">[</span><span class="mi">100</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+
+<span class="n">results1</span> <span class="o">=</span> <span class="n">repeated_significances</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">Ns</span><span class="p">)</span>
+<span class="n">results2</span> <span class="o">=</span> <span class="n">repeated_significances</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">Ns</span><span class="p">)</span>
+<span class="n">results3</span> <span class="o">=</span> <span class="n">repeated_significances</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">Ns</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;sample size&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results1</span><span class="p">],</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results1</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results2</span><span class="p">],</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results2</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results3</span><span class="p">],</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results3</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results3</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.05</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">results3</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s1">&#39;Test 1&#39;</span><span class="p">,</span> <span class="s1">&#39;Test 2&#39;</span><span class="p">,</span> <span class="s1">&#39;Test 3&#39;</span><span class="p">,</span> <span class="s1">&#39;p = 0.05&#39;</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p>The result is something like:</p>
+<p><img src="/images/early_stopping.png" alt="Early stopping" style="width: 600px;"/></p>
   </div>
   <div class="tag-cloud">
     <p>
