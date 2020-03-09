@@ -102,10 +102,12 @@
 &lt;p&gt;Note that the intrinsic part averages 0.125, and the network effect adds on another 0.375 in this model. &lt;strong&gt;In this toy model, 3 out of 4 posts is the result of network effects!&lt;/strong&gt; This is a good qualitative indication why network effects are so important for engagement.&lt;/p&gt;
 &lt;p&gt;We can also see that by making the network effect too strong, either by having too many friends or setting &lt;code&gt;network_effect&lt;/code&gt; too high, we get exponential growth (in this case, the $c_{next}$ equation yields a nonsensical negative solution). For example, if we double the friend count to 100 (but keep everything else the same):&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/sn2.png" alt="Post production" style="width: 400px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Experiments
-Let’s do an experiment and see what happens. For this:
-use a bigger graph, with $n=100,000$ nodes, keep $k=50$
-pick out 1,000 people randomly, and boost their intrinsic post production by 5%&lt;/p&gt;
+&lt;h2&gt;Experiments&lt;/h2&gt;
+&lt;p&gt;Let’s do an experiment and see what happens. For this, let's:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;use a bigger graph, with $n=100,000$ nodes, but keep $k=50$&lt;/li&gt;
+&lt;li&gt;pick out $N=1,000$ people randomly ("population A"), and boost their intrinsic post production by 5%&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;Code:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;g&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;connected_watts_strogatz_graph&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="mi"&gt;1000&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;to_directed&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;span class="n"&gt;N&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1000&lt;/span&gt;
