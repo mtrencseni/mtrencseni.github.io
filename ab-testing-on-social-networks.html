@@ -110,14 +110,26 @@
 <h2>Watts–Strogatz random graphs</h2>
 <p>Let’s run some Monte Carlo simulations to see this in action. We will use a random <a href="https://en.wikipedia.org/wiki/Watts%E2%80%93Strogatz_model">Watts–Strogatz model</a> for the social network, and use the <a href="https://networkx.github.io/">networkx</a> library to generate it for us. The Watts-Strogatz model creates a graph with $n$ nodes, arranged in a ring, with each node connected to the next $k$ nodes in the ring; this initial setup is clustered, and has a high diameter. Then, with probability $p$, each edge is re-connected to a random node on the ring, this causes the diameter of the graph to drop and produces a “small-world graph”, where each node is reachable from each other node in a low number of hops.</p>
 <p>Some examples of Watts–Strogatz graphs:</p>
-<p><code>nx.draw(connected_watts_strogatz_graph(n=10, k=4, p=0.0))</code></p>
+<div class="highlight"><pre><span></span><span class="n">nx</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">connected_watts_strogatz_graph</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mf">0.0</span><span class="p">))</span>
+</pre></div>
+
+
 <p><img src="/images/strogatz1.png" alt="Watts–Strogatz random graph" style="width: 400px;"/></p>
-<p><code>nx.draw(connected_watts_strogatz_graph(n=10, k=4, p=0.5))</code></p>
+<div class="highlight"><pre><span></span><span class="n">nx</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">connected_watts_strogatz_graph</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">))</span>
+</pre></div>
+
+
 <p><img src="/images/strogatz2.png" alt="Watts–Strogatz random graph" style="width: 400px;"/></p>
-<p><code>nx.draw(connected_watts_strogatz_graph(n=100, k=10, p=0.5))</code></p>
+<div class="highlight"><pre><span></span><span class="n">nx</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">connected_watts_strogatz_graph</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">))</span>
+</pre></div>
+
+
 <p><img src="/images/strogatz3.png" alt="Watts–Strogatz random graph" style="width: 400px;"/></p>
 <p>For initial exploration, I will use a small graph:</p>
-<p><code>g = connected_watts_strogatz_graph(n=1000, k=50, p=0.1).to_directed()</code></p>
+<div class="highlight"><pre><span></span><span class="n">g</span> <span class="o">=</span> <span class="n">connected_watts_strogatz_graph</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">to_directed</span><span class="p">()</span>
+</pre></div>
+
+
 <h2>Post production model</h2>
 <p>For post production, let’s follow the simple model given above, with two parts:</p>
 <ul>
@@ -159,6 +171,20 @@
 
 <p>Prints something like:</p>
 <p><img src="/images/sn1.png" alt="Post production" style="width: 400px;"/></p>
+<p>We see that with the parameters used, it converges to 0.5 posts / day on average across the network after about $T_c=20$ steps:</p>
+<div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">avg_posts</span><span class="p">[</span><span class="mi">20</span><span class="p">:])</span>
+</pre></div>
+
+
+<p>Prints somethings like:</p>
+<div class="highlight"><pre><span></span><span class="mf">0.5040494951777046</span>
+</pre></div>
+
+
+<p>It’s easy to see why. On the first day, each person produces <code>intrinsic * random()</code> posts, where <code>intrinsic = 0.25</code> and <code>random()</code> is a $U(0, 1)$, so on average it’s 0.5. So this part is on average $c=0.125$. Then, starting the second day, each person produces $c$ on average, plus for each friend, <code>yesterday_posts[v1] * network_effect * random()</code> additional posts, where <code>network_effect = 0.03</code>, and from the graph each person has 50 friends. So overall this is on average $c * k$, with $k = 50 * 0.03 * 0.5 = 0.75$. Once equilibrium is reached, the following holds: $c_next = c + c_next * k$. Solving this, $c_next = 0.5$.</p>
+<p>Note that the intrinsic part averages 0.125, and the network effect adds on another 0.375 in this model. Network effects drive engagement on social networks.</p>
+<p>We can also see that by making the network effect too strong, either by having too many friends or setting <code>network_effect</code> too high, we get exponential growth (in this case, the $c_next$ equation yields a nonsensical negative solution). For example, if we double the friend count to 100 (but keep everything else the same):</p>
+<p><img src="/images/sn2.png" alt="Post production" style="width: 400px;"/></p>
   </div>
   <div class="tag-cloud">
     <p>

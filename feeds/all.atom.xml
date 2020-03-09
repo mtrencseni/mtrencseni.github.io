@@ -27,14 +27,26 @@
 &lt;h2&gt;Watts–Strogatz random graphs&lt;/h2&gt;
 &lt;p&gt;Let’s run some Monte Carlo simulations to see this in action. We will use a random &lt;a href="https://en.wikipedia.org/wiki/Watts%E2%80%93Strogatz_model"&gt;Watts–Strogatz model&lt;/a&gt; for the social network, and use the &lt;a href="https://networkx.github.io/"&gt;networkx&lt;/a&gt; library to generate it for us. The Watts-Strogatz model creates a graph with $n$ nodes, arranged in a ring, with each node connected to the next $k$ nodes in the ring; this initial setup is clustered, and has a high diameter. Then, with probability $p$, each edge is re-connected to a random node on the ring, this causes the diameter of the graph to drop and produces a “small-world graph”, where each node is reachable from each other node in a low number of hops.&lt;/p&gt;
 &lt;p&gt;Some examples of Watts–Strogatz graphs:&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;nx.draw(connected_watts_strogatz_graph(n=10, k=4, p=0.0))&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;nx&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;draw&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;connected_watts_strogatz_graph&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
 &lt;p&gt;&lt;img src="/images/strogatz1.png" alt="Watts–Strogatz random graph" style="width: 400px;"/&gt;&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;nx.draw(connected_watts_strogatz_graph(n=10, k=4, p=0.5))&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;nx&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;draw&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;connected_watts_strogatz_graph&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0.5&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
 &lt;p&gt;&lt;img src="/images/strogatz2.png" alt="Watts–Strogatz random graph" style="width: 400px;"/&gt;&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;nx.draw(connected_watts_strogatz_graph(n=100, k=10, p=0.5))&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;nx&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;draw&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;connected_watts_strogatz_graph&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0.5&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
 &lt;p&gt;&lt;img src="/images/strogatz3.png" alt="Watts–Strogatz random graph" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;p&gt;For initial exploration, I will use a small graph:&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;g = connected_watts_strogatz_graph(n=1000, k=50, p=0.1).to_directed()&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;g&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;connected_watts_strogatz_graph&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1000&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;to_directed&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
 &lt;h2&gt;Post production model&lt;/h2&gt;
 &lt;p&gt;For post production, let’s follow the simple model given above, with two parts:&lt;/p&gt;
 &lt;ul&gt;
@@ -75,7 +87,21 @@
 
 
 &lt;p&gt;Prints something like:&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/sn1.png" alt="Post production" style="width: 400px;"/&gt;&lt;/p&gt;</content><category term="ab-testing"></category></entry><entry><title>Early stopping in A/B testing</title><link href="/early-testing-in-ab-testing.html" rel="alternate"></link><published>2020-03-05T00:00:00+01:00</published><updated>2020-03-05T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-03-05:/early-testing-in-ab-testing.html</id><summary type="html">&lt;p&gt;Increased false positive rate due to early stopping is beautiful nuance of statistical testing. It is equivalent to running at an overall higher alpha. Data scientists need to be aware of this phenomenon so they can control it and keep their organizations honest about their experimental results.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/early_stopping.png" alt="Early stopping" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;&lt;img src="/images/sn1.png" alt="Post production" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;We see that with the parameters used, it converges to 0.5 posts / day on average across the network after about $T_c=20$ steps:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mean&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;avg_posts&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;20&lt;/span&gt;&lt;span class="p"&gt;:])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Prints somethings like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="mf"&gt;0.5040494951777046&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;It’s easy to see why. On the first day, each person produces &lt;code&gt;intrinsic * random()&lt;/code&gt; posts, where &lt;code&gt;intrinsic = 0.25&lt;/code&gt; and &lt;code&gt;random()&lt;/code&gt; is a $U(0, 1)$, so on average it’s 0.5. So this part is on average $c=0.125$. Then, starting the second day, each person produces $c$ on average, plus for each friend, &lt;code&gt;yesterday_posts[v1] * network_effect * random()&lt;/code&gt; additional posts, where &lt;code&gt;network_effect = 0.03&lt;/code&gt;, and from the graph each person has 50 friends. So overall this is on average $c * k$, with $k = 50 * 0.03 * 0.5 = 0.75$. Once equilibrium is reached, the following holds: $c_next = c + c_next * k$. Solving this, $c_next = 0.5$.&lt;/p&gt;
+&lt;p&gt;Note that the intrinsic part averages 0.125, and the network effect adds on another 0.375 in this model. Network effects drive engagement on social networks.&lt;/p&gt;
+&lt;p&gt;We can also see that by making the network effect too strong, either by having too many friends or setting &lt;code&gt;network_effect&lt;/code&gt; too high, we get exponential growth (in this case, the $c_next$ equation yields a nonsensical negative solution). For example, if we double the friend count to 100 (but keep everything else the same):&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/sn2.png" alt="Post production" style="width: 400px;"/&gt;&lt;/p&gt;</content><category term="ab-testing"></category></entry><entry><title>Early stopping in A/B testing</title><link href="/early-testing-in-ab-testing.html" rel="alternate"></link><published>2020-03-05T00:00:00+01:00</published><updated>2020-03-05T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-03-05:/early-testing-in-ab-testing.html</id><summary type="html">&lt;p&gt;Increased false positive rate due to early stopping is beautiful nuance of statistical testing. It is equivalent to running at an overall higher alpha. Data scientists need to be aware of this phenomenon so they can control it and keep their organizations honest about their experimental results.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/early_stopping.png" alt="Early stopping" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;In the past posts we’ve been computing p values for various &lt;a href="https://en.wikipedia.org/wiki/Frequentist_inference"&gt;frequentist&lt;/a&gt; statistical tests that are useful for A/B testing (&lt;a href="http://bytepawn.com/ab-testing-and-the-ztest.html#ab-testing-and-the-ztest"&gt;Z-test&lt;/a&gt;, &lt;a href="http://bytepawn.com/ab-testing-and-the-ttest.html#ab-testing-and-the-ttest"&gt;t-test&lt;/a&gt;, &lt;a href="http://bytepawn.com/ab-testing-and-the-chi-squared-test.html#ab-testing-and-the-chi-squared-test"&gt;Chi-squared&lt;/a&gt;, &lt;a href="http://bytepawn.com/ab-testing-and-fishers-exact-test.html#ab-testing-and-fishers-exact-test"&gt;Fisher's exact&lt;/a&gt;). When we modeled the A/B test, we assumed the protocol is:&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;decide what metric we will use to evaluate the test (eg. conversion, timespent, DAU)&lt;/li&gt;
