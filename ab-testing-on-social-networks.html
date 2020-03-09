@@ -95,7 +95,7 @@
 <li>intrinsic: a random variable which describes how many posts daily a user on the network is likely to create</li>
 <li>network: users are more likely to create posts if their friends create more posts</li>
 </ul>
-<p>Let’s assume that group A gets the UI element and it actually boosts their instrinsic post production. Because of the network effect, we will:</p>
+<p>Let’s assume that group A gets the UI element and it actually boosts their instrinsic post production. Because of the network effect, we expect to:</p>
 <ul>
 <li>measure an increased boost for A (vs just the intrinsic effect), because of A-A “self” interaction (network effect)</li>
 <li>measure an increased boost for B (vs no effect), because of A-B interaction (spillover effect)</li>
@@ -106,6 +106,7 @@
 <li>the effect we measure in A (intrinsic effect plus network effect) will be less than what we get if we release A to 100%, since then the whole network will reinforce</li>
 <li>the network effect depends on the social network: more connections means more reinforcement</li>
 </ul>
+<p>As we will see below, there are actually e</p>
 <p><a href="https://github.com/mtrencseni/playground/blob/master/AB%20testing%20on%20social%20networks.ipynb">The code shown below is up on Github.</a></p>
 <h2>Watts–Strogatz random graphs</h2>
 <p>Let’s run some Monte Carlo simulations to see this in action. We will use a random <a href="https://en.wikipedia.org/wiki/Watts%E2%80%93Strogatz_model">Watts–Strogatz model</a> for the social network, and use the <a href="https://networkx.github.io/">networkx</a> library to generate it for us. The Watts-Strogatz model creates a graph with $n$ nodes, arranged in a ring, with each node connected to the next $k$ nodes in the ring; this initial setup is clustered, and has a high diameter. Then, with probability $p$, each edge is re-connected to a random node on the ring, this causes the diameter of the graph to drop and produces a “small-world graph”, where every node is reachable from every other node in a low number of hops.</p>
@@ -134,7 +135,7 @@
 <p>For post production, let’s follow the simple model given above, with two parts:</p>
 <ul>
 <li>intrinsic post production</li>
-<li>network effects: seeing my friend's post causes me to proportionally post more</li>
+<li>network effects: seeing my friends posts causes me to proportionally post more</li>
 </ul>
 <p>In code, we will run the simulation day-to-day, ie. posts from day T will trigger people to post more or day T+1. In this toy model, we will allow non-numeric post production, so people can write eg. 0.1134 posts a day:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">step_posts</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">yesterday_posts</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">intrinsic</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">network_effect</span><span class="o">=</span><span class="mf">0.03</span><span class="p">):</span>
