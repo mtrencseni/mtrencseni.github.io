@@ -236,14 +236,14 @@
 
 <p>These results are very interesting:</p>
 <ul>
-<li>network effect dampens: we underestimate the true intrinsic effect (1.7% vs 5%), because A’s non-A friends don’t have the feature, so they don’t get the boost “back” through network effects</li>
+<li>network effect dampens: we underestimate the true intrinsic effect (1.7% vs 5%), because A’s non-A friends don’t have the feature, so As don’t get the boost “back” through these edges</li>
 <li>spillover effect: we measure a lift due to the network effect for friends of A, and further down the network, depending on the distance from As</li>
 <li>if we release this feature to the entire network, average post production would be $ (1 + 0.05) \times 0.25 \times 0.5 / (1 - 50 \times 0.5 \times 0.03) = 0.525$, or a 5% lift compared to the base of 0.5, as expected</li>
 <li>the overall lift is higher than the “rest” because A is pulling it up</li>
 <li>the last 2 lifts can be made arbitrarily small by increasing the overall size $n$ of the network while keeping the experimental group size $N$ fixed</li>
 </ul>
-<p>The problem of the network effect dampening is a function of the relative strength of the network effect. In this simulation, we set the parameters so that the network effect is very strong, and boosts average post production from 0.1 to 0.5, by 5x! If the network effect were weaker, the experimental dampening would also be weaker, and the same for the spillover effect.</p>
-<p>We can see this in action by repeating the experiment with network_effect = 0.03, so a 3x weaker network effect. In this case, the base value works out to 0.1666, and compared to this base, we measure:</p>
+<p>The problem of the network effect dampening is a function of the relative strength of the network effect. In this simulation, we set the parameters so that the network effect is very strong, and boosts average post production from 0.125 to 0.5, by 4x! If the network effect were weaker, the experimental dampening would also be weaker, and the same for the spillover effect.</p>
+<p>We can see this in action by repeating the experiment with <code>network_effect = 0.01</code>, so a 3x weaker network effect. In this case, the base value works out to 0.1666, and compared to this base, we measure:</p>
 <div class="highlight"><pre><span></span><span class="n">A</span> <span class="n">lift</span><span class="p">:</span>            <span class="mf">3.777</span><span class="o">%</span>
 <span class="n">Friends</span> <span class="n">of</span> <span class="n">A</span> <span class="n">lift</span><span class="p">:</span> <span class="mf">0.070</span><span class="o">%</span>
 <span class="n">Rest</span> <span class="n">lift</span><span class="p">:</span>         <span class="mf">0.032</span><span class="o">%</span>
