@@ -87,7 +87,7 @@
 
 
 &lt;p&gt;Prints something like:&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/sn1.png" alt="Post production" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/sn1.png" alt="Post production" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;We see that with the parameters used, it converges to 0.5 posts / day on average across the network after about $T_c=20$ steps:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mean&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;avg_posts&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;20&lt;/span&gt;&lt;span class="p"&gt;:])&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
