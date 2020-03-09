@@ -2,8 +2,8 @@
 <feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Data</title><link href="/" rel="alternate"></link><link href="/feeds/data.atom.xml" rel="self"></link><id>/</id><updated>2020-03-09T00:00:00+01:00</updated><entry><title>A/B testing on social networks</title><link href="/ab-testing-on-social-networks.html" rel="alternate"></link><published>2020-03-09T00:00:00+01:00</published><updated>2020-03-09T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-03-09:/ab-testing-on-social-networks.html</id><summary type="html">&lt;p&gt;I use Monte Carlo simulations to show that experimentation on social networks is a beatiful statistical problem with unexpected nuances due to network effects.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/strogatz2.png" alt="Watts-Strogatz" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;In the previous posts on A/B testing we have implicitly assumed independece:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;if A1 and A2 are two units in the A bucket, the choices of A1 and A2 are independent of each other&lt;/li&gt;
-&lt;li&gt;if A1 and B1 are two units in A and B, the choices of A1 and B1 are independent of each other&lt;/li&gt;
+&lt;li&gt;if $A_1$ and $A_2$ are two units in the A bucket, the choices of $A_1$ and $A_2$ are independent of each other&lt;/li&gt;
+&lt;li&gt;the same across A and B&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;This even went into the math, because the Central Limit Theorem holds when the random variables added are independent. But the point this post drives home is not going to be about the CLT.&lt;/p&gt;
 &lt;p&gt;Let’s take the case of a document creation UI. An experiment could test whether people are more likely to create a document if the UI element for creation is bigger and more prominent. If this product does not have a sharing/network component, it’s reasonable to make the above 2 independence assumptions.&lt;/p&gt;
