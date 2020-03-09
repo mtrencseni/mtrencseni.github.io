@@ -189,10 +189,10 @@ pick out 1,000 people randomly, and boost their intrinsic post production by 5%&
 
 
 &lt;p&gt;89% of A’s friends are also As. So in this setup, we expect the measured A lift to be much closer to the true lift of 5% (using the original network_effect = 0.03). Running the simulation with this clustered A population, we get:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="n"&gt;lift&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;4.307&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="n"&gt;lift&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;            &lt;span class="mf"&gt;4.307&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;
 &lt;span class="n"&gt;Friends&lt;/span&gt; &lt;span class="n"&gt;of&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="n"&gt;lift&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.579&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;
-&lt;span class="n"&gt;Rest&lt;/span&gt; &lt;span class="n"&gt;lift&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.460&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;
-&lt;span class="n"&gt;Overall&lt;/span&gt; &lt;span class="n"&gt;lift&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.508&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;
+&lt;span class="n"&gt;Rest&lt;/span&gt; &lt;span class="n"&gt;lift&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;         &lt;span class="mf"&gt;0.460&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;
+&lt;span class="n"&gt;Overall&lt;/span&gt; &lt;span class="n"&gt;lift&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;      &lt;span class="mf"&gt;0.508&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
