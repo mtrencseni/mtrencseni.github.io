@@ -103,12 +103,12 @@
 </ul>
 <p>Additionally:</p>
 <ul>
-<li>the effect we measure in A (intrinsic effect plus partial network effect) will be less than what we get if we release A to 100%, since then the whole network will reinforce</li>
+<li>the effect we measure in A (intrinsic effect plus network effect) will be less than what we get if we release A to 100%, since then the whole network will reinforce</li>
 <li>the network effect depends on the social network: more connections means more reinforcement</li>
 </ul>
 <p><a href="https://github.com/mtrencseni/playground/blob/master/AB%20testing%20on%20social%20networks.ipynb">The code shown below is up on Github.</a></p>
 <h2>Watts–Strogatz random graphs</h2>
-<p>Let’s run some Monte Carlo simulations to see this in action. We will use a random <a href="https://en.wikipedia.org/wiki/Watts%E2%80%93Strogatz_model">Watts–Strogatz model</a> for the social network, and use the <a href="https://networkx.github.io/">networkx</a> library to generate it for us. The Watts-Strogatz model creates a graph with $n$ nodes, arranged in a ring, with each node connected to the next $k$ nodes in the ring; this initial setup is clustered, and has a high diameter. Then, with probability $p$, each edge is re-connected to a random node on the ring, this causes the diameter of the graph to drop and produces a “small-world graph”, where each node is reachable from each other node in a low number of hops.</p>
+<p>Let’s run some Monte Carlo simulations to see this in action. We will use a random <a href="https://en.wikipedia.org/wiki/Watts%E2%80%93Strogatz_model">Watts–Strogatz model</a> for the social network, and use the <a href="https://networkx.github.io/">networkx</a> library to generate it for us. The Watts-Strogatz model creates a graph with $n$ nodes, arranged in a ring, with each node connected to the next $k$ nodes in the ring; this initial setup is clustered, and has a high diameter. Then, with probability $p$, each edge is re-connected to a random node on the ring, this causes the diameter of the graph to drop and produces a “small-world graph”, where every node is reachable from every other node in a low number of hops.</p>
 <p>Some examples of Watts–Strogatz graphs:</p>
 <div class="highlight"><pre><span></span><span class="n">nx</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">connected_watts_strogatz_graph</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mf">0.0</span><span class="p">))</span>
 </pre></div>
