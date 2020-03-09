@@ -236,8 +236,8 @@
 
 <p>These results are very interesting:</p>
 <ul>
-<li>network effect dampens: we underestimate the true intrinsic effect (1.7% vs 5%), because A’s non-A friends don’t have the feature, so As don’t get the boost “back” through these edges</li>
-<li>spillover effect: we measure a lift due to the network effect for friends of A, and further down the network, depending on the distance from As</li>
+<li><strong>the network effect is dampened:</strong> we underestimate the true intrinsic effect (1.7% vs 5%), because A’s non-A friends don’t have the feature, so As don’t get the boost “back” through these edges</li>
+<li><strong>spillover effect:</strong> we measure a lift due to the network effect for friends of A, and further down the network, depending on the distance from As</li>
 <li>if we release this feature to the entire network, average post production would be $ (1 + 0.05) \times 0.25 \times 0.5 / (1 - 50 \times 0.5 \times 0.03) = 0.525$, or a 5% lift compared to the base of 0.5, as expected</li>
 <li>the overall lift is higher than the “rest” because A is pulling it up</li>
 <li>the last 2 lifts can be made arbitrarily small by increasing the overall size $n$ of the network while keeping the experimental group size $N$ fixed</li>
