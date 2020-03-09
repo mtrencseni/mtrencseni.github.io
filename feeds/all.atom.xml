@@ -191,7 +191,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;With proper random sampling, the ratio is in fact 1%, whereas in the highly clustered case 89% of A’s friends are also As. So in this setup, we expect the measured A lift to be much closer to the true lift of 5% (using the original network_effect = 0.03). Running the simulation with this clustered A population, we get:&lt;/p&gt;
+&lt;p&gt;With proper random sampling, the ratio is indeed 1%, whereas in the highly clustered case 89% of A’s friends are also As. So in this setup, we expect the measured A lift to be much closer to the true lift of 5% (using the original network_effect = 0.03). Running the simulation with this clustered A population, we get:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="n"&gt;lift&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;            &lt;span class="mf"&gt;4.307&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;
 &lt;span class="n"&gt;Friends&lt;/span&gt; &lt;span class="n"&gt;of&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="n"&gt;lift&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.579&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;
 &lt;span class="n"&gt;Rest&lt;/span&gt; &lt;span class="n"&gt;lift&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;         &lt;span class="mf"&gt;0.460&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;
