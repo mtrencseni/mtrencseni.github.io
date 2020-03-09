@@ -9,8 +9,8 @@
 &lt;p&gt;Let’s take the case of post production. An experiment could test whether people are more likely to create a post if the UI element for posting is bigger and more prominent. If this product does not have a sharing/network component, it’s reasonable to make the above 2 independence assumptions. But on a social network the above assumptions do not hold. If the experiment boosts post production, this could lead to their friends seeing more posts in their feed, which in turn could lead to them posting more, which in turn... and so on.&lt;/p&gt;
 &lt;p&gt;Sticking to the post production example, we can model the effect if we split posting propensity into two parts:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;intrinsic: a random variable which describes how many posts daily a user on the network is likely to create&lt;/li&gt;
-&lt;li&gt;network: users are more likely to create posts if their friends create more posts&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;intrinsic&lt;/strong&gt;: a random variable which describes how many posts daily a user on the network is likely to create&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;network effect&lt;/strong&gt;: users are more likely to create posts if they see their friends' posts&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Let’s assume that group A gets the UI element and it actually boosts their instrinsic post production. Because of the network effect, we expect to:&lt;/p&gt;
 &lt;ul&gt;
