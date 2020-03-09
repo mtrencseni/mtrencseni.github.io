@@ -131,7 +131,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Looking at the converged part of the timeline, this is what we get for overall post production, just A, friends of A and rest:&lt;/p&gt;
+&lt;p&gt;Looking at the converged part of the timeline, this is what we get for (i) overall post production, (ii) just A, (iii) friends of A and (iv) rest:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/sn3.png" alt="Post production" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Combining all the days, we can get better statistics:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;base&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.5&lt;/span&gt;
