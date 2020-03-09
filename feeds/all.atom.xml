@@ -153,14 +153,14 @@
 
 &lt;p&gt;These results are very interesting:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;the network effect is dampened:&lt;/strong&gt; we underestimate the true intrinsic effect (1.7% vs 5%), because A’s non-A friends don’t have the feature, so As don’t get the boost “back” through these edges&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;intrinsic production dampened by the network effect:&lt;/strong&gt; we underestimate the true intrinsic effect (1.7% vs 5%), because A’s non-A friends don’t have the feature, so As don’t get the boost “back” through these edges&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;spillover effect:&lt;/strong&gt; we measure a lift due to the network effect for friends of A, and further down the network, depending on the distance from As&lt;/li&gt;
 &lt;li&gt;if we release this feature to the entire network, average post production would be $ (1 + 0.05) \times 0.25 \times 0.5 / (1 - 50 \times 0.5 \times 0.03) = 0.525$, or a 5% lift compared to the base of 0.5, as expected&lt;/li&gt;
 &lt;li&gt;the overall lift is higher than the “rest” because A is pulling it up&lt;/li&gt;
 &lt;li&gt;the last 2 lifts (rest and overall) can be made arbitrarily small by increasing the overall size $n$ of the network while keeping the experimental group size $N$ fixed&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;The problem of the network effect dampening is a function of the relative strength of the network effect. In this simulation, we set the parameters so that the network effect is very strong, and boosts average post production from 0.125 to 0.5, by 4x! If the network effect were weaker, the experimental dampening would also be weaker, and the same for the spillover effect.&lt;/p&gt;
-&lt;p&gt;We can see this in action by repeating the experiment with &lt;code&gt;network_effect = 0.01&lt;/code&gt;, so a 3x weaker network effect. In this case, the base value works out to 0.1666 (no experiment), and compared to this base, we measure (with +5% post production for the $N=1000$ population A):&lt;/p&gt;
+&lt;p&gt;Intrinsic production dampened by the network effect is a function of the relative strength of the network effect. In this simulation, we set the parameters so that the network effect is very strong, and boosts average post production from 0.125 to 0.5, by 4x! If the network effect were weaker, the experimental dampening would also be weaker, and the same for the spillover effect.&lt;/p&gt;
+&lt;p&gt;We can see this in action by repeating the experiment with &lt;code&gt;network_effect = 0.01&lt;/code&gt;, so a 3x weaker network effect. In this case, the base value works out to 0.1666 (no experiment), so the network effect only boosts post production by 1.666/1.25=1.3x. In the experiment, compared to the base, we measure (with +5% post production for the $N=1000$ population A):&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="n"&gt;lift&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;            &lt;span class="mf"&gt;3.777&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;
 &lt;span class="n"&gt;Friends&lt;/span&gt; &lt;span class="n"&gt;of&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="n"&gt;lift&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.070&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;
 &lt;span class="n"&gt;Rest&lt;/span&gt; &lt;span class="n"&gt;lift&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;         &lt;span class="mf"&gt;0.032&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;
@@ -168,7 +168,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;This confirms the above: if the network effect is weaker, the measured lift in the experimental group is closer to the effect size because the network effect dampening is lower (3.77% vs 1.70%), while the spillover effect is lower (0.07% vs 0.60%). We can achieve the same effect of making the network effect smaller by decreasing the edge count of the graph, ie. we would get the same result by using a $k=50/3$ Watts–Strogatz graph instead of a $k=50$ one.&lt;/p&gt;
+&lt;p&gt;This confirms the above: if the network effect is weaker, the measured lift in the experimental group is closer to the effect size because the network effect dampening it is lower (3.77% vs 1.70%), while the spillover effect is lower (0.07% vs 0.60%). We can achieve the same effect of making the network effect smaller by decreasing the edge count of the graph, ie. we would get the same result by using a $k=50/3$ Watts–Strogatz graph instead of a $k=50$ one.&lt;/p&gt;
 &lt;p&gt;Another interesting experiment is if we pick out a highly clustered population for the experiment group A. We can achieve this by:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;population_A&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;g&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;nodes&lt;/span&gt;&lt;span class="p"&gt;)[:&lt;/span&gt;&lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt; &lt;span class="c1"&gt;# set(sample(g.nodes, N))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
