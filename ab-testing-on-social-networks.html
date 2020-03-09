@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-1812620-2');
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="I use Monte Carlo simulations to show that experimentation on social networks is a beatiful statistical problem with unexpected network effects." />
+<meta name="keywords" content="ab-testing">
+<meta property="og:site_name" content="Bytepawn"/>
+<meta property="og:title" content="A/B on social networks"/>
+<meta property="og:description" content="I use Monte Carlo simulations to show that experimentation on social networks is a beatiful statistical problem with unexpected network effects."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/ab-testing-on-social-networks.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-03-09 00:00:00+01:00"/>
+<meta property="article:modified_time" content="2020-03-09 00:00:00+01:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data"/>
+<meta property="article:tag" content="ab-testing"/>
+<meta property="og:image" content="/images/strogatz2.png"/>
+
+  <title>Bytepawn &ndash; A/B on social networks</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href=""></a></h1>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="ab-testing-on-social-networks">A/B on social networks</h1>
+    <p>Posted on Mon 09 March 2020 in <a href="/category/data.html">Data</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>In the previous posts on A/B testing we have implicitly assumed independece:</p>
+<ul>
+<li>if A1 and A2 are two units in the A bucket, the choices of A1 and A2 are independent of each other</li>
+<li>if A1 and B1 are two units in A and B, the choices of A1 and B1 are independent of each other</li>
+</ul>
+<p>This even went into the math, because the Central Limit Theorem holds when the random variables added are independent. But the point this post drives home is not going to be about the CLT.</p>
+<p>Let’s take the case of a document creation UI. An experiment could test whether people are more likely to create a document if the UI element for creation is bigger and more prominent. If this product does not have a sharing/network component, it’s reasonable to make the above 2 independence assumptions.</p>
+<p>But on a social network the above assumptions may not be true. For example, assume the UI element for creating posts on a social network. If the experiment makes the UI element bigger and more prominent, and people create more posts, this could lead to their friends seeing more posts in their feed, which in turn could lead to them creating most posts, which in turn... Irrespective of which experimentation buckets the users are assigned to.</p>
+<p>Sticking to the post creation example, we can model the effect if we split post creation propensity into two parts:</p>
+<ul>
+<li>intrinsic: a random variable which describes how many posts daily a user on the network is likely to create; in an A/B test like the above, this is the root metric we are moving with the experiment</li>
+<li>network: users are more likely to create posts if their friends create more posts</li>
+</ul>
+<p>Let’s assume that group A gets the UI element and it actually boosts their instrinsic post creation. Because of the network effect, we will:</p>
+<ul>
+<li>measure an increased boost for A (vs just the intrinsic effect), because of A-A “self” interaction (network effect)</li>
+<li>measure an increased boost for B (vs no effect), because of A-B interaction (spillover effect)</li>
+<li>since B is also boosted, A-B interaction also boosts A; in fact all edges boost</li>
+</ul>
+<p>Additionally:</p>
+<ul>
+<li>the effect we measure in A (intrinsic effect plus partional network effect) will be less than what we get if we release A to 100%, since then the whole network will reinforce</li>
+<li>the network effect depends on the social network: more connections means more reinforcement</li>
+</ul>
+<h2>Watts–Strogatz random graphs</h2>
+<p>Let’s run some Monte Carlo simulations to see this in action. We will use a random <a href="https://en.wikipedia.org/wiki/Watts%E2%80%93Strogatz_model">Watts–Strogatz model</a> for the social network, and use the <a href="https://networkx.github.io/">networkx</a> library to generate it for us. The Watts-Strogatz model creates a graph with $n$ nodes, arranged in a ring, with each node connected to the next $k$ nodes in the ring; this initial setup is clustered, and has a high diameter. Then, with probability $p$, each edge is re-connected to a random node on the ring, this causes the diameter of the graph to drop and produces a “small-world graph”, where each node is reachable from each other node in a low number of hops.</p>
+<p>Some examples of Watts–Strogatz graphs:</p>
+<p><code>nx.draw(connected_watts_strogatz_graph(n=10, k=4, p=0.0))</code></p>
+<p><img src="/images/strogatz1.png" alt="Watts–Strogatz random graph" style="width: 400px;"/></p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/ab-testing.html">ab-testing</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-1812620-2');
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "A/B on social networks",
+  "headline": "A/B on social networks",
+  "datePublished": "2020-03-09 00:00:00+01:00",
+  "dateModified": "2020-03-09 00:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/ab-testing-on-social-networks.html",
+  "description": "I use Monte Carlo simulations to show that experimentation on social networks is a beatiful statistical problem with unexpected network effects."
+}
+</script></body>
+</html>
