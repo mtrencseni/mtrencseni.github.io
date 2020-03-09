@@ -151,12 +151,13 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Note that the last 2 lifts can be made arbitrarily small by increasing the overall size $n$ of the network while keeping the experimental group size $N$ fixed. The overall lift is higher than the “rest” because A is pulling it up.&lt;/p&gt;
-&lt;p&gt;The results are very interesting:&lt;/p&gt;
+&lt;p&gt;These results are very interesting:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;network effect dampens: we underestimate the true intrinsic effect (1.7% vs 5%), because A’s non-A friends don’t have the feature, so they don’t get the boost “back” through network effects&lt;/li&gt;
 &lt;li&gt;spillover effect: we measure a lift due to the network effect for friends of A, and further down the network, depending on the distance from As&lt;/li&gt;
 &lt;li&gt;if we release this feature to the entire network, average post production would be $ (1 + 0.05) \times 0.25 \times 0.5 / (1 - 50 \times 0.5 \times 0.03) = 0.525$, or a 5% lift compared to the base of 0.5, as expected&lt;/li&gt;
+&lt;li&gt;the overall lift is higher than the “rest” because A is pulling it up&lt;/li&gt;
+&lt;li&gt;the last 2 lifts can be made arbitrarily small by increasing the overall size $n$ of the network while keeping the experimental group size $N$ fixed&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;The problem of the network effect dampening is a function of the relative strength of the network effect. In this simulation, we set the parameters so that the network effect is very strong, and boosts average post production from 0.1 to 0.5, by 5x! If the network effect were weaker, the experimental dampening would also be weaker, and the same for the spillover effect.&lt;/p&gt;
 &lt;p&gt;We can see this in action by repeating the experiment with network_effect = 0.03, so a 3x weaker network effect. In this case, the base value works out to 0.1666, and compared to this base, we measure:&lt;/p&gt;
