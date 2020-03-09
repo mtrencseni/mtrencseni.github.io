@@ -182,7 +182,7 @@
 
 
 <p>It’s easy to see why. On the first day, each person produces <code>intrinsic * random()</code> posts, where <code>intrinsic = 0.25</code> and <code>random()</code> is a $U(0, 1)$ uniform random variable, so on average it’s 0.5. So this part is on average $c=0.125$. Then, starting the second day, each person produces $c$ on average, plus for each friend, <code>yesterday_posts[v1] * network_effect * random()</code> additional posts, where <code>network_effect = 0.03</code>, and from the graph each person has 50 friends. So overall this is on average $c * k$, with $k = 50 * 0.03 * 0.5 = 0.75$. Once equilibrium is reached, the following holds: $c_{next} = c + c_{next} * k$. Solving this, $c_{next} = 0.5$.</p>
-<p>Note that the intrinsic part averages 0.125, and the network effect adds on another 0.375 in this model. <strong>In this toy model, 3 out of 4 posts is the result of network effects!</strong> This is a good qualitative indication why network effects are so important for engagement.</p>
+<p>Note that the intrinsic part averages 0.125, and the network effect adds on another 0.375. <strong>In this toy model, 3 out of 4 posts is the result of network effects!</strong> This is a good qualitative indication why network effects are so important for engagement.</p>
 <p>We can also see that by making the network effect too strong, either by having too many friends or setting <code>network_effect</code> too high, we get exponential growth (in this case, the $c_{next}$ equation yields a nonsensical negative solution). For example, if we double the friend count to 100 (but keep everything else the same):</p>
 <p><img src="/images/sn2.png" alt="Post production" style="width: 600px;"/></p>
 <h2>Experiments</h2>
