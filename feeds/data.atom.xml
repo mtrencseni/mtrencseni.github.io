@@ -53,7 +53,7 @@
 &lt;li&gt;intrinsic post production&lt;/li&gt;
 &lt;li&gt;network effects: if I see my friends posting, that gives me an additional push to post&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;In code, we will run the simulation day-to-day, ie. posts from day T will trigger people to most more or day T+1. In this toy model, we will allow non-numeric post production, so people can write eg. 0.1134 posts a day:&lt;/p&gt;
+&lt;p&gt;In code, we will run the simulation day-to-day, ie. posts from day T will trigger people to post more or day T+1. In this toy model, we will allow non-numeric post production, so people can write eg. 0.1134 posts a day:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;step_posts&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;g&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;yesterday_posts&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;intrinsic&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0.25&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;network_effect&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0.03&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;today_posts&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;defaultdict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="c1"&gt;# baseline&lt;/span&gt;
