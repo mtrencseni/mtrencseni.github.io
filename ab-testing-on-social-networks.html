@@ -185,6 +185,103 @@
 <p>Note that the intrinsic part averages 0.125, and the network effect adds on another 0.375 in this model. In this toy model, 3 out of 4 posts is the result of network effects. This is a good qualitative indication why network effects are so important for engagement.</p>
 <p>We can also see that by making the network effect too strong, either by having too many friends or setting <code>network_effect</code> too high, we get exponential growth (in this case, the $c_{next}$ equation yields a nonsensical negative solution). For example, if we double the friend count to 100 (but keep everything else the same):</p>
 <p><img src="/images/sn2.png" alt="Post production" style="width: 400px;"/></p>
+<p>Experiments
+Let’s do an experiment and see what happens. For this:
+use a bigger graph, with $n=100,000$ nodes, keep $k=50$
+pick out 1,000 people randomly, and boost their intrinsic post production by 5%</p>
+<p>Code:</p>
+<div class="highlight"><pre><span></span><span class="n">g</span> <span class="o">=</span> <span class="n">connected_watts_strogatz_graph</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="o">*</span><span class="mi">1000</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">to_directed</span><span class="p">()</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">population_A</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sample</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+<span class="n">effect_size</span> <span class="o">=</span> <span class="mf">0.05</span>
+
+<span class="k">def</span> <span class="nf">step_posts</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">yesterday_posts</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">intrinsic</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">network_effect</span><span class="o">=</span><span class="mf">0.03</span><span class="p">):</span>
+    <span class="n">today_posts</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="c1"># baseline</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">population_A</span><span class="p">:</span>
+            <span class="c1"># experiment</span>
+            <span class="n">today_posts</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">intrinsic</span> <span class="o">*</span> <span class="n">random</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">effect_size</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">today_posts</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">intrinsic</span> <span class="o">*</span> <span class="n">random</span><span class="p">()</span>
+    <span class="c1"># network effect</span>
+    <span class="k">if</span> <span class="n">yesterday_posts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+            <span class="n">today_posts</span><span class="p">[</span><span class="n">v2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">yesterday_posts</span><span class="p">[</span><span class="n">v1</span><span class="p">]</span> <span class="o">*</span> <span class="n">network_effect</span> <span class="o">*</span> <span class="n">random</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">today_posts</span>
+</pre></div>
+
+
+<p>Looking at the converged part of the timeline, this is what we get for overall post production, just A, friends of A and rest:</p>
+<p><img src="/images/sn3.png" alt="Post production" style="width: 400px;"/></p>
+<p>Combining all the days, we can get better statistics:</p>
+<div class="highlight"><pre><span></span><span class="n">base</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="k">def</span> <span class="nf">lift</span><span class="p">(</span><span class="n">a</span><span class="p">):</span> <span class="k">return</span> <span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">/</span><span class="n">base</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;A lift: </span><span class="si">%.3f%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">lift</span><span class="p">(</span><span class="n">avg_posts_A</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Friends of A lift: </span><span class="si">%.3f%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">lift</span><span class="p">(</span><span class="n">avg_posts_A_friends</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Rest lift: </span><span class="si">%.3f%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">lift</span><span class="p">(</span><span class="n">avg_posts_rest</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Overall lift: </span><span class="si">%.3f%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">lift</span><span class="p">(</span><span class="n">avg_posts_all</span><span class="p">))</span>
+</pre></div>
+
+
+<p>So compared to the base of 0.5 (no experiment), we measure:</p>
+<div class="highlight"><pre><span></span><span class="n">A</span> <span class="n">lift</span><span class="p">:</span>            <span class="mf">1.702</span><span class="o">%</span>
+<span class="n">Friends</span> <span class="n">of</span> <span class="n">A</span> <span class="n">lift</span><span class="p">:</span> <span class="mf">0.605</span><span class="o">%</span>
+<span class="n">Rest</span> <span class="n">lift</span><span class="p">:</span>         <span class="mf">0.411</span><span class="o">%</span>
+<span class="n">Overall</span> <span class="n">lift</span><span class="p">:</span>      <span class="mf">0.501</span><span class="o">%</span>
+</pre></div>
+
+
+<p>Note that the last 2 lifts can be made arbitrarily small by increasing the overall size $n$ of the network while keeping the experimental group size $N$ fixed. The overall lift is higher than the “rest” because A is pulling it up.</p>
+<p>The results are very interesting:</p>
+<ul>
+<li>network effect dampens: we underestimate the true intrinsic effect (1.7% vs 5%), because A’s non-A friends don’t have the feature, so they don’t get the boost “back” through network effects</li>
+<li>spillover effect: we measure a lift due to the network effect for friends of A, and further down the network, depending on the distance from As</li>
+<li>if we release this feature to the entire network, average post production would be $ (1 + 0.05) \times 0.25 \times 0.5 / (1 - 50 \times 0.5 \times 0.03) = 0.525$, or a 5% lift compared to the base of 0.5, as expected</li>
+</ul>
+<p>The problem of the network effect dampening is a function of the relative strength of the network effect. In this simulation, we set the parameters so that the network effect is very strong, and boosts average post production from 0.1 to 0.5, by 5x! If the network effect were weaker, the experimental dampening would also be weaker, and the same for the spillover effect.</p>
+<p>We can see this in action by repeating the experiment with network_effect = 0.03, so a 3x weaker network effect. In this case, the base value works out to 0.1666, and compared to this base, we measure:</p>
+<div class="highlight"><pre><span></span><span class="n">A</span> <span class="n">lift</span><span class="p">:</span>            <span class="mf">3.777</span><span class="o">%</span>
+<span class="n">Friends</span> <span class="n">of</span> <span class="n">A</span> <span class="n">lift</span><span class="p">:</span> <span class="mf">0.070</span><span class="o">%</span>
+<span class="n">Rest</span> <span class="n">lift</span><span class="p">:</span>         <span class="mf">0.032</span><span class="o">%</span>
+<span class="n">Overall</span> <span class="n">lift</span><span class="p">:</span>      <span class="mf">0.085</span><span class="o">%</span>
+</pre></div>
+
+
+<p>This confirms the above: if the network effect is weaker, the measured lift in the experimental group is closer to the effect size because the network effect dampening is lower (3.77% vs 1.70%), while the spillover effect is lower (0.07% vs 0.60%). We can achieve the same effect of making the network effect smaller by decreasing the edge count of the graph, ie. we would get the same result by using a $k=50/3$ Watts–Strogatz graph instead of a $k=50$ one.</p>
+<p>Another interesting experiment is if we pick out a highly clustered population for the experiment group A. We can achieve this by:</p>
+<div class="highlight"><pre><span></span><span class="n">population_A</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">)[:</span><span class="n">N</span><span class="p">])</span> <span class="c1"># set(sample(g.nodes, N))</span>
+</pre></div>
+
+
+<p>The commented out part is the original, randomly sampled population. First, let’s make sure that this way of picking out N=1000 is in fact more highly clustered than properly sampling. In the original setup, we expect each A to have on average N/n = 1% of neighbours that are also in A, whereas by picking out N subsequent nodes, since only p=0.1 portion of edges were re-arranged in the Watts-Strogatz process, we expect this ratio to be significantly higher:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ratio_AA_friendship</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">population_A</span><span class="p">):</span>
+    <span class="n">num_AA_edges</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([(</span><span class="n">v1</span> <span class="ow">in</span> <span class="n">population_A</span> <span class="ow">and</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">population_A</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">])</span>
+    <span class="n">num_A_edges</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([(</span><span class="n">v1</span> <span class="ow">in</span> <span class="n">population_A</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">num_AA_edges</span> <span class="o">/</span> <span class="n">num_A_edges</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1">&#39;</span><span class="o">%</span> <span class="n">ratio_AA_friendship</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="n">sample</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">N</span><span class="p">))))</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1">&#39;</span><span class="o">%</span> <span class="n">ratio_AA_friendship</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">)[:</span><span class="n">N</span><span class="p">])))</span>
+</pre></div>
+
+
+<p>Prints something like:</p>
+<div class="highlight"><pre><span></span><span class="mf">0.01</span>
+<span class="mf">0.89</span>
+</pre></div>
+
+
+<p>89% of A’s friends are also As. So in this setup, we expect the measured A lift to be much closer to the true lift of 5% (using the original network_effect = 0.03). Running the simulation with this clustered A population, we get:</p>
+<div class="highlight"><pre><span></span><span class="n">A</span> <span class="n">lift</span><span class="p">:</span> <span class="mf">4.307</span><span class="o">%</span>
+<span class="n">Friends</span> <span class="n">of</span> <span class="n">A</span> <span class="n">lift</span><span class="p">:</span> <span class="mf">0.579</span><span class="o">%</span>
+<span class="n">Rest</span> <span class="n">lift</span><span class="p">:</span> <span class="mf">0.460</span><span class="o">%</span>
+<span class="n">Overall</span> <span class="n">lift</span><span class="p">:</span> <span class="mf">0.508</span><span class="o">%</span>
+</pre></div>
+
+
+<p>The result is as expected: the measured lift is much closer to the true lift than with a true random sampled A population (4.3% is much closer to 5% than 1.7% is). It’s interesting that the friends of A lift is not much different (0.58% vs 0.60%). If A is more clustered, the set of friends will be smaller (because there’s less edges going to non-As), but each of them on average (at least in the high n limit) still has the same number of A friends, so the A boost they get will be similar.</p>
+<h2>Conclusion</h2>
+<p>When there are no network effects, or they are weak, a regular A/B test with one of the tests discussed in earlier posts works fine. But if there are strong network effects, these have to be taken into account when estimating lift and p-values. In real life there are a lot more nuances to take into account, both related to the network effects and otherwise (eg. cannibalizing photo posts when testing video post lift).</p>
   </div>
   <div class="tag-cloud">
     <p>
