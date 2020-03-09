@@ -101,7 +101,7 @@
 &lt;p&gt;It’s easy to see why. On the first day, each person produces &lt;code&gt;intrinsic * random()&lt;/code&gt; posts, where &lt;code&gt;intrinsic = 0.25&lt;/code&gt; and &lt;code&gt;random()&lt;/code&gt; is a $U(0, 1)$, so on average it’s 0.5. So this part is on average $c=0.125$. Then, starting the second day, each person produces $c$ on average, plus for each friend, &lt;code&gt;yesterday_posts[v1] * network_effect * random()&lt;/code&gt; additional posts, where &lt;code&gt;network_effect = 0.03&lt;/code&gt;, and from the graph each person has 50 friends. So overall this is on average $c * k$, with $k = 50 * 0.03 * 0.5 = 0.75$. Once equilibrium is reached, the following holds: $c_{next} = c + c_{next} * k$. Solving this, $c_{next} = 0.5$.&lt;/p&gt;
 &lt;p&gt;Note that the intrinsic part averages 0.125, and the network effect adds on another 0.375 in this model. &lt;strong&gt;In this toy model, 3 out of 4 posts is the result of network effects!&lt;/strong&gt; This is a good qualitative indication why network effects are so important for engagement.&lt;/p&gt;
 &lt;p&gt;We can also see that by making the network effect too strong, either by having too many friends or setting &lt;code&gt;network_effect&lt;/code&gt; too high, we get exponential growth (in this case, the $c_{next}$ equation yields a nonsensical negative solution). For example, if we double the friend count to 100 (but keep everything else the same):&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/sn2.png" alt="Post production" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/sn2.png" alt="Post production" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;h2&gt;Experiments&lt;/h2&gt;
 &lt;p&gt;Let’s do an experiment and see what happens. For this, let's:&lt;/p&gt;
 &lt;ul&gt;
@@ -132,7 +132,7 @@
 
 
 &lt;p&gt;Looking at the converged part of the timeline, this is what we get for overall post production, just A, friends of A and rest:&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/sn3.png" alt="Post production" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/sn3.png" alt="Post production" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Combining all the days, we can get better statistics:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;base&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.5&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;lift&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mean&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;base&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
