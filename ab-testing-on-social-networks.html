@@ -135,7 +135,7 @@
 <p>For post production, let’s follow the simple model given above, with two parts:</p>
 <ul>
 <li>intrinsic post production</li>
-<li>network effects: seeing my friends posts causes me to proportionally post more</li>
+<li>network effect: seeing their friends posts causes users to post more, proportionally</li>
 </ul>
 <p>In code, we will run the simulation day-to-day, ie. posts from day T will trigger people to post more or day T+1. In this toy model, we will allow non-numeric post production, so people can write eg. 0.1134 posts a day:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">step_posts</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">yesterday_posts</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">intrinsic</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">network_effect</span><span class="o">=</span><span class="mf">0.03</span><span class="p">):</span>
