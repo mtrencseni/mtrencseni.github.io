@@ -5,7 +5,7 @@
 &lt;li&gt;&lt;strong&gt;intrinsic:&lt;/strong&gt; users intrinsically create posts&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;network effects:&lt;/strong&gt; users create more posts if they see their friends’ posts&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;Simulations showed that even a weak network effect boosts overall post production significantly. If $c_{int}$ is intrinsic post production, and for each friend's post users create an additional $c_{net}$ post tje next day, and on average users have $k$ friends, then in the steady state $c = c_{int}  + c \times c_{net} \times k $. Solving this we get $ c = \frac{ c_{int} }{ 1 - c_{net} \times k  } $.&lt;/p&gt;
+&lt;p&gt;Simulations showed that even a weak network effect boosts overall post production significantly. If $c_{int}$ is intrinsic post production, and for each friend's post users create an additional $c_{net}$ post the next day, and on average users have $k$ friends, then in the steady state $c = c_{int}  + c \times c_{net} \times k $. Solving this we get $ c = \frac{ c_{int} }{ 1 - c_{net} \times k  } $.&lt;/p&gt;
 &lt;p&gt;In the last post, I used a $U(0, 1)$ random variable to multiply both $c_{int}$ and $c_{net}$. This is not neccessary and just introduces noise, so let’s leave it out. For this post let’s use $c_{int}=1/4$ and $c_{net}=3/200$, with these values $c=1$ according to the above formula.&lt;/p&gt;
 &lt;p&gt;&lt;a href="https://github.com/mtrencseni/playground/blob/master/Network%20scaling.ipynb"&gt;The code shown below is up on Github.&lt;/a&gt;&lt;/p&gt;
 &lt;h2&gt;Degree dependence of the network effect&lt;/h2&gt;
