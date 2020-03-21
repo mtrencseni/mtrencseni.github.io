@@ -122,7 +122,7 @@
 
 <p>Shows:</p>
 <p><img src="/images/network_scaling1.png" alt="Watts–Strogatz degree distribution" style="width: 600px;"/></p>
-<p>Now comes the interesting thing: let’s calculate the average post production in a Watts-Strogatz network with parameter $p$, compared to the base value of $c=1$, for different network sizes$:</p>
+<p>Now comes the interesting bit. Let’s calculate the average post production in a Watts-Strogatz network with parameter $p$, compared to the base value of $c=1$, for different network sizes $n$:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">mp_lifts</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span> <span class="o">=</span> <span class="n">args</span>
     <span class="n">g</span> <span class="o">=</span> <span class="n">connected_watts_strogatz_graph</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">to_directed</span><span class="p">()</span>
