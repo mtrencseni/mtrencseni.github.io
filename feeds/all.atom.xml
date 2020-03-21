@@ -37,7 +37,7 @@
 
 
 &lt;p&gt;Shows:&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/network_scaling1.png" alt="Watts–Strogatz degree distribution" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/network_scaling1.png" alt="Watts–Strogatz degree distribution" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Now comes the interesting thing: let’s calculate the average post production in a Watts-Strogatz network with parameter $p$, compared to the base value of $c=1$, for different network sizes$:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;mp_lifts&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;
@@ -66,7 +66,7 @@
 
 
 &lt;p&gt;Shows:&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/network_scaling11.png" alt="Post production depends on Watts-Strogatz p" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/network_scaling11.png" alt="Post production depends on Watts-Strogatz p" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;This shows the effect:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;At $p=0$, when all nodes have exactly $k$ neighbours, the mean post production is exactly 1, as the calculation shows.&lt;/li&gt;
@@ -76,7 +76,7 @@
 &lt;/ul&gt;
 &lt;p&gt;This has implications for A/B testing: &lt;strong&gt;when we compute the lift in our simulations, we need to use this adjusted baseline (assuming we’re running simulations on a $p&amp;gt;0$ Watts-Strogatz graph).&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;Another way to get a sense for this is: assume half the nodes are have degree $k=50-d$, half have $k=50+d$ after randomization, so the mean is still $k=50$. We can take the original formula $ c = \frac{ c_{int} }{ 1 - c_{net} \times k  } $ and make an improved version, like $ c = \frac{1}{2} ( \frac{ c_{int} }{ 1 - c_{net} \times (k+d) + \frac{ c_{int} }{ 1 - c_{net} \times (k-d) ) } $. This is not the exact formula, but it’s good for intuition:&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/network_scaling2.png" alt="Post production as a function of degree distribution" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/network_scaling2.png" alt="Post production as a function of degree distribution" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Initially I suspected the effect is due to the graph diameter decreasing with increasing $p$, so I checked how the mean shortest path depends on $p$ and $n$:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;mp_shortest_paths&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;num_samples&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;
@@ -108,7 +108,7 @@
 
 
 &lt;p&gt;Shows:&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/network_scaling21.png" alt="Mean shortest path as a function of Watts-Strogatz p" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/network_scaling21.png" alt="Mean shortest path as a function of Watts-Strogatz p" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;This is not the reason for the additional boost. The above experiment shows that the mean shortest path in the graph strongly depends on $n$, as expected, but the effect does not. Intuitively, since all nodes are equal for now (there is no A population producing more content), this shouldn’t matter.&lt;/p&gt;
 &lt;p&gt;So, to get more accurate lift readings for our A/B tests, we need to first calculate the correct baseline mean posts for a Watts-Strogatz graph with those $(k, p)$ params (no strong $n$ dependence, experimentally, as we just saw):&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="mi"&gt;1000&lt;/span&gt;
@@ -168,7 +168,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;&lt;img src="/images/network_scaling3.png" alt="Experimental post production lift on a Watts-Strogatz network" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/network_scaling3.png" alt="Experimental post production lift on a Watts-Strogatz network" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;What we expect to see:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;as $N/n$ goes to 0, the rest and overall lifts tend to 0.&lt;/li&gt;
