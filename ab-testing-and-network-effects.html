@@ -90,6 +90,7 @@
 </ul>
 <p>Simulations showed that even a weak network effect boosts overall post production significantly. If $c_{int}$ is intrinsic post production, and for each friend's post users create an additional $c_{net}$ post tje next day, and on average users have $k$ friends, then in the steady state $c = c_{int}  + c \times c_{net} \times k $. Solving this we get $ c = \frac{ c_{int} }{ 1 - c_{net} \times k  } $.</p>
 <p>In the last post, I used a $U(0, 1)$ random variable to multiply both $c_{int}$ and $c_{net}$. This is not neccessary and just introduces noise, so let’s leave it out. For this post let’s use $c_{int}=1/4$ and $c_{net}=3/200$, with these values $c=1$ according to the above formula.</p>
+<p><a href="https://github.com/mtrencseni/playground/blob/master/Network%20scaling.ipynb">The code shown below is up on Github.</a></p>
 <h2>Degree dependence of the network effect</h2>
 <p>In the above formula, the structure of the graph only appears in the parameter $k$. This is a good first approximation, but it’s not entirely accurate. A more accurate way to think about it is to write $c = c_{int}  + c \times f(c_{net}, g) $, where $f$ is some function, and $g$ is the graph ($f=c_{net} \times k$ is our initial approximation).</p>
 <p>But, there is actually a third, even more nuanced effect: <strong>the strength of the network effect depends on the degree distribution in the network</strong>.</p>
@@ -159,7 +160,7 @@
 </ul>
 <p>This has implications for A/B testing: <strong>when we compute the lift in our simulations, we need to use this adjusted baseline (assuming we’re running simulations on a $p&gt;0$ Watts-Strogatz graph).</strong></p>
 <p>Another way to get a sense for this is: assume half the nodes are have degree $k=50-d$, half have $k=50+d$ after randomization, so the mean is still $k=50$. We can take the original formula $ c = \frac{ c_{int} }{ 1 - c_{net} \times k  } $ and make an improved version: $ c(d) = \frac{1}{2} ( \frac{ c_{int} }{ 1 - c_{net} \times (k+d) } + \frac{ c_{int} }{ 1 - c_{net} \times (k-d) } ) $. This is not the exact formula (the experimental result above is concave, and this is convex), but it’s good for intuition:</p>
-<p><img src="/images/network_scaling2.png" alt="Post production as a function of degree distribution" style="width: 600px;"/></p>
+<p><img src="/images/network_scaling22.png" alt="Post production as a function of degree distribution" style="width: 600px;"/></p>
 <p>Initially I suspected the effect is due to the graph diameter decreasing with increasing $p$, so I checked how the mean shortest path depends on $p$ and $n$:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">mp_shortest_paths</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">)</span> <span class="o">=</span> <span class="n">args</span>
