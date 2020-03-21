@@ -158,7 +158,7 @@
 <li>The effect does not depend on the $n$ network size.</li>
 </ul>
 <p>This has implications for A/B testing: <strong>when we compute the lift in our simulations, we need to use this adjusted baseline (assuming we’re running simulations on a $p&gt;0$ Watts-Strogatz graph).</strong></p>
-<p>Another way to get a sense for this is: assume half the nodes are have degree $k=50-d$, half have $k=50+d$ after randomization, so the mean is still $k=50$. We can take the original formula $ c = \frac{ c_{int} }{ 1 - c_{net} \times k  } $ and make an improved version, like $ c = \frac{1}{2} ( \frac{ c_{int} }{ 1 - c_{net} \times (k+d) + \frac{ c_{int} }{ 1 - c_{net} \times (k-d) ) } $. This is not the exact formula, but it’s good for intuition:</p>
+<p>Another way to get a sense for this is: assume half the nodes are have degree $k=50-d$, half have $k=50+d$ after randomization, so the mean is still $k=50$. We can take the original formula $ c = \frac{ c_{int} }{ 1 - c_{net} \times k  } $ and make an improved version: $ c = \frac{1}{2} ( \frac{ c_{int} }{ 1 - c_{net} \times (k+d) } + \frac{ c_{int} }{ 1 - c_{net} \times (k-d) ) } $. This is not the exact formula, but it’s good for intuition:</p>
 <p><img src="/images/network_scaling2.png" alt="Post production as a function of degree distribution" style="width: 600px;"/></p>
 <p>Initially I suspected the effect is due to the graph diameter decreasing with increasing $p$, so I checked how the mean shortest path depends on $p$ and $n$:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">mp_shortest_paths</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
