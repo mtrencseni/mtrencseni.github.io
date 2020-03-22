@@ -80,7 +80,7 @@
 <article>
   <header>
     <h1 id="hacker-news-embeddings-with-pytorch">Hacker News Embeddings with PyTorch</h1>
-    <p>Posted on Tue 12 March 2019 in <a href="/category/machine-learning.html">Machine Learning</a></p>
+    <p>Marton Trencseni - Tue 12 March 2019 - in <a href="/category/machine-learning.html">Machine Learning</a></p>
   </header>
   <div>
     <p>This post is based on <a href="https://douwe.com/about">Douwe Osinga’s</a> excellent <a href="https://www.amazon.com/Deep-Learning-Cookbook-Practical-Recipes/dp/149199584X">Deep Learning Cookbook</a>, specifically <a href="https://github.com/DOsinga/deep_learning_cookbook/blob/master/04.2%20Build%20a%20recommender%20system%20based%20on%20outgoing%20Wikipedia%20links.ipynb">Chapter 4</a>, embeddings. Embedding is a simple thing: given an entity like a Hacker News post or a Hacker News user, we associate an n-dimensional vector with it. We then do a simple thing: if two entities are similar in some way, we assert that the dot product (cosine similarity) should be <code>+1</code>, ie. the vectors should be “aligned”. If two entities are not similar, we assert that the dot product should be <code>-1</code>, ie. they should point in different directions. We then feed the data to a model, and in the training process get the optimizer to find assignments of entities to vectors such that those assertions are satisfied as much as possible. The most famous example of embeddings is Google's <a href="https://en.wikipedia.org/wiki/Word2vec">word2vec</a>.</p>
