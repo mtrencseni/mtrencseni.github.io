@@ -110,7 +110,7 @@
 
 &lt;p&gt;Shows:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/network_scaling21.png" alt="Mean shortest path as a function of Watts-Strogatz p" style="width: 600px;"/&gt;&lt;/p&gt;
-&lt;p&gt;This is not the reason for the additional boost. The above experiment shows that the mean shortest path in the graph strongly depends on $n$, as expected, but the effect does not. Intuitively, since all nodes are equal for now (there is no A population producing more content), this shouldn’t matter.&lt;/p&gt;
+&lt;p&gt;This does not appear to be the reason for the additional boost. The mean shortest path in the graph strongly depends on $n$, as expected, but the effect does not. Intuitively, since all nodes are equal for now (there is no A population producing more content), path length shouldn’t matter.&lt;/p&gt;
 &lt;p&gt;So, to get more accurate lift readings for our A/B tests, we need to first calculate the correct baseline mean posts for a Watts-Strogatz graph with those $(k, p)$ params (no strong $n$ dependence, experimentally, as we just saw):&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="mi"&gt;1000&lt;/span&gt;
 &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;50&lt;/span&gt;
@@ -178,7 +178,7 @@
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;network effect&lt;/strong&gt;: boosts post production by a significant factor&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;degree distribution effect&lt;/strong&gt;: the network effect boost is a function of the graph's degree distribituion, which for a Watts-Strogatz graph is a function of $p$&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;dampening effect&lt;/strong&gt;: we underestimate the true intrinsic lift of the A/B test, because A’s non-A friends don’t have the feature, so As don’t get the boost “back” through these edges&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;dampening effect&lt;/strong&gt;: we underestimate the true intrinsic lift of the A/B test, because A’s non-A friends don’t get the intrinsic post production boost, so As don’t get the boost “back” through these edges&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;spillover effect&lt;/strong&gt;: we measure a lift due to the network effect for friends of A, and further down the network, depending on the distance from As&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;clustering effect&lt;/strong&gt;: if the A group is more tightly clustered, we measured a higher lift&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;experiment size effect&lt;/strong&gt;: as $N/n$ goes to 1, the effect size approaches the true effect size&lt;/li&gt;
