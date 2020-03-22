@@ -70,10 +70,10 @@
 &lt;p&gt;&lt;img src="/images/network_scaling11.png" alt="Post production depends on Watts-Strogatz p" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;This shows the (third) effect:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;At $p=0$, when all nodes have exactly $k$ neighbours, the mean post production is exactly 1, as the calculation shows.&lt;/li&gt;
-&lt;li&gt;But at at higher $p$, we get an additional boost to post production, due to some nodes having more neighbours than $k$, and this boost is not canceled out by some nodes having less neighbours.&lt;/li&gt;
-&lt;li&gt;The maximum boost due to uneven degree distribution is about 2.5% at p=1.&lt;/li&gt;
-&lt;li&gt;The effect does not depend on the $n$ network size.&lt;/li&gt;
+&lt;li&gt;At $p=0$, when all nodes have exactly $k$ neighbours, the mean post production is exactly 1.&lt;/li&gt;
+&lt;li&gt;At higher $p$, there is an additional boost to post production, due to some nodes having more neighbours than $k$; and this boost is not canceled by some nodes having less neighbours.&lt;/li&gt;
+&lt;li&gt;The maximum boost due to uneven degree distribution is about 2.5% at $p=1$ for $k=50$.&lt;/li&gt;
+&lt;li&gt;The effect does not seem to depend on the $n$ network size.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;This has implications for A/B testing: &lt;strong&gt;when we compute the lift in our simulations, we need to use this adjusted baseline (assuming we’re running simulations on a $p&amp;gt;0$ Watts-Strogatz graph).&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;Another way to get a sense for this is: assume half the nodes are have degree $k=50-d$, half have $k=50+d$ after randomization, so the mean is still $k=50$. We can take the original formula $ c = \frac{ c_{int} }{ 1 - c_{net} \times k  } $ and make an improved version: $ c(d) = \frac{1}{2} ( \frac{ c_{int} }{ 1 - c_{net} \times (k+d) } + \frac{ c_{int} }{ 1 - c_{net} \times (k-d) } ) $. This is not the exact formula (the experimental result above is concave, and this is convex), but it’s good for intuition:&lt;/p&gt;
