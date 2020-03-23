@@ -50,20 +50,20 @@ observations = simulate_abtest(funnels, N)
 print(observations)
 c_our = generalized_chi_squared(observations)
 g_our = generalized_G(observations)
-print(&amp;#39;C test statistic = %.3f&amp;#39; % c_our[0])
+print(&amp;#39;Chi-squared test statistic = %.3f&amp;#39; % c_our[0])
 print(&amp;#39;G test statistic = %.3f&amp;#39; % g_our[0])
-print(&amp;#39;C p = %.6f&amp;#39; % c_our[1])
+print(&amp;#39;Chi-squared p = %.6f&amp;#39; % c_our[1])
 print(&amp;#39;G p = %.6f&amp;#39;   % g_our[1])
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Prints something like:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;[[233. 263.]&lt;/span&gt;
- &lt;span class="k"&gt;[269. 235.]]&lt;/span&gt;
-&lt;span class="na"&gt;C test statistic&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;4.092&lt;/span&gt;
-&lt;span class="na"&gt;G test statistic&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;4.095&lt;/span&gt;
-&lt;span class="na"&gt;C p&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;0.043081&lt;/span&gt;
-&lt;span class="na"&gt;G p&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;0.043010&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;[[247. 278.]&lt;/span&gt;
+ &lt;span class="k"&gt;[234. 241.]]&lt;/span&gt;
+&lt;span class="na"&gt;Chi-squared test statistic&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;0.490&lt;/span&gt;
+&lt;span class="na"&gt;G test statistic&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;0.490&lt;/span&gt;
+&lt;span class="na"&gt;Chi-squared p&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;0.483775&lt;/span&gt;
+&lt;span class="na"&gt;G p&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;0.483769&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 

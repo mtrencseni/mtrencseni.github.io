@@ -134,20 +134,20 @@ observations = simulate_abtest(funnels, N)
 print(observations)
 c_our = generalized_chi_squared(observations)
 g_our = generalized_G(observations)
-print(&#39;C test statistic = %.3f&#39; % c_our[0])
+print(&#39;Chi-squared test statistic = %.3f&#39; % c_our[0])
 print(&#39;G test statistic = %.3f&#39; % g_our[0])
-print(&#39;C p = %.6f&#39; % c_our[1])
+print(&#39;Chi-squared p = %.6f&#39; % c_our[1])
 print(&#39;G p = %.6f&#39;   % g_our[1])
 </pre></div>
 
 
 <p>Prints something like:</p>
-<div class="highlight"><pre><span></span><span class="k">[[233. 263.]</span>
- <span class="k">[269. 235.]]</span>
-<span class="na">C test statistic</span> <span class="o">=</span> <span class="s">4.092</span>
-<span class="na">G test statistic</span> <span class="o">=</span> <span class="s">4.095</span>
-<span class="na">C p</span> <span class="o">=</span> <span class="s">0.043081</span>
-<span class="na">G p</span> <span class="o">=</span> <span class="s">0.043010</span>
+<div class="highlight"><pre><span></span><span class="k">[[247. 278.]</span>
+ <span class="k">[234. 241.]]</span>
+<span class="na">Chi-squared test statistic</span> <span class="o">=</span> <span class="s">0.490</span>
+<span class="na">G test statistic</span> <span class="o">=</span> <span class="s">0.490</span>
+<span class="na">Chi-squared p</span> <span class="o">=</span> <span class="s">0.483775</span>
+<span class="na">G p</span> <span class="o">=</span> <span class="s">0.483769</span>
 </pre></div>
 
 
