@@ -186,7 +186,46 @@ plt.show()
 <p>For samples of a reasonable size, the G-test and the chi-squared test will lead to the same conclusions. However, the approximation to the theoretical chi-squared distribution for the G-test is better than for the Pearson's chi-squared test.</p>
 </blockquote>
 <p>Let's see how significant the last sentence is. What this is saying is that (i) assuming the null hypothesis is true (both funnels are the same), and we (ii) perform the tests multiple times and calculate the $\chi^2$ and G test statistics, and (iii) compute the histogram of tests statistics, then (iv) the histogram of G test statistics should be a better fit to the theoretical $\chi^2$ distribution than the histogram for $chi^2$ test statistics. This goodness of fit difference is something we can try to catch with a Monte Carlo (MC) simulation.</p>
-<p>The simplest way computationally is to compute the 10th, 20th ... 90th percentiles of the MC test statistics, and compare that to the inverse <a href="https://en.wikipedia.org/wiki/Cumulative_distribution_function">cumulative distribution function</a> (cdf) of the $\chi^2$ distribution.</p>
+<p>The simplest way computationally is to compute the 10th, 20th ... 90th percentiles of the MC test statistics, and compare that to the inverse <a href="https://en.wikipedia.org/wiki/Cumulative_distribution_function">cumulative distribution function</a> (cdf) of the $\chi^2$ distribution. Let's run an $N=30$ A/B test 1000 times and compare the distributions:</p>
+<div class="highlight"><pre><span></span><span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the first vector is the actual outcomes,</span>
+    <span class="p">[[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the second is the traffic split</span>
+<span class="p">]</span>
+<span class="n">df</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">num_simulations</span> <span class="o">=</span> <span class="mi">1000</span>
+
+<span class="n">cs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">gs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_simulations</span><span class="p">):</span>
+    <span class="n">observations</span> <span class="o">=</span> <span class="n">simulate_abtest</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+    <span class="n">cs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">generalized_chi_squared</span><span class="p">(</span><span class="n">observations</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">gs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">generalized_G</span><span class="p">(</span><span class="n">observations</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">percentiles</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">ps</span><span class="p">):</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">arr</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">))]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ps</span><span class="p">]</span>
+
+<span class="n">ps</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">/</span><span class="mf">100.0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]</span>
+<span class="n">expected_percentiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">chi2</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ps</span><span class="p">]</span>
+<span class="n">c_percentiles</span> <span class="o">=</span> <span class="n">percentiles</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="n">ps</span><span class="p">)</span>
+<span class="n">g_percentiles</span> <span class="o">=</span> <span class="n">percentiles</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">ps</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;percentile&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;inverse cdf&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">chi2</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">df</span><span class="p">),</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">c_percentiles</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">g_percentiles</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s1">&#39;theoretical chi^2&#39;</span><span class="p">,</span> <span class="s1">&#39;chi^2 test&#39;</span><span class="p">,</span> <span class="s1">&#39;G-test&#39;</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Shows:</p>
+<p><img src="/images/gtest2.png" alt="Inverse cdf" style="width: 600px;"/></p>
+<p>The differences are small, but we can still see them. However, such small sample sizes are unrealistic for A/B testing on the one hand, and at low sample sizes we should be using Fisher's exact test anyways. Doing the same with $N=1,000$ A/B tests:</p>
+<p><img src="/images/gtest3.png" alt="Inverse cdf" style="width: 600px;"/></p>
+<p>Already at $N=1,000$ we cannot see a difference between the $\chi^2$ and the G-test in terms of their test statistic distribution.</p>
   </div>
   <div class="tag-cloud">
     <p>
