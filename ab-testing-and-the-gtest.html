@@ -186,7 +186,7 @@ plt.show()
 <p>For samples of a reasonable size, the G-test and the chi-squared test will lead to the same conclusions. However, the approximation to the theoretical chi-squared distribution for the G-test is better than for the Pearson's chi-squared test.</p>
 </blockquote>
 <p>Let's see how significant the last sentence is. What this is saying is that (i) assuming the null hypothesis is true (both funnels are the same), and we (ii) perform the tests multiple times and calculate the $\chi^2$ and G test statistics, and (iii) compute the histogram of tests statistics, then (iv) the histogram of G test statistics should be a better fit to the theoretical $\chi^2$ distribution than the histogram for $\chi^2$ test statistics. This goodness of fit difference is something we can evaluate with a Monte Carlo (MC) simulation.</p>
-<p>The simplest way computationally is to compute the 10th, 20th ... 90th percentiles of the MC test statistics, and compare that to the inverse <a href="https://en.wikipedia.org/wiki/Cumulative_distribution_function">cumulative distribution function</a> (cdf) of the $\chi^2$ distribution. Let's run an $N=30$ A/B test 1000 times and compare the distributions:</p>
+<p>The simplest way computationally is to compute the 10th, 20th ... 90th percentiles of the MC test statistics, and compare that to the inverse <a href="https://en.wikipedia.org/wiki/Cumulative_distribution_function">cumulative distribution function</a> (cdf) of the theoretical $\chi^2$ distribution taken at those percentiles. Let's run an $N=30$ A/B test 1000 times and compare the distributions:</p>
 <div class="highlight"><pre><span></span><span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">[[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the first vector is the actual outcomes,</span>
     <span class="p">[[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the second is the traffic split</span>
@@ -223,10 +223,10 @@ plt.show()
 
 <p>Shows:</p>
 <p><img src="/images/gtest2.png" alt="Inverse cdf" style="width: 600px;"/></p>
-<p>The differences are small, but we can still see them. However, such small sample sizes are unrealistic for A/B testing on the one hand, and at low sample sizes we should be using Fisher's exact test anyways. Repeating the same at $N=1,000$:</p>
+<p>The differences are small, but we can still see them. However, such small sample sizes are unrealistic for A/B testing on the one hand, and at low sample sizes we should be using Fisher's exact test anyway. Repeating the same at $N=1,000$:</p>
 <p><img src="/images/gtest3.png" alt="Inverse cdf" style="width: 600px;"/></p>
 <p>Already at $N=1,000$ we cannot see a difference between the $\chi^2$ and the G-test in terms of their test statistic distribution.</p>
-<p>Let's do this at scale: at different $N$s, let's run <code>num_simulations</code> A/B tests, compute the histogram for both tests, compare to theoretical $chi^2$ distribution, and count whether the G or the $chi^2$ is the better fit:</p>
+<p>Let's do this at scale: at different $N$s, let's run <code>num_simulations</code> A/B tests, compute the histogram for both tests, compare to theoretical $\chi^2$ distribution, and count whether the G or the $\chi^2$ test statustic (distribution) is the better fit:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">percentile_diff</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">percentiles</span><span class="p">,</span> <span class="n">expected_percentiles</span><span class="p">):</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
     <span class="n">a_percentiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">arr</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">))]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">percentiles</span><span class="p">]</span>
@@ -293,9 +293,9 @@ The G test statistic better approximates the theoretical Chi^2 distribution 0.48
 </pre></div>
 
 
-<p>The results are interesting. At $N=50$, when the CLT doesn't really hold yet and neither should be used, the $chi^2$ is actually a better fit (wins 86% of the time). At higher $N$s, it roughly the same between the two.</p>
+<p>The results are interesting. At $N=50$, the $\chi^2$ is actually a better fit (wins 86% of the time). At higher $N$s, it roughly the same between the two.</p>
 <h2>Conclusion</h2>
-<p>The G-test numerically yields the same results as the $\chi^2$ test, there's no reason to prefer one over the other. Since more people are familiar with the $\chi^2$, I suggest to stick with that.</p>
+<p>The G-test numerically yields the same results as the $\chi^2$ test, in practice it doesn't matter which one we pick for A/B tests.</p>
   </div>
   <div class="tag-cloud">
     <p>
