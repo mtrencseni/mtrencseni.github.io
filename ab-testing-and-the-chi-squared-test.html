@@ -253,7 +253,7 @@ Z-test p = 0.240
 
 <p>If you compare the $\chi^2$ formulas with the Z-test formulas from the previous post, it works out that $z^2 = \chi^2$.</p>
 <h2>One-tailed vs two-tailed</h2>
-<p>In the case of the Z-test (and t-test), we have a choice between a one-tailed and a two-tailed test, dependening on if we want the test to go off for deviations in just one or both directions. In the case of the $\chi^2$ test, we do not have a choice:</p>
+<p>In the case of the Z-test (and t-test), we have a choice between a one-tailed and a two-tailed test, depending on if we want the test to go off for deviations in just one or both directions. In the case of the $\chi^2$ test, we do not have a choice:</p>
 <ul>
 <li>the $\chi^2$ distribution is asymmetric (from $0$ to $\infty$), so technically the $\chi^2$ test is always one-tailed</li>
 <li>however, since it’s the square of normals, both tails of the normal are folded together, so it corresponds to a two-tailed Z-test [in the 2x2 case]</li>
@@ -272,13 +272,13 @@ Z-test p = 0.240
 <span class="n">ch</span> <span class="o">=</span> <span class="n">chi2_contingency</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">correction</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Chi-sq p = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ch</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 <span class="n">zt</span> <span class="o">=</span> <span class="n">ztest</span><span class="p">(</span><span class="o">*</span><span class="n">raw_data</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s1">&#39;two-sided&#39;</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Z-test p (Two-tailED) = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">zt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Z-test p (Two-tailed) = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">zt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 <span class="n">tt</span> <span class="o">=</span> <span class="n">ttest_ind</span><span class="p">(</span><span class="o">*</span><span class="n">raw_data</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s1">&#39;two-sided&#39;</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;t-test p (Two-tailED) = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">zt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;t-test p (Two-tailed) = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">zt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 <span class="n">zt</span> <span class="o">=</span> <span class="n">ztest</span><span class="p">(</span><span class="o">*</span><span class="n">raw_data</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s1">&#39;larger&#39;</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Z-test p (One-tailED) = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">zt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Z-test p (One-tailed) = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">zt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 <span class="n">tt</span> <span class="o">=</span> <span class="n">ttest_ind</span><span class="p">(</span><span class="o">*</span><span class="n">raw_data</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s1">&#39;larger&#39;</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;t-test p (One-tailED) = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">zt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;t-test p (One-tailed) = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">zt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
 
 
@@ -287,10 +287,10 @@ Z-test p = 0.240
  <span class="p">[[</span><span class="mf">4780.</span> <span class="mf">1181.</span><span class="p">]</span>
  <span class="p">[</span><span class="mf">3243.</span>  <span class="mf">796.</span><span class="p">]]</span>
 <span class="n">Chi</span><span class="o">-</span><span class="n">sq</span> <span class="n">p</span>              <span class="o">=</span> <span class="mf">0.898</span> <span class="c1"># the first three are the same</span>
-<span class="n">Z</span><span class="o">-</span><span class="n">test</span> <span class="n">p</span> <span class="p">(</span><span class="n">Two</span><span class="o">-</span><span class="n">tailED</span><span class="p">)</span> <span class="o">=</span> <span class="mf">0.898</span>
-<span class="n">t</span><span class="o">-</span><span class="n">test</span> <span class="n">p</span> <span class="p">(</span><span class="n">Two</span><span class="o">-</span><span class="n">tailED</span><span class="p">)</span> <span class="o">=</span> <span class="mf">0.898</span>
-<span class="n">Z</span><span class="o">-</span><span class="n">test</span> <span class="n">p</span> <span class="p">(</span><span class="n">One</span><span class="o">-</span><span class="n">tailED</span><span class="p">)</span> <span class="o">=</span> <span class="mf">0.551</span> <span class="c1"># these are different</span>
-<span class="n">t</span><span class="o">-</span><span class="n">test</span> <span class="n">p</span> <span class="p">(</span><span class="n">One</span><span class="o">-</span><span class="n">tailED</span><span class="p">)</span> <span class="o">=</span> <span class="mf">0.551</span>
+<span class="n">Z</span><span class="o">-</span><span class="n">test</span> <span class="n">p</span> <span class="p">(</span><span class="n">Two</span><span class="o">-</span><span class="n">tailed</span><span class="p">)</span> <span class="o">=</span> <span class="mf">0.898</span>
+<span class="n">t</span><span class="o">-</span><span class="n">test</span> <span class="n">p</span> <span class="p">(</span><span class="n">Two</span><span class="o">-</span><span class="n">tailed</span><span class="p">)</span> <span class="o">=</span> <span class="mf">0.898</span>
+<span class="n">Z</span><span class="o">-</span><span class="n">test</span> <span class="n">p</span> <span class="p">(</span><span class="n">One</span><span class="o">-</span><span class="n">tailed</span><span class="p">)</span> <span class="o">=</span> <span class="mf">0.551</span> <span class="c1"># these are different</span>
+<span class="n">t</span><span class="o">-</span><span class="n">test</span> <span class="n">p</span> <span class="p">(</span><span class="n">One</span><span class="o">-</span><span class="n">tailed</span><span class="p">)</span> <span class="o">=</span> <span class="mf">0.551</span>
 </pre></div>
 
 
