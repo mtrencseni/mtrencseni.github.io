@@ -92,8 +92,63 @@
 <p>Both are tests for conversion A/B testing, both can be used to test multiple funnels (A/B/C/..) with multiple outcomes (No conversion, Monthly, Annual). At low $N$, Fisher’s exact test gives accurate results, while at high $N$, the difference in $p$ values goes to zero (see the second link above).</p>
 <p>The G-test is a close relative to the $\chi^2$ test, in fact the $\chi^2$ test is an approximation of the G-test. Per Wikipedia:</p>
 <blockquote>
-<p>The commonly used $\chi^2$ tests for goodness of fit to a distribution and for independence in contingency tables are in fact approximations of the log-likelihood ratio on which the G-tests are based. The general formula for Pearson's chi-squared test statistic is $ \chi^2 = \sum_i { \frac{ (O_i - E_{i} )^2 }{ E_i } } $. The approximation of G by chi squared is obtained by a second order Taylor expansion of the natural logarithm around 1. The general formula for G is $ G = 2 \sum_i { O_i \cdot \ln \frac{O_i}{E_i} } $, where $O_i$ is the observed count in a cell, $E_i$ is the expected count under the null hypothesis, $\ln$ denotes the natural logarithm, and the sum is taken over all non-empty cells.</p>
+<p>The commonly used $\chi^2$ tests for goodness of fit to a distribution and for independence in contingency tables are in fact approximations of the log-likelihood ratio on which the G-tests are based. The general formula for Pearson's $\chi^2$ test statistic is $ \chi^2 = \sum_i { \frac{ (O_i - E_{i} )^2 }{ E_i } } $. The approximation of G by $\chi^2$ is obtained by a second order Taylor expansion of the natural logarithm around 1. The general formula for G is $ G = 2 \sum_i { O_i \cdot \ln \frac{O_i}{E_i} } $, where $O_i$ is the observed count in a cell, $E_i$ is the expected count under the null hypothesis, $\ln$ denotes the natural logarithm, and the sum is taken over all non-empty cells.</p>
 </blockquote>
+<p>Let's reuse the example from the $\chi^2$ post:</p>
+<p><img src="/images/contingency_table3.PNG" alt="Contingency table" style="width: 600px;"/></p>
+<p>From the previous <a href="http://bytepawn.com/ab-testing-and-the-chi-squared-test.html">$\chi^2$ post</a>:</p>
+<blockquote>
+<p>For each obsevation cell, we calculate the expected value. Expected here means according to the null hypothesis, which is that all funnels are the same. Our best guess for the null hypothesis are the blended bottom numbers: $7922/10000$ for <strong>No Conversion</strong>, $1085/10000$ for <strong>Monthly</strong>, etc. So for Funnel A, which has 5916 samples, our expected <strong>No Conversion</strong> number is $5916*7922/10000=4686.6$. We do this for each cell. Then we subtract the actual observation from the expected, square it, and divide by the expected, like $(4748-4686.6)^2/4686.6=0.8$. We do this for each cell, and sum up the numbers to we get the $\chi^2$ test statistic. We then look this up in a <a href="https://en.wikipedia.org/wiki/Chi-squared_distribution">$\chi^2$ distribution</a> table to get a p value. We have to use a degree of freedom of $k=(F-1)(C-1)$, where $F$ is the number of funnels, $C$ is the number of conversion events, $F=4, C=3$ above.</p>
+</blockquote>
+<p>For the G-test, we just have to change the inner formula. So, for Funnel A, instead of $(4748-4686.6)^2/4686.6$, we calculate $4748 \cdot \ln \frac{4748}{4686.6} $. Other than that, it's the same, add up for all cells to get the G test statistic, and look up in a $\chi^2$ distribution table.</p>
+<p>Because the two tests are so similar, we can write a generalized test function with a pluggable cell formula:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">generalized_contingency_goodness_fit</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">cell_fn</span><span class="p">):</span>
+    <span class="n">row_marginals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">col_marginals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+    <span class="n">chisq</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">row_marginals</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">col_marginals</span><span class="p">)):</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="n">row_marginals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">col_marginals</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">/</span> <span class="n">N</span>
+            <span class="n">chisq</span> <span class="o">+=</span> <span class="n">cell_fn</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">expected</span><span class="p">)</span>
+    <span class="n">dof</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">row_marginals</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">col_marginals</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">p_value</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">chi2</span><span class="p">(</span><span class="n">dof</span><span class="p">)</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">chisq</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">chisq</span><span class="p">,</span> <span class="n">p_value</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">generalized_chi_squared</span><span class="p">(</span><span class="n">observations</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">generalized_contingency_goodness_fit</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">obs</span><span class="p">,</span> <span class="n">exp</span><span class="p">:</span> <span class="p">(</span><span class="n">obs</span> <span class="o">-</span> <span class="n">exp</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">exp</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">generalized_G</span><span class="p">(</span><span class="n">observations</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">generalized_contingency_goodness_fit</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">obs</span><span class="p">,</span> <span class="n">exp</span><span class="p">:</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">obs</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">obs</span> <span class="o">/</span> <span class="n">exp</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Let's simulate an A/B test where both funnels are actually the same and see the difference between the two tests:</p>
+<div class="highlight"><pre><span></span>funnels = [
+    [[0.50, 0.50], 0.5], # the first vector is the actual outcomes,
+    [[0.50, 0.50], 0.5], # the second is the traffic split
+]
+N = 1000
+
+observations = simulate_abtest(funnels, N)
+print(observations)
+c_our = generalized_chi_squared(observations)
+g_our = generalized_G(observations)
+print(&#39;C test statistic = %.3f&#39; % c_our[0])
+print(&#39;G test statistic = %.3f&#39; % g_our[0])
+print(&#39;C p = %.6f&#39; % c_our[1])
+print(&#39;G p = %.6f&#39;   % g_our[1])
+</pre></div>
+
+
+<p>Prints something like:</p>
+<div class="highlight"><pre><span></span><span class="k">[[233. 263.]</span>
+ <span class="k">[269. 235.]]</span>
+<span class="na">C test statistic</span> <span class="o">=</span> <span class="s">4.092</span>
+<span class="na">G test statistic</span> <span class="o">=</span> <span class="s">4.095</span>
+<span class="na">C p</span> <span class="o">=</span> <span class="s">0.043081</span>
+<span class="na">G p</span> <span class="o">=</span> <span class="s">0.043010</span>
+</pre></div>
   </div>
   <div class="tag-cloud">
     <p>
