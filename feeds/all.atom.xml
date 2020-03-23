@@ -5,8 +5,8 @@
 &lt;li&gt;&lt;a href="http://bytepawn.com/ab-testing-and-the-chi-squared-test.html"&gt;A/B testing and the Chi-squared test&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="http://bytepawn.com/ab-testing-and-fishers-exact-test.html"&gt;A/B testing and Fisher's exact test&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;Both are tests for conversion A/B testing, both can be used to test multiple funnels (A/B/C/..) with multiple outcomes (No conversion, Monthly, Annual). At low $N$, Fisher’s exact test gives accurate results, while at high $N$, the difference in $p$ values goes to zero (see the second link above).&lt;/p&gt;
-&lt;p&gt;The G-test is a close relative to the $\chi^2$ test, in fact the $\chi^2$ test is an approximation of the G-test. Per Wikipedia:&lt;/p&gt;
+&lt;p&gt;Both are tests for conversion A/B testing, both can be used to test multiple funnels (A/B/C/..) with multiple outcomes (No conversion, Monthly, Annual). At low $N$, Fisher’s exact test gives accurate results, while at high $N$, the difference in $p$ values goes to zero.&lt;/p&gt;
+&lt;p&gt;The G-test is a close relative to the $\chi^2$ test, in fact the $\chi^2$ test is an approximation of the G-test. The &lt;a href="https://en.wikipedia.org/wiki/G-test"&gt;Wikipedia page for G-test&lt;/a&gt;:&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;The commonly used $\chi^2$ tests for goodness of fit to a distribution and for independence in contingency tables are in fact approximations of the log-likelihood ratio on which the G-tests are based. The general formula for Pearson's $\chi^2$ test statistic is $ \chi^2 = \sum_i { \frac{ (O_i - E_{i} )^2 }{ E_i } } $. The approximation of G by $\chi^2$ is obtained by a second order Taylor expansion of the natural logarithm around 1. The general formula for G is $ G = 2 \sum_i { O_i \cdot \ln \frac{O_i}{E_i} } $, where $O_i$ is the observed count in a cell, $E_i$ is the expected count under the null hypothesis, $\ln$ denotes the natural logarithm, and the sum is taken over all non-empty cells.&lt;/p&gt;
 &lt;/blockquote&gt;
