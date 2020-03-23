@@ -149,6 +149,38 @@ print(&#39;G p = %.6f&#39;   % g_our[1])
 <span class="na">C p</span> <span class="o">=</span> <span class="s">0.043081</span>
 <span class="na">G p</span> <span class="o">=</span> <span class="s">0.043010</span>
 </pre></div>
+
+
+<p>We can see that the results are very close. Let's see the p value difference as a function of the sample size $N$, for different lifts for a 2x2 contingency table:</p>
+<div class="highlight"><pre><span></span>base_conversion = 0.5
+traffic_split = 0.5
+
+results = {}
+for actual_lift in range(0, 10, 1):
+    actual_lift /= 100.0
+    results[actual_lift] = []
+    for N in range(100, 10*1000, 50):
+        observations = [
+            [int(base_conversion * traffic_split * N), int((1-base_conversion) * traffic_split * N)],
+            [int((base_conversion+actual_lift) * (1-traffic_split) * N), int((1-(base_conversion+actual_lift)) * (1-traffic_split) * N)],
+        ]
+        p_chi2 = generalized_chi_squared(observations)[1]
+        p_g = generalized_G(observations)[1]
+        p_diff = abs(p_chi2 - p_g)
+        results[actual_lift].append((N, p_diff))
+
+plt.figure(figsize=(10,5))
+plt.xlabel(&#39;sample size&#39;)
+plt.ylabel(&quot;&quot;&quot;| chi^2 - G |&quot;&quot;&quot;)
+for actual_lift in results.keys():
+    plt.plot([x[0] for x in results[actual_lift]], savgol_filter([x[1] for x in results[actual_lift]], 67, 3))
+plt.legend([&#39;actual_lift = %d%%&#39; % (100*actual_lift) for actual_lift in results.keys()], loc=&#39;upper right&#39;)
+plt.show()
+</pre></div>
+
+
+<p>Shows:</p>
+<p><img src="/images/gtest1.PNG" alt="G-test vs Chi-squared p differences" style="width: 600px;"/></p>
   </div>
   <div class="tag-cloud">
     <p>

@@ -64,7 +64,39 @@ print(&amp;#39;G p = %.6f&amp;#39;   % g_our[1])
 &lt;span class="na"&gt;G test statistic&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;4.095&lt;/span&gt;
 &lt;span class="na"&gt;C p&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;0.043081&lt;/span&gt;
 &lt;span class="na"&gt;G p&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;0.043010&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;</content><category term="ab-testing"></category></entry><entry><title>A/B testing and networks effects</title><link href="/ab-testing-and-network-effects.html" rel="alternate"></link><published>2020-03-21T00:00:00+01:00</published><updated>2020-03-21T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-03-21:/ab-testing-and-network-effects.html</id><summary type="html">&lt;p&gt;I use Monte Carlo simulations to explore how A/B testing on Watts–Strogatz random graphs depends on the degree distribution of the social network.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/network_scaling1.png" alt="Watts-Strogatz degree distribution" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We can see that the results are very close. Let's see the p value difference as a function of the sample size $N$, for different lifts for a 2x2 contingency table:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;base_conversion = 0.5
+traffic_split = 0.5
+
+results = {}
+for actual_lift in range(0, 10, 1):
+    actual_lift /= 100.0
+    results[actual_lift] = []
+    for N in range(100, 10*1000, 50):
+        observations = [
+            [int(base_conversion * traffic_split * N), int((1-base_conversion) * traffic_split * N)],
+            [int((base_conversion+actual_lift) * (1-traffic_split) * N), int((1-(base_conversion+actual_lift)) * (1-traffic_split) * N)],
+        ]
+        p_chi2 = generalized_chi_squared(observations)[1]
+        p_g = generalized_G(observations)[1]
+        p_diff = abs(p_chi2 - p_g)
+        results[actual_lift].append((N, p_diff))
+
+plt.figure(figsize=(10,5))
+plt.xlabel(&amp;#39;sample size&amp;#39;)
+plt.ylabel(&amp;quot;&amp;quot;&amp;quot;| chi^2 - G |&amp;quot;&amp;quot;&amp;quot;)
+for actual_lift in results.keys():
+    plt.plot([x[0] for x in results[actual_lift]], savgol_filter([x[1] for x in results[actual_lift]], 67, 3))
+plt.legend([&amp;#39;actual_lift = %d%%&amp;#39; % (100*actual_lift) for actual_lift in results.keys()], loc=&amp;#39;upper right&amp;#39;)
+plt.show()
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Shows:&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/gtest1.PNG" alt="G-test vs Chi-squared p differences" style="width: 600px;"/&gt;&lt;/p&gt;</content><category term="ab-testing"></category></entry><entry><title>A/B testing and networks effects</title><link href="/ab-testing-and-network-effects.html" rel="alternate"></link><published>2020-03-21T00:00:00+01:00</published><updated>2020-03-21T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-03-21:/ab-testing-and-network-effects.html</id><summary type="html">&lt;p&gt;I use Monte Carlo simulations to explore how A/B testing on Watts–Strogatz random graphs depends on the degree distribution of the social network.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/network_scaling1.png" alt="Watts-Strogatz degree distribution" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;In the &lt;a href="http://bytepawn.com/ab-testing-on-social-networks.html#ab-testing-on-social-networks"&gt;previous post&lt;/a&gt; I calculated the expected average posts on a social network. The model had 2 components:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;intrinsic:&lt;/strong&gt; users intrinsically create posts&lt;/li&gt;
