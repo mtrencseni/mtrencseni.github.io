@@ -94,6 +94,7 @@
 <blockquote>
 <p>The commonly used $\chi^2$ tests for goodness of fit to a distribution and for independence in contingency tables are in fact approximations of the log-likelihood ratio on which the G-tests are based. The general formula for Pearson's $\chi^2$ test statistic is $ \chi^2 = \sum_i { \frac{ (O_i - E_{i} )^2 }{ E_i } } $. The approximation of G by $\chi^2$ is obtained by a second order Taylor expansion of the natural logarithm around 1. The general formula for G is $ G = 2 \sum_i { O_i \cdot \ln \frac{O_i}{E_i} } $, where $O_i$ is the observed count in a cell, $E_i$ is the expected count under the null hypothesis, $\ln$ denotes the natural logarithm, and the sum is taken over all non-empty cells.</p>
 </blockquote>
+<p><a href="https://github.com/mtrencseni/playground/blob/master/AB%20testing%20and%20the%20G%20test.ipynb">The code for this post is on Github.</a></p>
 <p>Let's reuse the example from the $\chi^2$ post:</p>
 <p><img src="/images/contingency_table3.PNG" alt="Contingency table" style="width: 600px;"/></p>
 <p>From the previous <a href="http://bytepawn.com/ab-testing-and-the-chi-squared-test.html">$\chi^2$ post</a>:</p>
@@ -226,7 +227,74 @@ plt.show()
 <p>The differences are small, but we can still see them. However, such small sample sizes are unrealistic for A/B testing on the one hand, and at low sample sizes we should be using Fisher's exact test anyways. Repeating the same at $N=1,000$:</p>
 <p><img src="/images/gtest3.png" alt="Inverse cdf" style="width: 600px;"/></p>
 <p>Already at $N=1,000$ we cannot see a difference between the $\chi^2$ and the G-test in terms of their test statistic distribution.</p>
-<p>If you check the <a href="https://github.com/mtrencseni/playground/blob/master/AB%20testing%20and%20the%20G%20test.ipynb">code for this post on Github</a>, I actually performed more MC simulations to try to catch the goodness-of-fit difference between the two, but found no robust signal. For all practical purposes these two tests are interchangeable.</p>
+<p>Let's do this at scale: at different $N$s, let's run <code>num_simulations</code> A/B tests, compute the histogram for both tests, compare to theoretical $chi^2$ distribution, and count whether the G or the $chi^2$ is the better fit:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">percentile_diff</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">percentiles</span><span class="p">,</span> <span class="n">expected_percentiles</span><span class="p">):</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+    <span class="n">a_percentiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">arr</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">))]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">percentiles</span><span class="p">]</span>
+    <span class="n">a_diff</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">a_percentiles</span><span class="p">,</span> <span class="n">expected_percentiles</span><span class="p">)])</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">expected_percentiles</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">a_diff</span>
+
+<span class="k">def</span> <span class="nf">mp_fit_chi2</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="p">(</span><span class="n">num_fits</span><span class="p">,</span> <span class="n">num_simulations</span><span class="p">,</span> <span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span> <span class="o">=</span> <span class="n">args</span>
+    <span class="n">percentiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">/</span><span class="mf">10.0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+    <span class="n">expected_percentiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">chi2</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">percentiles</span><span class="p">]</span>
+    <span class="n">c_diffs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">g_diffs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_fits</span><span class="p">):</span>
+        <span class="n">cs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">gs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_simulations</span><span class="p">):</span>
+            <span class="n">observations</span> <span class="o">=</span> <span class="n">simulate_abtest</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+            <span class="n">cs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">generalized_chi_squared</span><span class="p">(</span><span class="n">observations</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">gs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">generalized_G</span><span class="p">(</span><span class="n">observations</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">c_diffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">percentile_diff</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="n">percentiles</span><span class="p">,</span> <span class="n">expected_percentiles</span><span class="p">))</span>
+        <span class="n">g_diffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">percentile_diff</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">percentiles</span><span class="p">,</span> <span class="n">expected_percentiles</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">c_diffs</span><span class="p">,</span> <span class="n">g_diffs</span>
+
+<span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the first vector is the actual outcomes,</span>
+    <span class="p">[[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the second is the traffic split</span>
+<span class="p">]</span>
+<span class="n">df</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">num_simulations</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">num_fits_per_thread</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">num_threads</span> <span class="o">=</span> <span class="mi">24</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span>  <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">]:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Running simulations for with (N, num_simulations, num_fits_per_thread) = (</span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">) on </span><span class="si">%s</span><span class="s1"> threads&#39;</span> <span class="o">%</span> <span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">num_simulations</span><span class="p">,</span> <span class="n">num_fits_per_thread</span><span class="p">,</span> <span class="n">num_threads</span><span class="p">)))</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">mp_map</span><span class="p">(</span>
+            <span class="n">gtest_worker</span><span class="o">.</span><span class="n">mp_fit_chi2</span><span class="p">,</span>
+            <span class="p">[(</span><span class="n">num_fits_per_thread</span><span class="p">,</span> <span class="n">num_simulations</span><span class="p">,</span> <span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_threads</span><span class="p">)],</span>
+            <span class="n">num_threads</span><span class="p">)</span>
+        <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Done! Elapsed </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%M:%S&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">elapsed_time</span><span class="p">)))</span>
+        <span class="n">c_diffs</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">])</span>
+        <span class="n">g_diffs</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">])</span>
+        <span class="n">g_better_ratio</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([(</span><span class="n">g_diff</span> <span class="o">&lt;</span> <span class="n">c_diff</span><span class="p">)</span> <span class="k">for</span> <span class="n">c_diff</span><span class="p">,</span> <span class="n">g_diff</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">c_diffs</span><span class="p">,</span> <span class="n">g_diffs</span><span class="p">)])</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">c_diffs</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;The G test statistic better approximates the theoretical Chi^2 distribution </span><span class="si">%.4f</span><span class="s1"> fraction of times out of </span><span class="si">%s</span><span class="s1"> fits&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">g_better_ratio</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_diffs</span><span class="p">)))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Prints:</p>
+<div class="highlight"><pre><span></span>Running simulations for with (N, num_simulations, num_fits_per_thread) = (50, 1000, 500) on 24 threads
+Done! Elapsed 29:45
+The G test statistic better approximates the theoretical Chi^2 distribution 0.14 fraction of times out of 12000 fits
+-
+Running simulations for with (N, num_simulations, num_fits_per_thread) = (100, 1000, 500) on 24 threads
+Done! Elapsed 46:45
+The G test statistic better approximates the theoretical Chi^2 distribution 0.56 fraction of times out of 12000 fits
+-
+Running simulations for with (N, num_simulations, num_fits_per_thread) = (1000, 1000, 500) on 24 threads
+Done! Elapsed 52:06
+The G test statistic better approximates the theoretical Chi^2 distribution 0.48 fraction of times out of 12000 fits
+</pre></div>
+
+
+<p>The results are interesting. At $N=50$, when the CLT doesn't really hold yet and neither should be used, the $chi^2$ is actually a better fit (wins 86% of the time). At higher $N$s, it roughly the same between the two.</p>
 <h2>Conclusion</h2>
 <p>The G-test numerically yields the same results as the $\chi^2$ test, there's no reason to prefer one over the other. Since more people are familiar with the $\chi^2$, I suggest to stick with that.</p>
   </div>
