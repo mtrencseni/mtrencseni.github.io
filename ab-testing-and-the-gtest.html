@@ -181,7 +181,12 @@ plt.show()
 
 <p>Shows:</p>
 <p><img src="/images/gtest11.png" alt="G-test vs Chi-squared p differences" style="width: 600px;"/></p>
-<p>The differences in $p$ values are tiny, in the fourth decimal. In practice, this means the tests are interchangeable, as they numerically yield the same results (similar to how the <a href="http://bytepawn.com/ab-testing-and-the-ttest.html">t-test and z-test yield the same value numerically</a>).</p>
+<p>The differences in $p$ values are tiny, in the fourth decimal. In practice, this means the tests are interchangeable, as they numerically yield the same results (similar to how the <a href="http://bytepawn.com/ab-testing-and-the-ttest.html">t-test and z-test yield the same value numerically</a>). This is in-line with the Wikipedia page:</p>
+<blockquote>
+<p>For samples of a reasonable size, the G-test and the chi-squared test will lead to the same conclusions. However, the approximation to the theoretical chi-squared distribution for the G-test is better than for the Pearson's chi-squared test.</p>
+</blockquote>
+<p>Let's see how significant the last sentence is. What this is saying is that (i) assuming the null hypothesis is true (both funnels are the same), and we (ii) perform the tests multiple times and calculate the $\chi^2$ and G test statistics, and (iii) compute the histogram of tests statistics, then (iv) the histogram of G test statistics should be a better fit to the theoretical $\chi^2$ distribution than the histogram for $chi^2$ test statistics. This goodness of fit difference is something we can try to catch with a Monte Carlo (MC) simulation.</p>
+<p>The simplest way computationally is to compute the 10th, 20th ... 90th percentiles of the MC test statistics, and compare that to the inverse <a href="https://en.wikipedia.org/wiki/Cumulative_distribution_function">cumulative distribution function</a> (cdf) of the $\chi^2$ distribution.</p>
   </div>
   <div class="tag-cloud">
     <p>
