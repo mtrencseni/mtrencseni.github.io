@@ -223,12 +223,12 @@ plt.show()
 
 <p>Shows:</p>
 <p><img src="/images/gtest2.png" alt="Inverse cdf" style="width: 600px;"/></p>
-<p>The differences are small, but we can still see them. However, such small sample sizes are unrealistic for A/B testing on the one hand, and at low sample sizes we should be using Fisher's exact test anyways. Doing the same with $N=1,000$ A/B tests:</p>
+<p>The differences are small, but we can still see them. However, such small sample sizes are unrealistic for A/B testing on the one hand, and at low sample sizes we should be using Fisher's exact test anyways. Repeating the same at $N=1,000$:</p>
 <p><img src="/images/gtest3.png" alt="Inverse cdf" style="width: 600px;"/></p>
 <p>Already at $N=1,000$ we cannot see a difference between the $\chi^2$ and the G-test in terms of their test statistic distribution.</p>
 <p>If you check the <a href="https://github.com/mtrencseni/playground/blob/master/AB%20testing%20and%20the%20G%20test.ipynb">code for this post on Github</a>, I actually performed more MC simulations to try to catch the goodness-of-fit difference between the two, but found no robust signal. For all practical purposes these two tests are interchangeable.</p>
 <h2>Conclusion</h2>
-<p>The G-test yields the same results numerically as the $\chi^2$ test, there's no reason to prefer one over the other. Since more people are familiar with the $\chi^2$, I suggest to stick with that.</p>
+<p>The G-test numerically yields the same results as the $\chi^2$ test, there's no reason to prefer one over the other. Since more people are familiar with the $\chi^2$, I suggest to stick with that.</p>
   </div>
   <div class="tag-cloud">
     <p>
