@@ -171,7 +171,7 @@ for actual_lift in range(0, 10, 1):
 
 plt.figure(figsize=(10,5))
 plt.xlabel(&#39;sample size&#39;)
-plt.ylabel(&quot;&quot;&quot;| chi^2 - G |&quot;&quot;&quot;)
+plt.ylabel(&quot;&quot;&quot;chi^2 vs G-test p difference&quot;&quot;&quot;)
 for actual_lift in results.keys():
     plt.plot([x[0] for x in results[actual_lift]], savgol_filter([x[1] for x in results[actual_lift]], 67, 3))
 plt.legend([&#39;actual_lift = %d%%&#39; % (100*actual_lift) for actual_lift in results.keys()], loc=&#39;upper right&#39;)
@@ -180,7 +180,7 @@ plt.show()
 
 
 <p>Shows:</p>
-<p><img src="/images/gtest1.png" alt="G-test vs Chi-squared p differences" style="width: 600px;"/></p>
+<p><img src="/images/gtest11.png" alt="G-test vs Chi-squared p differences" style="width: 600px;"/></p>
   </div>
   <div class="tag-cloud">
     <p>

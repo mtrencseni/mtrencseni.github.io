@@ -87,7 +87,7 @@ for actual_lift in range(0, 10, 1):
 
 plt.figure(figsize=(10,5))
 plt.xlabel(&amp;#39;sample size&amp;#39;)
-plt.ylabel(&amp;quot;&amp;quot;&amp;quot;| chi^2 - G |&amp;quot;&amp;quot;&amp;quot;)
+plt.ylabel(&amp;quot;&amp;quot;&amp;quot;chi^2 vs G-test p difference&amp;quot;&amp;quot;&amp;quot;)
 for actual_lift in results.keys():
     plt.plot([x[0] for x in results[actual_lift]], savgol_filter([x[1] for x in results[actual_lift]], 67, 3))
 plt.legend([&amp;#39;actual_lift = %d%%&amp;#39; % (100*actual_lift) for actual_lift in results.keys()], loc=&amp;#39;upper right&amp;#39;)
@@ -96,7 +96,7 @@ plt.show()
 
 
 &lt;p&gt;Shows:&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/gtest1.png" alt="G-test vs Chi-squared p differences" style="width: 600px;"/&gt;&lt;/p&gt;</content><category term="ab-testing"></category></entry><entry><title>A/B testing and networks effects</title><link href="/ab-testing-and-network-effects.html" rel="alternate"></link><published>2020-03-21T00:00:00+01:00</published><updated>2020-03-21T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-03-21:/ab-testing-and-network-effects.html</id><summary type="html">&lt;p&gt;I use Monte Carlo simulations to explore how A/B testing on Watts–Strogatz random graphs depends on the degree distribution of the social network.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/network_scaling1.png" alt="Watts-Strogatz degree distribution" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;&lt;img src="/images/gtest11.png" alt="G-test vs Chi-squared p differences" style="width: 600px;"/&gt;&lt;/p&gt;</content><category term="ab-testing"></category></entry><entry><title>A/B testing and networks effects</title><link href="/ab-testing-and-network-effects.html" rel="alternate"></link><published>2020-03-21T00:00:00+01:00</published><updated>2020-03-21T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-03-21:/ab-testing-and-network-effects.html</id><summary type="html">&lt;p&gt;I use Monte Carlo simulations to explore how A/B testing on Watts–Strogatz random graphs depends on the degree distribution of the social network.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/network_scaling1.png" alt="Watts-Strogatz degree distribution" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;In the &lt;a href="http://bytepawn.com/ab-testing-on-social-networks.html#ab-testing-on-social-networks"&gt;previous post&lt;/a&gt; I calculated the expected average posts on a social network. The model had 2 components:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;intrinsic:&lt;/strong&gt; users intrinsically create posts&lt;/li&gt;
