@@ -39,7 +39,7 @@
   <meta name="robots" content="" />
 <meta name="author" content="Marton Trencseni" />
 <meta name="description" content="The G-test for conversion A/B tests is similar to the Chi-squared test. Monte-Carlo simulations show that the two are indistinguishable in practice." />
-<meta name="keywords" content="bayesian-ab-conversion-tests">
+<meta name="keywords" content="bayesian, ab-test">
 <meta property="og:site_name" content="Marton Trencseni"/>
 <meta property="og:title" content="Bayesian A/B conversion tests"/>
 <meta property="og:description" content="The G-test for conversion A/B tests is similar to the Chi-squared test. Monte-Carlo simulations show that the two are indistinguishable in practice."/>
@@ -50,7 +50,8 @@
 <meta property="article:modified_time" content="2020-03-31 00:00:00+02:00"/>
 <meta property="article:author" content="/author/marton-trencseni.html">
 <meta property="article:section" content="Data"/>
-<meta property="article:tag" content="bayesian-ab-conversion-tests"/>
+<meta property="article:tag" content="bayesian"/>
+<meta property="article:tag" content="ab-test"/>
 <meta property="og:image" content="/images/gtest11.png"/>
 
   <title>Marton Trencseni &ndash; Bayesian A/B conversion tests</title>
@@ -90,10 +91,28 @@
 <p>Bayesian inference is a method of statistical inference in which Bayes' theorem is used to update the probability for a hypothesis as more evidence or information becomes available.</p>
 </blockquote>
 <p>We expect that the two are related: if there is a big difference in conversion in favor of B versus A, relative to the sample size $N$, we expect to get a low frequentist $p_f$ value and a high $p_b$ bayesian probability. However, in terms of the math, the two are not complementary probabilities: $p_f + p_b \neq 1$. However, as I will show here, this relationship approximately holds when doing conversion 2x2 A/B testing with Beta distributions and flat priors: $p_f + p_b \simeq 1 $.</p>
+<h2>Conversion parameter estimation with the Beta distribution</h2>
+<p>In Bayesian modeling, we pick a distribution to model the $\mu$ conversion probability for each funnel A and B. In other words, we say “I don’t know what the conversion of A is, but based on the experimental outcome, $P_A(\mu)$ is the probability that it is \mu ($P_B(\mu)$ for B).” For conversion modeling, we usually pick the <a href="https://en.wikipedia.org/wiki/Beta_distribution">Beta distribution</a> to model the $\mu$ conversion parameter. The Beta distribution has two parameters, $\alpha$ and $\beta$, its peak is at $\frac { \alpha }{ \alpha + \beta }, its domain is the range $[0, 1]$. Given an experimental outcome where we observed $C$ conversions out of $N$ cases, we set $\alpha=C$ and $\beta=N-C$, so $\alpha$ is the conversion count, $\beta$ is the non-conversion count. The Beta distribution is available in <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.beta.html">scipy</a>, it’s easy to visualize:</p>
+<div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">convs</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.90</span><span class="p">,</span> <span class="mf">0.97</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="n">legends</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">conv</span> <span class="ow">in</span> <span class="n">convs</span><span class="p">:</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">conv</span><span class="o">*</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">conv</span><span class="p">)</span><span class="o">*</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">beta</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+    <span class="n">legends</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Beta(</span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">legends</span><span class="p">)</span>
+</pre></div>
+
+
+<p><img src="/images/bayes1.png" alt="Beta distributions" style="width: 600px;"/></p>
   </div>
   <div class="tag-cloud">
     <p>
-      <a href="/tag/bayesian-ab-conversion-tests.html">bayesian-ab-conversion-tests</a>
+      <a href="/tag/bayesian.html">bayesian</a>
+      <a href="/tag/ab-test.html">ab-test</a>
     </p>
   </div>
 </article>
