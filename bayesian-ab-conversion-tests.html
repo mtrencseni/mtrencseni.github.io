@@ -182,17 +182,17 @@ Bayesian MC p = 0.785
 </pre></div>
 
 
-<p><img src="/images/bayes2.png" alt="p_f vs p_b" style="width: 600px;"/></p>
+<p><img src="/images/bayes2.png" alt="p_f vs p_b" style="width: 400px;"/></p>
 <p>It seems that the two add up to 1. But they don’t add up to 1 exactly, it’s just an approximation (using the exact closed-form Bayesian evaluation, not the MC):</p>
 <div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">run_simulations</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">num_simulations</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results</span><span class="p">])</span>
 </pre></div>
 
 
-<p><img src="/images/bayes3.png" alt="p_f vs p_b" style="width: 600px;"/></p>
+<p><img src="/images/bayes3.png" alt="p_f vs p_b" style="width: 400px;"/></p>
 <p>What’s going on here? One of the things every data scientist knows is that, if the p value is X, it doesn’t mean that the probability that the action hypothesis is true is 1-X.</p>
 <p>Let’s repeat the above experiment, but with different $N$ sample sizes, different conversions, and also look at cases when the action hypothesis is actually true (funnel B is in fact better). Green dots are cases when the outcome of the experiment was such that B’s conversion was better than A, red the opposite, for easier readability. In all cases, 100 A/B tests are performed, and the results are plotted.</p>
-<p>$N=1000$, A and B are the same, both 50%:</p>
+<p>$N=1000$, A and B are both 50%:</p>
 <div class="highlight"><pre><span></span><span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">[[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the first vector is the actual outcomes,</span>
     <span class="p">[[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the second is the traffic split</span>
@@ -202,6 +202,27 @@ Bayesian MC p = 0.785
 
 
 <p><img src="/images/bayes4.png" alt="p_f vs p_b" style="width: 600px;"/></p>
+<p>$N=1000$, B’s conversion is better than A’s (53% vs 50%):</p>
+<div class="highlight"><pre><span></span><span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the first vector is the actual outcomes,</span>
+    <span class="p">[[</span><span class="mf">0.47</span><span class="p">,</span> <span class="mf">0.53</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the second is the traffic split</span>
+<span class="p">]</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">1000</span>
+</pre></div>
+
+
+<p><img src="/images/bayes5.png" alt="p_f vs p_b" style="width: 600px;"/></p>
+<p>In this case, we’re sampling the same curves, but in the region where B’s conversion is better than A’s (more green dots in the green section of the curve).</p>
+<p>$N=10,000$, A and B are both 1%:</p>
+<div class="highlight"><pre><span></span><span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[[</span><span class="mf">0.99</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the first vector is the actual outcomes,</span>
+    <span class="p">[[</span><span class="mf">0.99</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the second is the traffic split</span>
+<span class="p">]</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="mi">1000</span>
+</pre></div>
+
+
+<p><img src="/images/bayes6.png" alt="p_f vs p_b" style="width: 600px;"/></p>
   </div>
   <div class="tag-cloud">
     <p>
