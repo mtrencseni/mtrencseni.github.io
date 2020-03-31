@@ -183,6 +183,13 @@ Bayesian MC p = 0.785
 
 
 <p><img src="/images/bayes2.png" alt="p_f vs p_b" style="width: 600px;"/></p>
+<p>It seems that the two add up to 1. But they don’t add up to 1 exactly, it’s just an approximation (using the exact closed-form Bayesian evaluation, not the MC):</p>
+<div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">run_simulations</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">num_simulations</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results</span><span class="p">])</span>
+</pre></div>
+
+
+<p><img src="/images/bayes3.png" alt="p_f vs p_b" style="width: 600px;"/></p>
   </div>
   <div class="tag-cloud">
     <p>
