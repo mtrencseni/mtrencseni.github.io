@@ -255,6 +255,7 @@ Bayesian MC p = 0.785
 <p>... and the same at $N=1000$:</p>
 <p><img src="/images/bayes11.png" alt="p_f vs p_b" style="width: 600px;"/></p>
 <p>At high $N$, $p_f + p_b \simeq 1$ also approximately holds, since here all these frequentist tests become the Z-test.</p>
+<p>What can we say about the concave relationship between $p_f$ and $p_b$ at $N=20$? First of all, in theory, $p_f + p_b = 1$ does not have to hold, so thos concave relationship is not a problem. But, we see that it goes back to the approximate $p_f + p_b \simeq 1$ linear at higher $N$, so it's a fair question to ask why this happens. My best guess is that this is due to continuity: the Beta distribution assumes that the conversion parameter can take any value between 0 and 1. But as N=20, this is not true: the conversion is either 0, 0.05, 0.10, 0.15, and so on. Fisher's exact test knows about this.</p>
   </div>
   <div class="tag-cloud">
     <p>
