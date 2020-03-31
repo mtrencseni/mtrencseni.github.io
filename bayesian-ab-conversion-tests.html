@@ -241,6 +241,20 @@ Bayesian MC p = 0.785
 <p>There is now a noticable spread in the curves, and the “error” in the $p_f + p_b \simeq 1$ line goes as high as 0.03:</p>
 <p><img src="/images/bayes9.png" alt="p_f vs p_b" style="width: 400px;"/></p>
 <p>In earlier posts I showed that at moderate $N$ the <a href="http://bytepawn.com/ab-testing-and-the-ttest.html">t-test and the z-test quickly become the same thing</a>, so exchanging the z-test for the t-test doesn’t make a difference.</p>
+<h2>Bayesian Beta modeling vs the frequentist Fisher’s exact test</h2>
+<p>Let's do the same, but instead of using the Z-test, let's use Fisher's exact test (which doesn't have a normal distribution assumption) to get the frequentist $p_f$.</p>
+<div class="highlight"><pre><span></span><span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the first vector is the actual outcomes,</span>
+    <span class="p">[[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the second is the traffic split</span>
+<span class="p">]</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">20</span>
+</pre></div>
+
+
+<p><img src="/images/bayes10.png" alt="p_f vs p_b" style="width: 600px;"/></p>
+<p>... and the same at $N=1000$:</p>
+<p><img src="/images/bayes11.png" alt="p_f vs p_b" style="width: 600px;"/></p>
+<p>At high $N$, $p_f + p_b \simeq 1$ also approximately holds, since here all these frequentist tests become the Z-test.</p>
   </div>
   <div class="tag-cloud">
     <p>
