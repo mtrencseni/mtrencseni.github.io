@@ -131,13 +131,12 @@
 
 <span class="n">observations</span> <span class="o">=</span> <span class="n">simulate_abtest</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Observations:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">observations</span><span class="p">)</span>
-<span class="n">iobs</span> <span class="o">=</span> <span class="n">to_individual_observations</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
-<span class="n">tp</span> <span class="o">=</span> <span class="n">ztest</span><span class="p">(</span><span class="n">iobs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">iobs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s1">&#39;larger&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;z-test p = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">tp</span><span class="p">)</span>
-<span class="n">bp</span> <span class="o">=</span> <span class="n">bayesian_prob</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Bayesian p = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">bp</span><span class="p">)</span>
-<span class="n">bp</span> <span class="o">=</span> <span class="n">bayesian_prob_mc</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Bayesian MC p = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">bp</span><span class="p">)</span>
+<span class="n">pf</span> <span class="o">=</span> <span class="n">z_test</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;z-test p = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">pf</span><span class="p">)</span>
+<span class="n">pb</span> <span class="o">=</span> <span class="n">bayesian_prob</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Bayesian p = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">pb</span><span class="p">)</span>
+<span class="n">pb</span> <span class="o">=</span> <span class="n">bayesian_prob_mc</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Bayesian MC p = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">pb</span><span class="p">)</span>
 </pre></div>
 
 
@@ -158,12 +157,11 @@ Bayesian MC p = 0.785
     <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_simulations</span><span class="p">):</span>
         <span class="n">observations</span> <span class="o">=</span> <span class="n">simulate_abtest</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
-        <span class="n">iobs</span> <span class="o">=</span> <span class="n">to_individual_observations</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
-        <span class="n">fp</span> <span class="o">=</span> <span class="n">ztest</span><span class="p">(</span><span class="n">iobs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">iobs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s1">&#39;larger&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">bp</span> <span class="o">=</span> <span class="n">bayesian_prob</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+        <span class="n">pf</span> <span class="o">=</span> <span class="n">z_test</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+        <span class="n">pb</span> <span class="o">=</span> <span class="n">bayesian_prob</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
         <span class="n">conv_A</span> <span class="o">=</span> <span class="n">conversion</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">conv_B</span> <span class="o">=</span> <span class="n">conversion</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">conv_B</span> <span class="o">-</span> <span class="n">conv_A</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">bp</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span> <span class="k">if</span> <span class="n">conv_A</span> <span class="o">&lt;=</span> <span class="n">conv_B</span> <span class="k">else</span> <span class="s1">&#39;red&#39;</span><span class="p">))</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">conv_B</span> <span class="o">-</span> <span class="n">conv_A</span><span class="p">,</span> <span class="n">pf</span><span class="p">,</span> <span class="n">pb</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span> <span class="k">if</span> <span class="n">conv_A</span> <span class="o">&lt;=</span> <span class="n">conv_B</span> <span class="k">else</span> <span class="s1">&#39;red&#39;</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">results</span>
 
 <span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
