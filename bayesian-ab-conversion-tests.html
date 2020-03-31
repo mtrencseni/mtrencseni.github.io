@@ -150,7 +150,7 @@ Bayesian MC p = 0.785
 </pre></div>
 
 
-<p>The results look good. Note that the z-test p-value and the Bayesian probability add to 1. What’s going on?</p>
+<p>The results look good. Note that the z-test p-value $p_f$ and the Bayesian probability $p_b$ add to 1. What’s going on?</p>
 <h2>Bayesian Beta modeling vs the frequentist z-test</h2>
 <p>Let’s evaluate this by running a number of A/B tests, and plotting the results:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run_simulations</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">num_simulations</span><span class="p">):</span>
