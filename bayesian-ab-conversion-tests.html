@@ -269,10 +269,16 @@ Bayesian MC p = 0.785
 
 
 <p><img src="/images/bayes12.png" alt="p_f vs p_b" style="width: 400px;"/></p>
-<p>When we have a prior belief expressed as a Beta distribution $Beta(\alpha_0, \beta_0)$, after we run the A/B test which yields $\alpha$ conversions and $\beta$ non-conversion events, the posterior will be the Beta distribution $Beta(\alpha_0+\alpha, \beta_0+\beta)$. As you can imagine, at reasonable samples sizes such as $N&gt;100$, the priors don’t matter much; this is called “washing out the prior [with observations]”.</p>
-<p>However, note that any sort of prior can be chosen, including a very strong one that doesn’t wash out. Also, any distribution can be chosen by the modeler for the posterior. So in general, the $p_f + p_b = 1$ approximation is not true, it only happens to roughly hold for z-tests (or other frequentist tests whose p value becomes the same at large $N$) and Beta distributions when using a weak prior that is washed out.</p>
+<p>When we have a prior belief expressed as a Beta distribution $Beta(\alpha_0, \beta_0)$, after we run the A/B test which yields $\alpha$ conversions and $\beta$ non-conversion events, the posterior will be the Beta distribution $Beta(\alpha_0+\alpha, \beta_0+\beta)$. As you can imagine, at reasonable samples sizes such as $N&gt;100$, the priors don’t matter much; this is called “washing out the prior with observations”.</p>
+<p>However, note that any sort of prior can be chosen, including a very strong one that doesn’t wash out, like $Beta(1000000, 1000000)$. This is a modeling decision. Obviously, with strong priors like this $p_f + p_b \simeq 1$ will not hold (since $p_b$ will be frozen until a lot of observations are collected). Also, any distribution can be chosen by the modeler for the posterior.</p>
 <h2>Conclusion</h2>
-<p>Bayesian inference, when applied to A/B testing using Beta distributions and weak priors, at reasonable sample sizes, yields roughly complementary probabilities to frequentist tests. At the end of the day, in the absence of strong prior beliefs, at reasonable sample sizes we end up putting roughly gaussian shaped functions around measured averages, so different statistical procedures yield roughly the same (comlementary) probabilities and decisions.</p>
+<p>So in general, the $p_f + p_b \simeq 1$ approximation is not true, it only happens to roughly hold when:</p>
+<ul>
+<li>using Z-tests on the frequentist side (or other tests whose p value becomes the Z-test's at large $N$), and</li>
+<li>using Beta distributions (or other distributions that become normal at large $N$) for Bayesian modeling, and</li>
+<li>using a weak prior that is washed out </li>
+</ul>
+<p>Turning it around: Bayesian inference, when applied to A/B testing using Beta distributions (or other distributions that become normal at large $N$) and weak priors, at reasonable sample sizes, yields roughly complementary probabilities to frequentist tests such as the Z-test (or other tests whose p value becomes the Z-test's at large $N$). At the end of the day, in the absence of strong prior beliefs, at reasonable sample sizes we end up putting roughly gaussian shaped functions around measured averages, so different statistical procedures yield roughly the same (complementary) probabilities and decisions.</p>
   </div>
   <div class="tag-cloud">
     <p>
