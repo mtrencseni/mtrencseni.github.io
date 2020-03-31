@@ -109,6 +109,48 @@
 
 
 <p><img src="/images/bayes1.png" alt="Beta distributions" style="width: 600px;"/></p>
+<h2>Computing the bayesian probability</h2>
+<p>With the above, we just need to compute the probability of the B funnel’s conversion is greater than A’s: $P(\mu_A \leq \mu_B) = \int_{mu_A \leq mu_B} P_A(mu_A) P_B(mu_B) = \int_{mu_A \leq mu_B} Beta_(\alpha=C_A, \beta=N_A-C_A, mu_A) Beta(\alpha=C_B, \beta=N_B-C_B, mu_B) $. We can either use a <a href="https://towardsdatascience.com/bayesian-a-b-testing-with-python-the-easy-guide-d638f89e0b8a">closed form solution</a> for this integral, or use Monte Carlo integration (sampling) to estimate. Since I’m not deriving the closed form solution, the MC integration is a good check to make sure it’s good:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">bayesian_prob_mc</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">num_samples</span> <span class="o">=</span> <span class="mi">1000</span><span class="o">*</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="n">beta_A</span> <span class="o">=</span> <span class="n">beta</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">observations</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">beta_B</span> <span class="o">=</span> <span class="n">beta</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">observations</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">samples_A</span> <span class="o">=</span> <span class="n">beta_A</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
+    <span class="n">samples_B</span> <span class="o">=</span> <span class="n">beta_B</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
+    <span class="n">hits</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">a</span> <span class="o">&lt;=</span> <span class="n">b</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">samples_A</span><span class="p">,</span> <span class="n">samples_B</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">hits</span><span class="o">/</span><span class="n">num_samples</span>
+</pre></div>
+
+
+<p>Let’s see it in action, and let’s also show what we would get with a one-tailed z-test:</p>
+<div class="highlight"><pre><span></span><span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the first vector is the actual outcomes,</span>
+    <span class="p">[[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the second is the traffic split</span>
+<span class="p">]</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">1000</span>
+
+<span class="n">observations</span> <span class="o">=</span> <span class="n">simulate_abtest</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Observations:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">observations</span><span class="p">)</span>
+<span class="n">iobs</span> <span class="o">=</span> <span class="n">to_individual_observations</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+<span class="n">tp</span> <span class="o">=</span> <span class="n">ztest</span><span class="p">(</span><span class="n">iobs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">iobs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s1">&#39;larger&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;z-test p = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">tp</span><span class="p">)</span>
+<span class="n">bp</span> <span class="o">=</span> <span class="n">bayesian_prob</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Bayesian p = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">bp</span><span class="p">)</span>
+<span class="n">bp</span> <span class="o">=</span> <span class="n">bayesian_prob_mc</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Bayesian MC p = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">bp</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Prints something like:</p>
+<div class="highlight"><pre><span></span>Observations:
+ [[273 245]
+ [242 240]]
+z-test p = 0.215
+Bayesian p = 0.785
+Bayesian MC p = 0.785
+</pre></div>
+
+
+<p>The results look good. Note that the z-test p-value and the Bayesian probability add to 1. What’s going on?</p>
   </div>
   <div class="tag-cloud">
     <p>
