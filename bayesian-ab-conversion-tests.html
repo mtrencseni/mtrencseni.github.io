@@ -151,6 +151,38 @@ Bayesian MC p = 0.785
 
 
 <p>The results look good. Note that the z-test p-value and the Bayesian probability add to 1. What’s going on?</p>
+<h2>Bayesian Beta modeling vs the frequentist z-test</h2>
+<p>Let’s evaluate this by running a number of A/B tests, and plotting the results:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run_simulations</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">num_simulations</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_simulations</span><span class="p">):</span>
+        <span class="n">observations</span> <span class="o">=</span> <span class="n">simulate_abtest</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">iobs</span> <span class="o">=</span> <span class="n">to_individual_observations</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="n">ztest</span><span class="p">(</span><span class="n">iobs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">iobs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s1">&#39;larger&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">bp</span> <span class="o">=</span> <span class="n">bayesian_prob</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+        <span class="n">conv_A</span> <span class="o">=</span> <span class="n">conversion</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">conv_B</span> <span class="o">=</span> <span class="n">conversion</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">conv_B</span> <span class="o">-</span> <span class="n">conv_A</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">bp</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span> <span class="k">if</span> <span class="n">conv_A</span> <span class="o">&lt;=</span> <span class="n">conv_B</span> <span class="k">else</span> <span class="s1">&#39;red&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">results</span>
+
+<span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the first vector is the actual outcomes,</span>
+    <span class="p">[[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1"># the second is the traffic split</span>
+<span class="p">]</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">num_simulations</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">run_simulations</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">num_simulations</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;z-test p&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Bayesian p&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">take</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">y</span><span class="o">=</span><span class="n">take</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">c</span><span class="o">=</span><span class="n">take</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p><img src="/images/bayes2.png" alt="p_f vs p_b" style="width: 600px;"/></p>
   </div>
   <div class="tag-cloud">
     <p>
