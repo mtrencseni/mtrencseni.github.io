@@ -151,7 +151,7 @@ Bayesian MC p = 0.785
 
 
 &lt;p&gt;&lt;img src="/images/bayes8.png" alt="p_f vs p_b" style="width: 600px;"/&gt;&lt;/p&gt;
-&lt;p&gt;There is now a noticable spread in the curves, and the “error” in the $p_f + p_b \simeq 1$ line goes as high as 0.03:&lt;/p&gt;
+&lt;p&gt;There is now a noticable spread in the curves, and the “error” in the $p_f + p_b \simeq 1$ line goes as high as 0.04:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/bayes16.png" alt="p_f vs p_b" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;p&gt;In earlier posts I showed that at moderate $N$ the &lt;a href="http://bytepawn.com/ab-testing-and-the-ttest.html"&gt;t-test and the z-test quickly become the same thing&lt;/a&gt;, so exchanging the z-test for the t-test doesn’t make a difference.&lt;/p&gt;
 &lt;h2&gt;Bayesian Beta modeling vs the frequentist Fisher’s exact test&lt;/h2&gt;
