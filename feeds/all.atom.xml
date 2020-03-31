@@ -58,8 +58,8 @@
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Observations:
  [[273 245]
  [242 240]]
-z-test p = 0.215
-Bayesian p = 0.785
+z-test p      = 0.215
+Bayesian p    = 0.785
 Bayesian MC p = 0.785
 &lt;/pre&gt;&lt;/div&gt;
 
