@@ -255,7 +255,24 @@ Bayesian MC p = 0.785
 <p>... and the same at $N=1000$:</p>
 <p><img src="/images/bayes11.png" alt="p_f vs p_b" style="width: 600px;"/></p>
 <p>At high $N$, $p_f + p_b \simeq 1$ also approximately holds, since here all these frequentist tests become the Z-test.</p>
-<p>What can we say about the concave relationship between $p_f$ and $p_b$ at $N=20$? First of all, in theory, $p_f + p_b = 1$ does not have to hold, so thos concave relationship is not a problem. But, we see that it goes back to the approximate $p_f + p_b \simeq 1$ linear at higher $N$, so it's a fair question to ask why this happens. My best guess is that this is due to continuity: the Beta distribution assumes that the conversion parameter can take any value between 0 and 1. But as N=20, this is not true: the conversion is either 0, 0.05, 0.10, 0.15, and so on. Fisher's exact test knows about this.</p>
+<p>Question: why the concave relationship at low $N$?</p>
+<h2>Bayesian modeling with normals, priors</h2>
+<p>There is no set rules for how to perform Bayesian modeling, it is the modeler's choice. It is up to us what kind of distributions we use to model the conversion parameter for our funnels. For example, another popular choice (other than the Beta) is the normal distributions. It goes without saying that if we did that, with the parameters chosen as mentioned above for the z-test, we could get exactly complementary probabilities.</p>
+<p>Another choice we have in Bayesian modeling is the prior. The prior is some up-front belief we have about the distribution of the conversions, which we then update based on the outcome of the experiment to get the posterior distribution. Two popular choices are $Beta(1, 1)$, which happens to be the uniform distribution, and $Beta(0.5, 0.5)$, called the Jeffreys prior:</p>
+<div class="highlight"><pre><span></span><span class="c1"># common priors</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>  
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">beta</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">beta</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s1">&#39;Beta(1, 1)&#39;</span><span class="p">,</span> <span class="s1">&#39;Beta(0.5, 0.5)&#39;</span><span class="p">])</span>
+</pre></div>
+
+
+<p><img src="/images/bayes12.png" alt="p_f vs p_b" style="width: 400px;"/></p>
+<p>When we have a prior belief expressed as a Beta distribution $Beta(\alpha_0, \beta_0)$, after we run the A/B test which yields $\alpha$ conversions and $\beta$ non-conversion events, the posterior will be the Beta distribution $Beta(\alpha_0+\alpha, \beta_0+\beta)$. As you can imagine, at reasonable samples sizes such as $N&gt;100$, the priors don’t matter much; this is called “washing out the prior [with observations]”.</p>
+<p>However, note that any sort of prior can be chosen, including a very strong one that doesn’t wash out. Also, any distribution can be chosen by the modeler for the posterior. So in general, the $p_f + p_b = 1$ approximation is not true, it only happens to roughly hold for z-tests (or other frequentist tests whose p value becomes the same at large $N$) and Beta distributions when using a weak prior that is washed out.
+Conclusion
+Bayesian inference, when applied to A/B testing using Beta distributions and weak priors, at reasonable sample sizes, yields roughly complementary probabilities to frequentist tests. As such, there is no strong reason to prefer one over the other.</p>
   </div>
   <div class="tag-cloud">
     <p>
