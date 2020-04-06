@@ -33,7 +33,7 @@
 &lt;p&gt;&lt;img src="/images/abpa2.png" alt="" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;This nicely shows us what’s going on. On the left side, we can see that the random variables for A and B have different values. On the right side, we can see that after sampling, the difference is still discernible with the naked eye. Note that the two left and two right sides are showing the same values, only arranged differently.&lt;/p&gt;
 &lt;h2&gt;Two A/B tests in parallel&lt;/h2&gt;
-&lt;p&gt;Now let’s run 2 A/B tests in parallel. In both cases, A leaves the RV’s parameter alone. But for $E_1$, we lift it to $\mu=2$, for $E_2$ we lift it to $\mu=3$. Users are in both A/B tests, and they are assigned into A and B buckets randomly, independent in the two experiments:&lt;/p&gt;
+&lt;p&gt;Now let’s run 2 A/B tests in parallel. In both cases, A leaves the RV’s parameter alone. But for $E_1$, we lift it to $\mu=2$, for $E_2$ we lift it to $\mu=3$. Users are in both A/B tests, and they are assigned into A and B buckets randomly, independently in the two experiments:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;N&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="mi"&gt;1000&lt;/span&gt;
 &lt;span class="n"&gt;num_tests&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
 &lt;span class="n"&gt;base_lift&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
@@ -53,7 +53,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Note that we call &lt;code&gt;simulate_abtest()&lt;/code&gt; in a loop, for each experiment. Let’s visualize the outcome here: we expect that the parameter image will have 4 colors, corresponding to whether a user ended up in AA ($\mu=1$), AB ($\mu=2$) BA ($\mu=3$) or BB ($\mu=4):&lt;/p&gt;
+&lt;p&gt;Note that we call &lt;code&gt;simulate_abtest()&lt;/code&gt; in a loop, for each experiment. Let’s visualize the outcome here: we expect that the parameter image will have 4 colors, corresponding to whether a user ended up in AA ($\mu=1$), AB ($\mu=2$) BA ($\mu=3$) or BB ($\mu=4$):&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/abpa3.png" alt="" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;The left side image in fact has 4 colors. After random sampling, the right side looks just as random as in the single A/B test case. Now let’s do the same trick as before, and draw the image so that As are on top, and Bs are on the bottom. We can pick whether we do this for $E_1$ or $E_2$, we will see the same thing:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/abpa4.png" alt="" style="width: 600px;"/&gt;&lt;/p&gt;
