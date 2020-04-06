@@ -126,8 +126,8 @@
 <span class="n">funnel_assignments</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_tests</span><span class="p">):</span>
     <span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">[</span><span class="mi">0</span><span class="p">,</span>                <span class="mf">0.5</span><span class="p">],</span>
-        <span class="p">[(</span><span class="n">test</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">base_lift</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">0</span><span class="p">,</span>                  <span class="mf">0.5</span><span class="p">],</span>
+        <span class="p">[(</span><span class="n">test</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">base_lift</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
     <span class="p">]</span>
     <span class="n">funnel_assignment</span> <span class="o">=</span> <span class="n">simulate_abtest</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">timespent_params</span><span class="p">)</span>
     <span class="n">funnel_assignments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">funnel_assignment</span><span class="p">)</span>
