@@ -114,6 +114,53 @@
 <p><img src="/images/abpa1.png" alt="" style="width: 400px;"/></p>
 <p>Let’s change our visualization a little bit: let’s make it so we draw the A bucket users on top, and the B bucket users on the bottom:</p>
 <p><img src="/images/abpa2.png" alt="" style="width: 400px;"/></p>
+<p>This nicely shows us what’s going on. On the left side, we can see that the random variables for A and B have different values. On the right side, we can see that after sampling, the difference is still discernible with the naked eye. Note that these are the exact same values as on the plot above!</p>
+<h2>Two A/B tests in parallel</h2>
+<p>Now let’s run 2 A/B tests in parallel. In both cases, A leaves the RV’s parameter alone. But for $E_1$, we lift it to $\mu=2$, for $E_2$ we lift it to $\mu=3$. Users are in both A/B tests, and they are assigned into A and B buckets randomly, independent in the two experiments:</p>
+<div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="mi">1000</span>
+<span class="n">num_tests</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">base_lift</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">timespent_params</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">timespents</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">funnel_assignments</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_tests</span><span class="p">):</span>
+    <span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mi">0</span><span class="p">,</span>                <span class="mf">0.5</span><span class="p">],</span>
+        <span class="p">[(</span><span class="n">test</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">base_lift</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+    <span class="p">]</span>
+    <span class="n">funnel_assignment</span> <span class="o">=</span> <span class="n">simulate_abtest</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">timespent_params</span><span class="p">)</span>
+    <span class="n">funnel_assignments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">funnel_assignment</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">timespent_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">timespents</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">expon</span><span class="p">(</span><span class="n">param</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+
+<p>Note that we call <code>simulate_abtest()</code> in a loop, for each experiment. Let’s visualize the outcome here: we expect that the parameter image will have 4 colors, corresponding to whether a user ended up in AA ($\mu=1$), AB ($\mu=2$) BA ($\mu=3$) or BB ($\mu=4):</p>
+<p><img src="/images/abpa3.png" alt="" style="width: 400px;"/></p>
+<p>The left side image in fact has 4 colors. After random sampling, the right side looks just as random as in the single A/B test case. Now let’s do the same trick as before, and draw the image so that As are on top, and Bs are on the bottom. We can pick whether we do this for $E_1$ or $E_2$, we will see the same thing:</p>
+<p><img src="/images/abpa4.png" alt="" style="width: 400px;"/></p>
+<p>Note again that these are the same exact values as above, only reordered. We can see that on the left side, there are 2 possible parameters on each side (the A and B variations from the <em>other</em> experiment). And on the right side we can see that even though the other experiment is also running, we can clearly tell apart the average value between top (A) and bottom (B).</p>
+<p>After visualization, we can also numerically see this:</p>
+<div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">test</span><span class="p">,</span> <span class="n">funnel_assignment</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">funnel_assignments</span><span class="p">):</span>
+    <span class="n">ps</span><span class="p">,</span> <span class="n">ts</span> <span class="o">=</span> <span class="p">[[],</span> <span class="p">[]],</span> <span class="p">[[],</span> <span class="p">[]]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">which_funnel</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">funnel_assignment</span><span class="p">):</span>
+        <span class="n">ts</span><span class="p">[</span><span class="n">which_funnel</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">timespents</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">ps</span><span class="p">[</span><span class="n">which_funnel</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">timespent_params</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">ps_means</span><span class="p">,</span> <span class="n">ts_means</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ps</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ts</span><span class="p">]</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">CompareMeans</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">ts</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">ztest_ind</span><span class="p">(</span><span class="n">alternative</span><span class="o">=</span><span class="s1">&#39;larger&#39;</span><span class="p">,</span> <span class="n">usevar</span><span class="o">=</span><span class="s1">&#39;unequal&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;test </span><span class="si">%d</span><span class="s1">, experiment lift=</span><span class="si">%.4f</span><span class="s1">, blended parameter lift=</span><span class="si">%.4f</span><span class="s1">, measured lift=</span><span class="si">%.4f</span><span class="s1">, p-value=</span><span class="si">%.4f</span><span class="s1">&#39;</span>
+          <span class="o">%</span> <span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="p">(</span><span class="n">test</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">base_lift</span><span class="p">,</span> <span class="n">ps_means</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">ps_means</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ts_means</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">ts_means</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Prints something like:</p>
+<div class="highlight"><pre><span></span>test 0, experiment lift=1.0000, expected lift=0.9700, measured lift=0.9634, p-value=0.0000
+test 1, experiment lift=2.0000, expected lift=1.9850, measured lift=1.9924, p-value=0.0000
+</pre></div>
+
+
+<p>In the first test, we lifted by 1. Because of the other test also running and changing the random variable parameters, on average our random variable parameters were shifted by 0.97 (instead of 1). After sampling, the actual lift was 0.96. And at this sample size, this lift had a very low p-value (since it’s a doubling, it’s easy to measure). And in the next row, we can see the second A/B test, which is also easily measureable.</p>
   </div>
   <div class="tag-cloud">
     <p>
