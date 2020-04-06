@@ -164,7 +164,7 @@ test 01, experiment lift=2.0000, blended parameter lift=1.9850, measured lift=1.
 
 <p>In the first test, we lifted by 1. Because of the other test also running and changing the random variable parameters, on average our random variable parameters were shifted by 0.97 (instead of 1). After sampling, the actual lift was 0.96. And at this sample size, this lift had a very low p-value (since it’s a doubling, it’s easy to measure). And in the next row, we can see the second A/B test, which is also easily measureable.</p>
 <h2>Multiple A/B tests in parallel</h2>
-<p>Maybe this only worked because there were only 2, and we lifted the RV’s parameter so aggressively (doubling, tripling). Let’s see what happens if we run 11 in parallel, with a $\mu$ lift of 0, 0.1, 0.2 ... 1.0 (so the first one doesn’t work, the last one doubles). The numeric outcomes:</p>
+<p>Maybe this only worked because there were only 2 experiments, and we lifted the RV’s parameter so aggressively (doubling, tripling). Let’s see what happens if we run 11 in parallel, with a $\mu$ lift of 0, 0.1, 0.2 ... 1.0 (so the first one doesn’t work, the last one doubles). The numeric outcomes:</p>
 <div class="highlight"><pre><span></span>test 00, experiment lift=0.0000, blended parameter lift=0.0605, measured lift=0.0656, p-value=0.0101
 test 01, experiment lift=0.1000, blended parameter lift=0.1168, measured lift=0.1027, p-value=0.0001
 test 02, experiment lift=0.2000, blended parameter lift=0.2122, measured lift=0.1929, p-value=0.0000
@@ -179,7 +179,7 @@ test 10, experiment lift=1.0000, blended parameter lift=1.0157, measured lift=1.
 </pre></div>
 
 
-<p>It’s still pretty good. Hoever, there are some deviations, f Let’s visualize the middle one, where $\mu$ is lifted by 0.5:</p>
+<p>It’s still pretty good. Let’s visualize the middle one, where $\mu$ is lifted by 0.5:</p>
 <p><img src="/images/abpa6.png" alt="" style="width: 600px;"/></p>
 <p>We can see that on the left, because there are so many A/B tests in play, the RV parameters also look random, but we can still see the difference, also in the sampled timespents on the right side.</p>
 <h2>Monte Carlo simulations to estimate variance of parallel A/B tests</h2>
