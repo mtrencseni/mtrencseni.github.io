@@ -116,7 +116,7 @@
 <p><img src="/images/abpa1.png" alt="" style="width: 600px;"/></p>
 <p>Let’s change our visualization a little bit: let’s make it so we draw the A bucket users on top, and the B bucket users on the bottom:</p>
 <p><img src="/images/abpa2.png" alt="" style="width: 600px;"/></p>
-<p>This nicely shows us what’s going on. On the left side, we can see that the random variables for A and B have different values. On the right side, we can see that after sampling, the difference is still discernible with the naked eye. Note that these are the exact same values as on the plot above!</p>
+<p>This nicely shows us what’s going on. On the left side, we can see that the random variables for A and B have different values. On the right side, we can see that after sampling, the difference is still discernible with the naked eye. Note that the two left and two right sides are showing the same values, only arranged differently.</p>
 <h2>Two A/B tests in parallel</h2>
 <p>Now let’s run 2 A/B tests in parallel. In both cases, A leaves the RV’s parameter alone. But for $E_1$, we lift it to $\mu=2$, for $E_2$ we lift it to $\mu=3$. Users are in both A/B tests, and they are assigned into A and B buckets randomly, independent in the two experiments:</p>
 <div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="mi">1000</span>
