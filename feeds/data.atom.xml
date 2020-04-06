@@ -109,7 +109,7 @@ test 10, experiment lift=1.0000, blended parameter lift=1.0157, measured lift=1.
 &lt;p&gt;The magnitude of the standard deviation (the error bar), plotted by itself:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/abpa11.png" alt="" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Finally, we can plot the average measured p value (with a Z-test), for each parallel A/B test, for each $N$:&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/abpa12.png" alt="" style="width: 600px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/abpa13.png" alt="" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;This is essentially a clue to the sample size $N$ we need to be able to detect the signal at a given $\alpha$ critical value of p.&lt;/p&gt;
 &lt;h2&gt;Per experiment random user id&lt;/h2&gt;
 &lt;p&gt;As these Monte Carlo simulations show, it is possible to run multiple A/B tests at once, across the whole population, on the same outcome metric, and still measure the experimental lift accurately.&lt;/p&gt;
