@@ -101,7 +101,7 @@ test 10, experiment lift=1.0000, blended parameter lift=1.0157, measured lift=1.
 &lt;p&gt;First, the average parameter lifts, with errors to show the variance:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/abpa7.png" alt="" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;We can see that even at low N, the average parameter lifts are pretty close to the intended experimental lift. The variance is so small, we can barely see it. Let’s zoom in on the orange line:&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/abpa8.png" alt="" style="width: 500px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/abpa8.png" alt="" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;The variance goes down with $N$ as expected, but even at $N=10,000$ it’s very low (notice the y-axis). Now the same for actual measured lifts (after the random variables are sampled):&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/abpa9.png" alt="" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Here we have bigger error bars, it’s hard to see what’s going on. Let’s look at the orange bar again:&lt;/p&gt;
