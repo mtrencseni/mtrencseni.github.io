@@ -92,6 +92,28 @@
 <h2>Modeling the experiments</h2>
 <p>To understand why parallel experiments work, let’s remember how an A/B test is modeled in our simulations: each user is represented by a independent random variable (RV). Independent, because we assume users don’t affect each other (so, we’re not in a social network setting here), and it’s a random variable because individual user outcomes are random. In this post, like before, I will use an exponential random variable to model timespents. The exponential distribution has one parameter, $\mu$, which works out to be the mean. I will assume that by default, users have $\mu=1$.</p>
 <p>In our timespent simulations, when we day that an A/B test is actually working, we model this by increasing the$\mu$ parameter for the user’s random variable. In the end, we will sample the random variable, so the actual outcome can be any timespent $t&gt;0$, but on average, users with lifted parameters will have higher timespents. This is the key: in an A/B test, we don’t care about individual user’s outcomes, since they are statistically random anyway, we care about measuring accurate average lifts between groups of users.</p>
+<h2>Visualizing one A/B test</h2>
+<p>There is an easy visual way to understand why parallel A/B tests work. Before we look at the parallel cases, as a starting point, let’s look at the simple case of just one experiment. We can use code like in the previous posts for this:</p>
+<div class="highlight"><pre><span></span><span class="n">N</span><span class="o">=</span><span class="mi">10</span><span class="o">*</span><span class="mi">1000</span>
+<span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mf">0.00</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+    <span class="p">[</span><span class="mf">1.00</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+<span class="p">]</span>
+<span class="n">timespent_params</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">timespents</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="n">funnel_assignment</span> <span class="o">=</span> <span class="n">simulate_abtest</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">timespent_params</span><span class="p">,</span> <span class="n">force_equal</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">timespent_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">timespents</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">expon</span><span class="p">(</span><span class="n">param</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+
+<p>What this code is doing: there are $N=10,000$ users, we will split them evenly between A and B funnels in the experiment <code>funnels</code>, 2nd column. Each user is modeled by an exponential random variable <code>timespent_params</code>, which has default parameter 1. The function <code>simulate_abtest</code> assigns each user into A or B, it returns this assignment into <code>funnel_assignment</code>. Further, it adjusts the <code>timespent_params</code>, by increasing the RV’s parameter for users in the B bucket by 1, leaving As alone (<code>funnels</code> 1st column). The final <code>for</code> loop samples the exponential distributions and stores the actual timespents.</p>
+<p>We can visualize the outcome of this experiment by drawing both the parameters and the actual timespents of each user. Since there are $N=10,000$ users, we can do so on a 100x100 image. The left side shows the parameters ($\mu=1$ or $\mu=2$), the right side shows the actual, sampled timespents.</p>
+<p><img src="/images/abpa1.png" alt="" style="width: 400px;"/></p>
+<p>Let’s change our visualization a little bit: let’s make it so we draw the A bucket users on top, and the B bucket users on the bottom:</p>
+<p><img src="/images/abpa2.png" alt="" style="width: 400px;"/></p>
   </div>
   <div class="tag-cloud">
     <p>
