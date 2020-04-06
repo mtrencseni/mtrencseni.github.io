@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="google-site-verification" content="14dvQcWyDWHBo8aM0kld8XzEa6KypAzCQDz1_KPus9E" />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-1812620-2');
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn - Marton Trencseni Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="It is possible to run multiple A/B tests at once and measure accurate lifts on the same metric by randomizing user assignments into A/B test experiments." />
+<meta name="keywords" content="ab-testing">
+<meta property="og:site_name" content="Bytepawn - Marton Trencseni"/>
+<meta property="og:title" content="Running multiple A/B tests in parallel"/>
+<meta property="og:description" content="It is possible to run multiple A/B tests at once and measure accurate lifts on the same metric by randomizing user assignments into A/B test experiments."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/running-multiple-ab-tests-in-parallel.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-04-06 00:00:00+02:00"/>
+<meta property="article:modified_time" content="2020-04-06 00:00:00+02:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data"/>
+<meta property="article:tag" content="ab-testing"/>
+<meta property="og:image" content=""/>
+
+  <title>Bytepawn - Marton Trencseni &ndash; Running multiple A/B tests in parallel</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <!--<h2><a href="">Bytepawn - Marton Trencseni</a></h2>-->
+      <h2><a href="http://bytepawn.com">Bytepawn</a></h2>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="running-multiple-ab-tests-in-parallel">Running multiple A/B tests in parallel</h1>
+    <p>Marton Trencseni - Mon 06 April 2020 - <a href="/category/data.html">Data</a></p>
+  </header>
+  <div>
+    <p><br/><br/>
+<img src="/images/abpa4.png" alt="Watts-Strogatz" style="width: 400px;"/>
+Image:/images/abpa4.png</p>
+<h2>Introduction</h2>
+<p>Suppose we have N=100,000 users and want to run 2 A/B test experiments, $E_1$ and $E_2$, both of which are trying to move the same metric. In this post I will assume the metric we are trying to move is timespent (or something like it, a number assigned to each user), but the same logic also applies to conversions; timespents yield better illustrations of concepts, as we will see.</p>
+<p>It is a common misconception that when running two experiments, we have to split our users between the two experiments, so each experiment will have 50,000 users in it, and each bucket (A in $E_1$, B in $E_1$, A in $E_2$, B in $E_2$) will have 25,000 users. The explanation for this misconception is that if a user is in both experiments, then we wouldn’t be able to tell which experiment led to the user spending more time. This is an error in statistical reasoning, because we don’t really care about why an <em>individual</em> reason spent more or less time with the product; what we care about is measuring the average timespent between A and B. As long as that measurement is accurate, individual users’ being influenced by multiple experiments is irrelevant. Accurate here means that we would measure the same thing (statistically) if we were running only one A/B test.</p>
+<p>However, this is a As this post shows, there is no need to limit the sample sizes like this, both experiments can run on all 100,000 users, in parallel.</p>
+<p>Note: but, there could be technical reasons that don’t allow parallel experiments, for example if $E_1$ and $E_2$ both make a change to the same UI element in the product.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/ab-testing.html">ab-testing</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-1812620-2');
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Running multiple A/B tests in parallel",
+  "headline": "Running multiple A/B tests in parallel",
+  "datePublished": "2020-04-06 00:00:00+02:00",
+  "dateModified": "2020-04-06 00:00:00+02:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/running-multiple-ab-tests-in-parallel.html",
+  "description": "It is possible to run multiple A/B tests at once and measure accurate lifts on the same metric by randomizing user assignments into A/B test experiments."
+}
+</script></body>
+</html>
