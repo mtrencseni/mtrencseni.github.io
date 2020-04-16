@@ -93,7 +93,7 @@
 <li><strong>logging problem</strong>: no/less/faulty logs coming from B</li>
 <li><strong>buggy product</strong>: a software bug in B causes users to drop out</li>
 </ul>
-<p>Let’s look at how we can automatically catch some of these problems. Note that in all of the tests below, we are doing a two-tailed test, since we want to catch errors in either direction.</p>
+<p>Let’s look at how we can automatically catch some of these problems. Note that in all of the tests below, we are doing a <a href="https://en.wikipedia.org/wiki/One-_and_two-tailed_tests">two-tailed test</a>, we want to catch deviations in either direction.</p>
 <p><a href="https://github.com/mtrencseni/playground/blob/master/Validation%20checks%20for%20AB%20tests.ipynb">The code shown below is up on Github.</a></p>
 <h2>Problem: misconfigured test, missing exposure logs</h2>
 <p>This is the easiest to catch, assuming we have an independent validation system that is correctly configured. On the one hand, if this is the case, we can simply write code that checks whether the configured traffic splits match in production vs validation. However, this is often not possible, because eg. the production configuration is hardcoded into Python or Java source code files.</p>
