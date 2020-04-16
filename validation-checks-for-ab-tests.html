@@ -87,11 +87,11 @@
     <h2>Introduction</h2>
 <p><em>"Anything that can go wrong will go wrong"</em>, according to <a href="https://en.wikipedia.org/wiki/Murphy%27s_law">Murphy’s law</a>. A/B testing is no different. Anybody who has run a lot of A/B tests, over several years, has seen multiple failure modes. Some errors I've seen (assuming “B” is the new experimental funnel in the A/B test):</p>
 <ul>
-<li>misconfigured test: we want to do a 20%-80% split, but we accidentally configure 80%-20% split instead</li>
-<li>test left on: we conclude the test, and want to remove A or B from production, but accidentally leave the test on with the original traffic split</li>
-<li>randomization bias: users are not assigned into A and B randomly</li>
-<li>logging problem: no/less/faulty logs coming from B</li>
-<li>buggy product: a software bug in B causes users to drop out</li>
+<li><strong>misconfigured test</strong>: we want to do a 20%-80% split, but we accidentally configure 80%-20% split instead</li>
+<li><strong>test left on</strong>: we conclude the test, and want to remove A or B from production, but accidentally leave the test on with the original traffic split</li>
+<li><strong>randomization bias</strong>: users are not assigned into A and B randomly</li>
+<li><strong>logging problem</strong>: no/less/faulty logs coming from B</li>
+<li><strong>buggy product</strong>: a software bug in B causes users to drop out</li>
 </ul>
 <p>Let’s look at how we can automatically catch some of these problems. Note that in all of the tests below, we are doing a two-tailed test, since we want to catch errors in either direction.</p>
 <p><a href="https://github.com/mtrencseni/playground/blob/master/Validation%20checks%20for%20AB%20tests.ipynb">The code shown below is up on Github.</a></p>

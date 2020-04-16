@@ -2,11 +2,11 @@
 <feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Marton Trencseni</title><link href="/" rel="alternate"></link><link href="/feeds/all.atom.xml" rel="self"></link><id>/</id><updated>2020-04-16T00:00:00+02:00</updated><entry><title>Validation checks for A/B tests</title><link href="/validation-checks-for-ab-tests.html" rel="alternate"></link><published>2020-04-16T00:00:00+02:00</published><updated>2020-04-16T00:00:00+02:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-04-16:/validation-checks-for-ab-tests.html</id><summary type="html">&lt;p&gt;In an ealier post, I wrote about A/B testing conversion data with the Z-test. The Chi-squared test is a more general test for conversion data, because it can work with multiple conversion events and multiple funnels being tested (A/B/C/D/..).&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/chi2.png" alt="Chi-squared distribution" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;&lt;em&gt;"Anything that can go wrong will go wrong"&lt;/em&gt;, according to &lt;a href="https://en.wikipedia.org/wiki/Murphy%27s_law"&gt;Murphy’s law&lt;/a&gt;. A/B testing is no different. Anybody who has run a lot of A/B tests, over several years, has seen multiple failure modes. Some errors I've seen (assuming “B” is the new experimental funnel in the A/B test):&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;misconfigured test: we want to do a 20%-80% split, but we accidentally configure 80%-20% split instead&lt;/li&gt;
-&lt;li&gt;test left on: we conclude the test, and want to remove A or B from production, but accidentally leave the test on with the original traffic split&lt;/li&gt;
-&lt;li&gt;randomization bias: users are not assigned into A and B randomly&lt;/li&gt;
-&lt;li&gt;logging problem: no/less/faulty logs coming from B&lt;/li&gt;
-&lt;li&gt;buggy product: a software bug in B causes users to drop out&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;misconfigured test&lt;/strong&gt;: we want to do a 20%-80% split, but we accidentally configure 80%-20% split instead&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;test left on&lt;/strong&gt;: we conclude the test, and want to remove A or B from production, but accidentally leave the test on with the original traffic split&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;randomization bias&lt;/strong&gt;: users are not assigned into A and B randomly&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;logging problem&lt;/strong&gt;: no/less/faulty logs coming from B&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;buggy product&lt;/strong&gt;: a software bug in B causes users to drop out&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Let’s look at how we can automatically catch some of these problems. Note that in all of the tests below, we are doing a two-tailed test, since we want to catch errors in either direction.&lt;/p&gt;
 &lt;p&gt;&lt;a href="https://github.com/mtrencseni/playground/blob/master/Validation%20checks%20for%20AB%20tests.ipynb"&gt;The code shown below is up on Github.&lt;/a&gt;&lt;/p&gt;
