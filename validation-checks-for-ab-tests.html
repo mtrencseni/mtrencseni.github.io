@@ -38,11 +38,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="" />
 <meta name="author" content="Marton Trencseni" />
-<meta name="description" content="In an ealier post, I wrote about A/B testing conversion data with the Z-test. The Chi-squared test is a more general test for conversion data, because it can work with multiple conversion events and multiple funnels being tested (A/B/C/D/..)." />
+<meta name="description" content="A/B tests go wrong all the time, even in sophisticated product teams. As this article shows, for a range of problems we can run automated tests to catch problems early, before they have too bad of an effect on the customer or the business. These tests can look for big differences, differences in distribution, and test various statistical properties of the funnels to catch likely problems. Large tech companies are running such validation checks automatically and continuously for their online experiments." />
 <meta name="keywords" content="ab-testing">
 <meta property="og:site_name" content="Bytepawn - Marton Trencseni"/>
 <meta property="og:title" content="Validation checks for A/B tests"/>
-<meta property="og:description" content="In an ealier post, I wrote about A/B testing conversion data with the Z-test. The Chi-squared test is a more general test for conversion data, because it can work with multiple conversion events and multiple funnels being tested (A/B/C/D/..)."/>
+<meta property="og:description" content="A/B tests go wrong all the time, even in sophisticated product teams. As this article shows, for a range of problems we can run automated tests to catch problems early, before they have too bad of an effect on the customer or the business. These tests can look for big differences, differences in distribution, and test various statistical properties of the funnels to catch likely problems. Large tech companies are running such validation checks automatically and continuously for their online experiments."/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="/validation-checks-for-ab-tests.html"/>
 <meta property="og:type" content="article"/>
@@ -51,7 +51,7 @@
 <meta property="article:author" content="/author/marton-trencseni.html">
 <meta property="article:section" content="Data"/>
 <meta property="article:tag" content="ab-testing"/>
-<meta property="og:image" content="/images/chi2.png"/>
+<meta property="og:image" content="/images/k-s.png"/>
 
   <title>Bytepawn - Marton Trencseni &ndash; Validation checks for A/B tests</title>
 </head>
@@ -145,6 +145,50 @@
 
 
 <p>Exposure logs should be generated in this line: <code>my_exp = FirstExperiment(userid=12)</code>, when the user “enters the funnel” and the framework randomly decided on A or B.</p>
+<h2>Problem: randomization bias</h2>
+<p>Sometimes the software engineer who implements some of the A/B testing code isn’t math-savvy, and makes a simple mistake. For example, he may think that <code>user_id % 2 == 0</code> is a good enough way to do a 50%-50% split.</p>
+<p>Note: Another related fallacy is to use and re-use fixed buckets (10 buckets, <code>user_id % 10</code>), and use different buckets for different A/B tests. This is a problem for a number of reasons: it unnecessarily lowers the sample size, <a href="http://bytepawn.com/running-multiple-ab-tests-in-parallel.html">see this previous post on parallel testing</a>. Also, this introduces bias, because we keep reusing the same groups of users, so if a previous A/B test influenced users in the first bucket in a certain way, we may still be measuring that effect in later, unrelated A/B tests.</p>
+<p>This can be tested by running a $\chi^2$-squared test on the last digits (or last 2 digits) of the <code>user_id</code>s. The below code simulates this check:</p>
+<div class="highlight"><pre><span></span><span class="n">MAX_USER_ID</span><span class="o">=</span><span class="mi">1000</span><span class="o">*</span><span class="mi">1000</span>
+<span class="n">N</span><span class="o">=</span><span class="mi">10</span><span class="o">*</span><span class="mi">1000</span>
+<span class="n">traffic_split</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]</span>
+<span class="n">digits_to_test</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">users_in_experiment</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">MAX_USER_ID</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">users_in_funnels</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">traffic_split</span><span class="p">:</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="o">*</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">users_in_funnels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">users_in_experiment</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">])</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">end</span>
+
+<span class="n">p_min</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">expected_split</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">digits_to_test</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="n">digits_to_test</span>
+<span class="k">for</span> <span class="n">id_list</span> <span class="ow">in</span> <span class="n">users_in_funnels</span><span class="p">:</span>
+    <span class="n">digit_counts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Counter</span><span class="p">([</span><span class="n">x</span> <span class="o">%</span> <span class="mi">10</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">id_list</span><span class="p">])</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">expected_counts</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">id_list</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">expected_split</span><span class="p">]</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">chisquare</span><span class="p">(</span><span class="n">digit_counts</span><span class="p">,</span> <span class="n">f_exp</span><span class="o">=</span><span class="n">expected_counts</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">p_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">p_min</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">p_min</span> <span class="o">&lt;</span> <span class="n">p_crit</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Low p value (</span><span class="si">%f</span><span class="s1">). Probably indicated badly configured test, or bad logs!&#39;</span> <span class="o">%</span> <span class="n">p</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Everything seems good.&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<h2>Problem: logging problem or buggy product</h2>
+<p>The kinds of tests we can run here are similar to the tests above. For example, if the product is buggy and the new dialog doesn’t load at all, we would see that with a test like in the first example, because logs would be missing for B.</p>
+<p>Similar tests can be performed on properties (segmentS) of users. For example, we can look at the country of the user (US, Europe, Rest), browser (Chrome, Firefox, Edge/IE, Rest), platform (desktop, mobile) and make sure that the splits are the same. For example, if the browser split (Chrome, Firefox, Edge/IE, Rest) of users in A is (0.4, 0.2, 0.3, 0.1) and for B it is (0.5, 0.24, 0.24, 0.02) we can run a  $\chi^2$-squared test (with counts) on the vector pairs to see how likely it is that they are coming from the same distribution; maybe our new B version doesn’t render correctly on all browsers, or there are performance differences.</p>
+<p>Another thing we can do is to run the test for the final target metric (eg. conversion or timespent), and see if the difference is unusually large. As above, we can set an aggressive p-value like (0.001 or 0.0001) and alert on that. This test would go off if for example in one funnel due to a software problem it’s impossible to convert, or lots of users with a certain browser are unable to convert, so the the conversion number is unrealistically suppressed.</p>
+<p>The problem with the above is that, at large sample sizes, which happens at companies with billions of users, even small lifts will be very significant, so achieve a low p value. In such cases a better validation check is to compare the distribution, assuming that in case of a software error we would see a noticably different distribution. For this we can use the <a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test">Kolmogorov-Smirnov test</a>, which tests how likely it is that two samples are coming from the same distribution. The test statistic used by the K-S test is the largest difference in the cumulative probability distribution function.</p>
+<p><img src="/images/k-s.png" alt="Kolmogorov-Smirnov" style="width: 600px;"/></p>
+<p>Code, which notifies us that a uniform distribution is not normal:</p>
+<div class="highlight"><pre><span></span>
+</pre></div>
+
+
+<h2>Conclusion</h2>
+<p>A/B tests go wrong all the time, even in sophisticated product teams. As this article shows, for a range of problems we can run automated tests to catch problems early, before they have too bad of an effect on the customer or the business. These tests can look for big differences, differences in distribution, and test various statistical properties of the funnels to catch likely problems. Large tech companies are running such validation checks automatically and continuously for their online experiments.</p>
   </div>
   <div class="tag-cloud">
     <p>
@@ -181,7 +225,7 @@
   },
   "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
   "url": "/validation-checks-for-ab-tests.html",
-  "description": "In an ealier post, I wrote about A/B testing conversion data with the Z-test. The Chi-squared test is a more general test for conversion data, because it can work with multiple conversion events and multiple funnels being tested (A/B/C/D/..)."
+  "description": "A/B tests go wrong all the time, even in sophisticated product teams. As this article shows, for a range of problems we can run automated tests to catch problems early, before they have too bad of an effect on the customer or the business. These tests can look for big differences, differences in distribution, and test various statistical properties of the funnels to catch likely problems. Large tech companies are running such validation checks automatically and continuously for their online experiments."
 }
 </script></body>
 </html>
