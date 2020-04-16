@@ -88,7 +88,7 @@
 <p><em>"Anything that can go wrong will go wrong"</em>, according to <a href="https://en.wikipedia.org/wiki/Murphy%27s_law">Murphy’s law</a>. A/B testing is no different. Anybody who has run a lot of A/B tests, over several years, has seen multiple failure modes. Some errors I've seen (assuming “B” is the new experimental funnel in the A/B test):</p>
 <ul>
 <li><strong>misconfigured test</strong>: we want to do a 20%-80% split, but we accidentally configure 80%-20% split instead</li>
-<li><strong>test left on</strong>: we conclude the test, and want to remove A or B from production, but accidentally leave the test on with the original traffic split</li>
+<li><strong>accidentally still running</strong>: we conclude the test, and want to remove A or B from production, but accidentally leave the test on with the original traffic split</li>
 <li><strong>randomization bias</strong>: users are not assigned into A and B randomly</li>
 <li><strong>logging problem</strong>: no/less/faulty logs coming from B</li>
 <li><strong>buggy product</strong>: a software bug in B causes users to drop out</li>
@@ -117,6 +117,34 @@
 <p>For automation, use a very small critical p-value like 0.001 or 0.0001, since we’re not interested in statistical fluctuations, we want to catch misconfiguration, which will even at moderate sample sizes yield a very small p value, close to 0.</p>
 <p>Note that here we’re not doing a significance test on the outcome of the A/B test. We’re just making sure the split is what we think it is. In the example above, we assumed that out of 10,000 impressions, 1,987 were in the A funnel, and it’s configured to get 80% of the traffic. The $\chi^2$ test that then tells us this is an extremely unlikely outcome. Note that the above $\chi^2$ test can be run for experiments with more than 2 funnels.</p>
 <p><a href="http://bytepawn.com/ab-testing-and-the-chi-squared-test.html">See my earlier post on the $\chi^2$ test.</a></p>
+<h2>Problem: accidentally still running</h2>
+<p>For this problem, the easiest sanity check is not statistical, it’s a consistency check in code/reporting:</p>
+<ul>
+<li>have a report of running A/B tests, which is based on exposure logs only, irrespective of whether the experiment is turned on or off in the experiment configuration tool</li>
+<li>have an alert, so that if an A/B test is turned off in the experiment configuration tool, but the experiment is still producing exposure logs, an alert is generated</li>
+</ul>
+<p>In a good A/B testing culture, there is separate library/framework for running experiments in code. For a good example see <a href="https://github.com/facebook/planout">Planout</a>, an open-source framework released by Facebook. Here is the demo example from Planout:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">planout.experiment</span> <span class="kn">import</span> <span class="n">SimpleExperiment</span>
+<span class="kn">from</span> <span class="nn">planout.ops.random</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">class</span> <span class="nc">FirstExperiment</span><span class="p">(</span><span class="n">SimpleExperiment</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">userid</span><span class="p">):</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">button_color</span> <span class="o">=</span> <span class="n">UniformChoice</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;#ff0000&#39;</span><span class="p">,</span> <span class="s1">&#39;#00ff00&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">userid</span><span class="p">)</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">button_text</span> <span class="o">=</span> <span class="n">WeightedChoice</span><span class="p">(</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Join now!&#39;</span><span class="p">,</span> <span class="s1">&#39;Sign up.&#39;</span><span class="p">],</span>
+        <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">userid</span><span class="p">)</span>
+
+<span class="n">my_exp</span> <span class="o">=</span> <span class="n">FirstExperiment</span><span class="p">(</span><span class="n">userid</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="c1"># parameters may be accessed via the . operator</span>
+<span class="k">print</span> <span class="n">my_exp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;button_text&#39;</span><span class="p">),</span> <span class="n">my_exp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;button_color&#39;</span><span class="p">)</span>
+
+<span class="c1"># experiment objects include all input data</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+  <span class="k">print</span> <span class="n">FirstExperiment</span><span class="p">(</span><span class="n">userid</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Exposure logs should be generated in this line: <code>my_exp = FirstExperiment(userid=12)</code>, when the user “enters the funnel” and the framework randomly decided on A or B.</p>
   </div>
   <div class="tag-cloud">
     <p>
