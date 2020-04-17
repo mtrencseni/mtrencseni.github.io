@@ -108,7 +108,7 @@
 <span class="c1"># the indicated traffic_split</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">chisquare</span><span class="p">(</span><span class="n">user_counts</span><span class="p">,</span> <span class="n">f_exp</span><span class="o">=</span><span class="p">[</span><span class="n">N</span><span class="o">*</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">traffic_split</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span>
 <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="n">p_crit</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Low p value (</span><span class="si">%f</span><span class="s1">). Probably indicated badly configured test, or bad logs!&#39;</span> <span class="o">%</span> <span class="n">p</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Low p value (</span><span class="si">%f</span><span class="s1">). Probably badly configured test, or bad logs!&#39;</span> <span class="o">%</span> <span class="n">p</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Everything seems good.&#39;</span><span class="p">)</span>
 </pre></div>
