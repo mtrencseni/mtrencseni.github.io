@@ -117,34 +117,6 @@
 <p>For automation, use a very small critical p-value like 0.001 or 0.0001, since we’re not interested in statistical fluctuations, we want to catch misconfiguration, which will even at moderate sample sizes yield a very small p value, close to 0.</p>
 <p>Note that here we’re not doing a significance test on the outcome of the A/B test. We’re just making sure the split is what we think it is. In the example above, we assumed that out of 10,000 impressions, 1,987 were in the A funnel, and it’s configured to get 80% of the traffic. The $\chi^2$ test that then tells us this is an extremely unlikely outcome. Note that the above $\chi^2$ test can be run for experiments with more than 2 funnels.</p>
 <p><a href="http://bytepawn.com/ab-testing-and-the-chi-squared-test.html">See my earlier post on the $\chi^2$ test.</a></p>
-<h2>Problem: accidentally still running</h2>
-<p>For this problem, the easiest sanity check is not statistical, it’s a consistency check in code/reporting:</p>
-<ul>
-<li>have a report of running A/B tests, which is based on exposure logs only, irrespective of whether the experiment is turned on or off in the experiment configuration tool</li>
-<li>have an alert, so that if an A/B test is turned off in the experiment configuration tool, but the experiment is still producing exposure logs, an alert is generated</li>
-</ul>
-<p>In a good A/B testing culture, there is separate library/framework for running experiments in code. For a good example see <a href="https://github.com/facebook/planout">Planout</a>, an open-source framework released by Facebook. Here is the demo example from Planout:</p>
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">planout.experiment</span> <span class="kn">import</span> <span class="n">SimpleExperiment</span>
-<span class="kn">from</span> <span class="nn">planout.ops.random</span> <span class="kn">import</span> <span class="o">*</span>
-
-<span class="k">class</span> <span class="nc">FirstExperiment</span><span class="p">(</span><span class="n">SimpleExperiment</span><span class="p">):</span>
-  <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">userid</span><span class="p">):</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">button_color</span> <span class="o">=</span> <span class="n">UniformChoice</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;#ff0000&#39;</span><span class="p">,</span> <span class="s1">&#39;#00ff00&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">userid</span><span class="p">)</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">button_text</span> <span class="o">=</span> <span class="n">WeightedChoice</span><span class="p">(</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Join now!&#39;</span><span class="p">,</span> <span class="s1">&#39;Sign up.&#39;</span><span class="p">],</span>
-        <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">userid</span><span class="p">)</span>
-
-<span class="n">my_exp</span> <span class="o">=</span> <span class="n">FirstExperiment</span><span class="p">(</span><span class="n">userid</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
-<span class="c1"># parameters may be accessed via the . operator</span>
-<span class="k">print</span> <span class="n">my_exp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;button_text&#39;</span><span class="p">),</span> <span class="n">my_exp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;button_color&#39;</span><span class="p">)</span>
-
-<span class="c1"># experiment objects include all input data</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
-  <span class="k">print</span> <span class="n">FirstExperiment</span><span class="p">(</span><span class="n">userid</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
-</pre></div>
-
-
-<p>Exposure logs should be generated in this line: <code>my_exp = FirstExperiment(userid=12)</code>, when the user “enters the funnel” and the framework randomly decided on A or B.</p>
 <h2>Problem: randomization bias</h2>
 <p>Sometimes the software engineer who implements some of the A/B testing code isn’t math-savvy, and makes a simple mistake. For example, he may think that <code>user_id % 2 == 0</code> is a good enough way to do a 50%-50% split.</p>
 <p>Note: Another related fallacy is to use and re-use fixed buckets (10 buckets, <code>user_id % 10</code>), and use different buckets for different A/B tests. This is a problem for a number of reasons: it unnecessarily lowers the sample size, <a href="http://bytepawn.com/running-multiple-ab-tests-in-parallel.html">see this previous post on parallel testing</a>. Also, this introduces bias, because we keep reusing the same groups of users, so if a previous A/B test influenced users in the first bucket in a certain way, we may still be measuring that effect in later, unrelated A/B tests.</p>
@@ -194,6 +166,34 @@
 </pre></div>
 
 
+<h2>Problem: accidentally still running</h2>
+<p>For this problem, the easiest sanity check is not statistical, it’s a consistency check in code/reporting:</p>
+<ul>
+<li>have a report of running A/B tests, which is based on exposure logs only, irrespective of whether the experiment is turned on or off in the experiment configuration tool</li>
+<li>have an alert, so that if an A/B test is turned off in the experiment configuration tool, but the experiment is still producing exposure logs, an alert is generated</li>
+</ul>
+<p>In a good A/B testing culture, there is separate library/framework for running experiments in code. For a good example see <a href="https://github.com/facebook/planout">Planout</a>, an open-source framework released by Facebook. Here is the demo example from Planout:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">planout.experiment</span> <span class="kn">import</span> <span class="n">SimpleExperiment</span>
+<span class="kn">from</span> <span class="nn">planout.ops.random</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">class</span> <span class="nc">FirstExperiment</span><span class="p">(</span><span class="n">SimpleExperiment</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">userid</span><span class="p">):</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">button_color</span> <span class="o">=</span> <span class="n">UniformChoice</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;#ff0000&#39;</span><span class="p">,</span> <span class="s1">&#39;#00ff00&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">userid</span><span class="p">)</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">button_text</span> <span class="o">=</span> <span class="n">WeightedChoice</span><span class="p">(</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Join now!&#39;</span><span class="p">,</span> <span class="s1">&#39;Sign up.&#39;</span><span class="p">],</span>
+        <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">userid</span><span class="p">)</span>
+
+<span class="n">my_exp</span> <span class="o">=</span> <span class="n">FirstExperiment</span><span class="p">(</span><span class="n">userid</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="c1"># parameters may be accessed via the . operator</span>
+<span class="k">print</span> <span class="n">my_exp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;button_text&#39;</span><span class="p">),</span> <span class="n">my_exp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;button_color&#39;</span><span class="p">)</span>
+
+<span class="c1"># experiment objects include all input data</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+  <span class="k">print</span> <span class="n">FirstExperiment</span><span class="p">(</span><span class="n">userid</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Exposure logs should be generated in this line: <code>my_exp = FirstExperiment(userid=12)</code>, when the user “enters the funnel” and the framework randomly decided on A or B.</p>
 <h2>Conclusion</h2>
 <p>A/B tests go wrong all the time, even in sophisticated product teams. As this article shows, for a range of problems we can run automated validation checks to catch problems early, before they have too bad of an effect on on customers or the business. These validation checks compare various statistical properties of the funnels A and B to catch likely problems. Large technology companies are running such validation checks automatically and continuously for their online experiments.</p>
   </div>
