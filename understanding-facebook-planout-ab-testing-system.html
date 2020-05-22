@@ -161,6 +161,12 @@
 <li>in a large organization, different users of the A/B testing system could accidentally use the same names in their experiment (eg. <code>BigButtonExperiment</code> and <code>button_size</code>). By explicitly setting the salt, experiment logs will never get mixed up.</li>
 <li>this way, if the class is renamed to a more descriptive name like <code>BigButtonExperiment</code> during refactoring, the experimental results don't change, users will continue to get hashed into the same buckets; if the salt is not set explicitly, renaming the class or the parameter will change the hashing!</li>
 </ul>
+<p>The salt can also be explicitly set for the parameters, like:</p>
+<div class="highlight"><pre><span></span><span class="n">params</span><span class="o">.</span><span class="n">button_size</span> <span class="o">=</span> <span class="n">UniformChoice</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">120</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">user_id</span><span class="p">,</span> <span class="n">salt</span><span class="o">=</span><span class="s1">&#39;27830a83e56b62d9f7cc03868a80f3a67cb69201&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>In a sophisticated environment, the salts can be set automatically the first time the code is checked into source control.</p>
 <h2>Chaining</h2>
 <p>sdfsdf</p>
   </div>
