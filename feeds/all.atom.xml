@@ -16,21 +16,21 @@
 &lt;p&gt;Once the class is declared, we can create an instance by passing in the unit (in this case, &lt;code&gt;user_id&lt;/code&gt;), and then we can retrieve which experimental bucket the user is in by retrieving the params, like:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;xrange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;e&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;MyExperiment&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-    &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;button_size&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;button_size&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;It will print:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;120
-120
-100
-120
-120
-120
-100
-120
-100
-100
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;(0, 120)
+(1, 120)
+(2, 100)
+(3, 120)
+(4, 120)
+(5, 120)
+(6, 100)
+(7, 120)
+(8, 100)
+(9, 100)
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -52,7 +52,8 @@
 &lt;p&gt;This is called the &lt;strong&gt;exposure log&lt;/strong&gt; of the experiment. In a production environment this would be funnel into an event stream processing system and eventually stored in a data warehouse, where the experimental results can be evaluated. &lt;em&gt;Note that Planout is only for running the experiment, evaluation is up to the user.&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;It is important that the exposure logs are only emitted when the experimental parameter &lt;code&gt;button_size&lt;/code&gt; is retrieved, not when the experiment object is created in the &lt;code&gt;e = MyExperiment(user_id=i)&lt;/code&gt; line. This is important to get maximum statistical power. When we compare the CTR for A and B, it's clear how many in A and B clicked through, let's say it's 99 and 105. But what was the sample size for A and B? It's important to only count users who were actually &lt;strong&gt;exposed&lt;/strong&gt; to the experiment, in this case who accessed this dialog box. The best way to achieve this programatically is to emit the &lt;strong&gt;exposure logs&lt;/strong&gt; as late as possible, when the parameter (&lt;code&gt;button_size&lt;/code&gt;) is retrieved. There's no guarantee this is enough, a novice programmer could still write code which retrieves and saves these parameters in a database for later usage, but it's the best an A/B testing framework can do.&lt;/p&gt;
 &lt;h2&gt;Pseudo-random but deterministic through hashing&lt;/h2&gt;
-&lt;p&gt;If you run the above code on your computer, you will notice that you get the same results! In other words, if you create a class called &lt;code&gt;MyExperiment&lt;/code&gt; like above, and pass in &lt;code&gt;user_id=0&lt;/code&gt;, you will also, and always get &lt;code&gt;button_size=120&lt;/code&gt;. This is because Planout is deterministic. It doesn't actually use a random number generator to decide whether to put a user into bucket A or B.&lt;/p&gt;
+&lt;p&gt;If you run the above code on your computer, you will notice that you get the same results! In other words, if you create a class called &lt;code&gt;MyExperiment&lt;/code&gt; like above, and pass in &lt;code&gt;user_id=0&lt;/code&gt;, you will also, and always get &lt;code&gt;button_size=120&lt;/code&gt;. Also, if you re-run the code, you will always get the same results.&lt;/p&gt;
+&lt;p&gt;This is because Planout is deterministic. It doesn't actually use a random number generator to decide whether to put a user into bucket A or B. Instead, it uses hashing: it takes the salt of the experiment (by default, the salt is the name of the class, &lt;code&gt;MyExperiment&lt;/code&gt;), combines it with the parameter name (&lt;code&gt;button_size&lt;/code&gt;) and the unit value (the unit of the experiment is the &lt;code&gt;user_id&lt;/code&gt;, eg. &lt;code&gt;0&lt;/code&gt;), and computes the SHA, so eg. &lt;code&gt;SHA1(MyExperiment.button_size.0)&lt;/code&gt;&lt;/p&gt;
 &lt;h2&gt;Changing salts&lt;/h2&gt;
 &lt;p&gt;fdasfsdf&lt;/p&gt;
 &lt;h2&gt;Chaining&lt;/h2&gt;
