@@ -56,11 +56,26 @@
 &lt;p&gt;This is because Planout is deterministic. It doesn't actually use a random number generator to decide whether to put a user into bucket A or B. Instead, it uses hashing: it takes the salt of the experiment (by default, the salt is the name of the class, &lt;code&gt;MyExperiment&lt;/code&gt;), combines it with the parameter name (&lt;code&gt;button_size&lt;/code&gt;) and the unit value (the unit of the experiment is the &lt;code&gt;user_id&lt;/code&gt;, eg. &lt;code&gt;0&lt;/code&gt;), and computes the SHA, so eg. &lt;code&gt;SHA1('MyExperiment.button_size.0')&lt;/code&gt;. Since the experiment is setup to be a uniform choice between 2 cases, the result of the &lt;code&gt;SHA1()&lt;/code&gt; would be &lt;code&gt;mod 2&lt;/code&gt;'d.&lt;/p&gt;
 &lt;p&gt;Determinism is important for a number of reasons:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;if a user comes back later, we want her to be in the same experimental bucket as before to avoid confusing and polluting the results&lt;/li&gt;
-&lt;li&gt;this way, as long as we know which users got exposed to the experiment (in this case, the &lt;code&gt;user_id&lt;/code&gt;), we can re-construct which bucket they were, even if logs are lost; in other words, in the case above, even if the logs did not contain the assigned &lt;code&gt;button_size&lt;/code&gt;, we could compute it when evaluating the experiment at the end.&lt;/li&gt;
+&lt;li&gt;if a user comes back a 2nd time, we want her to be in the same experimental bucket (A or B) as the 1st time to keep the experiment consistent&lt;/li&gt;
+&lt;li&gt;this way, as long as we know which users got exposed to the experiment (in this case, the &lt;code&gt;user_id&lt;/code&gt;), we can re-construct which bucket they were in, even if logs are lost; in other words, in the case above, even if the logs did not contain the assigned &lt;code&gt;button_size&lt;/code&gt;, we could compute it when evaluating the experiment at the end.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;a href="https://facebook.github.io/planout/docs/how-planout-works.html"&gt;See the documentation for more.&lt;/a&gt;&lt;/p&gt;
 &lt;h2&gt;Changing salts&lt;/h2&gt;
+&lt;p&gt;We can override the experiment name and salt, so it's not the (default) class name:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;MyExperiment&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;SimpleExperiment&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;setup&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;My awesome experiment&amp;#39;&lt;/span&gt;
+    &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;salt&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;91551c2a7e9117429e43c59ec1e4e8035c19ae15&amp;#39;&lt;/span&gt;
+    &lt;span class="c1"&gt;# salt is the result of:&lt;/span&gt;
+    &lt;span class="c1"&gt;# date | awk &amp;#39;{print $0&amp;quot;My awesome experiment&amp;quot;}&amp;#39; | shasum&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This is useful for a number of reasons:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;in a large organization, different users of the A/B testing system could accidentally use the same names in their experiment (eg. &lt;code&gt;BigButtonExperiment&lt;/code&gt; and &lt;code&gt;button_size&lt;/code&gt;). By explicitly setting the salt, experiment logs will never get mixed up.&lt;/li&gt;
+&lt;li&gt;this way, if the class is renamed to a more descriptive name like &lt;code&gt;BigButtonExperiment&lt;/code&gt; during refactoring, the experimental results don't change, users will continue to get hashed into the same buckets; if the salt is not set explicitly, renaming the class or the parameter will change the hashing!&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2&gt;Chaining&lt;/h2&gt;
 &lt;p&gt;sdfsdf&lt;/p&gt;</content><category term="ab-testing"></category></entry><entry><title>Validation checks for A/B tests</title><link href="/validation-checks-for-ab-tests.html" rel="alternate"></link><published>2020-04-16T00:00:00+02:00</published><updated>2020-04-16T00:00:00+02:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-04-16:/validation-checks-for-ab-tests.html</id><summary type="html">&lt;p&gt;A/B tests go wrong all the time, even in sophisticated product teams. As this article shows, for a range of problems we can run automated validation checks to catch problems early, before they have too bad of an effect on customers or the business. These validation checks compare various statistical properties of the funnels A and B to catch likely problems. Large technology companies are running such validation checks automatically and continuously for their online experiments.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/k-s.png" alt="Kolmogorov-Smirnov test" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;&lt;em&gt;"Anything that can go wrong will go wrong"&lt;/em&gt;, according to &lt;a href="https://en.wikipedia.org/wiki/Murphy%27s_law"&gt;Murphy’s law&lt;/a&gt;. A/B testing is no different. Anybody who has run a lot of A/B tests, over several years, has seen multiple failure modes. Some errors I've seen (assuming “B” is the new experimental funnel in the A/B test):&lt;/p&gt;

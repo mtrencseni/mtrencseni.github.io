@@ -141,11 +141,26 @@
 <p>This is because Planout is deterministic. It doesn't actually use a random number generator to decide whether to put a user into bucket A or B. Instead, it uses hashing: it takes the salt of the experiment (by default, the salt is the name of the class, <code>MyExperiment</code>), combines it with the parameter name (<code>button_size</code>) and the unit value (the unit of the experiment is the <code>user_id</code>, eg. <code>0</code>), and computes the SHA, so eg. <code>SHA1('MyExperiment.button_size.0')</code>. Since the experiment is setup to be a uniform choice between 2 cases, the result of the <code>SHA1()</code> would be <code>mod 2</code>'d.</p>
 <p>Determinism is important for a number of reasons:</p>
 <ul>
-<li>if a user comes back later, we want her to be in the same experimental bucket as before to avoid confusing and polluting the results</li>
-<li>this way, as long as we know which users got exposed to the experiment (in this case, the <code>user_id</code>), we can re-construct which bucket they were, even if logs are lost; in other words, in the case above, even if the logs did not contain the assigned <code>button_size</code>, we could compute it when evaluating the experiment at the end.</li>
+<li>if a user comes back a 2nd time, we want her to be in the same experimental bucket (A or B) as the 1st time to keep the experiment consistent</li>
+<li>this way, as long as we know which users got exposed to the experiment (in this case, the <code>user_id</code>), we can re-construct which bucket they were in, even if logs are lost; in other words, in the case above, even if the logs did not contain the assigned <code>button_size</code>, we could compute it when evaluating the experiment at the end.</li>
 </ul>
 <p><a href="https://facebook.github.io/planout/docs/how-planout-works.html">See the documentation for more.</a></p>
 <h2>Changing salts</h2>
+<p>We can override the experiment name and salt, so it's not the (default) class name:</p>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyExperiment</span><span class="p">(</span><span class="n">SimpleExperiment</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;My awesome experiment&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">salt</span> <span class="o">=</span> <span class="s1">&#39;91551c2a7e9117429e43c59ec1e4e8035c19ae15&#39;</span>
+    <span class="c1"># salt is the result of:</span>
+    <span class="c1"># date | awk &#39;{print $0&quot;My awesome experiment&quot;}&#39; | shasum</span>
+</pre></div>
+
+
+<p>This is useful for a number of reasons:</p>
+<ul>
+<li>in a large organization, different users of the A/B testing system could accidentally use the same names in their experiment (eg. <code>BigButtonExperiment</code> and <code>button_size</code>). By explicitly setting the salt, experiment logs will never get mixed up.</li>
+<li>this way, if the class is renamed to a more descriptive name like <code>BigButtonExperiment</code> during refactoring, the experimental results don't change, users will continue to get hashed into the same buckets; if the salt is not set explicitly, renaming the class or the parameter will change the hashing!</li>
+</ul>
 <h2>Chaining</h2>
 <p>sdfsdf</p>
   </div>
