@@ -1,5 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Marton Trencseni - Data</title><link href="/" rel="alternate"></link><link href="/feeds/data.atom.xml" rel="self"></link><id>/</id><updated>2020-04-16T00:00:00+02:00</updated><entry><title>Validation checks for A/B tests</title><link href="/validation-checks-for-ab-tests.html" rel="alternate"></link><published>2020-04-16T00:00:00+02:00</published><updated>2020-04-16T00:00:00+02:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-04-16:/validation-checks-for-ab-tests.html</id><summary type="html">&lt;p&gt;A/B tests go wrong all the time, even in sophisticated product teams. As this article shows, for a range of problems we can run automated validation checks to catch problems early, before they have too bad of an effect on customers or the business. These validation checks compare various statistical properties of the funnels A and B to catch likely problems. Large technology companies are running such validation checks automatically and continuously for their online experiments.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/k-s.png" alt="Kolmogorov-Smirnov test" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Marton Trencseni - Data</title><link href="/" rel="alternate"></link><link href="/feeds/data.atom.xml" rel="self"></link><id>/</id><updated>2020-05-22T00:00:00+02:00</updated><entry><title>Understanding Facebook’s Planout A/B testing system</title><link href="/understanding-facebook-planout-ab-testing-system.html" rel="alternate"></link><published>2020-05-22T00:00:00+02:00</published><updated>2020-05-22T00:00:00+02:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-05-22:/understanding-facebook-planout-ab-testing-system.html</id><summary type="html">&lt;p&gt;Planout can be used to declare and configure A/B tests and to assign users into buckets (A, B, etc) in production.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/planout_namespace_diagram.png" alt="Planout" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;In previous A/B testing posts I focused on the mathematical aspects. This time, I will explain Facebook’s Planout product for A/B testing. Planout can be used to declare and configure A/B tests and to assign users into buckets (A, B, etc.) in production. Planout was released in 2014, its main author is Eytan Bakshy. This post is based on a &lt;a href="https://www.youtube.com/watch?v=Ayd4sqPH2DE"&gt;PyData talk Eytan gave in 2014.&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;Unit of A/B testing&lt;/h2&gt;
+&lt;p&gt;Let’s pretend we’re running A/B tests on our website, and we use Python/Django. Using Planout, we subclass &lt;code&gt;SimpleExperiment&lt;/code&gt; and define the function &lt;code&gt;assign()&lt;/code&gt;, like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;planout.experiment&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;SimpleExperiment&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;planout.ops.random&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;MyExperiment&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;SimpleExperiment&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;assign&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;params&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;params&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;button_size&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;UniformChoice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;choices&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;120&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;unit&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Once the class is declared, we can create an instance by passing in the unit (in this case, &lt;code&gt;user_id&lt;/code&gt;), and then we can retrieve which experimental bucket the user is in by retrieving the params, like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;xrange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+  &lt;span class="n"&gt;e&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;MyExperiment&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;button_size&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;It will print:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;120
+120
+100
+120
+120
+120
+100
+120
+100
+100
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Exposure logging and power&lt;/h2&gt;
+&lt;p&gt;Continuing the above example, a file &lt;code&gt;MyExperiment.log&lt;/code&gt; will be generated, which looks like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;{&amp;quot;inputs&amp;quot;: {&amp;quot;user_id&amp;quot;: 0}, &amp;quot;name&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;params&amp;quot;: {&amp;quot;button_size&amp;quot;: 120}, &amp;quot;time&amp;quot;: 1590153690, &amp;quot;salt&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;event&amp;quot;: &amp;quot;exposure&amp;quot;}
+{&amp;quot;inputs&amp;quot;: {&amp;quot;user_id&amp;quot;: 1}, &amp;quot;name&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;params&amp;quot;: {&amp;quot;button_size&amp;quot;: 120}, &amp;quot;time&amp;quot;: 1590153690, &amp;quot;salt&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;event&amp;quot;: &amp;quot;exposure&amp;quot;}
+{&amp;quot;inputs&amp;quot;: {&amp;quot;user_id&amp;quot;: 2}, &amp;quot;name&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;params&amp;quot;: {&amp;quot;button_size&amp;quot;: 100}, &amp;quot;time&amp;quot;: 1590153690, &amp;quot;salt&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;event&amp;quot;: &amp;quot;exposure&amp;quot;}
+{&amp;quot;inputs&amp;quot;: {&amp;quot;user_id&amp;quot;: 3}, &amp;quot;name&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;params&amp;quot;: {&amp;quot;button_size&amp;quot;: 120}, &amp;quot;time&amp;quot;: 1590153690, &amp;quot;salt&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;event&amp;quot;: &amp;quot;exposure&amp;quot;}
+{&amp;quot;inputs&amp;quot;: {&amp;quot;user_id&amp;quot;: 4}, &amp;quot;name&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;params&amp;quot;: {&amp;quot;button_size&amp;quot;: 120}, &amp;quot;time&amp;quot;: 1590153690, &amp;quot;salt&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;event&amp;quot;: &amp;quot;exposure&amp;quot;}
+{&amp;quot;inputs&amp;quot;: {&amp;quot;user_id&amp;quot;: 5}, &amp;quot;name&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;params&amp;quot;: {&amp;quot;button_size&amp;quot;: 120}, &amp;quot;time&amp;quot;: 1590153690, &amp;quot;salt&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;event&amp;quot;: &amp;quot;exposure&amp;quot;}
+{&amp;quot;inputs&amp;quot;: {&amp;quot;user_id&amp;quot;: 6}, &amp;quot;name&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;params&amp;quot;: {&amp;quot;button_size&amp;quot;: 100}, &amp;quot;time&amp;quot;: 1590153690, &amp;quot;salt&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;event&amp;quot;: &amp;quot;exposure&amp;quot;}
+{&amp;quot;inputs&amp;quot;: {&amp;quot;user_id&amp;quot;: 7}, &amp;quot;name&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;params&amp;quot;: {&amp;quot;button_size&amp;quot;: 120}, &amp;quot;time&amp;quot;: 1590153690, &amp;quot;salt&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;event&amp;quot;: &amp;quot;exposure&amp;quot;}
+{&amp;quot;inputs&amp;quot;: {&amp;quot;user_id&amp;quot;: 8}, &amp;quot;name&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;params&amp;quot;: {&amp;quot;button_size&amp;quot;: 100}, &amp;quot;time&amp;quot;: 1590153690, &amp;quot;salt&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;event&amp;quot;: &amp;quot;exposure&amp;quot;}
+{&amp;quot;inputs&amp;quot;: {&amp;quot;user_id&amp;quot;: 9}, &amp;quot;name&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;params&amp;quot;: {&amp;quot;button_size&amp;quot;: 100}, &amp;quot;time&amp;quot;: 1590153690, &amp;quot;salt&amp;quot;: &amp;quot;MyExperiment&amp;quot;, &amp;quot;event&amp;quot;: &amp;quot;exposure&amp;quot;}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This is called the &lt;strong&gt;exposure log&lt;/strong&gt; of the experiment. In a production environment this would be funnel into an event stream processing system like Scribe or Kafka and eventually stored in a data warehouse, where the experimental results can be evaluated. &lt;em&gt;Note that Planout is only for running the experiment, evaluation is up to the user.&lt;/em&gt;&lt;/p&gt;
+&lt;h2&gt;Deterministic through hashing&lt;/h2&gt;
+&lt;p&gt;fsdfsdf&lt;/p&gt;
+&lt;h2&gt;Chaining&lt;/h2&gt;
+&lt;p&gt;sdfsdf&lt;/p&gt;
+&lt;h2&gt;Changing salts&lt;/h2&gt;
+&lt;p&gt;fdasfsdf&lt;/p&gt;</content><category term="ab-testing"></category></entry><entry><title>Validation checks for A/B tests</title><link href="/validation-checks-for-ab-tests.html" rel="alternate"></link><published>2020-04-16T00:00:00+02:00</published><updated>2020-04-16T00:00:00+02:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-04-16:/validation-checks-for-ab-tests.html</id><summary type="html">&lt;p&gt;A/B tests go wrong all the time, even in sophisticated product teams. As this article shows, for a range of problems we can run automated validation checks to catch problems early, before they have too bad of an effect on customers or the business. These validation checks compare various statistical properties of the funnels A and B to catch likely problems. Large technology companies are running such validation checks automatically and continuously for their online experiments.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/k-s.png" alt="Kolmogorov-Smirnov test" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;&lt;em&gt;"Anything that can go wrong will go wrong"&lt;/em&gt;, according to &lt;a href="https://en.wikipedia.org/wiki/Murphy%27s_law"&gt;Murphy’s law&lt;/a&gt;. A/B testing is no different. Anybody who has run a lot of A/B tests, over several years, has seen multiple failure modes. Some errors I've seen (assuming “B” is the new experimental funnel in the A/B test):&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;misconfigured test&lt;/strong&gt;: we want to do a 20%-80% split, but we accidentally configure 80%-20% split instead&lt;/li&gt;

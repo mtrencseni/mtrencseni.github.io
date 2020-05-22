@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="google-site-verification" content="14dvQcWyDWHBo8aM0kld8XzEa6KypAzCQDz1_KPus9E" />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-1812620-2');
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn - Marton Trencseni Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="Planout can be used to declare and configure A/B tests and to assign users into buckets (A, B, etc) in production." />
+<meta name="keywords" content="ab-testing">
+<meta property="og:site_name" content="Bytepawn - Marton Trencseni"/>
+<meta property="og:title" content="Understanding Facebook’s Planout A/B testing system"/>
+<meta property="og:description" content="Planout can be used to declare and configure A/B tests and to assign users into buckets (A, B, etc) in production."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/understanding-facebook-planout-ab-testing-system.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-05-22 00:00:00+02:00"/>
+<meta property="article:modified_time" content="2020-05-22 00:00:00+02:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data"/>
+<meta property="article:tag" content="ab-testing"/>
+<meta property="og:image" content="/images/planout_namespace_diagram.png"/>
+
+  <title>Bytepawn - Marton Trencseni &ndash; Understanding Facebook’s Planout A/B testing system</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <!--<h2><a href="">Bytepawn - Marton Trencseni</a></h2>-->
+      <h2><a href="http://bytepawn.com">Bytepawn</a></h2>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="understanding-facebook-planout-ab-testing-system">Understanding Facebook’s Planout A/B testing system</h1>
+    <p>Marton Trencseni - Fri 22 May 2020 - <a href="/category/data.html">Data</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>In previous A/B testing posts I focused on the mathematical aspects. This time, I will explain Facebook’s Planout product for A/B testing. Planout can be used to declare and configure A/B tests and to assign users into buckets (A, B, etc.) in production. Planout was released in 2014, its main author is Eytan Bakshy. This post is based on a <a href="https://www.youtube.com/watch?v=Ayd4sqPH2DE">PyData talk Eytan gave in 2014.</a>.</p>
+<h2>Unit of A/B testing</h2>
+<p>Let’s pretend we’re running A/B tests on our website, and we use Python/Django. Using Planout, we subclass <code>SimpleExperiment</code> and define the function <code>assign()</code>, like:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">planout.experiment</span> <span class="kn">import</span> <span class="n">SimpleExperiment</span>
+<span class="kn">from</span> <span class="nn">planout.ops.random</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">class</span> <span class="nc">MyExperiment</span><span class="p">(</span><span class="n">SimpleExperiment</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">button_size</span> <span class="o">=</span> <span class="n">UniformChoice</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">120</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">user_id</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Once the class is declared, we can create an instance by passing in the unit (in this case, <code>user_id</code>), and then we can retrieve which experimental bucket the user is in by retrieving the params, like:</p>
+<div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+  <span class="n">e</span> <span class="o">=</span> <span class="n">MyExperiment</span><span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+  <span class="k">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;button_size&#39;</span><span class="p">))</span>
+</pre></div>
+
+
+<p>It will print:</p>
+<div class="highlight"><pre><span></span>120
+120
+100
+120
+120
+120
+100
+120
+100
+100
+</pre></div>
+
+
+<h2>Exposure logging and power</h2>
+<p>Continuing the above example, a file <code>MyExperiment.log</code> will be generated, which looks like:</p>
+<div class="highlight"><pre><span></span>{&quot;inputs&quot;: {&quot;user_id&quot;: 0}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 120}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 1}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 120}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 2}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 100}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 3}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 120}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 4}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 120}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 5}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 120}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 6}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 100}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 7}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 120}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 8}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 100}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 9}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 100}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+</pre></div>
+
+
+<p>This is called the <strong>exposure log</strong> of the experiment. In a production environment this would be funnel into an event stream processing system like Scribe or Kafka and eventually stored in a data warehouse, where the experimental results can be evaluated. <em>Note that Planout is only for running the experiment, evaluation is up to the user.</em></p>
+<h2>Deterministic through hashing</h2>
+<p>fsdfsdf</p>
+<h2>Chaining</h2>
+<p>sdfsdf</p>
+<h2>Changing salts</h2>
+<p>fdasfsdf</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/ab-testing.html">ab-testing</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-1812620-2');
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Understanding Facebook’s Planout A/B testing system",
+  "headline": "Understanding Facebook’s Planout A/B testing system",
+  "datePublished": "2020-05-22 00:00:00+02:00",
+  "dateModified": "2020-05-22 00:00:00+02:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/understanding-facebook-planout-ab-testing-system.html",
+  "description": "Planout can be used to declare and configure A/B tests and to assign users into buckets (A, B, etc) in production."
+}
+</script></body>
+</html>
