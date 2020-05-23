@@ -51,7 +51,7 @@
 <meta property="article:author" content="/author/marton-trencseni.html">
 <meta property="article:section" content="Data"/>
 <meta property="article:tag" content="ab-testing"/>
-<meta property="og:image" content="/images/planout_namespace_diagram.png"/>
+<meta property="og:image" content="/images/blue_dice.png"/>
 
   <title>Bytepawn - Marton Trencseni &ndash; Understanding Facebook’s Planout A/B testing system</title>
 </head>
@@ -167,8 +167,26 @@
 
 
 <p>In a sophisticated environment, the salts can be set automatically the first time the code is checked into source control.</p>
+<h2>Multiple parameters</h2>
+<p>Suppose we want to also experiment with the color of the button:</p>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyExperiment</span><span class="p">(</span><span class="n">SimpleExperiment</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">button_size</span> <span class="o">=</span> <span class="n">UniformChoice</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">120</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">user_id</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">button_color</span> <span class="o">=</span> <span class="n">UniformChoice</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">user_id</span><span class="p">)</span>
+</pre></div>
+
+
+<p>If we do it like this, it's an A/B/C/D test, because we will get all 2x2 combinations of sizes and colors. But what if we just want an A/B test, with the combinations <code>(button_size, button_color)</code> = <code>(100, blue)</code> and <code>(120, green)</code>. This can be accomplished by setting the parameter level salts to be the same:</p>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyExperiment</span><span class="p">(</span><span class="n">SimpleExperiment</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">button_size</span> <span class="o">=</span> <span class="n">UniformChoice</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">120</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">user_id</span><span class="p">,</span> <span class="n">salt</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">button_color</span> <span class="o">=</span> <span class="n">UniformChoice</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">user_id</span><span class="p">,</span> <span class="n">salt</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+</pre></div>
+
+
 <h2>Chaining</h2>
 <p>sdfsdf</p>
+<h2>Conclusion</h2>
   </div>
   <div class="tag-cloud">
     <p>
