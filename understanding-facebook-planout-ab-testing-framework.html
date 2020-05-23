@@ -85,7 +85,6 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>PlanOut is a framework for online field experiments. It was created to make it easy to run and iterate on sophisticated experiments in a statistically sound manner.</p>
 <p>In previous A/B testing posts I focused on the mathematical aspects. This time, I will explain <a href="https://facebook.github.io/planout/index.html">Facebook’s Planout</a> product for A/B testing. Planout can be used to declare and configure A/B tests and to assign users into buckets (A, B, etc.) in production. Planout was released in 2014, its main author is Eytan Bakshy. This post is based on a <a href="https://www.youtube.com/watch?v=Ayd4sqPH2DE">PyData talk Eytan gave in 2014.</a></p>
 <h2>Unit of A/B testing</h2>
 <p>Let’s pretend we’re running A/B tests on our website, and we use Python/Django. Using Planout, we subclass <code>SimpleExperiment</code> and define the function <code>assign()</code>, like:</p>
