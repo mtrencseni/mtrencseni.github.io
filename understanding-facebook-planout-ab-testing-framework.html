@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="google-site-verification" content="14dvQcWyDWHBo8aM0kld8XzEa6KypAzCQDz1_KPus9E" />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-1812620-2');
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn - Marton Trencseni Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="PlanOut is a framework for online field experiments. It was created by Facebook in 2014 to make it easy to run and iterate on sophisticated experiments in a statistically sound manner." />
+<meta name="keywords" content="ab-testing">
+<meta property="og:site_name" content="Bytepawn - Marton Trencseni"/>
+<meta property="og:title" content="Understanding Facebook’s Planout A/B testing framework"/>
+<meta property="og:description" content="PlanOut is a framework for online field experiments. It was created by Facebook in 2014 to make it easy to run and iterate on sophisticated experiments in a statistically sound manner."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/understanding-facebook-planout-ab-testing-framework.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-05-22 00:00:00+02:00"/>
+<meta property="article:modified_time" content="2020-05-22 00:00:00+02:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data"/>
+<meta property="article:tag" content="ab-testing"/>
+<meta property="og:image" content="/images/blue_dice.png"/>
+
+  <title>Bytepawn - Marton Trencseni &ndash; Understanding Facebook’s Planout A/B testing framework</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <!--<h2><a href="">Bytepawn - Marton Trencseni</a></h2>-->
+      <h2><a href="http://bytepawn.com">Bytepawn</a></h2>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="understanding-facebook-planout-ab-testing-framework">Understanding Facebook’s Planout A/B testing framework</h1>
+    <p>Marton Trencseni - Fri 22 May 2020 - <a href="/category/data.html">Data</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>PlanOut is a framework for online field experiments. It was created to make it easy to run and iterate on sophisticated experiments in a statistically sound manner.</p>
+<p>In previous A/B testing posts I focused on the mathematical aspects. This time, I will explain <a href="https://facebook.github.io/planout/index.html">Facebook’s Planout</a> product for A/B testing. Planout can be used to declare and configure A/B tests and to assign users into buckets (A, B, etc.) in production. Planout was released in 2014, its main author is Eytan Bakshy. This post is based on a <a href="https://www.youtube.com/watch?v=Ayd4sqPH2DE">PyData talk Eytan gave in 2014.</a></p>
+<h2>Unit of A/B testing</h2>
+<p>Let’s pretend we’re running A/B tests on our website, and we use Python/Django. Using Planout, we subclass <code>SimpleExperiment</code> and define the function <code>assign()</code>, like:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">planout.experiment</span> <span class="kn">import</span> <span class="n">SimpleExperiment</span>
+<span class="kn">from</span> <span class="nn">planout.ops.random</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">class</span> <span class="nc">MyExperiment</span><span class="p">(</span><span class="n">SimpleExperiment</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">button_size</span> <span class="o">=</span> <span class="n">UniformChoice</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">120</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">user_id</span><span class="p">)</span>
+</pre></div>
+
+
+<p>In case A, the button size is 100, in case B the button size is B, and we want to see whether B lifts the click-through-rate (CTR) of the button.</p>
+<p>Once the class is declared, we can create an instance by passing in the unit (in this case, <code>user_id</code>), and then we can retrieve which experimental bucket the user is in by retrieving the params, like:</p>
+<div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">MyExperiment</span><span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;button_size&#39;</span><span class="p">))</span>
+</pre></div>
+
+
+<p>It will print:</p>
+<div class="highlight"><pre><span></span>(0, 120)
+(1, 120)
+(2, 100)
+(3, 120)
+(4, 120)
+(5, 120)
+(6, 100)
+(7, 120)
+(8, 100)
+(9, 100)
+</pre></div>
+
+
+<h2>Exposure logging and power</h2>
+<p>Continuing the above example, a file <code>MyExperiment.log</code> will be generated, which looks like:</p>
+<div class="highlight"><pre><span></span>{&quot;inputs&quot;: {&quot;user_id&quot;: 0}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 120}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 1}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 120}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 2}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 100}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 3}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 120}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 4}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 120}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 5}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 120}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 6}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 100}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 7}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 120}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 8}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 100}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+{&quot;inputs&quot;: {&quot;user_id&quot;: 9}, &quot;name&quot;: &quot;MyExperiment&quot;, &quot;params&quot;: {&quot;button_size&quot;: 100}, &quot;time&quot;: 1590153690, &quot;salt&quot;: &quot;MyExperiment&quot;, &quot;event&quot;: &quot;exposure&quot;}
+</pre></div>
+
+
+<p>This is called the <strong>exposure log</strong> of the experiment. In a production environment this would be funnel into an event stream processing system and eventually stored in a data warehouse, where the experimental results can be evaluated. <em>Note that Planout is only for running the experiment, evaluation is up to the user.</em></p>
+<p>It is important that the exposure logs are only emitted when the experimental parameter <code>button_size</code> is retrieved, not when the experiment object is created in the <code>e = MyExperiment(user_id=i)</code> line. This is important to get maximum statistical power. When we compare the CTR for A and B, it's clear how many in A and B clicked through, let's say it's 99 and 105. But what was the sample size for A and B? It's important to only count users who were actually <strong>exposed</strong> to the experiment, in this case who accessed this dialog box. The best way to achieve this programatically is to emit the <strong>exposure logs</strong> as late as possible, when the parameter (<code>button_size</code>) is retrieved. There's no guarantee this is enough, a novice programmer could still write code which retrieves and saves these parameters in a database for later usage, but it's the best an A/B testing framework can do.</p>
+<h2>Pseudo-random but deterministic through hashing</h2>
+<p>If you run the above code on your computer, you will notice that you get the same results! In other words, if you create a class called <code>MyExperiment</code> like above, and pass in <code>user_id=0</code>, you will also, and always get <code>button_size=120</code>. Also, if you re-run the code, you will always get the same results.</p>
+<p>This is because Planout is deterministic. It doesn't actually use a random number generator to decide whether to put a user into bucket A or B. Instead, it uses hashing: it takes the salt of the experiment (by default, the salt is the name of the class, <code>MyExperiment</code>), combines it with the parameter name (<code>button_size</code>) and the unit value (the unit of the experiment is the <code>user_id</code>, eg. <code>0</code>), and computes the SHA, so eg. <code>SHA1('MyExperiment.button_size.0')</code>. Since the experiment is setup to be a uniform choice between 2 cases, the result of the <code>SHA1()</code> would be <code>mod 2</code>'d.</p>
+<p>Determinism is important for a number of reasons:</p>
+<ul>
+<li>if a user comes back a 2nd time, we want her to be in the same experimental bucket (A or B) as the 1st time to keep the experiment consistent</li>
+<li>this way, as long as we know which users got exposed to the experiment (in this case, the <code>user_id</code>), we can re-construct which bucket they were in, even if logs are lost; in other words, in the case above, even if the logs did not contain the assigned <code>button_size</code>, we could compute it when evaluating the experiment at the end.</li>
+</ul>
+<p><a href="https://facebook.github.io/planout/docs/how-planout-works.html">See the documentation for more.</a></p>
+<h2>Changing salts</h2>
+<p>We can override the experiment name and salt, so it's not the (default) class name:</p>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyExperiment</span><span class="p">(</span><span class="n">SimpleExperiment</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;My awesome experiment&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">salt</span> <span class="o">=</span> <span class="s1">&#39;91551c2a7e9117429e43c59ec1e4e8035c19ae15&#39;</span>
+    <span class="c1"># salt is the result of:</span>
+    <span class="c1"># date | awk &#39;{print $0&quot;My awesome experiment&quot;}&#39; | shasum</span>
+</pre></div>
+
+
+<p>This is useful for a number of reasons:</p>
+<ul>
+<li>in a large organization, different users of the A/B testing system could accidentally use the same names in their experiment (eg. <code>BigButtonExperiment</code> and <code>button_size</code>). By explicitly setting the salt, experiment logs will never get mixed up.</li>
+<li>this way, if the class is renamed to a more descriptive name like <code>BigButtonExperiment</code> during refactoring, the experimental results don't change, users will continue to get hashed into the same buckets; if the salt is not set explicitly, renaming the class or the parameter will change the hashing!</li>
+</ul>
+<p>The salt can also be explicitly set for the parameters, like:</p>
+<div class="highlight"><pre><span></span><span class="n">params</span><span class="o">.</span><span class="n">button_size</span> <span class="o">=</span> <span class="n">UniformChoice</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">120</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">user_id</span><span class="p">,</span> <span class="n">salt</span><span class="o">=</span><span class="s1">&#39;27830a83e56b62d9f7cc03868a80f3a67cb69201&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>In a sophisticated environment, the salts can be set automatically the first time the code is checked into source control.</p>
+<h2>Multiple parameters</h2>
+<p>Suppose we want to also experiment with the color of the button:</p>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyExperiment</span><span class="p">(</span><span class="n">SimpleExperiment</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">button_size</span> <span class="o">=</span> <span class="n">UniformChoice</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">120</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">user_id</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">button_color</span> <span class="o">=</span> <span class="n">UniformChoice</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">user_id</span><span class="p">)</span>
+</pre></div>
+
+
+<p>If we do it like this, it's an A/B/C/D test, because we will get all 2x2 combinations of sizes and colors. But what if we just want an A/B test, with the combinations <code>(button_size, button_color)</code> = <code>(100, blue)</code> and <code>(120, green)</code>. This can be accomplished by setting the parameter level salts to be the same:</p>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyExperiment</span><span class="p">(</span><span class="n">SimpleExperiment</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">button_size</span> <span class="o">=</span> <span class="n">UniformChoice</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">120</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">user_id</span><span class="p">,</span> <span class="n">salt</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">button_color</span> <span class="o">=</span> <span class="n">UniformChoice</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">user_id</span><span class="p">,</span> <span class="n">salt</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<h2>Chaining</h2>
+<p>Suppose we have a baseline recommendation engine, and we are experimenting with a new version, but we're not sure how to set tune some variables in the new engine. For each user, we want to pick a variable setting, and in each user session, we want to either use the baseline, or the new engine with the appropriate variables.</p>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">RecomendationEngineExperiment</span><span class="p">(</span><span class="n">SimpleExperiment</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">session_id</span><span class="p">):</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">new_model</span> <span class="o">=</span> <span class="n">UniformChoice</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;v200&#39;</span><span class="p">,</span> <span class="s1">&#39;v201&#39;</span><span class="p">,</span> <span class="s1">&#39;v202&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">user_id</span><span class="p">)</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">session_model</span> <span class="o">=</span> <span class="n">UniformChoice</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;v100&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">new_model</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="p">[</span><span class="n">user_id</span><span class="p">,</span> <span class="n">session_id</span><span class="p">])</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">RecomendationEngineExperiment</span><span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">session_id</span><span class="o">=</span><span class="n">j</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;session_model&#39;</span><span class="p">))</span>
+</pre></div>
+
+
+<p>What we accomplish here is that in each session, the user either gets <code>v100</code> or one of the new ones, but for a user, the new one never changes, eg. <code>user_id=0</code> either gets <code>v100</code> or <code>v202</code>.</p>
+<h2>Conclusion</h2>
+<p>Planout was released in 2014 and never took off. But its design principles are solid, so it's good practice to either understand Planout when designing an A/B testing framework, or just use Planout as-is.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/ab-testing.html">ab-testing</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-1812620-2');
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Understanding Facebook’s Planout A/B testing framework",
+  "headline": "Understanding Facebook’s Planout A/B testing framework",
+  "datePublished": "2020-05-22 00:00:00+02:00",
+  "dateModified": "2020-05-22 00:00:00+02:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/understanding-facebook-planout-ab-testing-framework.html",
+  "description": "PlanOut is a framework for online field experiments. It was created by Facebook in 2014 to make it easy to run and iterate on sophisticated experiments in a statistically sound manner."
+}
+</script></body>
+</html>
