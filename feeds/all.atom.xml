@@ -83,10 +83,12 @@ Ratio of wins stat.sign.: 0.590
 
 &lt;p&gt;&lt;img src="/images/mab_fixed_cumu_winning.png" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/mab_fixed_ps.png" style="width: 600px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Outcomes:
-- the better funnel wins 100% of the time
-- the results is stat. sign. 59% of the time
-- as expected, the split is 50% and doesn't change in the experiment&lt;/p&gt;
+&lt;p&gt;Outcomes:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;the better funnel wins 100% of the time&lt;/li&gt;
+&lt;li&gt;the results is stat. sign. 59% of the time&lt;/li&gt;
+&lt;li&gt;as expected, the split is 50% and doesn't change in the experiment&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2&gt;Epsilon-greedy&lt;/h2&gt;
 &lt;p&gt;dsfsf&lt;/p&gt;
 &lt;h2&gt;ECB1&lt;/h2&gt;
