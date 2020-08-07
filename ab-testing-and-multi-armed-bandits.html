@@ -38,11 +38,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="" />
 <meta name="author" content="Marton Trencseni" />
-<meta name="description" content="I show how Multi-armed bandits can be used to minimize lost revenue when performing A/B tests." />
+<meta name="description" content="I show how Multi-armed bandits can be used to minimize regret when performing A/B tests. Different Multi-armed algorithms strike a different trade-off in the space of exploration, exploitation and statistical significance." />
 <meta name="keywords" content="ab-testing">
 <meta property="og:site_name" content="Bytepawn - Marton Trencseni"/>
 <meta property="og:title" content="A/B testing and Multi-armed bandits"/>
-<meta property="og:description" content="I show how Multi-armed bandits can be used to minimize lost revenue when performing A/B tests."/>
+<meta property="og:description" content="I show how Multi-armed bandits can be used to minimize regret when performing A/B tests. Different Multi-armed algorithms strike a different trade-off in the space of exploration, exploitation and statistical significance."/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="/ab-testing-and-multi-armed-bandits.html"/>
 <meta property="og:type" content="article"/>
@@ -93,6 +93,7 @@
 </blockquote>
 <p>In a MAB approach, instead of having a fixed split of users for A and B, like 50-50, we make this decision based on how A and B have performed so far. MAB approaches attempt to strike a balance between exploitation (putting users into the better funnel, based on what we've seen so far) and exploration (collecting more data about funnels which have seen less users so far). In general, MAB algorithms will favor funnels which have performed better so far.</p>
 <p>The high-level goal of MAB algorithms is to minimize regret: in this example, the additional amount of money we could have made if we put all users into the funnel that actually performs better. Here I will show 3 MAB algorithms: Epsilon-greedy, UCB1 and Thompson sampling.</p>
+<p><a href="https://github.com/mtrencseni/playground/blob/master/AB%20testing%20and%20Multi-armed%20bandits.ipynb">The code shown below is up on Github.</a></p>
 <h2>Fixed split A/B testing</h2>
 <p>To set a baseline and write some useful code, let's start with regular old fixed split A/B testing:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">simulate_abtest_fixed</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
@@ -344,7 +345,7 @@ Ratio of wins stat.sign.: 0.396
   },
   "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
   "url": "/ab-testing-and-multi-armed-bandits.html",
-  "description": "I show how Multi-armed bandits can be used to minimize lost revenue when performing A/B tests."
+  "description": "I show how Multi-armed bandits can be used to minimize regret when performing A/B tests. Different Multi-armed algorithms strike a different trade-off in the space of exploration, exploitation and statistical significance."
 }
 </script></body>
 </html>
