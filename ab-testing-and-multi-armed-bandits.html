@@ -92,9 +92,88 @@
 <p>In probability theory, the multi-armed bandit problem (sometimes called the K- or N-armed bandit problem) is a problem in which a fixed limited set of resources must be allocated between competing (alternative) choices in a way that maximizes their expected gain, when each choice's properties are only partially known at the time of allocation, and may become better understood as time passes or by allocating resources to the choice. This is a classic reinforcement learning problem that exemplifies the exploration–exploitation tradeoff dilemma.</p>
 </blockquote>
 <p>In a MAB approach, instead of having a fixed split of users for A and B, like 50-50, we make this decision based on how A and B have performed so far. MAB approaches attempt to strike a balance between exploitation (putting users into the better funnel, based on what we've seen so far) and exploration (collecting more data about funnels which have seen less users so far). In general, MAB algorithms will favor funnels which have performed better so far.</p>
-<p>The high-level goal of MAB algorithms is to minimize regret: in this example, the additional amount of money we could have made if we put all users into the funnel that actually performs better. Here I will show 3 MAB algorithms: Epsilon-greedy, ECB1 and Thompson sampling.</p>
+<p>The high-level goal of MAB algorithms is to minimize regret: in this example, the additional amount of money we could have made if we put all users into the funnel that actually performs better. Here I will show 3 MAB algorithms: Epsilon-greedy, UCB1 and Thompson sampling.</p>
+<h2>Fixed split A/B testing</h2>
+<p>To set a baseline and write some useful code, let's start with regular old fixed split A/B testing:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">simulate_abtest_fixed</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+    <span class="n">traffic_split</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">funnels</span><span class="p">]</span>
+    <span class="n">observations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">funnels</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">funnels</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])])</span>
+    <span class="n">funnels_chosen</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">which_funnel</span> <span class="o">=</span> <span class="n">choice</span><span class="p">(</span><span class="n">traffic_split</span><span class="p">)</span>
+        <span class="n">funnels_chosen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">which_funnel</span><span class="p">)</span>
+        <span class="n">funnel_outcome</span> <span class="o">=</span> <span class="n">choice</span><span class="p">(</span><span class="n">funnels</span><span class="p">[</span><span class="n">which_funnel</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">observations</span><span class="p">[</span><span class="n">which_funnel</span><span class="p">][</span><span class="n">funnel_outcome</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">observations</span><span class="p">,</span> <span class="n">funnels_chosen</span>
+</pre></div>
+
+
+<p>This is just regular A/B testing. It simulates N users, and each users goes into the funnels according to <code>traffic_split</code>:</p>
+<div class="highlight"><pre><span></span><span class="n">funnels</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[[</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">],</span> <span class="mf">0.50</span><span class="p">],</span> <span class="c1"># the first vector is the actual outcomes, the second is the traffic split</span>
+    <span class="p">[[</span><span class="mf">0.94</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">],</span> <span class="mf">0.50</span><span class="p">],</span>
+<span class="p">]</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="mi">1000</span>
+<span class="n">num_simulations</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">simulate_abtest_many</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">num_simulations</span><span class="p">,</span> <span class="n">simulate_abtest_fixed</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The function <code>simulate_abtest_many()</code> is a helper function which calls the passed in experimental function (in this case, <code>simulate_abtest_fixed</code>) exactly <code>num_sumulations</code> times, and collects statistics:</p>
+<ul>
+<li>how many times has the better funnel won</li>
+<li>and in those cases, was the result significant</li>
+<li>what was the histogram of p values</li>
+<li>after the i-th user in the histogram, up to that point, what % of time was the user put in the better funnel</li>
+</ul>
+<p>The code for <code>simulate_abtest_many</code> is:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">simulate_abtest_many</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">num_simulations</span><span class="p">,</span> <span class="n">simulate_abtest_one</span><span class="p">,</span> <span class="n">p_crit</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">):</span>
+    <span class="n">ps</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">num_winning</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">num_significant</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">funnels_chosen_many</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_simulations</span><span class="p">,</span> <span class="n">N</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_simulations</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Doing simulation run </span><span class="si">%d</span><span class="s1">...&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">observations</span><span class="p">,</span> <span class="n">funnels_chosen</span> <span class="o">=</span> <span class="n">simulate_abtest_one</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">funnels_chosen_many</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">funnels_chosen</span>
+        <span class="k">if</span> <span class="n">observations</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">observations</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">num_winning</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">fisher_exact</span><span class="p">(</span><span class="n">observations</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">:</span>
+                <span class="n">num_significant</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">ps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Done!&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Ratio better funnel won:  </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num_winning</span><span class="o">/</span><span class="n">num_simulations</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">num_winning</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Ratio of wins stat.sign.: </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num_significant</span><span class="o">/</span><span class="n">num_winning</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Histogram of p values:&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">distplot</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">kde</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">rug</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;p value&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">funnels_chosen_avg</span> <span class="o">=</span> <span class="n">funnels_chosen_many</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Avg cumulative ratio of users in better funnel:&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;user sequence&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;avg cumulative ratio of users in better funnel&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">funnels_chosen_avg</span><span class="p">[:</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">funnels_chosen_avg</span><span class="p">))])</span>
+</pre></div>
+
+
+<p>Running this with a regular fixed split A/B test:</p>
+<div class="highlight"><pre><span></span>Ratio better funnel won:  1.000
+Ratio of wins stat.sign.: 0.590
+</pre></div>
+
+
+<p><img src="/images/mab_fixed_cumu_winning.png" style="width: 600px;"/></p>
+<p><img src="/images/mab_fixed_ps.png" style="width: 600px;"/></p>
+<p>Outcomes:
+- the better funnel wins 100% of the time
+- the results is stat. sign. 59% of the time
+- as expected, the split is 50% and doesn't change in the experiment</p>
 <h2>Epsilon-greedy</h2>
-<p>sdfsdfdsf</p>
+<p>dsfsf</p>
 <h2>ECB1</h2>
 <p>sdfsfsfsdf</p>
 <h2>Thompson sampling</h2>
