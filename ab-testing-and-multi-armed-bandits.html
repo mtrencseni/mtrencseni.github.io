@@ -301,7 +301,13 @@ Ratio of wins stat.sign.: 0.396
 <li>on average, 80% of users are put in the better funnel, better than fixed A/B testing</li>
 </ul>
 <h2>Conclusion</h2>
-<p>sdfsdfsdf</p>
+<p>There is no free lunch. If we divert traffic from an even split towards the funnel which appears to be performing better, we can minimize our losses (regret), but since the statistical significance is determined by the funnel with the lowest number of samples, so we will be less sure if the winning arm is actually better. Different Multi-armed bandits strike a different trade-off in the space of:</p>
+<ul>
+<li>exploration</li>
+<li>exploitation</li>
+<li>statistical significance</li>
+</ul>
+<p>Another aspect to consider is that Multi-armed bandits are harder to debug and understand in production. With fixed A/B testing, at any time it's possible to compare counts from exposure logs to the experiment's configuration to see if everything is as expected. With MAB this is more involved, because we have to compare exposure log and conversion counts to the expected MAB behaviour given the current performance. The upside is higher overall conversion / less regret, and for example less risk in accidentally letting an A/B test run, because in the long run it would favor the better funnel.</p>
   </div>
   <div class="tag-cloud">
     <p>
