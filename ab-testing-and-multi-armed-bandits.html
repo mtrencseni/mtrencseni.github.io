@@ -175,7 +175,46 @@ Ratio of wins stat.sign.: 0.590
 <li>as expected, the split is 50% and doesn't change in the experiment</li>
 </ul>
 <h2>Epsilon-greedy</h2>
-<p>dsfsf</p>
+<p>The Epsilon-greedy is the simplest MAB algorithm. There is a fixed epsilon parameter, say 10%. For each incoming user, with 10% probability we randomly put the user into A or B, and with 90% probability we put them in the funnel that has performed better so far. So we explicitly control the trade-off between explore (10%) and exploit (90%). Implementing it is also straightforward:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">reward</span><span class="p">(</span><span class="n">observation_vector</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">observation_vector</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">observation_vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">observation_vector</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">simulate_eps_greedy</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="n">explore_traffic_split</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">funnels</span><span class="p">))]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">funnels</span><span class="p">)</span>
+    <span class="n">observations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">funnels</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">funnels</span><span class="p">[</span><span class="mi">0</span><span class="p">])])</span>
+    <span class="n">rewards</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">funnels</span><span class="p">)</span>
+    <span class="n">funnels_chosen</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">eps</span><span class="p">:</span>
+            <span class="c1"># explore, choose one at random</span>
+            <span class="n">which_funnel</span> <span class="o">=</span> <span class="n">choice</span><span class="p">(</span><span class="n">explore_traffic_split</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># exploit, choose the best one so far</span>
+            <span class="n">which_funnel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
+        <span class="n">funnels_chosen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">which_funnel</span><span class="p">)</span>
+        <span class="n">funnel_outcome</span> <span class="o">=</span> <span class="n">choice</span><span class="p">(</span><span class="n">funnels</span><span class="p">[</span><span class="n">which_funnel</span><span class="p">])</span>
+        <span class="n">observations</span><span class="p">[</span><span class="n">which_funnel</span><span class="p">][</span><span class="n">funnel_outcome</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">rewards</span><span class="p">[</span><span class="n">which_funnel</span><span class="p">]</span> <span class="o">=</span> <span class="n">reward</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="n">which_funnel</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">observations</span><span class="p">,</span> <span class="n">funnels_chosen</span>
+</pre></div>
+
+
+<p>Running the Epsilon-greedy experiment 100 times yields the following results:</p>
+<div class="highlight"><pre><span></span>Ratio better funnel won:  0.850
+Ratio of wins stat.sign.: 0.376
+</pre></div>
+
+
+<p><img src="/images/mab_epsg_cumu_winning.png" style="width: 600px;"/></p>
+<p><img src="/images/mab_epsg_ps.png" style="width: 600px;"/></p>
+<p>Outcomes:</p>
+<ul>
+<li>the better funnel wins 85% of the time, less than naive A/B testing</li>
+<li>the results is stat. sign. 37% of the time, less than naive A/B testing</li>
+<li>on average, 70% of users are put in the better funnel</li>
+</ul>
 <h2>ECB1</h2>
 <p>sdfsfsfsdf</p>
 <h2>Thompson sampling</h2>
