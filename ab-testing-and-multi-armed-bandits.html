@@ -219,8 +219,8 @@ Ratio of wins stat.sign.: 0.376
 <h2>UCB1</h2>
 <p>UCB stands for Upper Confidence Bound. It's an algorithm that achieves regret that grows only logarithmically with the number of actions taken. For more details, see these <a href="https://www.cs.bham.ac.uk/internal/courses/robotics/lectures/ucb1.pdf">lectures slides</a>. The key point is that </p>
 <ul>
-<li>for each funnel j record the average converion $c_j$ and number of users who have tried it $n_j$</li>
-<li>n is the total number of users so far</li>
+<li>for each funnel $j$ maintain the conversion rate $c_j$ and number of users $n_j$</li>
+<li>$n$ is the total number of users so far</li>
 <li>choose the funnel that maximises $ c_j + \sqrt{ 2 * ln(n) / n_j } $</li>
 </ul>
 <p>Without going into the details, UCB1 achieves a good trade-off between exploration and exploitation. Implementation:</p>
@@ -257,12 +257,49 @@ Ratio of wins stat.sign.: 0.606
 <p><img src="/images/mab_ucb1_ps.png" style="width: 600px;"/></p>
 <p>Outcomes:</p>
 <ul>
-<li>the better funnel wins 99% of the time, same as fixed A/B testing</li>
-<li>the results is stat. sign. 60% of the time, same as fixed A/B testing</li>
+<li>the better funnel wins 99% of the time, roughly the same as fixed A/B testing</li>
+<li>the results is stat. sign. 60% of the time, roughly the same as fixed A/B testing</li>
 <li>on average, 58% of users are put in the better funnel, better than fixed A/B testing</li>
 </ul>
 <h2>Thompson sampling</h2>
-<p>sdfsdfsdf</p>
+<p>Thompson sampling is easy to understand if you understand how <a href="http://bytepawn.com/bayesian-ab-conversion-tests.html">Bayesian A/B tests work and what the Beta() distribution is</a>. The idea is simple:</p>
+<ul>
+<li>for each funnel $j$, maintain the number of converting users $C_j$ and number of users $n_j$</li>
+<li>for each funnel, at each incoming user, create a Beta distribution with parameters $C_j + 1$ and $n_j - C_j + 1$, these model the conversion of the funnels</li>
+<li>draw a random number from each Beta distribution, put the user into the funnel with the highest one</li>
+</ul>
+<p>The implementation is straightforward:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">beta_distributions</span><span class="p">(</span><span class="n">observations</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">beta</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">observations</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">observations</span><span class="p">))]</span>
+
+<span class="k">def</span> <span class="nf">simulate_thompson</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+    <span class="n">observations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">funnels</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">funnels</span><span class="p">[</span><span class="mi">0</span><span class="p">])])</span>
+    <span class="n">funnels_chosen</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">betas</span> <span class="o">=</span> <span class="n">beta_distributions</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+        <span class="n">p_conv</span> <span class="o">=</span> <span class="p">[</span><span class="n">beta</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">beta</span> <span class="ow">in</span> <span class="n">betas</span><span class="p">]</span>
+        <span class="n">which_funnel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">p_conv</span><span class="p">)</span>
+        <span class="n">funnels_chosen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">which_funnel</span><span class="p">)</span>
+        <span class="n">funnel_outcome</span> <span class="o">=</span> <span class="n">choice</span><span class="p">(</span><span class="n">funnels</span><span class="p">[</span><span class="n">which_funnel</span><span class="p">])</span>
+        <span class="n">observations</span><span class="p">[</span><span class="n">which_funnel</span><span class="p">][</span><span class="n">funnel_outcome</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">observations</span><span class="p">,</span> <span class="n">funnels_chosen</span>
+</pre></div>
+
+
+<p>Running the Thompson experiment 100 times yields the following results:</p>
+<div class="highlight"><pre><span></span>Ratio better funnel won:  0.960
+Ratio of wins stat.sign.: 0.396
+</pre></div>
+
+
+<p><img src="/images/mab_thompson_cumu_winning.png" style="width: 600px;"/></p>
+<p><img src="/images/mab_thompson_ps.png" style="width: 600px;"/></p>
+<p>Outcomes:</p>
+<ul>
+<li>the better funnel wins 96% of the time, roughly the same as fixed A/B testing</li>
+<li>the results is stat. sign. ~40% of the time, less than fixed A/B testing</li>
+<li>on average, 80% of users are put in the better funnel, better than fixed A/B testing</li>
+</ul>
 <h2>Conclusion</h2>
 <p>sdfsdfsdf</p>
   </div>

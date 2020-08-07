@@ -134,8 +134,8 @@ Ratio of wins stat.sign.: 0.376
 &lt;h2&gt;UCB1&lt;/h2&gt;
 &lt;p&gt;UCB stands for Upper Confidence Bound. It's an algorithm that achieves regret that grows only logarithmically with the number of actions taken. For more details, see these &lt;a href="https://www.cs.bham.ac.uk/internal/courses/robotics/lectures/ucb1.pdf"&gt;lectures slides&lt;/a&gt;. The key point is that &lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;for each funnel j record the average converion $c_j$ and number of users who have tried it $n_j$&lt;/li&gt;
-&lt;li&gt;n is the total number of users so far&lt;/li&gt;
+&lt;li&gt;for each funnel $j$ maintain the conversion rate $c_j$ and number of users $n_j$&lt;/li&gt;
+&lt;li&gt;$n$ is the total number of users so far&lt;/li&gt;
 &lt;li&gt;choose the funnel that maximises $ c_j + \sqrt{ 2 * ln(n) / n_j } $&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Without going into the details, UCB1 achieves a good trade-off between exploration and exploitation. Implementation:&lt;/p&gt;
@@ -172,12 +172,49 @@ Ratio of wins stat.sign.: 0.606
 &lt;p&gt;&lt;img src="/images/mab_ucb1_ps.png" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Outcomes:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;the better funnel wins 99% of the time, same as fixed A/B testing&lt;/li&gt;
-&lt;li&gt;the results is stat. sign. 60% of the time, same as fixed A/B testing&lt;/li&gt;
+&lt;li&gt;the better funnel wins 99% of the time, roughly the same as fixed A/B testing&lt;/li&gt;
+&lt;li&gt;the results is stat. sign. 60% of the time, roughly the same as fixed A/B testing&lt;/li&gt;
 &lt;li&gt;on average, 58% of users are put in the better funnel, better than fixed A/B testing&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2&gt;Thompson sampling&lt;/h2&gt;
-&lt;p&gt;sdfsdfsdf&lt;/p&gt;
+&lt;p&gt;Thompson sampling is easy to understand if you understand how &lt;a href="http://bytepawn.com/bayesian-ab-conversion-tests.html"&gt;Bayesian A/B tests work and what the Beta() distribution is&lt;/a&gt;. The idea is simple:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;for each funnel $j$, maintain the number of converting users $C_j$ and number of users $n_j$&lt;/li&gt;
+&lt;li&gt;for each funnel, at each incoming user, create a Beta distribution with parameters $C_j + 1$ and $n_j - C_j + 1$, these model the conversion of the funnels&lt;/li&gt;
+&lt;li&gt;draw a random number from each Beta distribution, put the user into the funnel with the highest one&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The implementation is straightforward:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;beta_distributions&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;observations&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;beta&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;observations&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;observations&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;observations&lt;/span&gt;&lt;span class="p"&gt;))]&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;simulate_thompson&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;funnels&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;observations&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;zeros&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;funnels&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;funnels&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;])])&lt;/span&gt;
+    &lt;span class="n"&gt;funnels_chosen&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;betas&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;beta_distributions&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;observations&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;p_conv&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;beta&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rvs&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;beta&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;betas&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+        &lt;span class="n"&gt;which_funnel&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argmax&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;p_conv&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;funnels_chosen&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;which_funnel&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;funnel_outcome&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;choice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;funnels&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;which_funnel&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+        &lt;span class="n"&gt;observations&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;which_funnel&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="n"&gt;funnel_outcome&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;observations&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;funnels_chosen&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Running the Thompson experiment 100 times yields the following results:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Ratio better funnel won:  0.960
+Ratio of wins stat.sign.: 0.396
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;img src="/images/mab_thompson_cumu_winning.png" style="width: 600px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/mab_thompson_ps.png" style="width: 600px;"/&gt;&lt;/p&gt;
+&lt;p&gt;Outcomes:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;the better funnel wins 96% of the time, roughly the same as fixed A/B testing&lt;/li&gt;
+&lt;li&gt;the results is stat. sign. ~40% of the time, less than fixed A/B testing&lt;/li&gt;
+&lt;li&gt;on average, 80% of users are put in the better funnel, better than fixed A/B testing&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;sdfsdfsdf&lt;/p&gt;</content><category term="ab-testing"></category></entry><entry><title>Understanding Facebook’s Planout A/B testing framework</title><link href="/understanding-facebook-planout-ab-testing-framework.html" rel="alternate"></link><published>2020-05-22T00:00:00+02:00</published><updated>2020-05-22T00:00:00+02:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-05-22:/understanding-facebook-planout-ab-testing-framework.html</id><summary type="html">&lt;p&gt;PlanOut is a framework for online field experiments. It was created by Facebook in 2014 to make it easy to run and iterate on sophisticated experiments in a statistically sound manner.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/blue_dice.png" alt="Planout" style="width: 300px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;In previous A/B testing posts I focused on the mathematical aspects. This time, I will explain &lt;a href="https://facebook.github.io/planout/index.html"&gt;Facebook’s Planout&lt;/a&gt; product for A/B testing. Planout can be used to declare and configure A/B tests and to assign users into buckets (A, B, etc.) in production. Planout was released in 2014, its main author is &lt;a href="https://eytan.github.io/"&gt;Eytan Bakshy&lt;/a&gt;. This post is based on a &lt;a href="https://www.youtube.com/watch?v=Ayd4sqPH2DE"&gt;PyData talk Eytan gave in 2014.&lt;/a&gt;&lt;/p&gt;
