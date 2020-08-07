@@ -119,6 +119,7 @@
 </pre></div>
 
 
+<p>We set up our experiment such that funnel A has 5% conversion, while funnel B has 6% conversion, so funnel B is better. In the context of MABs, we'd like funnel B to be chosen more often than funnel A, but we'd also like to be able to call a winner at the end decisively, so with statistical significance.</p>
 <p>The function <code>simulate_abtest_many()</code> is a helper function which calls the passed in experimental function (in this case, <code>simulate_abtest_fixed</code>) exactly <code>num_sumulations</code> times, and collects statistics:</p>
 <ul>
 <li>how many times has the better funnel won</li>

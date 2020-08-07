@@ -34,6 +34,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
+&lt;p&gt;We set up our experiment such that funnel A has 5% conversion, while funnel B has 6% conversion, so funnel B is better. In the context of MABs, we'd like funnel B to be chosen more often than funnel A, but we'd also like to be able to call a winner at the end decisively, so with statistical significance.&lt;/p&gt;
 &lt;p&gt;The function &lt;code&gt;simulate_abtest_many()&lt;/code&gt; is a helper function which calls the passed in experimental function (in this case, &lt;code&gt;simulate_abtest_fixed&lt;/code&gt;) exactly &lt;code&gt;num_sumulations&lt;/code&gt; times, and collects statistics:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;how many times has the better funnel won&lt;/li&gt;
