@@ -211,12 +211,55 @@ Ratio of wins stat.sign.: 0.376
 <p><img src="/images/mab_epsg_ps.png" style="width: 600px;"/></p>
 <p>Outcomes:</p>
 <ul>
-<li>the better funnel wins 85% of the time, less than naive A/B testing</li>
-<li>the results is stat. sign. 37% of the time, less than naive A/B testing</li>
-<li>on average, 70% of users are put in the better funnel</li>
+<li>the better funnel wins 85% of the time, less than fixed A/B testing</li>
+<li>the results is stat. sign. 37% of the time, less than fixed A/B testing</li>
+<li>on average, 70% of users are put in the better funnel, better than fixed A/B testing</li>
 </ul>
-<h2>ECB1</h2>
-<p>sdfsfsfsdf</p>
+<h2>UCB1</h2>
+<p>UCB stands for Upper Confidence Bound. It's an algorithm that achieves regret that grows only logarithmically with the number of actions taken. For more details, see these <a href="https://www.cs.bham.ac.uk/internal/courses/robotics/lectures/ucb1.pdf">lectures slides</a>. The key point is that </p>
+<ul>
+<li>for each funnel j record the average converion $c_j$ and number of users who have tried it $n_j$</li>
+<li>n is the total number of users so far</li>
+<li>choose the funnel that maximises $ c_j + \sqrt{ 2 * ln(n) / n_j } $</li>
+</ul>
+<p>Without going into the details, UCB1 achieves a good trade-off between exploration and exploitation. Implementation:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ucb1_score</span><span class="p">(</span><span class="n">reward_funnel</span><span class="p">,</span> <span class="n">n_funnel</span><span class="p">,</span> <span class="n">n_total</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">reward_funnel</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">n_total</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_funnel</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">simulate_ucb1</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+    <span class="n">observations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">funnels</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">funnels</span><span class="p">[</span><span class="mi">0</span><span class="p">])])</span>
+    <span class="c1"># initially, set each score to a big number, so each funnel goes at least once</span>
+    <span class="n">ucb1_scores</span> <span class="o">=</span> <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">funnels</span><span class="p">)</span>
+    <span class="n">funnels_chosen</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ucb1_scores</span><span class="p">)</span> <span class="k">if</span> <span class="n">score</span> <span class="o">==</span> <span class="nb">max</span><span class="p">(</span><span class="n">ucb1_scores</span><span class="p">)]</span>
+        <span class="n">which_funnel</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+        <span class="n">funnels_chosen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">which_funnel</span><span class="p">)</span>
+        <span class="n">funnel_outcome</span> <span class="o">=</span> <span class="n">choice</span><span class="p">(</span><span class="n">funnels</span><span class="p">[</span><span class="n">which_funnel</span><span class="p">])</span>
+        <span class="n">observations</span><span class="p">[</span><span class="n">which_funnel</span><span class="p">][</span><span class="n">funnel_outcome</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">reward</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="n">which_funnel</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">funnels</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">reward</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">ucb1_scores</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ucb1_score</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">observations</span><span class="p">,</span> <span class="n">funnels_chosen</span>
+</pre></div>
+
+
+<p>Running the UCB1 experiment 100 times yields the following results:</p>
+<div class="highlight"><pre><span></span>Ratio better funnel won:  0.990
+Ratio of wins stat.sign.: 0.606
+</pre></div>
+
+
+<p><img src="/images/mab_ucb1_cumu_winning.png" style="width: 600px;"/></p>
+<p><img src="/images/mab_ucb1_ps.png" style="width: 600px;"/></p>
+<p>Outcomes:</p>
+<ul>
+<li>the better funnel wins 99% of the time, same as fixed A/B testing</li>
+<li>the results is stat. sign. 60% of the time, same as fixed A/B testing</li>
+<li>on average, 58% of users are put in the better funnel, better than fixed A/B testing</li>
+</ul>
 <h2>Thompson sampling</h2>
 <p>sdfsdfsdf</p>
 <h2>Conclusion</h2>
