@@ -85,17 +85,17 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>When we perform an A/B test, we split the population in a fixed way, let's say 50-50. We then put an N number of users through the different A and B funnels: for each user, we flip a coin to decide whether they get A or B. We then measure the outcome metric for the A and B population of users, let's say conversion %. We then compare the outcome metric to tell whether one of A and B is better than the other. We use statistical hypothesis testing, let's say <a href="http://bytepawn.com/ab-testing-and-fishers-exact-test.html">Fisher's exact test</a>, to see whether the difference is statistically significant.</p>
+<p>When we perform an A/B test, we split the population in a fixed way, let's say 50-50. We then put an N number of users through the different A and B funnels: for each user, we flip a coin to decide whether they get A or B. We then measure the outcome metric for the A and B population of users, let's say conversion. We then compare the outcome metric to tell whether A or B is better. We use statistical hypothesis testing, let's say <a href="http://bytepawn.com/ab-testing-and-fishers-exact-test.html">Fisher's exact test</a>, to see whether the difference is statistically significant.</p>
 <p>Suppose the A/B test is performed to compare different versions of signup funnels for paid licenses, so there is revenue involved. In this case, a business minded person could ask: <em>"If B is generating more revenue than A, could we have sent less users into A and more into B, to maximize our revenue, even while the test is running?"</em></p>
 <p>This is what <a href="https://en.wikipedia.org/wiki/Multi-armed_bandit">Multi-armed bandit</a> algorithms are for. Per Wikipedia:</p>
 <blockquote>
-<p>In probability theory, the multi-armed bandit problem (sometimes called the K- or N-armed bandit problem) is a problem in which a fixed limited set of resources must be allocated between competing (alternative) choices in a way that maximizes their expected gain, when each choice's properties are only partially known at the time of allocation, and may become better understood as time passes or by allocating resources to the choice. This is a classic reinforcement learning problem that exemplifies the exploration–exploitation tradeoff dilemma.</p>
+<p>In probability theory, the multi-armed bandit problem is a problem in which a fixed limited set of resources must be allocated between competing (alternative) choices in a way that maximizes their expected gain, when each choice's properties are only partially known at the time of allocation, and may become better understood as time passes or by allocating resources to the choice. This is a classic reinforcement learning problem that exemplifies the exploration–exploitation tradeoff dilemma.</p>
 </blockquote>
-<p>In a MAB approach, instead of having a fixed split of users for A and B, like 50-50, we make this decision based on how A and B have performed so far. MAB approaches attempt to strike a balance between exploitation (putting users into the better funnel, based on what we've seen so far) and exploration (collecting more data about funnels which have seen less users so far). In general, MAB algorithms will favor funnels which have performed better so far.</p>
-<p>The high-level goal of MAB algorithms is to minimize regret: in this example, the additional amount of money we could have made if we put all users into the funnel that actually performs better. Here I will show 3 MAB algorithms: Epsilon-greedy, UCB1 and Thompson sampling.</p>
+<p>In a Multi-armed bandit (MAB) approach, instead of having a fixed split of users between A and B, we make this decision based on how A and B have performed so far. MAB approaches attempt to strike a balance between exploitation (putting users into the better funnel, based on what we've seen so far) and exploration (collecting more data about funnels which have seen less users so far). In general, MAB algorithms will favor funnels which have performed better so far.</p>
+<p>The high-level goal of MAB algorithms is to minimize regret: in this example, the additional amount of money we could have made if we put all users into the funnel that actually performs better. Here I will show three MAB algorithms: Epsilon-greedy, UCB1 and Thompson sampling.</p>
 <p><a href="https://github.com/mtrencseni/playground/blob/master/AB%20testing%20and%20Multi-armed%20bandits.ipynb">The code shown below is up on Github.</a></p>
 <h2>Fixed split A/B testing</h2>
-<p>To set a baseline and write some useful code, let's start with regular old fixed split A/B testing:</p>
+<p>To set a baseline and write some useful code, let's start with plain-vanilla, fixed split A/B testing:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">simulate_abtest_fixed</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
     <span class="n">traffic_split</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">funnels</span><span class="p">]</span>
     <span class="n">observations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">funnels</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">funnels</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])])</span>
@@ -120,15 +120,15 @@
 </pre></div>
 
 
-<p>We set up our experiment such that funnel A has 5% conversion, while funnel B has 6% conversion, so funnel B is better. In the context of MABs, we'd like funnel B to be chosen more often than funnel A, but we'd also like to be able to call a winner at the end decisively, so with statistical significance.</p>
-<p>The function <code>simulate_abtest_many()</code> is a helper function which calls the passed in experimental function (in this case, <code>simulate_abtest_fixed</code>) exactly <code>num_sumulations</code> times, and collects statistics:</p>
+<p>We set up our experiment such that funnel A has 5% conversion, while funnel B has 6% conversion, so funnel B is better. In the context of MABs, we'd like funnel B to be chosen more often than funnel A, but we'd also like to be able to call a winner at the end decisively (with statistical significance).</p>
+<p>The function <code>simulate_abtest_many()</code> is a helper function which calls the passed in experimental function (in this case, <code>simulate_abtest_fixed()</code>) exactly <code>num_sumulations</code> times, and collects statistics:</p>
 <ul>
 <li>how many times has the better funnel won</li>
-<li>and in those cases, was the result significant</li>
+<li>in those cases, was the result significant</li>
 <li>what was the histogram of p values</li>
-<li>after the i-th user in the histogram, up to that point, what % of time was the user put in the better funnel</li>
+<li>after the i-th user in the histogram, up to that point, what % of time was the user put in the better funnel B</li>
 </ul>
-<p>The code for <code>simulate_abtest_many</code> is:</p>
+<p>The code for <code>simulate_abtest_many()</code> is:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">simulate_abtest_many</span><span class="p">(</span><span class="n">funnels</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">num_simulations</span><span class="p">,</span> <span class="n">simulate_abtest_one</span><span class="p">,</span> <span class="n">p_crit</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">):</span>
     <span class="n">ps</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">num_winning</span> <span class="o">=</span> <span class="mi">0</span>
@@ -162,7 +162,7 @@
 </pre></div>
 
 
-<p>Running this with a regular fixed split A/B test:</p>
+<p>Running this with a fixed split A/B test:</p>
 <div class="highlight"><pre><span></span>Ratio better funnel won:  1.000
 Ratio of wins stat.sign.: 0.590
 </pre></div>
@@ -177,7 +177,7 @@ Ratio of wins stat.sign.: 0.590
 <li>as expected, the split is 50% and doesn't change in the experiment</li>
 </ul>
 <h2>Epsilon-greedy</h2>
-<p>The Epsilon-greedy is the simplest MAB algorithm. There is a fixed epsilon parameter, say 10%. For each incoming user, with 10% probability we randomly put the user into A or B, and with 90% probability we put them in the funnel that has performed better so far. So we explicitly control the trade-off between explore (10%) and exploit (90%). Implementing it is also straightforward:</p>
+<p>Epsilon-greedy is the simplest MAB algorithm. There is a fixed epsilon parameter, say 10%. For each incoming user, with 10% probability we randomly put the user into A or B, and with 90% probability we put them in the funnel that has performed better so far. So we explicitly control the trade-off between explore (10%) and exploit (90%). Implementation is straightforward:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">reward</span><span class="p">(</span><span class="n">observation_vector</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">observation_vector</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">0</span>
@@ -220,7 +220,7 @@ Ratio of wins stat.sign.: 0.376
 <h2>UCB1</h2>
 <p>UCB stands for Upper Confidence Bound. It's an algorithm that achieves regret that grows only logarithmically with the number of actions taken. For more details, see these <a href="https://www.cs.bham.ac.uk/internal/courses/robotics/lectures/ucb1.pdf">lectures slides</a>. The key point is that </p>
 <ul>
-<li>for each funnel $j$ maintain the conversion rate $c_j$ and number of users $n_j$</li>
+<li>for each funnel $j$, maintain the conversion rate $c_j$ and number of users $n_j$</li>
 <li>$n$ is the total number of users so far</li>
 <li>choose the funnel that maximises $ c_j + \sqrt{ 2 * ln(n) / n_j } $</li>
 </ul>
@@ -260,7 +260,7 @@ Ratio of wins stat.sign.: 0.606
 <ul>
 <li>the better funnel wins 99% of the time, roughly the same as fixed A/B testing</li>
 <li>the results is stat. sign. 60% of the time, roughly the same as fixed A/B testing</li>
-<li>on average, 58% of users are put in the better funnel, better than fixed A/B testing</li>
+<li>on average, 58% of users are put in the better funnel, somewhat better than fixed A/B testing</li>
 </ul>
 <h2>Thompson sampling</h2>
 <p>Thompson sampling is easy to understand if you understand how <a href="http://bytepawn.com/bayesian-ab-conversion-tests.html">Bayesian A/B tests work and what the Beta() distribution is</a>. The idea is simple:</p>
