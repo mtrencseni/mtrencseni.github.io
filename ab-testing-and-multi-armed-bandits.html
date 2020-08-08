@@ -38,11 +38,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="" />
 <meta name="author" content="Marton Trencseni" />
-<meta name="description" content="Multi-armed bandits minimize regret when performing A/B tests, trading off between exploration, exploitation and statistical significance." />
+<meta name="description" content="Multi-armed bandits minimize regret when performing A/B tests, trading off between exploration, exploitation. Monte Carlo simulations shows that less exploration yields less statistical significance." />
 <meta name="keywords" content="ab-testing">
 <meta property="og:site_name" content="Bytepawn - Marton Trencseni"/>
 <meta property="og:title" content="A/B testing and Multi-armed bandits"/>
-<meta property="og:description" content="Multi-armed bandits minimize regret when performing A/B tests, trading off between exploration, exploitation and statistical significance."/>
+<meta property="og:description" content="Multi-armed bandits minimize regret when performing A/B tests, trading off between exploration, exploitation. Monte Carlo simulations shows that less exploration yields less statistical significance."/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="/ab-testing-and-multi-armed-bandits.html"/>
 <meta property="og:type" content="article"/>
@@ -222,7 +222,7 @@ Ratio of wins stat.sign.: 0.376
 <ul>
 <li>for each funnel $j$, maintain the conversion rate $c_j$ and number of users $n_j$</li>
 <li>$n$ is the total number of users so far</li>
-<li>choose the funnel that maximises $ c_j + \sqrt{ 2 * ln(n) / n_j } $</li>
+<li>choose the funnel that maximises $ c_j + \sqrt{ 2 ln(n) / n_j } $</li>
 </ul>
 <p>Without going into the details, UCB1 achieves a good trade-off between exploration and exploitation. Implementation:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ucb1_score</span><span class="p">(</span><span class="n">reward_funnel</span><span class="p">,</span> <span class="n">n_funnel</span><span class="p">,</span> <span class="n">n_total</span><span class="p">):</span>
@@ -266,8 +266,8 @@ Ratio of wins stat.sign.: 0.606
 <p>Thompson sampling is easy to understand if you understand how <a href="http://bytepawn.com/bayesian-ab-conversion-tests.html">Bayesian A/B tests work and what the Beta() distribution is</a>. The idea is simple:</p>
 <ul>
 <li>for each funnel $j$, maintain the number of converting users $C_j$ and number of users $n_j$</li>
-<li>for each funnel, at each incoming user, create a Beta distribution with parameters $C_j + 1$ and $n_j - C_j + 1$, these model the conversion of the funnels</li>
-<li>draw a random number from each Beta distribution, put the user into the funnel with the highest one</li>
+<li>for each funnel, at each incoming user, create a Beta distribution with parameters $C_j + 1$ and $n_j - C_j + 1$; the Beta distributions model the conversion % of the funnels</li>
+<li>draw a random number (sampled conversion) from each Beta distribution, and put the user into the funnel with the highest</li>
 </ul>
 <p>The implementation is straightforward:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">beta_distributions</span><span class="p">(</span><span class="n">observations</span><span class="p">):</span>
@@ -298,17 +298,16 @@ Ratio of wins stat.sign.: 0.396
 <p>Outcomes:</p>
 <ul>
 <li>the better funnel wins 96% of the time, roughly the same as fixed A/B testing</li>
-<li>the results is stat. sign. ~40% of the time, less than fixed A/B testing</li>
+<li>the results is stat. sign. 40% of the time, less than fixed A/B testing</li>
 <li>on average, 80% of users are put in the better funnel, better than fixed A/B testing</li>
 </ul>
 <h2>Conclusion</h2>
-<p>There is no free lunch. If we divert traffic from an even split towards the funnel which appears to be performing better, we can minimize our losses (regret), but since the statistical significance is determined by the funnel with the lowest number of samples, so we will be less sure if the winning arm is actually better. Different Multi-armed bandits strike a different trade-off in the space of:</p>
+<p>There is no free lunch. Statistical significance is a function of the funnel with the lowest number of samples, so diverting traffic from an even split yields lower significance. Different Multi-armed bandits strike a different trade-off in the space of:</p>
 <ul>
-<li>exploration</li>
+<li>exploration (statistical significance)</li>
 <li>exploitation</li>
-<li>statistical significance</li>
 </ul>
-<p>Another aspect to consider is that Multi-armed bandits are harder to debug and understand in production. With fixed A/B testing, at any time it's possible to compare counts from exposure logs to the experiment's configuration to see if everything is as expected. With MAB this is more involved, because we have to compare exposure log and conversion counts to the expected MAB behaviour given the current performance. The upside is higher overall conversion / less regret, and for example less risk in accidentally letting an A/B test run, because in the long run it would favor the better funnel.</p>
+<p>Another aspect to consider is that Multi-armed bandits are harder to debug and understand in production. With fixed A/B testing, at any time it's possible to compare counts from exposure logs to the experiment's configuration to see if metrics are as expected. With MAB this is more involved, because we have to compare exposure log and conversion counts to the expected MAB algorithm's behaviour given the current performance. The upside is less regret (higher overall conversion).</p>
   </div>
   <div class="tag-cloud">
     <p>
@@ -345,7 +344,7 @@ Ratio of wins stat.sign.: 0.396
   },
   "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
   "url": "/ab-testing-and-multi-armed-bandits.html",
-  "description": "Multi-armed bandits minimize regret when performing A/B tests, trading off between exploration, exploitation and statistical significance."
+  "description": "Multi-armed bandits minimize regret when performing A/B tests, trading off between exploration, exploitation. Monte Carlo simulations shows that less exploration yields less statistical significance."
 }
 </script></body>
 </html>
