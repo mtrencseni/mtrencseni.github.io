@@ -87,6 +87,7 @@
     <h2>Introduction</h2>
 <p>In the previous blog post <a href="http://bytepawn.com/ab-testing-and-multi-armed-bandits.html">A/B testing and Multi-armed bandits</a> we compared fixed-split A/B testing, Epsilon-greedy, UCB1 and Thompson sampling. We saw that MABs offer an interesting alternative to fixed-split A/B testing, being in a different region of the exploration-exploitation space. We saw that with MABs, the price we pay for less regret at the end of the experiment is less statistical significance: in a balanced 50-50 fixed-split A/B test, A and B get an equal number of hits, irrespective of how they have performed so far, while MABs will favor the variant that has performed better. However, because of the imbalance, the final result will be less decisive (higher p-value), so we will be less sure that we actually found the better funnel.</p>
 <p>In this post, I will explore what happens if A and B are actually the same; so neither A and B are really better than the other. In such cases, we ideally want the A/B test to "not go off" and call a winner, a False Positive. In frequentist hypothesis testing, we control this with the $\alpha=p_crit$ parameter, which we set to 0.05 here. As a reminder of statistical hypothesis testing, see the earlier post <a href="http://bytepawn.com/ab-testing-and-the-ztest.html">A/B testing and the Z-test</a>.</p>
+<p><a href="https://github.com/mtrencseni/playground/blob/master/AB%20testing%20and%20Multi-armed%20bandits%20(FPs).ipynb">The code is up on Github.</a></p>
 <h2>Metrics</h2>
 <p>I will use Monte Carlo simulations to compare the above 4 methods, with both A and B converting at 5%. I am curious about two outcome metrics:</p>
 <ul>
@@ -181,17 +182,19 @@
 <td>1,000</td>
 <td>0.05</td>
 <td>0.05</td>
-<td>0.029</td>
-<td>0.029</td>
+<td>0.234</td>
+<td>0.090</td>
 </tr>
 </tbody>
 </table>
 <p>Distribution of p values for fixed-split testing:</p>
 <p><img src="/images/mab-fixed-fpr-ps.png" style="width: 600px;"/></p>
-<p>Distribution of p values for epsilon-greedy testing:</p>
+<p>Distribution of p values for the epsilon-greedy MAB:</p>
 <p><img src="/images/mab-eps-fpr-ps.png" style="width: 600px;"/></p>
-<p>Distribution of p values for UCB1 testing:</p>
+<p>Distribution of p values for the UCB1 MAB:</p>
 <p><img src="/images/mab-ucb1-fpr-ps.png" style="width: 600px;"/></p>
+<p>Distribution of p values for the Thompson MAB:</p>
+<p><img src="/images/mab-thompson-fpr-ps.png" style="width: 600px;"/></p>
 <h2>Conclusion</h2>
 <p>xyz</p>
   </div>
