@@ -5,7 +5,7 @@
 &lt;h2&gt;Metrics&lt;/h2&gt;
 &lt;p&gt;I will use Monte Carlo simulations to compare the above 4 methods, with both A and B converting at 5%. I am curious about two outcome metrics:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Imbalance&lt;/strong&gt;: even though A and B are the same, MABs will probably favor one of the other, and for example A will get 80% of the hits and B only 20%; on average, how far off is this ratio from 50%-50%?&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Imbalance&lt;/strong&gt;: even though A and B are the same, MABs will probably favor one of the other, and for example A will get 80% of the hits and B only 20%; on average, how far off is this ratio from 50%-50%? Since there is no difference, a high ratio is not actually a problem, it's a measure of how much the MABs "mislead" themselves&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;False positive ratio&lt;/strong&gt;: how often does the method call either A or B better than the other?&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2&gt;Code&lt;/h2&gt;
@@ -56,6 +56,8 @@
 &lt;th&gt;method&lt;/th&gt;
 &lt;th&gt;N&lt;/th&gt;
 &lt;th&gt;num_simulations&lt;/th&gt;
+&lt;th&gt;conversion&lt;/th&gt;
+&lt;th&gt;alpha&lt;/th&gt;
 &lt;th&gt;imbalance&lt;/th&gt;
 &lt;th&gt;fpr&lt;/th&gt;
 &lt;/tr&gt;
@@ -65,6 +67,8 @@
 &lt;td&gt;fixed-split&lt;/td&gt;
 &lt;td&gt;10,000&lt;/td&gt;
 &lt;td&gt;1,000&lt;/td&gt;
+&lt;td&gt;0.05&lt;/td&gt;
+&lt;td&gt;0.05&lt;/td&gt;
 &lt;td&gt;0.004&lt;/td&gt;
 &lt;td&gt;0.035&lt;/td&gt;
 &lt;/tr&gt;
@@ -72,6 +76,8 @@
 &lt;td&gt;epsilon-greedy&lt;/td&gt;
 &lt;td&gt;10,000&lt;/td&gt;
 &lt;td&gt;1,000&lt;/td&gt;
+&lt;td&gt;0.05&lt;/td&gt;
+&lt;td&gt;0.05&lt;/td&gt;
 &lt;td&gt;0.368&lt;/td&gt;
 &lt;td&gt;0.039&lt;/td&gt;
 &lt;/tr&gt;
@@ -79,6 +85,8 @@
 &lt;td&gt;UCB1&lt;/td&gt;
 &lt;td&gt;10,000&lt;/td&gt;
 &lt;td&gt;1,000&lt;/td&gt;
+&lt;td&gt;0.05&lt;/td&gt;
+&lt;td&gt;0.05&lt;/td&gt;
 &lt;td&gt;0.029&lt;/td&gt;
 &lt;td&gt;0.054&lt;/td&gt;
 &lt;/tr&gt;
@@ -86,6 +94,8 @@
 &lt;td&gt;Thompson sampling&lt;/td&gt;
 &lt;td&gt;10,000&lt;/td&gt;
 &lt;td&gt;1,000&lt;/td&gt;
+&lt;td&gt;0.05&lt;/td&gt;
+&lt;td&gt;0.05&lt;/td&gt;
 &lt;td&gt;0.029&lt;/td&gt;
 &lt;td&gt;0.029&lt;/td&gt;
 &lt;/tr&gt;
