@@ -38,11 +38,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="" />
 <meta name="author" content="Marton Trencseni" />
-<meta name="description" content="I use Monte Carlo simulations to explore the False positive ratio of Multi-armed bandits." />
+<meta name="description" content="I use Monte Carlo simulations to explore the False positive rate of Multi-armed bandits." />
 <meta name="keywords" content="ab-testing">
 <meta property="og:site_name" content="Bytepawn - Marton Trencseni"/>
 <meta property="og:title" content="Multi-armed bandits and false positives"/>
-<meta property="og:description" content="I use Monte Carlo simulations to explore the False positive ratio of Multi-armed bandits."/>
+<meta property="og:description" content="I use Monte Carlo simulations to explore the False positive rate of Multi-armed bandits."/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="/multi-armed-bandits-and-false-positives.html"/>
 <meta property="og:type" content="article"/>
@@ -86,13 +86,13 @@
   <div>
     <h2>Introduction</h2>
 <p>In the previous blog post <a href="http://bytepawn.com/ab-testing-and-multi-armed-bandits.html">A/B testing and Multi-armed bandits</a> we compared fixed-split A/B testing, Epsilon-greedy, UCB1 and Thompson sampling. We saw that MABs offer an interesting alternative to fixed-split A/B testing, being in a different region of the exploration-exploitation space. We saw that with MABs, the price we pay for less regret at the end of the experiment is less statistical significance: in a balanced 50-50 fixed-split A/B test, A and B get an equal number of hits, irrespective of how they have performed so far, while MABs will favor the variant that has performed better. However, because of the imbalance, the final result will be less decisive (higher p-value), so we will be less sure that we actually found the better funnel.</p>
-<p>In this post, I will explore what happens if A and B are actually the same; so neither A and B are really better than the other. In such cases, we ideally want the A/B test to "not go off" and call a winner, a False Positive. In frequentist hypothesis testing, we control this with the $\alpha=p_crit$ parameter, which we set to 0.05 here. As a reminder of statistical hypothesis testing, see the earlier post <a href="http://bytepawn.com/ab-testing-and-the-ztest.html">A/B testing and the Z-test</a>.</p>
+<p>In this post, I will explore what happens if A and B are actually the same; so neither A and B are really better than the other. In such cases, we ideally want the A/B test to "not go off" and call a winner, a False positive. In frequentist hypothesis testing, we control this with the $\alpha=p_crit$ parameter, which we set to 0.05 here. As a reminder of statistical hypothesis testing, see the earlier post <a href="http://bytepawn.com/ab-testing-and-the-ztest.html">A/B testing and the Z-test</a>.</p>
 <p><a href="https://github.com/mtrencseni/playground/blob/master/AB%20testing%20and%20Multi-armed%20bandits%20(FPs).ipynb">The code is up on Github.</a></p>
 <h2>Metrics</h2>
 <p>I will use Monte Carlo simulations to compare the above 4 methods, with both A and B converting at 5%. I am curious about two outcome metrics:</p>
 <ul>
 <li><strong>Imbalance</strong>: even though A and B are the same, MABs will probably favor one of the other, and for example A will get 80% of the hits and B only 20%; on average, how far off is this ratio from 50%-50%? Since there is no difference, a high ratio is not actually a problem, it's a measure of how much the MABs "mislead" themselves</li>
-<li><strong>False positive ratio</strong>: how often does the method call either A or B better than the other?</li>
+<li><strong>False positive rate</strong>: how often does the method call either A or B better than the other?</li>
 </ul>
 <h2>Code</h2>
 <p>The Monte Carlo code, which computes the above metrics:</p>
@@ -231,7 +231,7 @@
   },
   "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
   "url": "/multi-armed-bandits-and-false-positives.html",
-  "description": "I use Monte Carlo simulations to explore the False positive ratio of Multi-armed bandits."
+  "description": "I use Monte Carlo simulations to explore the False positive rate of Multi-armed bandits."
 }
 </script></body>
 </html>
