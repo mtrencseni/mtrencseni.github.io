@@ -29,7 +29,7 @@
 &lt;p&gt;This is not terrible. What we've lost compared to the pie chart is that we can't read off percentages.&lt;/p&gt;
 &lt;p&gt;At the end of the day, for such a chart, we should either use a horizontal bar chart with a table attached, or just the table.&lt;/p&gt;
 &lt;h2&gt;Tables&lt;/h2&gt;
-&lt;p&gt;&lt;img src="/images/table1.png" style="width: 400px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/table1.png" style="width: 300px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Let's improve the table, by:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;using borders to structure the table&lt;/li&gt;
