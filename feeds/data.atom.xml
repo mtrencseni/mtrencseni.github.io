@@ -41,9 +41,9 @@
 &lt;/ul&gt;
 &lt;p&gt;&lt;img src="/images/table2.png" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Putting it together:&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/final1.png" style="width: 700px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/final1.png" style="width: 800px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Great! But are we talking about registered users, monthly active users (MAUs) or daily active users (DAUs). Let's assume we are talking about MAUs, and we can safely assume our audience understands the acronym:&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/final2.png" style="width: 700px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/final2.png" style="width: 800px;"/&gt;&lt;/p&gt;
 &lt;h2&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;&lt;strong&gt;Making clear, readable charts is part of the craftmanship minimum for any data related role.&lt;/strong&gt; It doesn't matter whether it's in Google Charts (what I used here), Excel, or a dashboarding software like Tableau or Superset.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Pie charts are overused and should never be used.&lt;/strong&gt; A combination of bar charts, tables (and linecharts, not covered in this article) are always preferable.&lt;/p&gt;</content><category term="charts"></category><category term="dashboards"></category><category term="data"></category><category term="visualization"></category></entry><entry><title>Multi-armed bandits and false positives</title><link href="/multi-armed-bandits-and-false-positives.html" rel="alternate"></link><published>2020-08-21T00:00:00+02:00</published><updated>2020-08-21T00:00:00+02:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-08-21:/multi-armed-bandits-and-false-positives.html</id><summary type="html">&lt;p&gt;I use Monte Carlo simulations to explore the false positive rate of Multi-armed bandits.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/mab-fixed-fpr-ps.png" alt="Epsilon-greedy" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
