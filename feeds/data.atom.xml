@@ -51,7 +51,7 @@
 
 
 &lt;h2&gt;Results&lt;/h2&gt;
-&lt;p&gt;First, the results from the last post:&lt;/p&gt;
+&lt;p&gt;First, the results from the last post, when B was better than A:&lt;/p&gt;
 &lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
@@ -108,7 +108,7 @@
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;p&gt;The results for this post:&lt;/p&gt;
+&lt;p&gt;The results for this post, when both A and B are the same:&lt;/p&gt;
 &lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
