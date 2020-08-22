@@ -5,7 +5,7 @@
 &lt;h2&gt;Pie charts&lt;/h2&gt;
 &lt;p&gt;What's the problem with this chart?&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/pie_chart1.png" style="width: 500px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Let's look at the problems here. The pie chart rendered in 3D, but 3D doesn't add anything. It could be just a 2D chart, like:&lt;/p&gt;
+&lt;p&gt;The pie chart rendered in 3D, but 3D doesn't add anything. It could be just a 2D chart, like:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/pie_chart2.png" style="width: 500px;"/&gt;&lt;/p&gt;
 &lt;p&gt;This is still not a good chart. There's a whole in the middle of the chart, which doesn't help. Let's remove it:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/pie_chart3.png" style="width: 500px;"/&gt;&lt;/p&gt;
