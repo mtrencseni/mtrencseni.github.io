@@ -16,7 +16,7 @@
 &lt;p&gt;&lt;img src="/images/bar_chart2.png" style="width: 500px;"/&gt;&lt;/p&gt;
 &lt;p&gt;This is better. But now we're forced to do eye gymnastics and track the height of the bars to the axis to try to read off values, and we'll be reading off estimated values. Let's fix that:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/bar_chart3.png" style="width: 500px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Okay, but it's still confusing. When was this the number of users? In 2019 June or in 2020 February? Let's add that to the title. Format dates per the &lt;a href="https://en.wikipedia.org/wiki/ISO_8601"&gt;ISO-8601&lt;/a&gt;, like &lt;code&gt;YYYY-MM-DD&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Okay, but it's still confusing. When was this the number of users? In 2019 June or in 2020 February? Let's add that to the title. Format dates per the &lt;a href="https://en.wikipedia.org/wiki/ISO_8601"&gt;ISO-8601&lt;/a&gt; standard, like &lt;code&gt;YYYY-MM-DD&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/bar_chart4.png" style="width: 500px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Not bad. But what if there are more countries? A horizontal bar chart will quickly run out of room on the x-axis and the charting software will start tilting the labels:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/bar_chart5.png" style="width: 500px;"/&gt;&lt;/p&gt;
