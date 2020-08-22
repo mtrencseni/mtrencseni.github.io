@@ -245,6 +245,13 @@
 </tr>
 </tbody>
 </table>
+<h2>Conclusion</h2>
+<p>My takeaways:</p>
+<ul>
+<li>UCB1 is not very appealing, since when B is better than A, it only puts marginally more traffic (<code>ratio_traffic_better</code>) into B versus A when compared to fixed-split</li>
+<li>Thompson sampling is the best for directing traffic to the better funnel (<code>ratio_traffic_better</code>), but it has significantly higher false positive rate (<code>fpr</code>)</li>
+<li>Epsilon-greedy looks like a good trade-off, and is simple to understand. If I had to use a MAB in production, I would conduct more tests with different epsilon parameters to see if there's a sweetspot.</li>
+</ul>
 <h2>Appendix</h2>
 <p>Distribution of p values for fixed-split testing:</p>
 <p><img src="/images/mab-fixed-fpr-ps.png" style="width: 600px;"/></p>
