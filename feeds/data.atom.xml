@@ -12,7 +12,7 @@
 &lt;p&gt;Okay, now the pie chart is pretty minimal, but it's still not good. The problem is, the human brain is not good at reading off proportions from a circular scale. It's really hard to tell how the orange and red areas compare. You actually have to move your eye to the text and read it off. But if you're reading it off the text anyway, what's the point of the pie chart? Let's try a bar chart.&lt;/p&gt;
 &lt;h2&gt;Bar charts&lt;/h2&gt;
 &lt;p&gt;&lt;img src="/images/bar_chart1.png" style="width: 500px;"/&gt;&lt;/p&gt;
-&lt;p&gt;This is better. But what happened with the %s? The bar chart shows the original metric values now. Let's add some axis labels and a chart title to make it more clear what we're looking at:&lt;/p&gt;
+&lt;p&gt;This is better. But what happened with the percentages? The bar chart shows the original metric values now. Let's add some axis labels and a chart title to make it more clear what we're looking at:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/bar_chart2.png" style="width: 500px;"/&gt;&lt;/p&gt;
 &lt;p&gt;This is better. But now we're forced to do eye gymnastics and track the height of the bars to the axis to try to read off values, and we'll be reading off estimated values. Let's fix that:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/bar_chart3.png" style="width: 500px;"/&gt;&lt;/p&gt;
