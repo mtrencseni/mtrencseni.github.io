@@ -91,8 +91,8 @@
 <h2>Metrics</h2>
 <p>I will use Monte Carlo simulations to compare the above 4 methods, with both A and B converting at 5%. I am curious about two outcome metrics:</p>
 <ul>
-<li><strong>Imbalance</strong>: even though A and B are the same, MABs will probably favor one of the other, and for example A will get 80% of the hits and B only 20%; on average, how far off is this ratio from 50%-50%? Since there is no difference, a high ratio is not actually a problem, it's a measure of how much the MABs "mislead" themselves</li>
-<li><strong>False positive rate</strong>: how often does the method call either A or B better than the other?</li>
+<li><strong>Imbalance</strong>: even though A and B are the same, MABs will probably favor one of the other, and for example A will get 80% of the hits and B only 20%; on average, how far off is this ratio from 50%-50%? Since there is no difference, a high ratio is not actually a problem, it's a measure of how much the MABs "mislead" themselves.</li>
+<li><strong>False positive rate</strong>: how often is the result stat.sign?</li>
 </ul>
 <h2>Code</h2>
 <p>The Monte Carlo code, which computes the above metrics:</p>
