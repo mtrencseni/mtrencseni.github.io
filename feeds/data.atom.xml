@@ -7,7 +7,7 @@
 &lt;p&gt;&lt;img src="/images/pie_chart1.png" style="width: 500px;"/&gt;&lt;/p&gt;
 &lt;p&gt;The pie chart rendered in 3D, but 3D doesn't add anything. It could be just a 2D chart, like:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/pie_chart2.png" style="width: 500px;"/&gt;&lt;/p&gt;
-&lt;p&gt;This is still not a good chart. There's a whole in the middle of the chart, which doesn't help. Let's remove it:&lt;/p&gt;
+&lt;p&gt;There's a hole in the middle of the chart, which doesn't help. Let's remove it:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/pie_chart3.png" style="width: 500px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Okay, now the pie chart is pretty minimal, but it's still not good. The problem is, the human brain is not good at reading off proportions from a circular scale. It's really hard to tell how the orange and red areas compare. You actually have to move your eye to the text and read it off. But if you're reading it off the text anyway, what's the point of the chart? Let's try a bar chart:&lt;/p&gt;
 &lt;h2&gt;Bar charts&lt;/h2&gt;
