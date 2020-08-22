@@ -92,32 +92,32 @@
 <p>Unfortunately...</p>
 <h2>Pie charts</h2>
 <p>What's the problem with this chart?</p>
-<p><img src="/images/pie_chart1.png" style="width: 600px;"/></p>
+<p><img src="/images/pie_chart1.png" style="width: 500px;"/></p>
 <p>Let's look at the problems here. The pie chart rendered in 3D, but 3D doesn't add anything. It could be just a 2D chart, like:</p>
-<p><img src="/images/pie_chart2.png" style="width: 600px;"/></p>
+<p><img src="/images/pie_chart2.png" style="width: 500px;"/></p>
 <p>This is still not a good chart. There's a whole in the middle of the chart, which doesn't help. Let's remove it:</p>
-<p><img src="/images/pie_chart3.png" style="width: 600px;"/></p>
+<p><img src="/images/pie_chart3.png" style="width: 500px;"/></p>
 <p>Okay, now the pie chart is pretty minimal, but it's still not good. The problem is, the human brain is not good at reading off proportions from a circular scale. It's really hard to tell how the orange and red areas compare. You actually have to move your eye to the text and read it off. But if you're reading it off the text anyway, what's the point of the chart? Let's try a bar chart:</p>
 <h2>Bar charts</h2>
-<p><img src="/images/bar_chart1.png" style="width: 600px;"/></p>
+<p><img src="/images/bar_chart1.png" style="width: 500px;"/></p>
 <p>This is better. But what happened with the %s? The bar chart shows the original metric values now. Let's add some axis labels and a chart title to make it more clear what we're looking at:</p>
-<p><img src="/images/bar_chart2.png" style="width: 600px;"/></p>
+<p><img src="/images/bar_chart2.png" style="width: 500px;"/></p>
 <p>This is better. But now we're forced to do eye gymnastics and track the height of the bars to the axis to try to read off values, and we'll be reading off estimated values. Let's fix that:</p>
-<p><img src="/images/bar_chart3.png" style="width: 600px;"/></p>
+<p><img src="/images/bar_chart3.png" style="width: 500px;"/></p>
 <p>Okay, but it's still confusing. When was this the number of users? In 2019 June or in 2020 February? Let's add that to the title. Format dates per the <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>, like <code>YYYY-MM-DD</code>.</p>
-<p><img src="/images/bar_chart4.png" style="width: 600px;"/></p>
+<p><img src="/images/bar_chart4.png" style="width: 500px;"/></p>
 <p>Not bad. But what if there are more countries? A horizontal bar chart will quickly run out of room on the x-axis and the charting software will start tilting the labels:</p>
-<p><img src="/images/bar_chart5.png" style="width: 600px;"/></p>
+<p><img src="/images/bar_chart5.png" style="width: 500px;"/></p>
 <p>Let's try a horizontal bar chart:</p>
-<p><img src="/images/bar_chart6.png" style="width: 600px;"/></p>
+<p><img src="/images/bar_chart6.png" style="width: 500px;"/></p>
 <p>The major gridlines don't add any value here, let's remove those:</p>
-<p><img src="/images/bar_chart7.png" style="width: 600px;"/></p>
+<p><img src="/images/bar_chart7.png" style="width: 500px;"/></p>
 <p>This is somewhat better. But with many values displayed, you have to be careful when moving your eye from left to right, to read off the right value, and not confuse numbers above/below. Let's use colors to guide the eye:</p>
-<p><img src="/images/bar_chart8.png" style="width: 600px;"/></p>
+<p><img src="/images/bar_chart8.png" style="width: 500px;"/></p>
 <p>This is not terrible. What we've lost compared to the pie chart is that we can't read off percentages.</p>
 <p>At the end of the day, for such a chart, we should either use a horizontal bar chart with a table attached, or just the table:</p>
 <h2>Tables</h2>
-<p><img src="/images/table1.png" style="width: 600px;"/></p>
+<p><img src="/images/table1.png" style="width: 500px;"/></p>
 <p>Let's improve the table, by:</p>
 <ul>
 <li>using borders to structure the table</li>
@@ -127,11 +127,11 @@
 <li>adding cumulative percentages, so we can see that the top 4 countries contribute half the users</li>
 <li>changing the column header to make it clear that user counts are in millions</li>
 </ul>
-<p><img src="/images/table2.png" style="width: 600px;"/></p>
+<p><img src="/images/table2.png" style="width: 500px;"/></p>
 <p>Putting it together:</p>
-<p><img src="/images/final1.png" style="width: 600px;"/></p>
+<p><img src="/images/final1.png" style="width: 500px;"/></p>
 <p>Great! But are we talking about registered users, monthly active users (MAUs) or daily active users (DAUs). Let's assume we are talking about MAUs, and we can safely assume our audience understands the acronym:</p>
-<p><img src="/images/final2.png" style="width: 600px;"/></p>
+<p><img src="/images/final2.png" style="width: 500px;"/></p>
 <h2>Conclusion</h2>
 <p>Making clear, readable charts is part of the craftmanship minimum for any data related role. It doesn't matter whether it's in Google Charts (what I used here), Excel, or a dashboarding software like Tableau or Superset.</p>
 <p>Pie charts are overused and should never be used. A combination of bar charts, tables (and linecharts, not covered in this article) are always preferable.</p>
