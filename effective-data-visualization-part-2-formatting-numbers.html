@@ -110,7 +110,7 @@ $ node
 </pre></div>
 
 
-<p><strong>What about timezones?</strong> Timezones are tricky.</p>
+<p><strong>What about timezones?</strong> It's best to standardize on one timezone, preferably UTC, and show all dates in UTC time, without specifiying the timezone. But this can still lead to weird artefacts. For example, countries that are ahead in time, their Monday morning usage peak will show up in Sunday UTC time. So the weekly seasonality gets shifted around, per country/timezone. However, this is still preferable to showing times in local times on dashboard, as that is too error-prone. Imagine debugging a slump in traffic, and having to shift the times for each country's local timezone.</p>
   </div>
   <div class="tag-cloud">
     <p>
