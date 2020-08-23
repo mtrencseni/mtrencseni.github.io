@@ -88,10 +88,10 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>Format numbers for human consumption. What is more readable, <code>1.539e+5</code> or <code>153,859</code>? Showing numbers effectively on spreadsheets, charts, dashboards, reports is a basic ingredient for readability, like formatting code.</p>
-<p>For this article, I will use the <a href="https://d3js.org/">d3 Javascript visualization library</a>, because I use <a href="https://github.com/apache/incubator-superset">Superset</a> for charts and dashboards on a daily basis, and Superset uses d3.</p>
-<p><strong>Where should numbers be formatted?</strong> By the database? No, numbers and dates should be formatted at the last possible moment, before human consumption (eg. by the Javascript in the browser). Why? Because formatting (i) may lose information, for example the time part of a datetime gets cut off if only the date is included, or numbers are rounded (ii) the type of the data (<code>date, datetime, int, float</code>) gets lost as everything gets converted to a <code>string</code>. This can lead to eg. incorrect ordering, because <code>'9' &gt; '10'</code> even though <code>9 &lt; 10</code>.</p>
-<p>On my macbook, to play around with d3, I use <a href="nodejs.org">node.js</a>:</p>
+<p>Format numbers for human consumption. What is more readable, <code>1.539e+5</code> or <code>153,859</code>? Showing numbers effectively on spreadsheets, charts, dashboards and reports is a basic ingredient for readability, like formatting code.</p>
+<p>For this article, I will use the <a href="https://d3js.org/">d3 Javascript visualization library</a>. I use <a href="https://github.com/apache/incubator-superset">Superset</a> for charts and dashboards on a daily basis, and Superset uses d3.</p>
+<p><strong>Where should numbers be formatted?</strong> By the database? No. Numbers and dates should be formatted at the last possible moment, before human consumption, eg. by the Javascript in the browser. Why? Because formatting (i) may lose information, for example the time part of a datetime, or numbers are rounded (ii) the type of the data (<code>date, datetime, int, float</code>) is lost as everything is converted to a <code>string</code>. This can lead to incorrect ordering, because <code>'9' &gt; '10'</code> even though <code>9 &lt; 10</code>.</p>
+<p>On my Macbook, to play around with d3, I use <a href="nodejs.org">node.js</a>:</p>
 <div class="highlight"><pre><span></span><span class="nx">$</span> <span class="nx">npm</span> <span class="nx">install</span> <span class="nx">d3</span> <span class="o">&amp;&amp;</span> <span class="nx">npm</span> <span class="nx">install</span> <span class="o">-</span><span class="nx">g</span> <span class="nx">d3</span>
 <span class="nx">$</span> <span class="nx">node</span>
 <span class="o">&gt;&gt;</span> <span class="kd">var</span> <span class="nx">d3</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;d3&quot;</span><span class="p">);</span>
@@ -103,33 +103,32 @@
 
 
 <h2>Localization</h2>
-<p>Numbers are written differently in the world. For example, <code>153,859.12</code> is written as <code>153.859,12</code> in Turkey. There is no hard rule here. Personally, I accept that most of computing was invented and built in the US and Western countries, so it's best to stick with US-standards. For more, see:</p>
+<p>Number formatting is locale specific. For example, <code>153,859.12</code> is written as <code>153.859,12</code> in Turkey. There is no hard rule here. Personally, I try to stick with US-standards. For more, see:</p>
 <ul>
 <li><a href="https://en.wikipedia.org/wiki/Decimal_separator">Decimal separator on Wikipedia</a></li>
 <li><a href="http://www.moserware.com/2008/02/does-your-code-pass-turkey-test.html">Does your code pass the Turkey test</a></li>
 </ul>
 <h2>Dates</h2>
 <p>Format dates per the <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a> standard, like <code>YYYY-MM-DD</code>. In d3, the format string for this is <code>%Y-%m-%d</code>.</p>
-<p><strong>What if we're showing monthly data, like monthly revenue? What to show for the day part?</strong> I standardize on always using <code>YYYY-MM-DD</code>, so I show <code>-01</code> for the day part. An alternative is to use textual three letter months, like:</p>
+<p><strong>What if we're showing monthly data, like monthly revenue?</strong> What to show for the day part? I standardize on always using <code>YYYY-MM-DD</code>, so I show <code>-01</code> for the day part. An alternative is to use textual three letter months, like:</p>
 <div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">timeFormat</span><span class="p">(</span><span class="s1">&#39;%Y-%b&#39;</span><span class="p">)(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">())</span>
 <span class="s1">&#39;2020-Aug&#39;</span>
 </pre></div>
 
 
-<p><strong>What about timezones?</strong> It's best to standardize on one timezone, preferably UTC, and show all dates in UTC time, without specifiying the timezone. But this can still lead to weird artefacts. For example, countries that are ahead in time, their Monday morning usage peak will show up in Sunday UTC time. So the weekly seasonality gets shifted around, per country/timezone. However, this is still preferable to showing times in local times on dashboard, as that is too error-prone. Imagine debugging a drop in traffic, and having to shift the times for each country's local timezone.</p>
+<p><strong>What about timezones?</strong> It's best to standardize on one timezone, preferably UTC, and show all dates in UTC time, without specifiying the timezone. But this can still lead to weird artefacts. For example, countries that are ahead in time, their Monday morning usage peak will show up in Sunday UTC time. So the weekly seasonality gets shifted around, per country/timezone. However, this is still preferable to showing times in local times on dashboards, as that is too error-prone. Imagine debugging a drop in traffic, and having to shift the times for each country's local timezone in your head.</p>
 <h2>Currencies</h2>
-<p>Monetary values should be converted to a common currency, like USD or AED. Showing different currencies on the same chart, whether it's a linechart or stacked area chart, is a big error. It's standard to write <code>1,000 USD</code> like <code>$1,000</code>, but other currencies don't have such one-letter abbreviation, so I prefer to always write the  <a href="https://en.wikipedia.org/wiki/ISO_4217">ISO 4217</a> currency designation, after the number, with a space, like <code>1,000 USD</code>, which is <code>3,672.94 AED</code> right now. Note that the ISO standard does not specify whether the ordering or spacing.</p>
+<p>Monetary values should be converted to a common currency, like USD or AED. Showing different currencies on the same chart is an error, whether it's a linechart or stacked area chart. Everybody knows what <code>$1,000</code> means, but other currencies don't have such one-letter abbreviation. I always use the <a href="https://en.wikipedia.org/wiki/ISO_4217">ISO 4217</a> currency designation, after the number, with a space, like <code>1,000 USD</code>, which is <code>3,672.94 AED</code> right now. The ISO standard does not specify the ordering or spacing.</p>
 <h2>Numbers</h2>
-<p>In my experience the following are not a good idea.</p>
 <p><strong>Don't round numbers.</strong> If your user doesn't care about the details, let him ignore the rest. Rounded numbers can be confusing, because it seems like we don't know the exact count.</p>
-<div class="highlight"><pre><span></span><span class="c1">// don&#39;t do this</span>
+<div class="highlight"><pre><span></span><span class="c1">// don&#39;t do this, it seems like we don&#39;t know the exact number</span>
 <span class="o">&gt;</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;.2r&#39;</span><span class="p">)(</span><span class="mi">12345</span><span class="p">)</span>
 <span class="s1">&#39;12000&#39;</span>
 </pre></div>
 
 
-<p><strong>Don't use Ms and ks.</strong> Same argument as for rounding:</p>
-<div class="highlight"><pre><span></span><span class="c1">// don&#39;t do this</span>
+<p><strong>Don't use Ms for millions and ks for thousands.</strong> Same argument as for rounding: the user's eyes and brains has to do extra processing to tell what's going on, because the formatting changed in the middle.</p>
+<div class="highlight"><pre><span></span><span class="c1">// don&#39;t do this, it looks weird</span>
 <span class="o">&gt;</span> <span class="k">for</span> <span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">800</span><span class="o">*</span><span class="mi">1000</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="mi">1200</span><span class="o">*</span><span class="mi">1000</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="mi">100</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span> <span class="p">{</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;.2s&#39;</span><span class="p">)(</span><span class="nx">i</span><span class="p">))</span> <span class="p">}</span>
 <span class="mi">800</span><span class="nx">k</span>
 <span class="mi">900</span><span class="nx">k</span>
@@ -139,7 +138,7 @@
 </pre></div>
 
 
-<p>The user's eyes and brains has to do extra processing to tell what's going on, because the formatting changed in the middle. It's much easier to show:</p>
+<p>Just show the number, aligned:</p>
 <div class="highlight"><pre><span></span><span class="c1">// do this: the 9 in the format string pads it on the left with spaces so it&#39;s 9 characters wide</span>
 <span class="o">&gt;</span> <span class="k">for</span> <span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">800</span><span class="o">*</span><span class="mi">1000</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="mi">1200</span><span class="o">*</span><span class="mi">1000</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="mi">100</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span> <span class="p">{</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;9,&#39;</span><span class="p">)(</span><span class="nx">i</span><span class="p">))</span> <span class="p">}</span>
   <span class="mi">800</span><span class="p">,</span><span class="mi">000</span>
@@ -158,18 +157,18 @@
 
 <p>Use the appropriate number of decimals. For integer numbers, like number of users, don't show decimals.</p>
 <p><strong>For numbers that have a fractional part, but it's insignificant, don't show it</strong> [in Data Science work]. If you're showing the monthly revenues, and it's in the millions of dollars, don't show the cents.</p>
-<div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;,.0f&#39;</span><span class="p">)(</span><span class="mf">123456.789</span><span class="p">)</span>
-<span class="s1">&#39;123,457&#39;</span> <span class="c1">// rounded</span>
+<div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;,.0f&#39;</span><span class="p">)(</span><span class="mf">123456.123</span><span class="p">)</span>
+<span class="s1">&#39;123,456&#39;</span>
 </pre></div>
 
 
-<p><strong>For ratios and probabilities that are usually shown as percentages, show a percentage between 0 and 100, and not a ratio between 0 and 1.</strong> For example, funnel conversions are always shown as percentages. Show the appropriate number of digits after the decimal, which depends on the type of measurement. I usually show 0 or 1 digits after the fractional. Sometimes it's good to show at least one digit just to signify that the numbers are not estimates (which helps is the numbers happen to be round, like A had 40.2% conversion and B had 50.4%).</p>
+<p><strong>For ratios and probabilities that are usually shown as percentages, show a percentage between 0 and 100, and not a ratio between 0 and 1.</strong> For example, funnel conversions are usually shown as percentages. Show the appropriate number of digits after the decimal, which depends on the type of measurement. I usually show 0 or 1 digits after the decimal. Sometimes it's good to show at least one digit just to signify that the numbers are not estimates (which helps is the numbers happen to be round, like A had 40.2% conversion and B had 50.4%).</p>
 <div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;.1%&#39;</span><span class="p">)(</span><span class="mf">0.402</span><span class="p">)</span>
 <span class="s1">&#39;40.2%&#39;</span>
 </pre></div>
 
 
-<p>For p values, I like to show 3 decimals, like <code>0.001</code> (d3 format string is <code>.3f</code>). This is a bit weird if the value is <code>0.00001</code>, because it will show as <code>0.000</code>, but that's fine.</p>
+<p>For p values in statistical significance testing, I like to show 3 decimals, like <code>0.001</code> (d3 format string is <code>.3f</code>). This is a bit weird if the value is <code>0.00001</code>, because it will show as <code>0.000</code>, but that's fine.</p>
 <div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;.3f&#39;</span><span class="p">)(</span><span class="mf">0.001</span><span class="p">)</span>
 <span class="s1">&#39;0.001&#39;</span>
 <span class="o">&gt;</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;.3f&#39;</span><span class="p">)(</span><span class="mf">0.00001</span><span class="p">)</span>
@@ -178,7 +177,7 @@
 
 
 <h2>Conclusion</h2>
-<p>Remember: format numbers for human consumption. Make is easy on the eyes, so the user doesn't have to think. Well formatted numbers are beautiful.</p>
+<p>Remember: format numbers for human consumption. Make is easy on the eyes, so the user doesn't have to think or. Well formatted numbers are beautiful.</p>
   </div>
   <div class="tag-cloud">
     <p>
