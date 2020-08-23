@@ -154,6 +154,27 @@
 <div class="highlight"><pre><span></span><span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)(</span><span class="mi">123456</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span><span class="mi">234</span><span class="p">,</span><span class="mi">456</span>
 </pre></div>
+
+
+<p>Use the appropriate number of decimals. For integer numbers, like number of users, don't show decimals.</p>
+<p>For numbers that have a fractional part, but it's insignificant, don't show it [in Data Science work]. If you're showing the monthly revenues, and it's in the millions of dollars, don't show the cents.</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;,.0f&#39;</span><span class="p">)(</span><span class="mf">123456.789</span><span class="p">)</span>
+<span class="s1">&#39;123,457&#39;</span> <span class="c1">// rounded</span>
+</pre></div>
+
+
+<p>For ratios and probabilities that are usually shown as percentages, show a percentage between 0 and 100, and not a ratio between 0 and 1. For example, funnel conversions are always shown as percentages. Show the appropriate number of digits after the decimal, which depends on the type of measurement. I usually show 0 or 1 digits after the fractional. Sometimes it's good to show at least one digit just to signify that the numbers are not estimates (which helps is the numbers happen to be round, like A had 40.2% conversion and B had 50.4%).</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;.1%&#39;</span><span class="p">)(</span><span class="mf">0.402</span><span class="p">)</span>
+<span class="s1">&#39;40.2%&#39;</span>
+</pre></div>
+
+
+<p>For p values, I like to show 3 decimals, like <code>0.009</code> (d3 format string is <code>.3f</code>). This is a bit weird if the value is <code>0.00001</code>, because it will show as <code>0.000</code>, but that's fine.</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;.3f&#39;</span><span class="p">)(</span><span class="mf">0.001</span><span class="p">)</span>
+<span class="s1">&#39;0.001&#39;</span>
+<span class="o">&gt;</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;.3f&#39;</span><span class="p">)(</span><span class="mf">0.00001</span><span class="p">)</span>
+<span class="s1">&#39;0.000&#39;</span>
+</pre></div>
   </div>
   <div class="tag-cloud">
     <p>
