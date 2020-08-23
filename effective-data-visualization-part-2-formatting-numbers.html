@@ -95,15 +95,19 @@
 <div class="highlight"><pre><span></span>$ npm install d3 <span class="o">&amp;&amp;</span> npm install -g d3
 $ node
 &gt;&gt; var <span class="nv">d3</span> <span class="o">=</span> require<span class="o">(</span><span class="s2">&quot;d3&quot;</span><span class="o">)</span><span class="p">;</span>
-&gt;&gt; d3.format<span class="o">(</span><span class="s1">&#39;,&#39;</span><span class="o">)(</span><span class="m">12345</span><span class="o">)</span>
-<span class="s1">&#39;12,345&#39;</span>
+&gt;&gt; d3.format<span class="o">(</span><span class="s1">&#39;,&#39;</span><span class="o">)(</span><span class="m">153859</span><span class="o">)</span>
+<span class="s1">&#39;153,859&#39;</span>
 &gt;&gt; d3.timeFormat<span class="o">(</span><span class="s1">&#39;%Y-%m-%d&#39;</span><span class="o">)(</span>new Date<span class="o">())</span>
 <span class="s1">&#39;2020-08-23&#39;</span>
 </pre></div>
 
 
 <h2>Localization</h2>
-<p>xyz</p>
+<p>Numbers are written differently in the world. For example, <code>153,859.12</code> is written as <code>153.859,12</code> in Turkey. There is no hard rule here. Personally, I accept that most of computing was invented and built in the US and Western countries, so it's best to stick with US-standards. For more, see:</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Decimal_separator">Decimal separator on Wikipedia</a></li>
+<li><a href="http://www.moserware.com/2008/02/does-your-code-pass-turkey-test.html">Does your code pass the Turkey test</a></li>
+</ul>
 <h2>Dates</h2>
 <p>Format dates per the <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a> standard, like <code>YYYY-MM-DD</code>. In d3, the format string for this is <code>%Y-%m-%d</code>.</p>
 <p><strong>What if we're showing monthly data, like monthly revenue? What to show for the day part?</strong> I standardize on always using <code>YYYY-MM-DD</code>, so I show <code>-01</code> for the day part. An alternative is to use textual three letter months, like:</p>

@@ -7,15 +7,19 @@
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ npm install d3 &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; npm install -g d3
 $ node
 &amp;gt;&amp;gt; var &lt;span class="nv"&gt;d3&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; require&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;d3&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&amp;gt;&amp;gt; d3.format&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;,&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;)(&lt;/span&gt;&lt;span class="m"&gt;12345&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;span class="s1"&gt;&amp;#39;12,345&amp;#39;&lt;/span&gt;
+&amp;gt;&amp;gt; d3.format&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;,&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;)(&lt;/span&gt;&lt;span class="m"&gt;153859&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="s1"&gt;&amp;#39;153,859&amp;#39;&lt;/span&gt;
 &amp;gt;&amp;gt; d3.timeFormat&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;%Y-%m-%d&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;)(&lt;/span&gt;new Date&lt;span class="o"&gt;())&lt;/span&gt;
 &lt;span class="s1"&gt;&amp;#39;2020-08-23&amp;#39;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;h2&gt;Localization&lt;/h2&gt;
-&lt;p&gt;xyz&lt;/p&gt;
+&lt;p&gt;Numbers are written differently in the world. For example, &lt;code&gt;153,859.12&lt;/code&gt; is written as &lt;code&gt;153.859,12&lt;/code&gt; in Turkey. There is no hard rule here. Personally, I accept that most of computing was invented and built in the US and Western countries, so it's best to stick with US-standards. For more, see:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://en.wikipedia.org/wiki/Decimal_separator"&gt;Decimal separator on Wikipedia&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.moserware.com/2008/02/does-your-code-pass-turkey-test.html"&gt;Does your code pass the Turkey test&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2&gt;Dates&lt;/h2&gt;
 &lt;p&gt;Format dates per the &lt;a href="https://en.wikipedia.org/wiki/ISO_8601"&gt;ISO-8601&lt;/a&gt; standard, like &lt;code&gt;YYYY-MM-DD&lt;/code&gt;. In d3, the format string for this is &lt;code&gt;%Y-%m-%d&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;What if we're showing monthly data, like monthly revenue? What to show for the day part?&lt;/strong&gt; I standardize on always using &lt;code&gt;YYYY-MM-DD&lt;/code&gt;, so I show &lt;code&gt;-01&lt;/code&gt; for the day part. An alternative is to use textual three letter months, like:&lt;/p&gt;
