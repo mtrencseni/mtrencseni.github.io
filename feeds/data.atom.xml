@@ -14,6 +14,8 @@ $ node
 &lt;/pre&gt;&lt;/div&gt;
 
 
+&lt;h2&gt;Localization&lt;/h2&gt;
+&lt;p&gt;xyz&lt;/p&gt;
 &lt;h2&gt;Dates&lt;/h2&gt;
 &lt;p&gt;Format dates per the &lt;a href="https://en.wikipedia.org/wiki/ISO_8601"&gt;ISO-8601&lt;/a&gt; standard, like &lt;code&gt;YYYY-MM-DD&lt;/code&gt;. In d3, the format string for this is &lt;code&gt;%Y-%m-%d&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;What if we're showing monthly data, like monthly revenue? What to show for the day part?&lt;/strong&gt; I standardize on always using &lt;code&gt;YYYY-MM-DD&lt;/code&gt;, so I show &lt;code&gt;-01&lt;/code&gt; for the day part. An alternative is to use textual three letter months, like:&lt;/p&gt;
