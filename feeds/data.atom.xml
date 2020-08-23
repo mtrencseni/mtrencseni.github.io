@@ -4,13 +4,13 @@
 &lt;p&gt;For this article, I will use the &lt;a href="https://d3js.org/"&gt;d3 Javascript visualization library&lt;/a&gt;, because I use &lt;a href="https://github.com/apache/incubator-superset"&gt;Superset&lt;/a&gt; for charts and dashboards on a daily basis, and Superset uses d3.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Where should numbers be formatted?&lt;/strong&gt; By the database? No, numbers and dates should be formatted at the last possible moment, before human consumption (eg. by the Javascript in the browser). Why? Because formatting (i) may lose information, for example the time part of a datetime gets cut off if only the date is included, or numbers are rounded (ii) the type of the data (&lt;code&gt;date, datetime, int, float&lt;/code&gt;) gets lost as everything gets converted to a &lt;code&gt;string&lt;/code&gt;. This can lead to eg. incorrect ordering, because &lt;code&gt;'9' &amp;gt; '10'&lt;/code&gt; even though &lt;code&gt;9 &amp;lt; 10&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;On my macbook, to play around with d3, I use &lt;a href="nodejs.org"&gt;node.js&lt;/a&gt;:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;npm install d3 &amp;amp;&amp;amp; npm install -g d3
-node
-&amp;gt;&amp;gt; var d3 = require(&amp;quot;d3&amp;quot;);
-&amp;gt;&amp;gt; d3.format(&amp;#39;,&amp;#39;)(12345)
-&amp;#39;12,345&amp;#39;
-&amp;gt;&amp;gt; d3.timeFormat(&amp;#39;%Y-%m-%d&amp;#39;)(new Date())
-&amp;#39;2020-08-23&amp;#39;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ npm install d3 &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; npm install -g d3
+$ node
+&amp;gt;&amp;gt; var &lt;span class="nv"&gt;d3&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; require&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;d3&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&amp;gt;&amp;gt; d3.format&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;,&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;)(&lt;/span&gt;&lt;span class="m"&gt;12345&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="s1"&gt;&amp;#39;12,345&amp;#39;&lt;/span&gt;
+&amp;gt;&amp;gt; d3.timeFormat&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;%Y-%m-%d&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;)(&lt;/span&gt;new Date&lt;span class="o"&gt;())&lt;/span&gt;
+&lt;span class="s1"&gt;&amp;#39;2020-08-23&amp;#39;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 

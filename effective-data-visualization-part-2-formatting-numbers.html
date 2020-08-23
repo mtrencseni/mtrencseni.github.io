@@ -92,13 +92,13 @@
 <p>For this article, I will use the <a href="https://d3js.org/">d3 Javascript visualization library</a>, because I use <a href="https://github.com/apache/incubator-superset">Superset</a> for charts and dashboards on a daily basis, and Superset uses d3.</p>
 <p><strong>Where should numbers be formatted?</strong> By the database? No, numbers and dates should be formatted at the last possible moment, before human consumption (eg. by the Javascript in the browser). Why? Because formatting (i) may lose information, for example the time part of a datetime gets cut off if only the date is included, or numbers are rounded (ii) the type of the data (<code>date, datetime, int, float</code>) gets lost as everything gets converted to a <code>string</code>. This can lead to eg. incorrect ordering, because <code>'9' &gt; '10'</code> even though <code>9 &lt; 10</code>.</p>
 <p>On my macbook, to play around with d3, I use <a href="nodejs.org">node.js</a>:</p>
-<div class="highlight"><pre><span></span>npm install d3 &amp;&amp; npm install -g d3
-node
-&gt;&gt; var d3 = require(&quot;d3&quot;);
-&gt;&gt; d3.format(&#39;,&#39;)(12345)
-&#39;12,345&#39;
-&gt;&gt; d3.timeFormat(&#39;%Y-%m-%d&#39;)(new Date())
-&#39;2020-08-23&#39;
+<div class="highlight"><pre><span></span>$ npm install d3 <span class="o">&amp;&amp;</span> npm install -g d3
+$ node
+&gt;&gt; var <span class="nv">d3</span> <span class="o">=</span> require<span class="o">(</span><span class="s2">&quot;d3&quot;</span><span class="o">)</span><span class="p">;</span>
+&gt;&gt; d3.format<span class="o">(</span><span class="s1">&#39;,&#39;</span><span class="o">)(</span><span class="m">12345</span><span class="o">)</span>
+<span class="s1">&#39;12,345&#39;</span>
+&gt;&gt; d3.timeFormat<span class="o">(</span><span class="s1">&#39;%Y-%m-%d&#39;</span><span class="o">)(</span>new Date<span class="o">())</span>
+<span class="s1">&#39;2020-08-23&#39;</span>
 </pre></div>
 
 
