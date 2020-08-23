@@ -92,12 +92,12 @@
 <p>For this article, I will use the <a href="https://d3js.org/">d3 Javascript visualization library</a>, because I use <a href="https://github.com/apache/incubator-superset">Superset</a> for charts and dashboards on a daily basis, and Superset uses d3.</p>
 <p><strong>Where should numbers be formatted?</strong> By the database? No, numbers and dates should be formatted at the last possible moment, before human consumption (eg. by the Javascript in the browser). Why? Because formatting (i) may lose information, for example the time part of a datetime gets cut off if only the date is included, or numbers are rounded (ii) the type of the data (<code>date, datetime, int, float</code>) gets lost as everything gets converted to a <code>string</code>. This can lead to eg. incorrect ordering, because <code>'9' &gt; '10'</code> even though <code>9 &lt; 10</code>.</p>
 <p>On my macbook, to play around with d3, I use <a href="nodejs.org">node.js</a>:</p>
-<div class="highlight"><pre><span></span>$ npm install d3 <span class="o">&amp;&amp;</span> npm install -g d3
-$ node
-&gt;&gt; var <span class="nv">d3</span> <span class="o">=</span> require<span class="o">(</span><span class="s2">&quot;d3&quot;</span><span class="o">)</span><span class="p">;</span>
-&gt;&gt; d3.format<span class="o">(</span><span class="s1">&#39;,&#39;</span><span class="o">)(</span><span class="m">153859</span><span class="o">)</span>
+<div class="highlight"><pre><span></span><span class="nx">$</span> <span class="nx">npm</span> <span class="nx">install</span> <span class="nx">d3</span> <span class="o">&amp;&amp;</span> <span class="nx">npm</span> <span class="nx">install</span> <span class="o">-</span><span class="nx">g</span> <span class="nx">d3</span>
+<span class="nx">$</span> <span class="nx">node</span>
+<span class="o">&gt;&gt;</span> <span class="kd">var</span> <span class="nx">d3</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;d3&quot;</span><span class="p">);</span>
+<span class="o">&gt;&gt;</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)(</span><span class="mi">153859</span><span class="p">)</span>
 <span class="s1">&#39;153,859&#39;</span>
-&gt;&gt; d3.timeFormat<span class="o">(</span><span class="s1">&#39;%Y-%m-%d&#39;</span><span class="o">)(</span>new Date<span class="o">())</span>
+<span class="o">&gt;&gt;</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">timeFormat</span><span class="p">(</span><span class="s1">&#39;%Y-%m-%d&#39;</span><span class="p">)(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">())</span>
 <span class="s1">&#39;2020-08-23&#39;</span>
 </pre></div>
 
@@ -111,12 +111,13 @@ $ node
 <h2>Dates</h2>
 <p>Format dates per the <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a> standard, like <code>YYYY-MM-DD</code>. In d3, the format string for this is <code>%Y-%m-%d</code>.</p>
 <p><strong>What if we're showing monthly data, like monthly revenue? What to show for the day part?</strong> I standardize on always using <code>YYYY-MM-DD</code>, so I show <code>-01</code> for the day part. An alternative is to use textual three letter months, like:</p>
-<div class="highlight"><pre><span></span>&gt; d3.timeFormat(&#39;%Y-%b&#39;)(new Date())
-&#39;2020-Aug&#39;
+<div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">timeFormat</span><span class="p">(</span><span class="s1">&#39;%Y-%b&#39;</span><span class="p">)(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">())</span>
+<span class="s1">&#39;2020-Aug&#39;</span>
 </pre></div>
 
 
 <p><strong>What about timezones?</strong> It's best to standardize on one timezone, preferably UTC, and show all dates in UTC time, without specifiying the timezone. But this can still lead to weird artefacts. For example, countries that are ahead in time, their Monday morning usage peak will show up in Sunday UTC time. So the weekly seasonality gets shifted around, per country/timezone. However, this is still preferable to showing times in local times on dashboard, as that is too error-prone. Imagine debugging a drop in traffic, and having to shift the times for each country's local timezone.</p>
+<h2>Currencies</h2>
   </div>
   <div class="tag-cloud">
     <p>
