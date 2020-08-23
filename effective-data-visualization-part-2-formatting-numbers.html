@@ -38,11 +38,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="" />
 <meta name="author" content="Marton Trencseni" />
-<meta name="description" content="What is more readable, 1.539e+5 or 153,859? Showing numbers effectively on spreadsheets, charts, dashboards, reports is a basic ingredient for readability, like formatting code in programming." />
+<meta name="description" content="Format numbers for human consumption. What is more readable, 1.539e+5 or 153,859? Showing numbers effectively on spreadsheets, charts, dashboards, reports is a basic ingredient for readability, like formatting code in programming." />
 <meta name="keywords" content="charts, dashboards, data, visualization">
 <meta property="og:site_name" content="Bytepawn - Marton Trencseni"/>
 <meta property="og:title" content="Effective Data Visualization Part 2: Formatting numbers"/>
-<meta property="og:description" content="What is more readable, 1.539e+5 or 153,859? Showing numbers effectively on spreadsheets, charts, dashboards, reports is a basic ingredient for readability, like formatting code in programming."/>
+<meta property="og:description" content="Format numbers for human consumption. What is more readable, 1.539e+5 or 153,859? Showing numbers effectively on spreadsheets, charts, dashboards, reports is a basic ingredient for readability, like formatting code in programming."/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="/effective-data-visualization-part-2-formatting-numbers.html"/>
 <meta property="og:type" content="article"/>
@@ -88,7 +88,7 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>What is more readable, <code>1.539e+5</code> or <code>153,859</code>? Showing numbers effectively on spreadsheets, charts, dashboards, reports is a basic ingredient for readability, like formatting code.</p>
+<p>Format numbers for human consumption. What is more readable, <code>1.539e+5</code> or <code>153,859</code>? Showing numbers effectively on spreadsheets, charts, dashboards, reports is a basic ingredient for readability, like formatting code.</p>
 <p>For this article, I will use the <a href="https://d3js.org/">d3 Javascript visualization library</a>, because I use <a href="https://github.com/apache/incubator-superset">Superset</a> for charts and dashboards on a daily basis, and Superset uses d3.</p>
 <p><strong>Where should numbers be formatted?</strong> By the database? No, numbers and dates should be formatted at the last possible moment, before human consumption (eg. by the Javascript in the browser). Why? Because formatting (i) may lose information, for example the time part of a datetime gets cut off if only the date is included, or numbers are rounded (ii) the type of the data (<code>date, datetime, int, float</code>) gets lost as everything gets converted to a <code>string</code>. This can lead to eg. incorrect ordering, because <code>'9' &gt; '10'</code> even though <code>9 &lt; 10</code>.</p>
 <p>On my macbook, to play around with d3, I use <a href="nodejs.org">node.js</a>:</p>
@@ -118,7 +118,42 @@
 
 <p><strong>What about timezones?</strong> It's best to standardize on one timezone, preferably UTC, and show all dates in UTC time, without specifiying the timezone. But this can still lead to weird artefacts. For example, countries that are ahead in time, their Monday morning usage peak will show up in Sunday UTC time. So the weekly seasonality gets shifted around, per country/timezone. However, this is still preferable to showing times in local times on dashboard, as that is too error-prone. Imagine debugging a drop in traffic, and having to shift the times for each country's local timezone.</p>
 <h2>Currencies</h2>
-<p>Monetary values should be converted to a common currency, like USD or AED. Showing different currencies on the same chart, whether it's a linechart or stacked area chart, is a big error. It's standard to write <code>1,000 USD</code> like <code>$1,000</code>, but other currencies don't have such one-letter abbreviation, so I prefer to always write the  <a href="https://en.wikipedia.org/wiki/ISO_4217">ISO 4217</a> currency designation, after the number. This standard does not specify whether it goes before or after the number.</p>
+<p>Monetary values should be converted to a common currency, like USD or AED. Showing different currencies on the same chart, whether it's a linechart or stacked area chart, is a big error. It's standard to write <code>1,000 USD</code> like <code>$1,000</code>, but other currencies don't have such one-letter abbreviation, so I prefer to always write the  <a href="https://en.wikipedia.org/wiki/ISO_4217">ISO 4217</a> currency designation, after the number, with a space, like <code>1,000 USD</code>, which is <code>3,672.94 AED</code> right now. Note that the ISO standard does not specify whether the ordering or spacing.</p>
+<h2>Numbers</h2>
+<p>In my experience the following are not a good idea.</p>
+<p><strong>Don't round numbers.</strong> If your user doesn't care about the details, let him ignore the rest. Rounded numbers can be confusing, because it seems like we don't know the exact count.</p>
+<div class="highlight"><pre><span></span><span class="c1">// don&#39;t do this</span>
+<span class="o">&gt;</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;.2r&#39;</span><span class="p">)(</span><span class="mi">12345</span><span class="p">)</span>
+<span class="s1">&#39;12000&#39;</span>
+</pre></div>
+
+
+<p><strong>Don't use Ms and ks.</strong> Same argument as for rounding:</p>
+<div class="highlight"><pre><span></span><span class="c1">// don&#39;t do this</span>
+<span class="o">&gt;</span> <span class="k">for</span> <span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">800</span><span class="o">*</span><span class="mi">1000</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="mi">1200</span><span class="o">*</span><span class="mi">1000</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="mi">100</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span> <span class="p">{</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;.2s&#39;</span><span class="p">)(</span><span class="nx">i</span><span class="p">))</span> <span class="p">}</span>
+<span class="mi">800</span><span class="nx">k</span>
+<span class="mi">900</span><span class="nx">k</span>
+<span class="mf">1.0</span><span class="nx">M</span>
+<span class="mf">1.1</span><span class="nx">M</span>
+<span class="mf">1.2</span><span class="nx">M</span>
+</pre></div>
+
+
+<p>The user's eyes and brains has to do extra processing to tell what's going on, because the formatting changed in the middle. It's much easier to show:</p>
+<div class="highlight"><pre><span></span><span class="c1">// do this: the 9 in the format string pads it on the left with spaces so it&#39;s 9 characters wide</span>
+<span class="o">&gt;</span> <span class="k">for</span> <span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">800</span><span class="o">*</span><span class="mi">1000</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="mi">1200</span><span class="o">*</span><span class="mi">1000</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="mi">100</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span> <span class="p">{</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;9,&#39;</span><span class="p">)(</span><span class="nx">i</span><span class="p">))</span> <span class="p">}</span>
+  <span class="mi">800</span><span class="p">,</span><span class="mi">000</span>
+  <span class="mi">900</span><span class="p">,</span><span class="mi">000</span>
+<span class="mi">1</span><span class="p">,</span><span class="mi">000</span><span class="p">,</span><span class="mi">000</span>
+<span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">000</span>
+<span class="mi">1</span><span class="p">,</span><span class="mi">200</span><span class="p">,</span><span class="mi">000</span>
+</pre></div>
+
+
+<p><strong>Use separators for thousands</strong>, like <code>1,234,456</code>. In d3, this is accomplished with the <code>,</code> format string:</p>
+<div class="highlight"><pre><span></span><span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)(</span><span class="mi">123456</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span><span class="mi">234</span><span class="p">,</span><span class="mi">456</span>
+</pre></div>
   </div>
   <div class="tag-cloud">
     <p>
@@ -158,7 +193,7 @@
   },
   "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
   "url": "/effective-data-visualization-part-2-formatting-numbers.html",
-  "description": "What is more readable, 1.539e+5 or 153,859? Showing numbers effectively on spreadsheets, charts, dashboards, reports is a basic ingredient for readability, like formatting code in programming."
+  "description": "Format numbers for human consumption. What is more readable, 1.539e+5 or 153,859? Showing numbers effectively on spreadsheets, charts, dashboards, reports is a basic ingredient for readability, like formatting code in programming."
 }
 </script></body>
 </html>
