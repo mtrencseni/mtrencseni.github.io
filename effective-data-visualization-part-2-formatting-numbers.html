@@ -169,7 +169,7 @@
 </pre></div>
 
 
-<p>For p values, I like to show 3 decimals, like <code>0.009</code> (d3 format string is <code>.3f</code>). This is a bit weird if the value is <code>0.00001</code>, because it will show as <code>0.000</code>, but that's fine.</p>
+<p>For p values, I like to show 3 decimals, like <code>0.001</code> (d3 format string is <code>.3f</code>). This is a bit weird if the value is <code>0.00001</code>, because it will show as <code>0.000</code>, but that's fine.</p>
 <div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;.3f&#39;</span><span class="p">)(</span><span class="mf">0.001</span><span class="p">)</span>
 <span class="s1">&#39;0.001&#39;</span>
 <span class="o">&gt;</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;.3f&#39;</span><span class="p">)(</span><span class="mf">0.00001</span><span class="p">)</span>

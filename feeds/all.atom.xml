@@ -81,7 +81,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;For p values, I like to show 3 decimals, like &lt;code&gt;0.009&lt;/code&gt; (d3 format string is &lt;code&gt;.3f&lt;/code&gt;). This is a bit weird if the value is &lt;code&gt;0.00001&lt;/code&gt;, because it will show as &lt;code&gt;0.000&lt;/code&gt;, but that's fine.&lt;/p&gt;
+&lt;p&gt;For p values, I like to show 3 decimals, like &lt;code&gt;0.001&lt;/code&gt; (d3 format string is &lt;code&gt;.3f&lt;/code&gt;). This is a bit weird if the value is &lt;code&gt;0.00001&lt;/code&gt;, because it will show as &lt;code&gt;0.000&lt;/code&gt;, but that's fine.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="nx"&gt;d3&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;.3f&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)(&lt;/span&gt;&lt;span class="mf"&gt;0.001&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="s1"&gt;&amp;#39;0.001&amp;#39;&lt;/span&gt;
 &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="nx"&gt;d3&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;.3f&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)(&lt;/span&gt;&lt;span class="mf"&gt;0.00001&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
