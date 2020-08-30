@@ -15,7 +15,7 @@
 &lt;p&gt;This nicely shows that although there was slump (the 2019 cumulative line flattens for a bit), 2019 is doing much better than 2018. On a dashboard, actual numbers can be read off by hovering with the mouse over the chart.&lt;/p&gt;
 &lt;p&gt;Finally, let's say we want to split our revenue by country, and we're only in 2 countries, USA and Canada. In this case, since we're now segmenting by country, we can't segment by year, so we have to go back to showing the date on the x-axis:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/p3-country-line-2.png" style="width: 600px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Note that the y-axis is USD, so we converted our CAD revenues to USDs. When showing money on a chart, you must always convert to the same revnues. The big improvement here is to show this as a stacked area chart, because our countrywise revenues are additive:&lt;/p&gt;
+&lt;p&gt;Note that the y-axis is USD, we converted our CAD revenues to USDs. When showing money on a chart, you must always convert to the same currency. The big improvement here is to show this as a stacked area chart, because our countrywise revenues are additive:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/p3-stacked.png" style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;h2&gt;Discussion&lt;/h2&gt;
 &lt;p&gt;Most charts should be line charts or stacked area chart, because they communicate valuable trend information and are easy to parse for the human eyes and brain. When building these charts, consider these:&lt;/p&gt;
