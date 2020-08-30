@@ -108,15 +108,15 @@
 <h2>Discussion</h2>
 <p>Most charts should be line charts or stacked area charts, because they communicate valuable trend information and are easy to parse for the human eyes and brain. When building these charts, consider these:</p>
 <ul>
-<li>The x-axis should usually be a date (or day-of-year), formatted like <code>YYYY-MM-DD</code> per the ISO-8601 standard.</li>
-<li>The y-axis should be a well-defined metric, like <code>Revenue (USD)</code> or <code>Monthly Active Users (28d)</code>; put the metric on the y-axis label, unless the metric is mentioned in the chart title, then you don't need to</li>
-<li>Remove unnecessary visual clutter (like 3D, gradients, etc) from the chart: <strong>a chart is perfect if you can no longer take anyway but it still communicates all the information it needs to</strong></li>
+<li>The x-axis should usually be a date (or day-of-year), formatted like <code>YYYY-MM-DD</code> per the <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a> standard.</li>
+<li>The y-axis should be a well-defined metric, like <code>Revenue (USD)</code> or <code>Monthly Active Users (28d)</code>; put the metric on the y-axis label, unless the metric is mentioned in the chart title, then you don't need to; if the metric needs to be explained, put a textbox on the dashboard and explain it</li>
+<li>Remove unnecessary visual clutter (like 3D, gradients, etc) from the chart: <strong>a chart is perfect if you can no longer remove clutter from it but it still communicates all the information it needs to</strong></li>
 <li>Pick good colors for different lines, like red and blue. Don't pick different shades of the same color, some of your users may be colorblind.</li>
 <li>Pick a range for your x-axis that makes sense. On some dashboards, the range can be specified, in this case pick a good default that renders a consumable chart, so that the user is not scared away when opening the dashboard.</li>
-<li>Pick a granularity (daily, weekly, monthly, etc) for your x-axis that makes sense. On some dashboards, the range can be specified, in this case pick a good default that renders a consumable chart, so that the user is not scared away when opening the dashboard.</li>
+<li>Pick a granularity (daily, weekly, monthly, etc) for your x-axis that makes sense. On some dashboards, the granularity can be specified, in this case pick a good default that renders a consumable chart, so that the user is not scared away when opening the dashboard.</li>
 <li>The chart should have a clear and concise title, like <code>Weekly MyApp revenue by Country</code>.</li>
-<li>If showing unsegmented multi-year data, consider breaking it into 1 line per year, to effectively show year-over-year.</li>
-<li>If it makes sense, also show the cumulative metric value, eg. revenue, units sold, hours spent on site, etc.</li>
+<li>If showing unsegmented multi-year data, consider breaking it into 1 line per year, to effectively show year-over-year visual information.</li>
+<li>If it makes sense, also show the cumulative metric value on a supporting line chart, eg. revenue, units sold, hours spent on site, etc.</li>
 <li>If the metric is additive and segmentive, consider using a stacked area chart.</li>
 <li>If your data has outliers, in a product/business setting, consider leaving that data off (eg. by excluding it with a <code>HAVING</code> clause in the <code>SQL</code>); never use a logarithmic y-axis, your users will be confused.</li>
 </ul>
