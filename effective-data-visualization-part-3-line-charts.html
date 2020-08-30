@@ -117,7 +117,7 @@
 <li>The chart should have a clear and concise title, like <code>Weekly MyApp revenue by Country</code>.</li>
 <li>If showing unsegmented multi-year data, consider breaking it into 1 line per year, to effectively show year-over-year visual information.</li>
 <li>If it makes sense, also show the cumulative metric value on a supporting line chart, eg. revenue, units sold, hours spent on site, etc.</li>
-<li>If the metric is additive and segmentive, consider using a stacked area chart.</li>
+<li>If the metric is additive and segmented, show it on a stacked area chart. But only do so if the total is the actual total. For example, if you're only showing USA and Canada on a chart, but the app is actually also out in Mexico (but we don't yet have data on it), showing a "total" on a stacked area chart may be misleading, because it's not the actual total.</li>
 <li>If your data has outliers, in a product/business setting, consider leaving that data off (eg. by excluding it with a <code>HAVING</code> clause in the <code>SQL</code>); never use a logarithmic y-axis, your users will be confused.</li>
 </ul>
   </div>
