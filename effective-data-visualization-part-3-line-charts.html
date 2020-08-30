@@ -106,7 +106,7 @@
 <p>Note that the y-axis is USD, we converted our CAD revenues to USDs. When showing money on a chart, you must always convert to the same currency. The big improvement here is to show this as a stacked area chart, because our countrywise revenues are additive:</p>
 <p><img src="/images/p3-stacked.png" style="width: 600px;"/></p>
 <h2>Discussion</h2>
-<p>Most charts should be line charts or stacked area chart, because they communicate valuable trend information and are easy to parse for the human eyes and brain. When building these charts, consider these:</p>
+<p>Most charts should be line charts or stacked area charts, because they communicate valuable trend information and are easy to parse for the human eyes and brain. When building these charts, consider these:</p>
 <ul>
 <li>The x-axis should usually be a date (or day-of-year), formatted like <code>YYYY-MM-DD</code> per the ISO-8601 standard.</li>
 <li>The y-axis should be a well-defined metric, like <code>Revenue (USD)</code> or <code>Monthly Active Users (28d)</code>; put the metric on the y-axis label, unless the metric is mentioned in the chart title, then you don't need to</li>
@@ -118,6 +118,7 @@
 <li>If showing unsegmented multi-year data, consider breaking it into 1 line per year, to effectively show year-over-year.</li>
 <li>If it makes sense, also show the cumulative metric value, eg. revenue, units sold, hours spent on site, etc.</li>
 <li>If the metric is additive and segmentive, consider using a stacked area chart.</li>
+<li>If your data has outliers, in a product/business setting, consider leaving that data off (eg. by excluding it with a <code>HAVING</code> clause in the <code>SQL</code>); never use a logarithmic y-axis, your users will be confused.</li>
 </ul>
   </div>
   <div class="tag-cloud">
