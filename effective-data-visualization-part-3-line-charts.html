@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="google-site-verification" content="14dvQcWyDWHBo8aM0kld8XzEa6KypAzCQDz1_KPus9E" />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-1812620-2');
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn - Marton Trencseni Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="Most charts on dashboards should be line charts or stacked area charts." />
+<meta name="keywords" content="charts, dashboards, data, visualization">
+<meta property="og:site_name" content="Bytepawn - Marton Trencseni"/>
+<meta property="og:title" content="Effective Data Visualization Part 3: Line charts and stacked area charts"/>
+<meta property="og:description" content="Most charts on dashboards should be line charts or stacked area charts."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/effective-data-visualization-part-3-line-charts.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-09-01 00:00:00+02:00"/>
+<meta property="article:modified_time" content="2020-09-01 00:00:00+02:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data"/>
+<meta property="article:tag" content="charts"/>
+<meta property="article:tag" content="dashboards"/>
+<meta property="article:tag" content="data"/>
+<meta property="article:tag" content="visualization"/>
+<meta property="og:image" content="/images/d3format.png"/>
+
+  <title>Bytepawn - Marton Trencseni &ndash; Effective Data Visualization Part 3: Line charts and stacked area charts</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <!--<h2><a href="">Bytepawn - Marton Trencseni</a></h2>-->
+      <h2><a href="http://bytepawn.com">Bytepawn</a></h2>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="effective-data-visualization-part-3-line-charts">Effective Data Visualization Part 3: Line charts and stacked area charts</h1>
+    <p>Marton Trencseni - Tue 01 September 2020 - <a href="/category/data.html">Data</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>On most dashboards for product, operations or for business consumptions, charts should be line charts or stacked area charts. On many dashboards, a "big number with year-over-year" type widget is used, but line charts work better. For example, in 2020 August, showing the YTD revenue compared to 2019 August conflates the actual year-over-year performance during January and February, versus the effect of Covid-19 in March and later. On a line chart, these effects are obvious and visible.</p>
+<h2>Toy example</h2>
+<p>Let's walk through an example. Suppose we have an app called MyApp and we want to show revenues up until 2019 Q3. First, let's try a daily line chart:</p>
+<p><img src="/images/p3-daily.png" style="width: 500px;"/></p>
+<p>There is too much information here. Seeing the weekly periodicity 52 times per year pollutes this chart. Let's turn it into a weekly chart:</p>
+<p><img src="/images/p3-weekly.png" style="width: 500px;"/></p>
+<p>If we want to show the weekly periodicity of a metric, we can make a separate, supporting chart for that, and show median values for daily metrics. I will skip that step here.</p>
+<p>The weekly chart is better, but it's still hard to tell whether 2019 is better than 2018. It looks like it, but it's hard to tell. One possible thing to do is to compute the explicit year-over-year metric per month, and show that as a % on a linechart. But we can do better, with a simple trick. Instead of showing the date on the x-axis, we can show the day-of-year, and show 2018 and 2019 as 2 lines:</p>
+<p><img src="/images/p3-weekly-double.png" style="width: 500px;"/></p>
+<p>This is a pretty neat trick that I never figured out myself, I learned this at Facebook. This makes it obvious that 2019 is indeed doing better than 2018, and also shows that there was a slump period in 2019 that's worth investigating.</p>
+<p>This is great, but the finance folks still really only care about YTD (year-to-date) revenues. Although it's neat to show 2018 and 2019 like this, it's hard to see whether 2019 is ahead overall, and by how much. Actually, if we make a supporting chart which shows the cumulative revenue, it will make this visually obvious:</p>
+<p><img src="/images/p3-cumu.png" style="width: 500px;"/></p>
+<p>This nicely shows that although there was slump (the 2019 cumulative lines flatten for a bit), 2019 is doing much better than 2018. On a dashboard, actual numbers can be read off by hovering with the mouse over the chart.</p>
+<p>Finally, let's say we want to split our revenue by country, and we're only in 2 countries, USA and Canada. In this case, since we're now segmenting by country, we can't segment by year, so we have to go back to showing the date on the x-axis:</p>
+<p><img src="/images/p3-country-line.png" style="width: 500px;"/></p>
+<p>Note that the y-axis is USD, so we converted our CAD revenues to USDs. When showing money on a chart, you must always convert to the same revnues. The big improvement here is to show this as a stacked area chart, because our countrywise revenues are additive:</p>
+<p><img src="/images/p3-stacked.png" style="width: 500px;"/></p>
+<h2>Discussion</h2>
+<p>xyz</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/charts.html">charts</a>
+      <a href="/tag/dashboards.html">dashboards</a>
+      <a href="/tag/data.html">data</a>
+      <a href="/tag/visualization.html">visualization</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-1812620-2');
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Effective Data Visualization Part 3: Line charts and stacked area charts",
+  "headline": "Effective Data Visualization Part 3: Line charts and stacked area charts",
+  "datePublished": "2020-09-01 00:00:00+02:00",
+  "dateModified": "2020-09-01 00:00:00+02:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/effective-data-visualization-part-3-line-charts.html",
+  "description": "Most charts on dashboards should be line charts or stacked area charts."
+}
+</script></body>
+</html>
