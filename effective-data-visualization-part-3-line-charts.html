@@ -109,9 +109,11 @@
 <p>Most charts should be line charts or stacked area charts, because they communicate valuable trend information and are easy to parse for the human eyes and brain. When building these charts, consider these points:</p>
 <ul>
 <li>The x-axis should usually be a date (or day-of-year), formatted like <code>YYYY-MM-DD</code> per the <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a> standard.</li>
-<li>The y-axis should be a well-defined metric, like <code>Revenue (USD)</code> or <code>Monthly Active Users (28d)</code>.</li>
+<li>The y-axis should be a well-defined metric, like <code>Revenue (USD)</code> or <code>Monthly Active Users (28d)</code>.<ul>
 <li>Put the metric on the y-axis label, unless the metric is mentioned in the chart title, then you don't need to.</li>
 <li>If the metric needs to be explained, put a textbox on the dashboard and explain it.</li>
+</ul>
+</li>
 <li>Remove unnecessary visual clutter (like 3D, gradients, etc) from the chart: <strong>a chart is perfect if you can no longer remove clutter from it but it still communicates all the information it needs to.</strong></li>
 <li>Pick good colors for different lines, like red and blue. Don't pick different shades of the same color, some of your users may be colorblind.</li>
 <li>Pick a range for your x-axis that makes sense. On some dashboards, the range can be specified, in this case pick a good default that renders a consumable chart, so that the user is not scared away when opening the dashboard.</li>
