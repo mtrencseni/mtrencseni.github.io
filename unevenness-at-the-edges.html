@@ -88,23 +88,24 @@
     <h2>Introduction</h2>
 <p>Sometimes we look at the top performers in a field and see obviously uneven representations of groups (gender, ethnicity, etc). There a multitude of factors that can lead to it, such as unfair bias in access to opportunities. Here I will show one unintuitive mathematical effect that can contribute to such unevenness in the case of normal distributions.</p>
 <p>Let's assume that there is just one metric which determines performance, such as "height" for basketball or "reaction time" for driving, and the populations are described by a normal distribution. <strong>The unintuitive effect is that even a small shift in the means of the normals (assuming equal standard deviations) can lead to a very uneven ratio at the tails.</strong></p>
+<p><a href="https://github.com/mtrencseni/playground/blob/master/Unevenness%20at%20the%20edges.ipynb">The code is up on Github.</a></p>
 <h2>Normal distributions</h2>
 <p>Let's take a simple toy example, two populations A and B, both described by a normal distribution, both have standard deviations of $ \sigma = 1 $. Population A has mean $ \mu = 0 $ and B has mean $ \mu = 0.2 $, so $ A ~ N(0, 1), B ~ N(0.2, 1) $. This is easy to draw:</p>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">scipy.stats</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="kn">as</span> <span class="nn">stats</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 
 <span class="n">mean_A</span> <span class="o">=</span> <span class="mf">0.0</span>
 <span class="n">mean_B</span> <span class="o">=</span> <span class="mf">0.2</span>
 <span class="n">stdev</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">mean_A</span> <span class="o">-</span> <span class="n">z_above</span><span class="p">,</span> <span class="n">mean_A</span> <span class="o">+</span> <span class="n">z_above</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">mean_A</span> <span class="o">-</span> <span class="mi">5</span><span class="p">,</span> <span class="n">mean_A</span> <span class="o">+</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mean_A</span><span class="p">,</span> <span class="n">stdev</span><span class="p">))</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mean_B</span><span class="p">,</span> <span class="n">stdev</span><span class="p">))</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 
 
-<p><img src="/images/mean_shift_02.png" style="width: 600px;"/></p>
+<p><img src="/images/mean_shift_02.png" style="width: 400px;"/></p>
 <p>If we draw an element of A and B each at random, what's the probability that B will be "higher"?</p>
 <div class="highlight"><pre><span></span><span class="n">B_taller_A</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">mean_A</span><span class="o">-</span><span class="n">mean_B</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">stdev</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.1f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">B_taller_A</span><span class="p">)</span>
@@ -142,15 +143,15 @@
 </pre></div>
 
 
-<p>It's 90.7 to 1!</p>
+<p>We expect 1 in 470 females to be above 185cm, 1 in 5 males, and ratio of males to females above 185 cm is 90.7 to 1!</p>
 <h2>Exponential distributions</h2>
 <p>It's worth noting that this doesn't happen with all distributions. For example, with exponential distributions:</p>
 <div class="highlight"><pre><span></span><span class="n">mean_A</span> <span class="o">=</span> <span class="mf">1.0</span>
 <span class="n">mean_B</span> <span class="o">=</span> <span class="mf">1.2</span>
 <span class="n">stdev</span> <span class="o">=</span> <span class="mf">0.5</span>
 <span class="n">z_cut</span> <span class="o">=</span> <span class="mi">9</span>
-<span class="n">area_A</span> <span class="o">=</span> <span class="n">expon</span><span class="o">.</span><span class="n">sf</span><span class="p">(</span><span class="n">z_cut</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">mean_A</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">stdev</span><span class="p">)</span>
-<span class="n">area_B</span> <span class="o">=</span> <span class="n">expon</span><span class="o">.</span><span class="n">sf</span><span class="p">(</span><span class="n">z_cut</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">mean_B</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">stdev</span><span class="p">)</span>
+<span class="n">area_A</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">expon</span><span class="o">.</span><span class="n">sf</span><span class="p">(</span><span class="n">z_cut</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">mean_A</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">stdev</span><span class="p">)</span>
+<span class="n">area_B</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">expon</span><span class="o">.</span><span class="n">sf</span><span class="p">(</span><span class="n">z_cut</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">mean_B</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">stdev</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s1">&#39;1 in </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">area_A</span><span class="p">))</span>
 <span class="k">print</span><span class="p">(</span><span class="s1">&#39;1 in </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">area_B</span><span class="p">))</span>
 <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.1f</span><span class="s1"> to 1&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">area_B</span><span class="o">/</span><span class="n">area_A</span><span class="p">))</span>
