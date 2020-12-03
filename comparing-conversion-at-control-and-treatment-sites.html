@@ -85,7 +85,7 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>In real-life, non-digital situations, it's often not feasible to run true A/B tests. Imagine a cinema selling movie tickets and upselling food and beverages, and experimenting with different pricing to see how it affects upsell conversion. For simplicity, let's say non-conversion means a customer buys just a movie ticket, whereas a conversion means a customer buys a movie ticket plus some food and beverages. Since the cinema is a real-life venue (not digital) the pricing is shown on large printed banners, and can't be varied per arriving customer. Also, there may be legal reasons why pricing can't be varied by customer.</p>
+<p>In real-life, non-digital situations, it's often not feasible to run true A/B tests. Imagine a cinema selling movie tickets and upselling food and beverages, and experimenting with different pricing to see how it affects upsell conversion. For simplicity, let's say non-conversion means a customer buys just a movie ticket, whereas a conversion means a customer buys a movie ticket plus some food and beverages. Since the cinema is a real-life venue (not digital) the pricing is shown on large printed banners, and can't be varied per arriving customer (there may also be legal reasons).</p>
 <p>In such situations, the next best thing to do is to:</p>
 <ol>
 <li>roll out the experimental pricing at a treatment site and measure the change in conversion before vs. after rollout (rollout is a calendar date when the pricing is changed at the treatment site)</li>
@@ -93,13 +93,18 @@
 The control lift can be used to estimate and subtract out the "seasonal" change from the treatment effect, which could be because eg. different movies are playing.</li>
 </ol>
 <p><img src="/images/ct_site_setup.png" alt="Control site and treatment site setup" style="width: 400px;"/></p>
-<p>It's important to note that even when using a control site, we're doing a best-effort estimation of conversion lift. Because there is no true unit randomization, we can't really be sure that any signal we pick up is due to the treatment we applied. Two examples:
-1. The treatment site and the control site will never be statistically exactly the same, eg. the population of people going to the two cinemas will not be exactly the same, so any seasonal correction we measure at the control site is only an approximation of the treatment site's. For example, if a new Bollywood movie comes out after the treatment is applied at the treatment site, and the control site draws more people from India, who are more likely to buy food and beverages along with the movie ticket, that will skew the results.
-2. It's possible that an external event, unrelated to the pricing change, is causing a change at one of the sites after the rollout, and the lift we're measuring is due to this external reason (and not the pricing change). For example, there is a big shop next to the control site, which closes during the treatment period, which reduces the number and changes the mix of people coming in to the control site.</p>
-<p>It would be tempting to say that "because of the above", only a strong signal (high lift, low p-value) should be accpeted. But this is misleading, because external events like the above can cause a strong signal. Such analysis should only be performed </p>
-<p>Having laid out these caveats,
-1. how can we compute an estimated treatment lift?
-2. how can we compute an estimated significance? </p>
+<p>It's important to note that even when using a control site, we're doing a best-effort estimation of conversion lift. We cannot be sure that any signal we pick up is due to the treatment we applied, and not some external factor. Some issues we face:</p>
+<ol>
+<li>The populations of the before and after (and even the control and treatment site) are not distinct: a customer could show up both at the control and the treatment site, both before and after the rollout. This could result in unexpected spill-over effects. If possible, it's best to exclude such customers from the study.</li>
+<li>The treatment site and the control site will never be statistically exactly the same, so any seasonal correction we measure at the control site is only an approximation of the treatment site's. For example, if a new Bollywood movie comes out after the treatment is applied at the treatment site, and one of the sites draws more people from India, who are more likely to buy food and beverages along with the movie ticket, that will skew the results.</li>
+<li>It's possible that an external event, unrelated to the pricing change, is causing a change at one of the sites after the rollout, and the lift we're measuring is due to this external reason --- and not the pricing change. For example, there is a big shop next to one of the sites, which closes down during the treatment period and skews the mix of people coming in to this site site.</li>
+</ol>
+<p>It would be tempting to say that "because of the above", only a strong signal (high lift, low p-value) should be accpeted. But this is misleading, because external events like the above can cause a strong signal. The result of such a control vs treatment site analysis should only be accepted after careful checks of populations mixes along various splits, checking various metrics and other external factors (eg. nearby physical events) of the sites indicate that it's safe to proceed with the analysis.</p>
+<p>Having laid out these caveats, the two main questions are:</p>
+<ol>
+<li>how can we compute an estimated treatment lift?</li>
+<li>how can we compute an estimated significance (or bayesian probability of "after" being better than "before")?</li>
+</ol>
 <h2>Experiment setup</h2>
 <p>Let's use the following toy numbers. Our measurements at the control site, before and after the rollout data:</p>
 <p><img src="/images/ct_site_control_numbers.png" alt="Control site numbers" style="width: 400px;"/></p>
@@ -154,8 +159,7 @@ relative conversion lift at treatment with correction (seasonality subtracted ou
 
 <h2>Estimating the statistical significance of the treatment lift</h2>
 <p>Based on the above analysis, it seems that the treatment worked, and taking into account seasonality, there is still a positive lift. But is it statistically significant? Naively, we could take the treatment site's contingency matrix, and compute a p-value from that:</p>
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">chi2_contingency</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;p-value of original treatment site contingency matrix = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">chi2_contingency</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="s1">&#39;p-value of original treatment site contingency matrix = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">chi2_contingency</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
 
 
@@ -165,12 +169,20 @@ relative conversion lift at treatment with correction (seasonality subtracted ou
 
 
 <p>But this is definitely not right, because we didn't take into account the fact that we normalized our conversion lift using the control site. A less wrong approach is to re-normalize the treatment site's contingency matrix, and calculate a p-value from that. First, re-normalize, fixing the "after" sample size, and re-distributing the non-conversion and conversion counts according to the corrected "after" conversion (which excludes the seasonality we compute using the control):</p>
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="n">treatment_site_corr</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">)</span>
-<span class="n">N</span> <span class="o">=</span> <span class="n">treatment_site_corr</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">treatment_site_corr</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-<span class="n">conv_treatment_after_corr</span> <span class="o">=</span> <span class="n">conv_treatment_before</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">conv_treatment_lift_corr</span><span class="p">)</span>
-<span class="n">treatment_site_corr</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">conv_treatment_after_corr</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
-<span class="n">treatment_site_corr</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">conv_treatment_after_corr</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">correct_treatment_contingency_matrix</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">,</span> <span class="n">conv_control_lift</span><span class="p">):</span>
+    <span class="n">conv_treatment_before</span> <span class="o">=</span> <span class="n">treatment_site</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">treatment_site</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">treatment_site</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">conv_treatment_after</span>  <span class="o">=</span> <span class="n">treatment_site</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">treatment_site</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">treatment_site</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">conv_treatment_lift</span> <span class="o">=</span> <span class="n">conv_treatment_after</span> <span class="o">/</span> <span class="n">conv_treatment_before</span> <span class="o">-</span> <span class="mf">1.0</span>
+    <span class="n">conv_treatment_lift_corr</span> <span class="o">=</span> <span class="n">conv_treatment_lift</span> <span class="o">-</span> <span class="n">conv_control_lift</span>
+    <span class="n">conv_treatment_after_corr</span> <span class="o">=</span> <span class="n">conv_treatment_before</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">conv_treatment_lift_corr</span><span class="p">)</span>
+    <span class="n">treatment_site_corr</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">treatment_site_corr</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">treatment_site_corr</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">treatment_site_corr</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">conv_treatment_after_corr</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
+    <span class="n">treatment_site_corr</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">N</span> <span class="o">-</span> <span class="n">treatment_site_corr</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">treatment_site_corr</span>
+
+<span class="n">treatment_site_corr</span> <span class="o">=</span> <span class="n">correct_treatment_contingency_matrix</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">,</span> <span class="n">conv_control_lift</span><span class="p">)</span>
+
 <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Original treatment site contingency matrix:&#39;</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">))</span>
 <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Corrected treatment site contingency matrix:&#39;</span><span class="p">)</span>
@@ -184,7 +196,7 @@ relative conversion lift at treatment with correction (seasonality subtracted ou
  [ 911 1088]]
 Corrected treatment site contingency matrix:
 [[ 888  883]
- [ 911 1048]]
+ [ 911 1049]]
 </pre></div>
 
 
@@ -208,13 +220,13 @@ Corrected treatment site contingency matrix:
     <span class="n">samples_after</span>  <span class="o">=</span> <span class="n">beta_after</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">samples_before</span><span class="p">,</span> <span class="n">samples_after</span>
 
-<span class="k">def</span> <span class="nf">bayesian_prob</span><span class="p">(</span><span class="n">site_contingency</span><span class="p">,</span> <span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="mi">1000</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">bayesian_prob_after_gt_before</span><span class="p">(</span><span class="n">site_contingency</span><span class="p">,</span> <span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="mi">1000</span><span class="p">):</span>
     <span class="n">samples_before</span><span class="p">,</span> <span class="n">samples_after</span> <span class="o">=</span> <span class="n">sample_conversion_lifts</span><span class="p">(</span><span class="n">site_contingency</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">)</span>
     <span class="n">hits</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">after</span> <span class="o">&gt;</span> <span class="n">before</span> <span class="k">for</span> <span class="n">before</span><span class="p">,</span> <span class="n">after</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">samples_before</span><span class="p">,</span> <span class="n">samples_after</span><span class="p">)])</span>
     <span class="k">return</span> <span class="n">hits</span><span class="o">/</span><span class="n">num_samples</span>
 
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;P(conv_after &gt; conv_before | treatment_site     ): </span><span class="si">%.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">bayesian_prob</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">))</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;P(conv_after &gt; conv_before | treatment_site_corr): </span><span class="si">%.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">bayesian_prob</span><span class="p">(</span><span class="n">treatment_site_corr</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;P(conv_after &gt; conv_before | treatment_site     ): </span><span class="si">%.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">bayesian_prob_after_gt_before</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;P(conv_after &gt; conv_before | treatment_site_corr): </span><span class="si">%.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">bayesian_prob_after_gt_before</span><span class="p">(</span><span class="n">treatment_site_corr</span><span class="p">))</span>
 </pre></div>
 
 
@@ -225,7 +237,7 @@ P(conv_after &gt; conv_before | treatment_site_corr) = 0.9859
 
 
 <p>The story is the same as above: since the corrected conversion lift is lower, the probability of the effect being real is a bit lower ($ 99.9 \% $ vs $ 98.6 \% $).</p>
-<h2>Using Bayesian Monte Carlo methods to take into account the sample size of the control site</h2>
+<h2>Using Bayesian Monte Carlo methods to take into account the sample size at the control site</h2>
 <p>From a mathematical perspective, the big shortcoming of the above analysis (both the frequentist p-value and the bayesian) is that it ignores the sample size at the control site. In other words, when we compute <code>conv_control_lift</code> and then <code>conv_treatment_lift_corr</code>:</p>
 <div class="highlight"><pre><span></span><span class="n">conv_control_lift</span> <span class="o">=</span> <span class="n">conv_control_after</span> <span class="o">/</span> <span class="n">conv_control_before</span> <span class="o">-</span> <span class="mf">1.0</span>
 <span class="o">...</span>
@@ -262,18 +274,14 @@ P(conv_after &gt; conv_before | treatment_site_corr) = 0.9859
 <li>Using the sampled conversion lift, repeat the frequentist or bayesian analysis above to get a p-value or a bayesian probability</li>
 </ol>
 <p>Code for the frequentist p-value case:</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">p_value</span><span class="p">(</span><span class="n">conv_control_lift</span><span class="p">):</span>
-    <span class="n">N</span> <span class="o">=</span> <span class="n">treatment_site</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">treatment_site</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">treatment_site_corr</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">)</span>
-    <span class="n">conv_treatment_after_corr</span> <span class="o">=</span> <span class="n">conv_treatment_before</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">conv_treatment_lift</span> <span class="o">-</span> <span class="n">conv_control_lift</span><span class="p">)</span>
-    <span class="n">treatment_site_corr</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">conv_treatment_after_corr</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span>
-    <span class="n">treatment_site_corr</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">conv_treatment_after_corr</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">p_value_corr</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">,</span> <span class="n">conv_control_lift</span><span class="p">):</span>
+    <span class="n">treatment_site_corr</span> <span class="o">=</span> <span class="n">correct_treatment_contingency_matrix</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">,</span> <span class="n">conv_control_lift</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">chi2_contingency</span><span class="p">(</span><span class="n">treatment_site_corr</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
 
-<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="mi">1000</span>
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">100</span><span class="o">*</span><span class="mi">1000</span>
 <span class="n">samples_conv_control_before</span><span class="p">,</span> <span class="n">samples_conv_control_after</span> <span class="o">=</span> <span class="n">sample_conversion_lifts</span><span class="p">(</span><span class="n">control_site</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">)</span>
 <span class="n">samples_conv_control_lift</span> <span class="o">=</span> <span class="p">[</span><span class="n">after</span><span class="o">/</span><span class="n">before</span><span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">before</span><span class="p">,</span> <span class="n">after</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">samples_conv_control_before</span><span class="p">,</span> <span class="n">samples_conv_control_after</span><span class="p">)]</span>
-<span class="n">ps</span> <span class="o">=</span> <span class="p">[</span><span class="n">p_value</span><span class="p">(</span><span class="n">lift</span><span class="p">)</span> <span class="k">for</span> <span class="n">lift</span> <span class="ow">in</span> <span class="n">samples_conv_control_lift</span><span class="p">]</span>
+<span class="n">ps</span> <span class="o">=</span> <span class="p">[</span><span class="n">p_value_corr</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">,</span> <span class="n">lift</span><span class="p">)</span> <span class="k">for</span> <span class="n">lift</span> <span class="ow">in</span> <span class="n">samples_conv_control_lift</span><span class="p">]</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 <span class="k">print</span><span class="p">(</span><span class="s1">&#39;p-value of corrected treatment site contingency matrix (taking into account control site uncertainty) = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ps</span><span class="p">))</span>
@@ -282,12 +290,34 @@ P(conv_after &gt; conv_before | treatment_site_corr) = 0.9859
 
 <p>Prints:</p>
 <p><img src="/images/ct_site_mc_p.png" alt="Monte Carlo simulated p values" style="width: 500px;"/></p>
-<div class="highlight"><pre><span></span>p-value of corrected treatment site contingency matrix (taking into account control site uncertainty) = 0.114
+<div class="highlight"><pre><span></span>p-value of corrected treatment site contingency matrix (taking into account control site uncertainty) = 0.115
 </pre></div>
 
 
 <p>Note that this is a significant adjustment: without taking into account the control site's uncertainty, the p-value was 0.029, about 4x less in this example!</p>
+<p>We can repeat the same to get an adjusted Bayesian probability:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">bayesian_prob_corr</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">,</span> <span class="n">conv_control_lift</span><span class="p">):</span>
+    <span class="n">treatment_site_corr</span> <span class="o">=</span> <span class="n">correct_treatment_contingency_matrix</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">,</span> <span class="n">conv_control_lift</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">bayesian_prob_after_gt_before</span><span class="p">(</span><span class="n">treatment_site_corr</span><span class="p">)</span>
+
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="mi">1000</span>
+<span class="n">samples_conv_control_before</span><span class="p">,</span> <span class="n">samples_conv_control_after</span> <span class="o">=</span> <span class="n">sample_conversion_lifts</span><span class="p">(</span><span class="n">control_site</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">)</span>
+<span class="n">samples_conv_control_lift</span> <span class="o">=</span> <span class="p">[</span><span class="n">after</span><span class="o">/</span><span class="n">before</span><span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">before</span><span class="p">,</span> <span class="n">after</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">samples_conv_control_before</span><span class="p">,</span> <span class="n">samples_conv_control_after</span><span class="p">)]</span>
+<span class="n">bs</span> <span class="o">=</span> <span class="p">[</span><span class="n">bayesian_prob_corr</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">,</span> <span class="n">lift</span><span class="p">)</span> <span class="k">for</span> <span class="n">lift</span> <span class="ow">in</span> <span class="n">samples_conv_control_lift</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;P(conv_after &gt; conv_before | treatment_site_corr) (taking into account control site uncertainty) = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">bs</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Prints:</p>
+<div class="highlight"><pre><span></span>P(conv_after &gt; conv_before | treatment_site_corr) (taking into account control site uncertainty) = 0.942
+</pre></div>
+
+
+<p>Similar to the frequentist case, this is a significant adjustment: without taking into account the control site's uncertainty, the probability was $ 98.5 \% $, while this calculation yields a more realistic $ 94.2 \% $.</p>
 <h2>Conclusion</h2>
+<p>The most important thing to remember is that, despite the elegance of the above Monte Carlo simulations, this is still just mumbo-jumbo on top of a statistically unsound experiment, since the two populations we're comparing (treatment site before and after) are not a result of random selection.</p>
   </div>
   <div class="tag-cloud">
     <p>
