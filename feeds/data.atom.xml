@@ -53,6 +53,19 @@ The control lift can be used to estimate and subtract out the "seasonal" change 
 &lt;/pre&gt;&lt;/div&gt;
 
 
+&lt;p&gt;Prints:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;conversion at control site before = 0.50
+conversion at control site after  = 0.52
+relative conversion lift at control = 0.040 (assumed to be seasonality)
+
+conversion at treatment site before = 0.51
+conversion at treatment site after  = 0.56
+relative conversion lift at treatment = 0.112 (including assumed seasonality)
+
+relative conversion lift at treatment with correction (seasonality subtracted out) = 0.072
+&lt;/pre&gt;&lt;/div&gt;
+
+
 &lt;h2&gt;Estimating the statistical significance of the treatment lift&lt;/h2&gt;
 &lt;p&gt;xxx&lt;/p&gt;
 &lt;h2&gt;Estimating the Bayesian probability that the treatment lift is higher&lt;/h2&gt;
