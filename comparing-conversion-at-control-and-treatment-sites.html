@@ -85,33 +85,12 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>In real-life, non-digital situations, it's often not feasible to run true A/B tests. Imagine a cinema selling movie tickets and upselling food and beverages, and experimenting with different pricing to see how it affects upsell conversion. Since the cinema is a real-life venue (not digital) the pricing is shown on large printed banners, and can't be varied per arriving customer. Also, there may be legal reasons why pricing can't be varied by customer.</p>
+<p>In real-life, non-digital situations, it's often not feasible to run true A/B tests. Imagine a cinema selling movie tickets and upselling food and beverages, and experimenting with different pricing to see how it affects upsell conversion. For simplicity, let's say non-conversion means a customer buys just a movie ticket, whereas a conversion means a customer buys a movie ticket plus some food and beverages. Since the cinema is a real-life venue (not digital) the pricing is shown on large printed banners, and can't be varied per arriving customer. Also, there may be legal reasons why pricing can't be varied by customer.</p>
 <p>In such situations, the next best thing to do is to:
-1. roll out the experimental pricing at a treatment site and measure the change in conversion before vs. after rollout
-2. while keeping the old pricing at a control site, also measure the change in conversion there before vs. after rollout
-3. and use that as a seasonal baseline.
-The control can be used to estimate and subtract out the "seasonal" change, which could be because eg. different movies are playing.</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th align="center"><strong>before</strong></th>
-<th align="center"><strong>after</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>control site</strong></td>
-<td align="center">no treatment</td>
-<td align="center">no treatment</td>
-</tr>
-<tr>
-<td><strong>treatment site</strong></td>
-<td align="center">no treatment</td>
-<td align="center">TREATMENT</td>
-</tr>
-</tbody>
-</table>
+1. roll out the experimental pricing at a treatment site and measure the change in conversion before vs. after rollout (rollout is a calendar date when the pricing is changed at the treatment site)
+2. at a control site don't make any changes, and measure the change in conversion before vs. after rollout
+The control lift can be used to estimate and subtract out the "seasonal" change from the treatment effect, which could be because eg. different movies are playing.</p>
+<p><img src="/images/ct_site_setup.png" alt="Control site and treatment site setup" style="width: 600px;"/></p>
 <p>It's important to note that even when using a control site, we're doing a best-effort estimation of conversion lift. Because there is no true unit randomization, we can't really be sure that any signal we pick up is due to the treatment we applied. Two examples:
 1. The treatment site and the control site will never be statistically exactly the same, eg. the population of people going to the two cinemas will not be exactly the same, so any seasonal correction we measure at the control site is only an approximation of the treatment site's. For example, if a new Bollywood movie comes out after the treatment is applied at the treatment site, and the control site draws more people from India, who are more likely to buy food and beverages along with the movie ticket, that will skew the results.
 2. It's possible that an external event, unrelated to the pricing change, is causing a change at one of the sites after the rollout, and the lift we're measuring is due to this external reason (and not the pricing change). For example, there is a big shop next to the control site, which closes during the treatment period, which reduces the number and changes the mix of people coming in to the control site.</p>
