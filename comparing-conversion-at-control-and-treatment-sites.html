@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="google-site-verification" content="14dvQcWyDWHBo8aM0kld8XzEa6KypAzCQDz1_KPus9E" />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-1812620-2');
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn - Marton Trencseni Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="In real-life, non-digital situations, it's often not feasible to run true A/B tests." />
+<meta name="keywords" content="ab-testing">
+<meta property="og:site_name" content="Bytepawn - Marton Trencseni"/>
+<meta property="og:title" content="Comparing conversion at control and treatment sites"/>
+<meta property="og:description" content="In real-life, non-digital situations, it's often not feasible to run true A/B tests."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/comparing-conversion-at-control-and-treatment-sites.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-12-03 00:00:00+01:00"/>
+<meta property="article:modified_time" content="2020-12-03 00:00:00+01:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data"/>
+<meta property="article:tag" content="ab-testing"/>
+<meta property="og:image" content="/images/fisher2.png"/>
+
+  <title>Bytepawn - Marton Trencseni &ndash; Comparing conversion at control and treatment sites</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <!--<h2><a href="">Bytepawn - Marton Trencseni</a></h2>-->
+      <h2><a href="http://bytepawn.com">Bytepawn</a></h2>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="comparing-conversion-at-control-and-treatment-sites">Comparing conversion at control and treatment sites</h1>
+    <p>Marton Trencseni - Thu 03 December 2020 - <a href="/category/data.html">Data</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>In real-life, non-digital situations, it's often not feasible to run true A/B tests. Imagine a cinema selling movie tickets and upselling food and beverages, and experimenting with different pricing to see how it affects upsell conversion. Since the cinema is a real-life venue (not digital) the pricing is shown on large printed banners, and can't be varied per arriving customer. Also, there may be legal reasons why pricing can't be varied by customer.</p>
+<p>In such situations, the next best thing to do is to:
+1. roll out the experimental pricing at a treatment site and measure the change in conversion before vs. after rollout
+2. while keeping the old pricing at a control site, also measure the change in conversion there before vs. after rollout
+3. and use that as a seasonal baseline.
+The control can be used to estimate and subtract out the "seasonal" change, which could be because eg. different movies are playing.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="center"><em>before</em></th>
+<th align="center"><em>after</em></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>control site</em></td>
+<td align="center">no treatment</td>
+<td align="center">no treatment</td>
+</tr>
+<tr>
+<td><em>treatment site</em></td>
+<td align="center">no treatment</td>
+<td align="center">TREATMENT</td>
+</tr>
+</tbody>
+</table>
+<p>It's important to note that even when using a control site, we're doing a best-effort estimation of conversion lift. Because there is no true unit randomization, we can't really be sure that any signal we pick up is due to the treatment we applied. Two examples:
+1. The treatment site and the control site will never be statistically exactly the same, eg. the population of people going to the two cinemas will not be exactly the same, so any seasonal correction we measure at the control site is only an approximation of the treatment site's. For example, if a new Bollywood movie comes out after the treatment is applied at the treatment site, and the control site draws more people from India, who are more likely to buy food and beverages along with the movie ticket, that will skew the results.
+2. It's possible that an external event, unrelated to the pricing change, is causing a change at one of the sites after the rollout, and the lift we're measuring is due to this external reason (and not the pricing change). For example, there is a big shop next to the control site, which closes during the treatment period, which reduces the number and changes the mix of people coming in to the control site.</p>
+<p>It would be tempting to say that "because of the above", only a strong signal (high lift, low p-value) should be accpeted. But this is misleading, because external events like the above can cause a strong signal. Such analysis should only be performed </p>
+<p>Having laid out these caveats,
+1. how can we compute an estimated treatment lift?
+2. how can we compute an estimated significance? </p>
+<h2>Estimating the treatment lift</h2>
+<p>xxx</p>
+<h2>Estimating the statistical significance of the treatment lift</h2>
+<p>xxx</p>
+<h2>Estimating the Bayesian probability that the treatment lift is higher</h2>
+<p>xxx</p>
+<h2>Using Bayesian Monte Carlo methods to take into account the sample size of the control site</h2>
+<p>xxx</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/ab-testing.html">ab-testing</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-1812620-2');
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Comparing conversion at control and treatment sites",
+  "headline": "Comparing conversion at control and treatment sites",
+  "datePublished": "2020-12-03 00:00:00+01:00",
+  "dateModified": "2020-12-03 00:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/comparing-conversion-at-control-and-treatment-sites.html",
+  "description": "In real-life, non-digital situations, it's often not feasible to run true A/B tests."
+}
+</script></body>
+</html>
