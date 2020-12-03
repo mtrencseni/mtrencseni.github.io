@@ -209,14 +209,14 @@ Corrected treatment site contingency matrix:
     <span class="n">hits</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">after</span> <span class="o">&gt;</span> <span class="n">before</span> <span class="k">for</span> <span class="n">before</span><span class="p">,</span> <span class="n">after</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">samples_before</span><span class="p">,</span> <span class="n">samples_after</span><span class="p">)])</span>
     <span class="k">return</span> <span class="n">hits</span><span class="o">/</span><span class="n">num_samples</span>
 
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;bayesian probability of conversion after &gt; before: </span><span class="si">%.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">bayesian_prob</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">))</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;corrected bayesian probability of conversion after &gt; before: </span><span class="si">%.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">bayesian_prob</span><span class="p">(</span><span class="n">treatment_site_corr</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;P(conv_after &gt; conv_before | treatment_site     ): </span><span class="si">%.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">bayesian_prob</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;P(conv_after &gt; conv_before | treatment_site_corr): </span><span class="si">%.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">bayesian_prob</span><span class="p">(</span><span class="n">treatment_site_corr</span><span class="p">))</span>
 </pre></div>
 
 
 <p>Prints:</p>
-<div class="highlight"><pre><span></span>bayesian probability of conversion after &gt; before: 0.9995
-corrected bayesian probability of conversion after &gt; before: 0.9863
+<div class="highlight"><pre><span></span>P(conv_after &gt; conv_before | treatment_site     ): 0.9997
+P(conv_after &gt; conv_before | treatment_site_corr): 0.9859
 </pre></div>
 
 
