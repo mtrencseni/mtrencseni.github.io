@@ -171,13 +171,20 @@ relative conversion lift at treatment with correction (seasonality subtracted ou
 <span class="n">conv_treatment_after_corr</span> <span class="o">=</span> <span class="n">conv_treatment_before</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">conv_treatment_lift_corr</span><span class="p">)</span>
 <span class="n">treatment_site_corr</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">conv_treatment_after_corr</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
 <span class="n">treatment_site_corr</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">conv_treatment_after_corr</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Original treatment site contingency matrix:&#39;</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Corrected treatment site contingency matrix:&#39;</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">treatment_site_corr</span><span class="p">))</span>
 </pre></div>
 
 
 <p>Prints:</p>
-<div class="highlight"><pre><span></span><span class="k">[[ 888  883]</span>
- <span class="k">[ 911 1048]]</span>
+<div class="highlight"><pre><span></span>Original treatment site contingency matrix:
+[[ 888  844]
+ [ 911 1088]]
+Corrected treatment site contingency matrix:
+[[ 888  883]
+ [ 911 1048]]
 </pre></div>
 
 
