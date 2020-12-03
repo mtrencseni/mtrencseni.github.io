@@ -205,7 +205,7 @@ Corrected treatment site contingency matrix:
     <span class="n">beta_before</span> <span class="o">=</span> <span class="n">beta</span><span class="p">(</span><span class="n">site_contingency</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">site_contingency</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">beta_after</span>  <span class="o">=</span> <span class="n">beta</span><span class="p">(</span><span class="n">site_contingency</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">site_contingency</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
     <span class="n">samples_before</span> <span class="o">=</span> <span class="n">beta_before</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
-    <span class="n">samples_after</span>  <span class="o">=</span><span class="n">beta_after</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
+    <span class="n">samples_after</span>  <span class="o">=</span> <span class="n">beta_after</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
     <span class="n">hits</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">after</span> <span class="o">&gt;</span> <span class="n">before</span> <span class="k">for</span> <span class="n">before</span><span class="p">,</span> <span class="n">after</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">samples_before</span><span class="p">,</span> <span class="n">samples_after</span><span class="p">)])</span>
     <span class="k">return</span> <span class="n">hits</span><span class="o">/</span><span class="n">num_samples</span>
 
@@ -220,9 +220,18 @@ P(conv_after &gt; conv_before | treatment_site_corr): 0.9859
 </pre></div>
 
 
-<p>The story is the same as above: since the corrected conversion lift is lower, the probability of the effect being real is a bit lower ($99.9 \% vs 98.6 \% $).</p>
+<p>The story is the same as above: since the corrected conversion lift is lower, the probability of the effect being real is a bit lower ($ 99.9 \% $ vs $ 98.6 \% $).</p>
 <h2>Using Bayesian Monte Carlo methods to take into account the sample size of the control site</h2>
-<p>xxx</p>
+<p>From a mathematical perspective, the big shortcoming of the above analysis (both the frequentist p-value and the bayesian) is that it ignores the sample size at the control site. In other words, when we compute <code>conv_control_lift</code> and then <code>conv_treatment_lift_corr</code>:</p>
+<div class="highlight"><pre><span></span><span class="n">conv_control_lift</span> <span class="o">=</span> <span class="n">conv_control_after</span> <span class="o">/</span> <span class="n">conv_control_before</span> <span class="o">-</span> <span class="mf">1.0</span>
+<span class="o">...</span>
+<span class="n">conv_treatment_lift_corr</span> <span class="o">=</span> <span class="n">conv_treatment_lift</span> <span class="o">-</span> <span class="n">conv_control_lift</span>
+</pre></div>
+
+
+<p>We take the <code>conv_control_lift</code> point estimate at face value, without taking into account that this lift at the control site is also a random variable, it could also be random fluctuation.</p>
+<p>To model the uncertainty at the control site, we can use the Beta function we know from Bayesian A/B testing.</p>
+<h2>Conclusion</h2>
   </div>
   <div class="tag-cloud">
     <p>
