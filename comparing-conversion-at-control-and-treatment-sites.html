@@ -200,7 +200,27 @@ Corrected treatment site contingency matrix:
 
 <p>Because the seasonality was positive, it corrected the positive lift to be lower, which naturally results in a higher p-value, less statistical significance.</p>
 <h2>Estimating the Bayesian probability that the treatment lift is higher</h2>
-<p>xxx</p>
+<p>Similar to the above, we can also use the correct contingency matrix to calculate the Bayesian probability that the conversion at the treatment site is higher after the change the treatment was applied vs before. I've described in detail how to calculate Bayesian conversion probabilities in this previous post. We can either use a closed form solution or use Monte Carlo sampling to compute the probability. Since we will use Monte Carlo simulations later anyway, let's go that route here too:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">bayesian_prob</span><span class="p">(</span><span class="n">site_contingency</span><span class="p">,</span> <span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="n">beta_before</span> <span class="o">=</span> <span class="n">beta</span><span class="p">(</span><span class="n">site_contingency</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">site_contingency</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">beta_after</span>  <span class="o">=</span> <span class="n">beta</span><span class="p">(</span><span class="n">site_contingency</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">site_contingency</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">samples_before</span> <span class="o">=</span> <span class="n">beta_before</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
+    <span class="n">samples_after</span>  <span class="o">=</span><span class="n">beta_after</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
+    <span class="n">hits</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">after</span> <span class="o">&gt;</span> <span class="n">before</span> <span class="k">for</span> <span class="n">before</span><span class="p">,</span> <span class="n">after</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">samples_before</span><span class="p">,</span> <span class="n">samples_after</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">hits</span><span class="o">/</span><span class="n">num_samples</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;bayesian probability of conversion after &gt; before: </span><span class="si">%.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">bayesian_prob</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;corrected bayesian probability of conversion after &gt; before: </span><span class="si">%.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">bayesian_prob</span><span class="p">(</span><span class="n">treatment_site_corr</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Prints:</p>
+<div class="highlight"><pre><span></span>bayesian probability of conversion after &gt; before: 0.9995
+corrected bayesian probability of conversion after &gt; before: 0.9863
+</pre></div>
+
+
+<p>The story is the same as above: since the corrected conversion lift is lower, the probability of the effect being real is a bit lower ($99.9 \% vs 98.6 \% $).</p>
 <h2>Using Bayesian Monte Carlo methods to take into account the sample size of the control site</h2>
 <p>xxx</p>
   </div>
