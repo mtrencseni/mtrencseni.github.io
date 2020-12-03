@@ -129,12 +129,13 @@ The control lift can be used to estimate and subtract out the "seasonal" change 
 <span class="n">conv_treatment_before</span> <span class="o">=</span> <span class="n">treatment_site</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">treatment_site</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">treatment_site</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 <span class="n">conv_treatment_after</span>  <span class="o">=</span> <span class="n">treatment_site</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">treatment_site</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">treatment_site</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
 <span class="n">conv_treatment_lift</span> <span class="o">=</span> <span class="n">conv_treatment_after</span> <span class="o">/</span> <span class="n">conv_treatment_before</span> <span class="o">-</span> <span class="mf">1.0</span>
+<span class="n">conv_treatment_lift_corr</span> <span class="o">=</span> <span class="n">conv_treatment_lift</span> <span class="o">-</span> <span class="n">conv_control_lift</span>
 <span class="k">print</span><span class="p">(</span><span class="s1">&#39;conversion at treatment site before = </span><span class="si">%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">conv_treatment_before</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s1">&#39;conversion at treatment site after  = </span><span class="si">%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">conv_treatment_after</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s1">&#39;relative conversion lift at treatment = </span><span class="si">%.3f</span><span class="s1"> (including assumed seasonality)&#39;</span> <span class="o">%</span> <span class="n">conv_treatment_lift</span><span class="p">)</span>
 <span class="k">print</span><span class="p">()</span>
 
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;relative conversion lift at treatment with correction (seasonality subtracted out) = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">conv_treatment_lift</span> <span class="o">-</span> <span class="n">conv_control_lift</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;relative conversion lift at treatment with correction (seasonality subtracted out) = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">conv_treatment_lift_corr</span><span class="p">)</span>
 </pre></div>
 
 
@@ -152,7 +153,45 @@ relative conversion lift at treatment with correction (seasonality subtracted ou
 
 
 <h2>Estimating the statistical significance of the treatment lift</h2>
-<p>xxx</p>
+<p>Based on the above analysis, it seems that the treatment worked, and taking into account seasonality, there is still a positive lift. But is it statistically significant? Naively, we could take the treatment site's contingency matrix, and compute a p-value from that:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">fisher_exact</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;p-value of original treatment site contingency matrix = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">fisher_exact</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+
+
+<p>Prints:</p>
+<div class="highlight"><pre><span></span>p-value of original treatment site contingency matrix = 0.001
+</pre></div>
+
+
+<p>But this is definitely not right, because we didn't take into account the fact that we normalized our conversion lift using the control site. A less wrong approach is to re-normalize the treatment site's contingency matrix, and calculate a p-value from that. First, re-normalize, fixing the "after" sample size, and re-distributing the non-conversion and conversion counts according to the corrected "after" conversion (which excludes the seasonality we compute using the control):</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="n">treatment_site_corr</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">treatment_site</span><span class="p">)</span>
+<span class="n">N</span> <span class="o">=</span> <span class="n">treatment_site_corr</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">treatment_site_corr</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">conv_treatment_after_corr</span> <span class="o">=</span> <span class="n">conv_treatment_before</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">conv_treatment_lift_corr</span><span class="p">)</span>
+<span class="n">treatment_site_corr</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">conv_treatment_after_corr</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
+<span class="n">treatment_site_corr</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">conv_treatment_after_corr</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">treatment_site_corr</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Prints:</p>
+<div class="highlight"><pre><span></span><span class="k">[[ 888  883]</span>
+ <span class="k">[ 911 1048]]</span>
+</pre></div>
+
+
+<p>And now we can calculate a more meaningful p-value:</p>
+<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="s1">&#39;p-value of corrected treatment site contingency matrix = </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">fisher_exact</span><span class="p">(</span><span class="n">treatment_site_corr</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+
+
+<p>Prints:</p>
+<div class="highlight"><pre><span></span>p-value of corrected treatment site contingency matrix = 0.028
+</pre></div>
+
+
+<p>Because the seasonality was positive, it corrected the positive lift to be lower, which naturally results in a higher p-value, less statistical significance.</p>
 <h2>Estimating the Bayesian probability that the treatment lift is higher</h2>
 <p>xxx</p>
 <h2>Using Bayesian Monte Carlo methods to take into account the sample size of the control site</h2>
