@@ -21,7 +21,7 @@ The control lift can be used to estimate and subtract out the "seasonal" change 
 &lt;p&gt;At the treatment site, where we actually change the price:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/ct_site_treatment_numbers_2.png" alt="Treatment site numbers" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;h2&gt;Estimating the treatment lift&lt;/h2&gt;
-&lt;p&gt;At the control site, before rollout, conversion was $ 997/(996+997)=50% $, after rollout $ 1089/(1004+1089)=52% $, so the control's relative lift in conversion is $ 0.52/0.50-1=4% $. Since we didn't make any change at the control site, we assume that this lift is a seasonal lift. Doing the same at the treatment site, the uncorrected, raw relative lift is 11.2%. Subtracting out the seasonal lift leaves us with $ 11.2%-4%=7.2% $ "real", corrected lift.&lt;/p&gt;
+&lt;p&gt;At the control site, before rollout, conversion was $ 997 / (996+997) = 50 \% $, after rollout $ 1089 / (1004+1089) = 52 \% $, so the control's relative lift in conversion is $ 0.52 / 0.50 - 1 = 4 \% $. Since we didn't make any change at the control site, we assume that this lift is a seasonal lift. Doing the same at the treatment site, the uncorrected, raw relative lift is $ 11.2 \% $. Subtracting out the seasonal lift leaves us with $ 11.2 \% - 4 \% = 7.2 \% $ "real", corrected lift.&lt;/p&gt;
 &lt;p&gt;Let's code it up:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;control_site&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
     &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;996&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1004&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
