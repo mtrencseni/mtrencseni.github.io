@@ -165,10 +165,11 @@ P(conv_after &amp;gt; conv_before | treatment_site_corr) = 0.9859
 &lt;ol&gt;
 &lt;li&gt;Model the "before" conversion at the control site with a Beta distribution.&lt;/li&gt;
 &lt;li&gt;Model the "after" conversion at the control site with a Beta distribution.&lt;/li&gt;
-&lt;li&gt;In a Monte Carlo simulation, &lt;code&gt;num_sample&lt;/code&gt; times:&lt;/li&gt;
+&lt;li&gt;In a Monte Carlo simulation, &lt;code&gt;num_samples&lt;/code&gt; times:&lt;/li&gt;
 &lt;li&gt;Draw pairs of "before" and "after" conversion probabilities from the above distributions, and using these sampled conversions compute a sampled control conversion lift.&lt;/li&gt;
+&lt;li&gt;Using the sampled conversion lift, repeat the frequentist or bayesian analysis above to get a p-value or a bayesian probability&lt;/li&gt;
 &lt;/ol&gt;
-&lt;p&gt;First, let's illustrate these steps in code:&lt;/p&gt;
+&lt;p&gt;First, code and visualization for steps:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;num_samples&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="mi"&gt;1000&lt;/span&gt;
 &lt;span class="n"&gt;samples_conv_control_before&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;samples_conv_control_after&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;sample_conversion_lifts&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;control_site&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;num_samples&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;samples_conv_control_lift&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;after&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;before&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;before&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;after&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;zip&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;samples_conv_control_before&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;samples_conv_control_after&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;
@@ -184,11 +185,7 @@ P(conv_after &amp;gt; conv_before | treatment_site_corr) = 0.9859
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;We can then feed these sampled lifts at the control site into our subsequent calculations. Continuing the above:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;Using the sampled conversion lift, repeat the frequentist or bayesian analysis above to get a p-value or a bayesian probability&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;Code for the frequentist p-value case:&lt;/p&gt;
+&lt;p&gt;We can then feed these sampled lifts at the control site into our subsequent calculations. Code for the frequentist p-value case:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;p_value_corr&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;treatment_site&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;conv_control_lift&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;treatment_site_corr&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;correct_treatment_contingency_matrix&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;treatment_site&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;conv_control_lift&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;chi2_contingency&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;treatment_site_corr&lt;/span&gt;&lt;span class="p"&gt;)[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
