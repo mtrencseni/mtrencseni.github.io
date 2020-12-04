@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Marton Trencseni - Data</title><link href="/" rel="alternate"></link><link href="/feeds/data.atom.xml" rel="self"></link><id>/</id><updated>2020-12-03T00:00:00+01:00</updated><entry><title>Comparing conversion at control and treatment sites</title><link href="/comparing-conversion-at-control-and-treatment-sites.html" rel="alternate"></link><published>2020-12-03T00:00:00+01:00</published><updated>2020-12-03T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-12-03:/comparing-conversion-at-control-and-treatment-sites.html</id><summary type="html">&lt;p&gt;In real-life, non-digital situations, it's often not feasible to run true A/B tests.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/fisher2.png" alt="Fisher's test, Fisher Monte Carlo and Chi-squared test p values" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Marton Trencseni - Data</title><link href="/" rel="alternate"></link><link href="/feeds/data.atom.xml" rel="self"></link><id>/</id><updated>2020-12-03T00:00:00+01:00</updated><entry><title>Comparing conversion at control and treatment sites</title><link href="/comparing-conversion-at-control-and-treatment-sites.html" rel="alternate"></link><published>2020-12-03T00:00:00+01:00</published><updated>2020-12-03T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-12-03:/comparing-conversion-at-control-and-treatment-sites.html</id><summary type="html">&lt;p&gt;In real-life, non-digital situations, it's often not feasible to run true A/B tests.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/ct_site_control_bayes.png" alt="Monte Carlo simulated control lifts" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;In real-life, non-digital situations, it's often not feasible to run true A/B tests. Imagine a cinema selling movie tickets and upselling food and beverages, and experimenting with different pricing to see how it affects upsell conversion. For simplicity, let's say non-conversion means a customer buys just a movie ticket, whereas a conversion means a customer buys a movie ticket plus some food and beverages. Since the cinema is a real-life venue (not digital) the pricing is shown on large printed banners, and can't be varied per arriving customer (there may also be legal reasons).&lt;/p&gt;
 &lt;p&gt;In such situations, the next best thing to do is to:&lt;/p&gt;
 &lt;ol&gt;
@@ -204,7 +204,7 @@ P(conv_after &amp;gt; conv_before | treatment_site_corr) = 0.9859
 
 
 &lt;p&gt;Prints:&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/ct_site_mc_p.png" alt="Monte Carlo simulated p values" style="width: 500px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/ct_site_mc_p.png" alt="Monte Carlo simulated p-values" style="width: 500px;"/&gt;&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;p-value of corrected treatment site contingency matrix (taking into account control site uncertainty) = 0.115
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -226,6 +226,7 @@ P(conv_after &amp;gt; conv_before | treatment_site_corr) = 0.9859
 
 
 &lt;p&gt;Prints:&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/ct_site_mc_Bayes.png" alt="Monte Carlo simulated bayesian probabilities" style="width: 500px;"/&gt;&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;P(conv_after &amp;gt; conv_before | treatment_site_corr) (taking into account control site uncertainty) = 0.942
 &lt;/pre&gt;&lt;/div&gt;
 
