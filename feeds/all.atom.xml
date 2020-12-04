@@ -21,7 +21,7 @@
 &lt;li&gt;how can we compute an estimated significance (or bayesian probability of "after" being better than "before")?&lt;/li&gt;
 &lt;/ol&gt;
 &lt;h2&gt;Experiment setup&lt;/h2&gt;
-&lt;p&gt;Let's use the following toy numbers. Our measurements at the control site, before and after the rollout data:&lt;/p&gt;
+&lt;p&gt;Let's use the following toy numbers. Our measurements at the control site, before and after the rollout date:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/ct_site_control_numbers.png" alt="Control site numbers" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;p&gt;At the treatment site, where we actually change the price:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/ct_site_treatment_numbers_2.png" alt="Treatment site numbers" style="width: 400px;"/&gt;&lt;/p&gt;
