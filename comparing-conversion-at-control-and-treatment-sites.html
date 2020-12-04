@@ -87,13 +87,12 @@
     <h2>Introduction</h2>
 <p>In real-life, non-digital situations, it's often not feasible to run true A/B tests. In such cases, we can compare before and after rollout conversions at a treatment site, while using a similar control site to measure and correct for seasonality. The post discusses how to compute increasingly correct p-vlaues and bayesian probabilities in such scenarios.</p>
 <p>Imagine a cinema selling movie tickets and upselling food and beverages, and experimenting with different pricing to see how it affects upsell conversion. For simplicity, let's say non-conversion means a customer buys just a movie ticket, whereas a conversion means a customer buys a movie ticket plus some food and beverages. Since the cinema is a real-life venue (not digital) the pricing is shown on large printed banners, and can't be varied per arriving customer (there may also be legal reasons).</p>
-<p>In such situations, the next best thing to do is to:</p>
-<ol>
-<li>roll out the experimental pricing at a treatment site and measure the change in conversion before vs. after rollout (rollout is a calendar date when the pricing is changed at the treatment site)</li>
-<li>at a control site don't make any changes, and measure the change in conversion before vs. after rollout
-The control lift can be used to estimate and subtract out the "seasonal" change from the treatment effect, which could be because eg. different movies are playing.</li>
-</ol>
+<p>In such situations, the experiment setup is:</p>
 <p><img src="/images/ct_site_setup.png" alt="Control site and treatment site setup" style="width: 400px;"/></p>
+<ol>
+<li>Treatment site: roll out the experimental pricing at the treatment site (let's day on Dec-1) and measure the change in conversion before vs. after rollout (let's say for a week).</li>
+<li>Control site: don't make any changes, and measure the change in conversion before vs. after rollout. The control lift can be used to estimate and subtract out the "seasonal" change from the treatment effect.</li>
+</ol>
 <p>It's important to note that even when using a control site, we're doing a best-effort estimation of conversion lift. We cannot be sure that any signal we pick up is due to the treatment we applied, and not some external factor. Some issues we face:</p>
 <ol>
 <li>The populations of the before and after (and even the control and treatment site) are not distinct: a customer could show up both at the control and the treatment site, both before and after the rollout. This could result in unexpected spill-over effects. If possible, it's best to exclude such customers from the study.</li>
