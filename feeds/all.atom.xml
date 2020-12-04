@@ -5,8 +5,8 @@
 &lt;p&gt;In such situations, the experiment setup is:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/ct_site_setup.png" alt="Control site and treatment site setup" style="width: 400px;"/&gt;&lt;/p&gt;
 &lt;ol&gt;
-&lt;li&gt;Treatment site: roll out the experimental pricing at the treatment site (let's day on Dec-1) and measure the change in conversion before vs. after rollout (let's say for a week).&lt;/li&gt;
-&lt;li&gt;Control site: don't make any changes, and measure the change in conversion before vs. after rollout. The control lift can be used to estimate and subtract out the "seasonal" change from the treatment effect.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Treatment site:&lt;/strong&gt; roll out the experimental pricing at the treatment site (let's day on Dec-1) and measure the change in conversion before vs. after rollout (let's say for a week).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Control site:&lt;/strong&gt; don't make any changes, and measure the change in conversion before vs. after rollout. The control lift can be used to estimate and subtract out the "seasonal" change from the treatment effect.&lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;It's important to note that even when using a control site, we're doing a best-effort estimation of conversion lift. We cannot be sure that any signal we pick up is due to the treatment we applied, and not some external factor. Some issues we face:&lt;/p&gt;
 &lt;ol&gt;
