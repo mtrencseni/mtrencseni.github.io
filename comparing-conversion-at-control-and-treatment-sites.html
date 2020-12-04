@@ -102,8 +102,8 @@
 <p>It would be tempting to say that "because of the above", only a strong signal (high lift, low p-value, high bayesian probability) should be accepted. But this is misleading, because external events like the above can cause a strong signal. The result of such a control vs treatment site analysis should only be accepted after careful checks of populations mixes along various splits, checking various metrics and other external factors (eg. nearby physical events) of the sites indicate that it's safe to proceed with the analysis.</p>
 <p>Having laid out these caveats, the two main questions are:</p>
 <ol>
-<li>how can we compute an estimated treatment lift?</li>
-<li>how can we compute an estimated significance (or bayesian probability of "after" being better than "before")?</li>
+<li>How can we compute an estimated treatment lift?</li>
+<li>How can we compute an estimated significance (or bayesian probability of "after" being better than "before")?</li>
 </ol>
 <h2>Experiment setup</h2>
 <p>Let's use the following toy numbers. Our measurements at the control site, before and after the rollout date:</p>
@@ -245,13 +245,13 @@ P(conv_after &gt; conv_before | treatment_site_corr) = 0.9859
 </pre></div>
 
 
-<p>We take the <code>conv_control_lift</code> point estimate at face value, without taking into account that this lift at the control site is also a random variable, it could also be random fluctuation.</p>
-<p>To model the uncertainty at the control site, we can use the Beta distribution we know from Bayesian A/B testing and perform a Monte Carlo simulation.</p>
+<p>We take the <code>conv_control_lift</code> point estimate at face value, without taking into account that this lift at the control site is also a random variable, with spread around a mean. It could also be just random fluctuation.</p>
+<p>To model the uncertainty at the control site, we can use the <a href="https://en.wikipedia.org/wiki/Beta_distribution">Beta distribution</a> we know from <a href="http://bytepawn.com/bayesian-ab-conversion-tests.html">Bayesian A/B testing</a> and perform a Monte Carlo simulation.</p>
 <ol>
-<li>Model the "before" conversion at the control site with a Beta distribution</li>
-<li>Model the "after" conversion at the control site with a Beta distribution</li>
+<li>Model the "before" conversion at the control site with a Beta distribution.</li>
+<li>Model the "after" conversion at the control site with a Beta distribution.</li>
 <li>In a Monte Carlo simulation, <code>num_sample</code> times:</li>
-<li>Draw pairs of before and after conversions from the above distributions, and using these sampled conversions compute a sampled control conversion lift</li>
+<li>Draw pairs of "before" and "after" conversion probabilities from the above distributions, and using these sampled conversions compute a sampled control conversion lift.</li>
 </ol>
 <p>First, let's illustrate these steps in code:</p>
 <div class="highlight"><pre><span></span><span class="n">num_samples</span> <span class="o">=</span> <span class="mi">100</span><span class="o">*</span><span class="mi">1000</span>
