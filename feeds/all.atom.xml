@@ -279,11 +279,29 @@ P(corrected conversion lift &amp;gt; 0 at treatment site | control_site, treatme
 &lt;/pre&gt;&lt;/div&gt;
 
 
+&lt;h2&gt;Why the control site's sample size matters&lt;/h2&gt;
+&lt;p&gt;It's easy to see why by dividing the control site's contingency matrix by 10. Note that the point estimate of the corrected lift does not change, it's still $ 7.2 \% $, since it's just a function of ratios. Let's see what happen if we re-run the above code (approach 4), which is sensitive to sample size:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;control_site = [
+    [99.6, 100.4],
+    [99.7, 108.9],
+]
+# same as above
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;A smaller sample size means our estimate of the seasonality is less accurate, so we expect to be less certain about our treatment lift:&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/ct_site_control_bayes_mc_best_reduced.png" alt="Monte Carlo simulated bayesian probabilities" style="width: 500px;"/&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;MC mean relative conversion lift at treatment with correction (seasonality subtracted out) = 0.067
+P(corrected conversion lift &amp;gt; 0 at treatment site | control_site, treatment_site) = 0.745
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;In the Bayesian Monte Carlo, at this low control sample size, since the spread is not symmetric about the mean, the mean relative lift actually goes down from $ 7.2 \% $ to $ 6.7 \% $, and our certainty that this effect is real goes down from $ 93.8 \% $ to $ 74.5 \% $!&lt;/p&gt;
 &lt;h2&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;The main takeaways here are:&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;When conducting such treatment vs control site experiments, we must conduct extensive internal checks to minimize the risk of external effects polluting our measurement.&lt;/li&gt;
-&lt;li&gt;We have to take into account the uncertainty of the control site.&lt;/li&gt;
+&lt;li&gt;We have to take into account the uncertainty of the control site. The cleanest approach is the pure bayesian Monte Carlo method.&lt;/li&gt;
 &lt;/ol&gt;</content><category term="ab-testing"></category></entry><entry><title>Unevenness at the edges</title><link href="/unevenness-at-the-edges.html" rel="alternate"></link><published>2020-10-30T00:00:00+01:00</published><updated>2020-10-30T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-10-30:/unevenness-at-the-edges.html</id><summary type="html">&lt;p&gt;Sometimes we look at the top performers in a field and see obviously uneven representations of groups (gender, ethnicity, etc). There a multitude of factors that can lead to it, such as unfair bias in access to opportunities. Here I will show one unintuitive mathematical effect that can contribute to such unevenness in the case of normal distributions. &lt;br/&gt;&lt;br/&gt; &lt;img src="/images/mean_shift_02.png" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;Sometimes we look at the top performers in a field and see obviously uneven representations of groups (gender, ethnicity, etc). There a multitude of factors that can lead to it, such as unfair bias in access to opportunities. Here I will show one unintuitive mathematical effect that can contribute to such unevenness in the case of normal distributions.&lt;/p&gt;
 &lt;p&gt;As a toy model let's assume that there is just one metric which determines performance, such as "height" for basketball or "reaction time" for driving, and the populations are described by a normal distribution. &lt;strong&gt;The unintuitive effect is that even a small shift in the means of the normals (assuming equal standard deviations) can lead to a very uneven ratio at the tails.&lt;/strong&gt;&lt;/p&gt;

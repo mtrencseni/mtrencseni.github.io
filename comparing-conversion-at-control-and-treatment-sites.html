@@ -364,11 +364,29 @@ P(corrected conversion lift &gt; 0 at treatment site | control_site, treatment_s
 </pre></div>
 
 
+<h2>Why the control site's sample size matters</h2>
+<p>It's easy to see why by dividing the control site's contingency matrix by 10. Note that the point estimate of the corrected lift does not change, it's still $ 7.2 \% $, since it's just a function of ratios. Let's see what happen if we re-run the above code (approach 4), which is sensitive to sample size:</p>
+<div class="highlight"><pre><span></span>control_site = [
+    [99.6, 100.4],
+    [99.7, 108.9],
+]
+# same as above
+</pre></div>
+
+
+<p>A smaller sample size means our estimate of the seasonality is less accurate, so we expect to be less certain about our treatment lift:</p>
+<p><img src="/images/ct_site_control_bayes_mc_best_reduced.png" alt="Monte Carlo simulated bayesian probabilities" style="width: 500px;"/></p>
+<div class="highlight"><pre><span></span>MC mean relative conversion lift at treatment with correction (seasonality subtracted out) = 0.067
+P(corrected conversion lift &gt; 0 at treatment site | control_site, treatment_site) = 0.745
+</pre></div>
+
+
+<p>In the Bayesian Monte Carlo, at this low control sample size, since the spread is not symmetric about the mean, the mean relative lift actually goes down from $ 7.2 \% $ to $ 6.7 \% $, and our certainty that this effect is real goes down from $ 93.8 \% $ to $ 74.5 \% $!</p>
 <h2>Conclusion</h2>
 <p>The main takeaways here are:</p>
 <ol>
 <li>When conducting such treatment vs control site experiments, we must conduct extensive internal checks to minimize the risk of external effects polluting our measurement.</li>
-<li>We have to take into account the uncertainty of the control site.</li>
+<li>We have to take into account the uncertainty of the control site. The cleanest approach is the pure bayesian Monte Carlo method.</li>
 </ol>
   </div>
   <div class="tag-cloud">
