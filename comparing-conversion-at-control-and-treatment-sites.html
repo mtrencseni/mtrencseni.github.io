@@ -364,6 +364,7 @@ P(corrected conversion lift &gt; 0 at treatment site | control_site, treatment_s
 </pre></div>
 
 
+<p>Note that here the mean relative conversion lift of the Monte Carlo simulation ($ 7.2 \%) matches the point estimate from the beginning.</p>
 <h2>Why the control site's sample size matters</h2>
 <p>It's easy to see why by dividing the control site's contingency matrix by 10. Note that the point estimate of the corrected lift does not change, it's still $ 7.2 \% $, since it's just a function of ratios. Let's see what happen if we re-run the above code (approach 4), which is sensitive to sample size:</p>
 <div class="highlight"><pre><span></span>control_site = [
@@ -381,7 +382,7 @@ P(corrected conversion lift &gt; 0 at treatment site | control_site, treatment_s
 </pre></div>
 
 
-<p>In the Bayesian Monte Carlo, at this low control sample size, since the spread is not symmetric about the mean, the mean relative lift actually goes down from $ 7.2 \% $ to $ 6.7 \% $, and our certainty that this effect is real goes down from $ 93.8 \% $ to $ 74.5 \% $!</p>
+<p>In the Bayesian Monte Carlo method, at this low control sample size, since the spread is not symmetric about the mean, the mean relative lift actually goes down from $ 7.2 \% $ to $ 6.7 \% $, and our certainty that this effect is real goes down from $ 93.8 \% $ to $ 74.5 \% $!</p>
 <h2>Conclusion</h2>
 <p>The main takeaways here are:</p>
 <ol>
