@@ -85,7 +85,8 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>In real-life, non-digital situations, it's often not feasible to run true A/B tests. Imagine a cinema selling movie tickets and upselling food and beverages, and experimenting with different pricing to see how it affects upsell conversion. For simplicity, let's say non-conversion means a customer buys just a movie ticket, whereas a conversion means a customer buys a movie ticket plus some food and beverages. Since the cinema is a real-life venue (not digital) the pricing is shown on large printed banners, and can't be varied per arriving customer (there may also be legal reasons).</p>
+<p>In real-life, non-digital situations, it's often not feasible to run true A/B tests. In such cases, we can compare before and after rollout conversions at a treatment site, while using a similar control site to measure and correct for seasonality. The post discusses how to compute increasingly correct p-vlaues and bayesian probabilities in such scenarios.</p>
+<p>Imagine a cinema selling movie tickets and upselling food and beverages, and experimenting with different pricing to see how it affects upsell conversion. For simplicity, let's say non-conversion means a customer buys just a movie ticket, whereas a conversion means a customer buys a movie ticket plus some food and beverages. Since the cinema is a real-life venue (not digital) the pricing is shown on large printed banners, and can't be varied per arriving customer (there may also be legal reasons).</p>
 <p>In such situations, the next best thing to do is to:</p>
 <ol>
 <li>roll out the experimental pricing at a treatment site and measure the change in conversion before vs. after rollout (rollout is a calendar date when the pricing is changed at the treatment site)</li>
