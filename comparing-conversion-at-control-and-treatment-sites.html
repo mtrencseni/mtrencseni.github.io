@@ -259,13 +259,13 @@ P(conv_after &gt; conv_before | treatment_site_corr) = 0.9859
 <span class="n">samples_conv_control_lift</span> <span class="o">=</span> <span class="p">[</span><span class="n">after</span><span class="o">/</span><span class="n">before</span><span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">before</span><span class="p">,</span> <span class="n">after</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">samples_conv_control_before</span><span class="p">,</span> <span class="n">samples_conv_control_after</span><span class="p">)]</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">samples_conv_control_lift</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;relative conversion lift at control = </span><span class="si">%.3f</span><span class="s1"> (assumed to be seasonality)&#39;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">samples_conv_control_lift</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;mean relative conversion lift at control = </span><span class="si">%.3f</span><span class="s1"> (assumed to be seasonality)&#39;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">samples_conv_control_lift</span><span class="p">))</span>
 </pre></div>
 
 
 <p>Prints:</p>
 <p><img src="/images/ct_site_control_bayes.png" alt="Monte Carlo simulated control lifts" style="width: 500px;"/></p>
-<div class="highlight"><pre><span></span>relative conversion lift at control = 0.041 (assumed to be seasonality)
+<div class="highlight"><pre><span></span>mean relative conversion lift at control = 0.041 (assumed to be seasonality)
 </pre></div>
 
 
