@@ -226,7 +226,7 @@ P(conv_after &amp;gt; conv_before | treatment_site_corr) = 0.9859
 
 
 &lt;p&gt;Prints:&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/ct_site_mc_Bayes.png" alt="Monte Carlo simulated bayesian probabilities" style="width: 500px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/ct_site_mc_bayes.png" alt="Monte Carlo simulated bayesian probabilities" style="width: 500px;"/&gt;&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;P(conv_after &amp;gt; conv_before | treatment_site_corr) (taking into account control site uncertainty) = 0.942
 &lt;/pre&gt;&lt;/div&gt;
 
