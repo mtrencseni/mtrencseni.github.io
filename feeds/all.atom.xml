@@ -72,7 +72,7 @@
 &lt;h1&gt;Early vs late counted votes&lt;/h1&gt;
 &lt;p&gt;Here, the longer version of the argument with computational results, from the lawsuit:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/scotus2.png" alt="SCOTUS 2" style="width: 600px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Here the problem is the same as above. Voters in different counties, method of voting (in-person, mail-in), cannot be modeled by the same random variable. The fact that the results turned as votes were counted is simply a result of votes being counted faster or slower per county and per method of voting. In most counties, in-person votes were counted first, and mail-in votes were counted second.&lt;/p&gt;
+&lt;p&gt;Here the problem is the same as above. Votes from different counties and method of voting (in-person, mail-in) cannot be modeled by the same random variable. The fact that the results turned as votes were counted is simply a result of votes being counted faster or slower per county and per method of voting. In most counties, in-person votes were counted first, and mail-in votes were counted later, and different counties report their results at different speeds.&lt;/p&gt;
 &lt;p&gt;The statistical argument here would only hold if all the ballots in Georgia, from all the counties and all methods:&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;were first collected&lt;/li&gt;
