@@ -24,7 +24,7 @@
 &lt;li&gt;what is the probability that this one random variable (coin) produced the results of both 2016 and 2020?&lt;/li&gt;
 &lt;li&gt;the probability (p-value) is very small, so it is very unlikely&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;Using the cited numbers can compute the p-value directly with Chi-squared test:&lt;/p&gt;
+&lt;p&gt;Using the cited numbers we can compute the p-value directly with &lt;a href="http://bytepawn.com/ab-testing-and-the-chi-squared-test.html"&gt;Chi-squared test&lt;/a&gt;:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;scipy.stats&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;chi2_contingency&lt;/span&gt;
 &lt;span class="n"&gt;observations&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
     &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1877963&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2474507&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
