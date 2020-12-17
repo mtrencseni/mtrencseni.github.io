@@ -46,13 +46,13 @@
 &lt;p&gt;The best way to prove this is to look at this historic Republican vs Democrat POTUS election chart for Georgia from the Wikipedia page &lt;a href="https://en.wikipedia.org/wiki/United_States_presidential_elections_in_Georgia"&gt;United States presidential elections in Georgia&lt;/a&gt;:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/scotus-georgia.png" alt="Georgia POTUS elections" style="width: 800px;"/&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Does it look stable? No! Voters preferences change.&lt;/strong&gt; Georgia used to be blue, then it was swingy, then it was mostly Republican, and now Biden by a thin margin. But this doesn't mean that there was constant voter fraud in the last 100 years as results changed.&lt;/p&gt;
-&lt;p&gt;Another quantitative way to show the absurdity of the argument is to compare the 2012 and the 2016 elections in Georgia. &lt;strong&gt;In both years, Georgia voted Republican, but:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Another quantitative way to show the absurdity of the argument is to compare the &lt;a href="https://en.wikipedia.org/wiki/2012_United_States_presidential_election_in_Georgia"&gt;2012&lt;/a&gt; and the 2016 elections in Georgia. &lt;strong&gt;In both years, Georgia voted Republican, but:&lt;/strong&gt;&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;scipy.stats&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;chi2_contingency&lt;/span&gt;
 &lt;span class="n"&gt;observations&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
-    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1877963&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1773827&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
-    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;2089104&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2078688&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1773827&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1877963&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;2078688&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2089104&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
 &lt;span class="p"&gt;]&lt;/span&gt;
-&lt;span class="c1"&gt;# first column in 2012 results, second is 2016 results&lt;/span&gt;
+&lt;span class="c1"&gt;# first column in 2012, second is 2016&lt;/span&gt;
 &lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;chi2_contingency&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;observations&lt;/span&gt;&lt;span class="p"&gt;)[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
 &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;p = &lt;/span&gt;&lt;span class="si"&gt;%.10f&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;

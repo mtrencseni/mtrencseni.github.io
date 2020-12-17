@@ -131,13 +131,13 @@
 <p>The best way to prove this is to look at this historic Republican vs Democrat POTUS election chart for Georgia from the Wikipedia page <a href="https://en.wikipedia.org/wiki/United_States_presidential_elections_in_Georgia">United States presidential elections in Georgia</a>:</p>
 <p><img src="/images/scotus-georgia.png" alt="Georgia POTUS elections" style="width: 800px;"/></p>
 <p><strong>Does it look stable? No! Voters preferences change.</strong> Georgia used to be blue, then it was swingy, then it was mostly Republican, and now Biden by a thin margin. But this doesn't mean that there was constant voter fraud in the last 100 years as results changed.</p>
-<p>Another quantitative way to show the absurdity of the argument is to compare the 2012 and the 2016 elections in Georgia. <strong>In both years, Georgia voted Republican, but:</strong></p>
+<p>Another quantitative way to show the absurdity of the argument is to compare the <a href="https://en.wikipedia.org/wiki/2012_United_States_presidential_election_in_Georgia">2012</a> and the 2016 elections in Georgia. <strong>In both years, Georgia voted Republican, but:</strong></p>
 <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">chi2_contingency</span>
 <span class="n">observations</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">[</span><span class="mi">1877963</span><span class="p">,</span> <span class="mi">1773827</span><span class="p">],</span>
-    <span class="p">[</span><span class="mi">2089104</span><span class="p">,</span> <span class="mi">2078688</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">1773827</span><span class="p">,</span> <span class="mi">1877963</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">2078688</span><span class="p">,</span> <span class="mi">2089104</span><span class="p">],</span>
 <span class="p">]</span>
-<span class="c1"># first column in 2012 results, second is 2016 results</span>
+<span class="c1"># first column in 2012, second is 2016</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">chi2_contingency</span><span class="p">(</span><span class="n">observations</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
 <span class="k">print</span><span class="p">(</span><span class="s1">&#39;p = </span><span class="si">%.10f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">p</span><span class="p">)</span>
 </pre></div>
