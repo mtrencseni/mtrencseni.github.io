@@ -63,7 +63,12 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;So again, there is zero probability that the null hypothesis is true, in other words, the voters in 2012 and 2016 cannot be modeled by the same random variable. So does this prove there was fraud in 2016 when Trump won? No.&lt;/p&gt;
+&lt;p&gt;So again, there is zero probability that the null hypothesis is true, in other words, the voters in 2012 and 2016 cannot be modeled by the same random variable. So does this prove there was fraud in 2016 when Trump won? No. It just proves there are hundreds of thousands of Georgians who, from one election to the next:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;enter or exit the voting system (become eligible, move to Georgia, move away, die)&lt;/li&gt;
+&lt;li&gt;change their vote&lt;/li&gt;
+&lt;li&gt;do or do not vote&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h1&gt;Early vs late counted votes&lt;/h1&gt;
 &lt;p&gt;Here, the longer version of the argument with computational results, from the lawsuit:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/scotus2.png" alt="SCOTUS 2" style="width: 600px;"/&gt;&lt;/p&gt;
