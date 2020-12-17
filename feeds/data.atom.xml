@@ -1,5 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Marton Trencseni - Data</title><link href="/" rel="alternate"></link><link href="/feeds/data.atom.xml" rel="self"></link><id>/</id><updated>2020-12-03T00:00:00+01:00</updated><entry><title>Comparing conversion at control and treatment sites</title><link href="/comparing-conversion-at-control-and-treatment-sites.html" rel="alternate"></link><published>2020-12-03T00:00:00+01:00</published><updated>2020-12-03T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-12-03:/comparing-conversion-at-control-and-treatment-sites.html</id><summary type="html">&lt;p&gt;In real-life, non-digital situations, it's often not feasible to run true A/B tests. In such cases, we can compare before and after rollout conversions at a treatment site, while using a similar control site to measure and correct for seasonality. The post discusses how to compute increasingly correct p-values and bayesian probabilities in such scenarios.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/ct_site_control_bayes.png" alt="Monte Carlo simulated control lifts" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Bytepawn - Marton Trencseni - Data</title><link href="/" rel="alternate"></link><link href="/feeds/data.atom.xml" rel="self"></link><id>/</id><updated>2020-12-17T00:00:00+01:00</updated><entry><title>Making statistics lie for the 2020 Presidential election</title><link href="/making-statistics-lie-for-the-2020-presidential-election.html" rel="alternate"></link><published>2020-12-17T00:00:00+01:00</published><updated>2020-12-17T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-12-17:/making-statistics-lie-for-the-2020-presidential-election.html</id><summary type="html">&lt;p&gt;After the 2020 US presidential election, the Trump campaign filed over 50 lawsuits and attacked the integrity of the elections. One of the last lawsuits was filed in the Supreme Court of the United States (SCOTUS) by the state of Texas. Later more than a 100 Republican congressman joined the lawsuit in support. Here I look at the statistical claims made in this lawsuit that were supposed to show irregularities in the Georgia vote.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/trump-biden.png" alt="Trump vs Biden" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;After the 2020 US presidential election, the Trump campaign filed over 50 lawsuits and attacked the integrity of the elections. One of the last lawsuits was filed in the Supreme Court of the United States (SCOTUS) by the state of Texas. Later more than a 100 Republican congressman joined the lawsuit in support. However, just a few days after filing, SCOTUS tossed the lawsuit because "Texas has not demonstrated a judicially cognizable interest in the manner in which another state conducts its elections." In other words, SCOTUS chose not to hear the lawsuit because the state of Texas has no business questioning how other states run their elections, but without opinionating on the merits of the lawsuit.&lt;/p&gt;
+&lt;p&gt;It was &lt;a href="https://www.bloomberg.com/news/articles/2020-12-11/understanding-that-one-in-a-quadrillion-claim-about-the-election"&gt;widely reported&lt;/a&gt; however that the lawsuit contained flawed statistical arguments. Having said that, note that the lawsuit made lots of arguments, this is just one of them. The summary of this portion of the lawsuit is reproduced below (&lt;a href="https://www.supremecourt.gov/DocketPDF/22/22O155/163048/20201208132827887_TX-v-State-ExpedMot%202020-12-07%20FINAL.pdf"&gt;source, page 8&lt;/a&gt;):&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The same less than one in a quadrillion statistical improbability of Mr. Biden winning the popular vote in the four Defendant States—Georgia, Michigan, Pennsylvania, and Wisconsin—independently exists when Mr. Biden’s performance in each of those Defendant States is compared to former Secretary of State Hilary Clinton’s performance in the 2016 general election and President Trump’s performance in the 2016 and 2020 general elections. Again, the statistical improbability of Mr. Biden winning the popular vote in these four States collectively is 1 in 1,000,000,000,000,0005.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;And, &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The probability of former Vice President Biden winning the popular vote in the four Defendant States—Georgia, Michigan, Pennsylvania, and Wisconsin — independently given President Trump’s early lead in those States as of 3 a.m. on November 4, 2020, is less than one in a quadrillion, or 1 in 1,000,000,000,000,000. For former Vice President Biden to win these four States collectively, the odds of that event happening decrease to less than one in a quadrillion to the fourth power (i.e., 1 in 1,000,000,000,000,0004).&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;So there are two parts here:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Given the 2016 Clinton-Trump results in Georgia, the 2020 Biden-Trump results are very unlikely (and hence suspicious).&lt;/li&gt;
+&lt;li&gt;Given the early lead of Trump in Georgia, the final win of Biden is very unlikely (and hence suspicious).&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h1&gt;2016 vs 2020&lt;/h1&gt;
+&lt;p&gt;Let's look at the first one. The details start on page 20:&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/scotus1.png" alt="SCOTUS 1" /&gt;&lt;/p&gt;
+&lt;p&gt;In plain english, it is:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;modeling voters as a random variable, with some probability p of voting Democratic (like a flip of a coin, except it's not an exactly fair coin)&lt;/li&gt;
+&lt;li&gt;what is the probability that the same random variable (coin) produced the results of 2016 and 2020.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Using the cited numbers can compute the p-value directly with Chi-squared test:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;scipy.stats&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;chi2_contingency&lt;/span&gt;
+&lt;span class="n"&gt;observations&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1877963&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2474507&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;2089104&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2461836&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="c1"&gt;# first column in 2016, second is 2020&lt;/span&gt;
+&lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;chi2_contingency&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;observations&lt;/span&gt;&lt;span class="p"&gt;)[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;p = &lt;/span&gt;&lt;span class="si"&gt;%.10f&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Prints:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;0.0000000000
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;There is zero probability that the null hypothesis is true, in other words, the voters in 2016 and 2020 cannot be modeled by the same random variable. So does this prove there was fraud?&lt;/p&gt;
+&lt;p&gt;No! Voters from 2016 to 2020 cannot be modeled as a random variable! Lots of things happened between 2016 and 2020, which affected Georgia voters. After all, they did not vote in 2020 for Biden based on what they think of Hillary Clinton, and by 2020 they had a lot more information about Donald Trump. Also, see this historic Republican vs Democrat POTUS election chart for Georgia from the Wikipedia page &lt;a href="https://en.wikipedia.org/wiki/United_States_presidential_elections_in_Georgia"&gt;United States presidential elections in Georgia&lt;/a&gt;:&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://en.wikipedia.org/wiki/United_States_presidential_elections_in_Georgia.png" alt="Georgia POTUS elections" style="width: 600px;"/&gt;&lt;/p&gt;
+&lt;p&gt;Does it look stable? No, voters preferences change. Georgia used to be blue, then it was swingy, then it was mostly Republican, and now Biden by a little.&lt;/p&gt;
+&lt;p&gt;Another quantitative way to show the absurdity of the argument is to compare the 2012 and the 2016 elections in Georgia. In both year, Georgia voted republican, but:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;scipy.stats&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;chi2_contingency&lt;/span&gt;
+&lt;span class="n"&gt;observations&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1877963&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1773827&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;2089104&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2078688&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="c1"&gt;# first column in 2012, second is 2016&lt;/span&gt;
+&lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;chi2_contingency&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;observations&lt;/span&gt;&lt;span class="p"&gt;)[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;p = &lt;/span&gt;&lt;span class="si"&gt;%.10f&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Again, prints:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;0.0000000000
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;So again, there is zero probability that the null hypothesis is true, in other words, the voters in 2012 and 2016 cannot be modeled by the same random variable. So does this prove there was fraud in 2016 when Trump won? No.&lt;/p&gt;
+&lt;h1&gt;Early vs late counted votes&lt;/h1&gt;</content><category term="ab-testing"></category></entry><entry><title>Comparing conversion at control and treatment sites</title><link href="/comparing-conversion-at-control-and-treatment-sites.html" rel="alternate"></link><published>2020-12-03T00:00:00+01:00</published><updated>2020-12-03T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2020-12-03:/comparing-conversion-at-control-and-treatment-sites.html</id><summary type="html">&lt;p&gt;In real-life, non-digital situations, it's often not feasible to run true A/B tests. In such cases, we can compare before and after rollout conversions at a treatment site, while using a similar control site to measure and correct for seasonality. The post discusses how to compute increasingly correct p-values and bayesian probabilities in such scenarios.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/ct_site_control_bayes.png" alt="Monte Carlo simulated control lifts" style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;In real-life, non-digital situations, it's often not feasible to run true A/B tests. In such cases, we can compare before and after rollout conversions at a treatment site, while using a similar control site to measure and correct for seasonality. The post discusses how to compute increasingly correct p-values and bayesian probabilities in such scenarios.&lt;/p&gt;
 &lt;p&gt;Imagine a cinema selling movie tickets and upselling food and beverages, and experimenting with different pricing to see how it affects upsell conversion. For simplicity, let's say non-conversion means a customer buys just a movie ticket, whereas a conversion means a customer buys a movie ticket plus some food and beverages. Since the cinema is a real-life venue (not digital) the pricing is shown on large printed banners, and can't be varied per arriving customer (there may also be legal reasons).&lt;/p&gt;
 &lt;p&gt;In such situations, the experiment setup is:&lt;/p&gt;
