@@ -85,8 +85,14 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>After the 2020 US presidential election, <a href="https://www.forbes.com/sites/alisondurkee/2020/12/08/trump-and-the-gop-have-now-lost-50-post-election-lawsuits/">the Trump campaign filed over 50 lawsuits and attacked the integrity of the elections by claiming there was voter fraud</a>. One of the last lawsuits was filed in the Supreme Court of the United States (SCOTUS) by the state of Texas. Later more than a 100 Republican congressman joined the lawsuit in support. However, just a few days after filing, <a href="https://apnews.com/article/election-2020-joe-biden-donald-trump-lawsuits-elections-fe784086a81497dcfe38f0eb5bffd36d">SCOTUS rejected the lawsuit</a> because "Texas has not demonstrated a judicially cognizable interest in the manner in which another state conducts its elections." In other words, SCOTUS chose not to hear the lawsuit because the state of Texas has no business questioning how other states run their elections, but without opinionating on the merits of the lawsuit.</p>
-<p>It was <a href="https://www.bloomberg.com/news/articles/2020-12-11/understanding-that-one-in-a-quadrillion-claim-about-the-election">widely reported</a> however that the lawsuit contained flawed statistical arguments. Having said that, note that the lawsuit made lots of arguments, this is just one of them. The summary of this portion of the lawsuit is reproduced below (<a href="https://www.supremecourt.gov/DocketPDF/22/22O155/163048/20201208132827887_TX-v-State-ExpedMot%202020-12-07%20FINAL.pdf">source, page 8</a>):</p>
+<p>After the 2020 US presidential election, <a href="https://www.forbes.com/sites/alisondurkee/2020/12/08/trump-and-the-gop-have-now-lost-50-post-election-lawsuits/">the Trump campaign filed over 50 lawsuits and attacked the integrity of the elections by claiming there was voter fraud</a>. One of the last lawsuits was filed in the Supreme Court of the United States (SCOTUS) by the state of Texas. Later more than a 100 Republican congressman joined the lawsuit in support. However, just a few days after filing, <a href="https://apnews.com/article/election-2020-joe-biden-donald-trump-lawsuits-elections-fe784086a81497dcfe38f0eb5bffd36d">SCOTUS rejected the lawsuit</a> because <em>"Texas has not demonstrated a judicially cognizable interest in the manner in which another state conducts its elections."</em> In other words, SCOTUS chose not to hear the lawsuit because the state of Texas has no business questioning how other states run their elections, but without opinionating on the merits of the lawsuit. <strong>So did the lawsuit have merit?</strong></p>
+<p>It was <a href="https://www.bloomberg.com/news/articles/2020-12-11/understanding-that-one-in-a-quadrillion-claim-about-the-election">widely reported</a> however that the lawsuit contained flawed statistical arguments. Having said that, note that the lawsuit contained lots of claims and arguments, this statistical one is just one of them.</p>
+<p>The statistical claims can be summarized as:</p>
+<ol>
+<li>Given the 2016 results of the Hillary Clinton - Donald Trump race in Georgia, the 2020 Joe Biden - Donald Trump results are very unlikely (and hence suspicious).</li>
+<li>Given the early lead of Trump in Georgia in 2020, the final win of Biden is very unlikely (and hence suspicious).</li>
+</ol>
+<p>The summary of this portion of the lawsuit is reproduced below (<a href="https://www.supremecourt.gov/DocketPDF/22/22O155/163048/20201208132827887_TX-v-State-ExpedMot%202020-12-07%20FINAL.pdf">source, page 8</a>):</p>
 <blockquote>
 <p>The same less than one in a quadrillion statistical improbability of Mr. Biden winning the popular vote in the four Defendant States—Georgia, Michigan, Pennsylvania, and Wisconsin—independently exists when Mr. Biden’s performance in each of those Defendant States is compared to former Secretary of State Hilary Clinton’s performance in the 2016 general election and President Trump’s performance in the 2016 and 2020 general elections. Again, the statistical improbability of Mr. Biden winning the popular vote in these four States collectively is 1 in 1,000,000,000,000,0005.</p>
 </blockquote>
@@ -94,18 +100,14 @@
 <blockquote>
 <p>The probability of former Vice President Biden winning the popular vote in the four Defendant States—Georgia, Michigan, Pennsylvania, and Wisconsin — independently given President Trump’s early lead in those States as of 3 a.m. on November 4, 2020, is less than one in a quadrillion, or 1 in 1,000,000,000,000,000. For former Vice President Biden to win these four States collectively, the odds of that event happening decrease to less than one in a quadrillion to the fourth power (i.e., 1 in 1,000,000,000,000,0004).</p>
 </blockquote>
-<p>So there are two claims here:</p>
-<ol>
-<li>Given the 2016 Clinton-Trump results in Georgia, the 2020 Biden-Trump results are very unlikely (and hence suspicious).</li>
-<li>Given the early lead of Trump in Georgia, the final win of Biden is very unlikely (and hence suspicious).</li>
-</ol>
 <h1>2016 vs 2020</h1>
 <p>Let's look at the first one. The details start on page 20:</p>
 <p><img src="/images/scotus1.png" alt="SCOTUS 1" style="width: 600px;"/></p>
 <p>In plain english, it is:</p>
 <ul>
-<li>modeling voters as a random variable, with some probability p of voting Democratic (like a flip of a coin, except it's not an exactly fair coin)</li>
-<li>what is the probability that the same random variable (coin) produced the results of 2016 and 2020.</li>
+<li>modeling Georgia voters across 2016 and 2020 with one random variable, with some probability p of voting Democratic (like a flip of a coin, except it's not an exactly fair coin)</li>
+<li>what is the probability that this one random variable (coin) produced the results of 2016 and 2020?</li>
+<li>the probability (p-value) is very small, so it is very unlikely</li>
 </ul>
 <p>Using the cited numbers can compute the p-value directly with Chi-squared test:</p>
 <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">chi2_contingency</span>
@@ -113,7 +115,7 @@
     <span class="p">[</span><span class="mi">1877963</span><span class="p">,</span> <span class="mi">2474507</span><span class="p">],</span>
     <span class="p">[</span><span class="mi">2089104</span><span class="p">,</span> <span class="mi">2461836</span><span class="p">],</span>
 <span class="p">]</span>
-<span class="c1"># first column in 2016, second is 2020</span>
+<span class="c1"># first column in 2016 results, second is 2020 results</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">chi2_contingency</span><span class="p">(</span><span class="n">observations</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
 <span class="k">print</span><span class="p">(</span><span class="s1">&#39;p = </span><span class="si">%.10f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">p</span><span class="p">)</span>
 </pre></div>
@@ -125,16 +127,17 @@
 
 
 <p>There is zero probability that the null hypothesis is true, in other words, the voters in 2016 and 2020 cannot be modeled by the same random variable. So does this prove there was fraud?</p>
-<p>No! Voters from 2016 to 2020 cannot be modeled as a random variable! Lots of things happened between 2016 and 2020 which affected Georgia voters. After all, they did not vote in 2020 for Biden based on what they thought about Hillary Clinton in 2016, and by 2020 <a href="https://en.wikipedia.org/wiki/Veracity_of_statements_by_Donald_Trump">they had a lot more information about Donald Trump</a>. Also, see this historic Republican vs Democrat POTUS election chart for Georgia from the Wikipedia page <a href="https://en.wikipedia.org/wiki/United_States_presidential_elections_in_Georgia">United States presidential elections in Georgia</a>:</p>
+<p>No! Voters from 2016 to 2020 cannot be modeled as a random variable! Lots of things happened between 2016 and 2020 which affected Georgia voters. After all, they did not vote in 2020 for Biden based on what they thought of Hillary Clinton in 2016, and by 2020 <a href="https://en.wikipedia.org/wiki/Veracity_of_statements_by_Donald_Trump">they had a lot more information about Donald Trump</a>.</p>
+<p>The best way to prove this is to look at this historic Republican vs Democrat POTUS election chart for Georgia from the Wikipedia page <a href="https://en.wikipedia.org/wiki/United_States_presidential_elections_in_Georgia">United States presidential elections in Georgia</a>:</p>
 <p><img src="/images/scotus-georgia.png" alt="Georgia POTUS elections" style="width: 800px;"/></p>
-<p>Does it look stable? No! Voters preferences change. Georgia used to be blue, then it was swingy, then it was mostly Republican, and now Biden by a thin margin.</p>
-<p>Another quantitative way to show the absurdity of the argument is to compare the 2012 and the 2016 elections in Georgia. In both year, Georgia voted Republican, but:</p>
+<p>Does it look stable? No! Voters preferences change. Georgia used to be blue, then it was swingy, then it was mostly Republican, and now Biden by a thin margin. But this doesn't mean that there was constant voter fraud in the last 100 years as results changed.</p>
+<p>Another quantitative way to show the absurdity of the argument is to compare the 2012 and the 2016 elections in Georgia. <strong>In both years, Georgia voted Republican, but:</strong></p>
 <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">chi2_contingency</span>
 <span class="n">observations</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">[</span><span class="mi">1877963</span><span class="p">,</span> <span class="mi">1773827</span><span class="p">],</span>
     <span class="p">[</span><span class="mi">2089104</span><span class="p">,</span> <span class="mi">2078688</span><span class="p">],</span>
 <span class="p">]</span>
-<span class="c1"># first column in 2012, second is 2016</span>
+<span class="c1"># first column in 2012 results, second is 2016 results</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">chi2_contingency</span><span class="p">(</span><span class="n">observations</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
 <span class="k">print</span><span class="p">(</span><span class="s1">&#39;p = </span><span class="si">%.10f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">p</span><span class="p">)</span>
 </pre></div>
