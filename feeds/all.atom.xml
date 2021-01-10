@@ -23,7 +23,7 @@
 &lt;/ol&gt;
 &lt;p&gt;MLFlow Tracking is agnostic to the above, so it can be used in all scenarios. Personally I'm using it in scenario #1 use-cases so far, from Airflow.&lt;/p&gt;
 &lt;h2&gt;Setting up MLFlow and the artifact gotcha&lt;/h2&gt;
-&lt;p&gt;Setting up MLFlow is easy. Just create a new &lt;code&gt;venv&lt;/code&gt; and &lt;code&gt;pip install mlflow&lt;/code&gt;. You will need to &lt;code&gt;pip install mlflow&lt;/code&gt; on both the server and all the clients that will be emitting mlflow tracking metrics. Remember that you can &lt;code&gt;!pip install mlflow&lt;/code&gt; from ipython notebooks.&lt;/p&gt;
+&lt;p&gt;Setting up MLFlow is easy. Just create a new &lt;code&gt;venv&lt;/code&gt; and &lt;code&gt;pip install mlflow&lt;/code&gt;. You will need to &lt;code&gt;pip install mlflow&lt;/code&gt; on both the server and all the clients that will be emitting tracking metrics to MLFlow. Remember that you can &lt;code&gt;!pip install mlflow&lt;/code&gt; from ipython notebooks.&lt;/p&gt;
 &lt;p&gt;Now, we can start the server, like:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mlflow server --backend-store-uri XXX --default-artifact-root YYY -h 0.0.0.0 -p 5000
 &lt;/pre&gt;&lt;/div&gt;
