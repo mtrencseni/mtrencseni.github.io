@@ -6,7 +6,7 @@
 &lt;h2&gt;Using MLFlow for model development&lt;/h2&gt;
 &lt;p&gt;In this scenario, I’m using an ipython notebook and iterating on a model. I’m either reading training data from a files or straight from the database, training models, evaluating on test data, rinse and repeats potentially 100s of times, over days, weeks or months. With MLFlow, I can continuously track various metrics and artifacts of my models runs, such as:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;the current source code in the ipython notebook&lt;/li&gt;
+&lt;li&gt;the current source code for the model training/running&lt;/li&gt;
 &lt;li&gt;size/shape of the data I'm using for training&lt;/li&gt;
 &lt;li&gt;various metrics and distributions of the training and test data&lt;/li&gt;
 &lt;li&gt;model runtime and memory usage&lt;/li&gt;
