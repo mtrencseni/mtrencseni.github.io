@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="google-site-verification" content="14dvQcWyDWHBo8aM0kld8XzEa6KypAzCQDz1_KPus9E" />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-1812620-2');
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn - Marton Trencseni Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="For the last few months I’ve been using MFlow in production, specifically its Tracking component. MLFlow is an open source project for lifecycle tracking and serving of ML models, coming out of Databricks. MLFlow is model agnostic, so you can use with SKLearn, XGBoost, Pytorch, Tensorflow, FBProphet, anything." />
+<meta name="keywords" content="mlflow, tracking">
+<meta property="og:site_name" content="Bytepawn - Marton Trencseni"/>
+<meta property="og:title" content="Getting Started with MLFlow"/>
+<meta property="og:description" content="For the last few months I’ve been using MFlow in production, specifically its Tracking component. MLFlow is an open source project for lifecycle tracking and serving of ML models, coming out of Databricks. MLFlow is model agnostic, so you can use with SKLearn, XGBoost, Pytorch, Tensorflow, FBProphet, anything."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/getting-started-with-mlflow.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2021-01-10 00:00:00+01:00"/>
+<meta property="article:modified_time" content="2021-01-10 00:00:00+01:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data"/>
+<meta property="article:tag" content="mlflow"/>
+<meta property="article:tag" content="tracking"/>
+<meta property="og:image" content="/images/mlflow-overview.png"/>
+
+  <title>Bytepawn - Marton Trencseni &ndash; Getting Started with MLFlow</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <!--<h2><a href="">Bytepawn - Marton Trencseni</a></h2>-->
+      <h2><a href="http://bytepawn.com">Bytepawn</a></h2>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="getting-started-with-mlflow">Getting Started with MLFlow</h1>
+    <p>Marton Trencseni - Sun 10 January 2021 - <a href="/category/data.html">Data</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>For the last few months I’ve been using <a href="https://github.com/mlflow/mlflow">MFlow</a> in production, specifically its <a href="https://www.mlflow.org/docs/latest/tracking.html">Tracking</a> component. MLFlow is an open source project for lifecycle tracking and serving of ML models, coming out of <a href="https://databricks.com/">Databricks</a>. MLFlow is model agnostic, so you can use with SKLearn, XGBoost, Pytorch, Tensorflow, FBProphet, anything. The best way to get an initial understanding of MLFlow Tracking is to watch the <a href="https://www.youtube.com/watch?v=859OxXrt_TI">first 25 minutes of this talk by Corey Zumar</a>, who works on MLFlow at Databricks.</p>
+<p>MLFlow Tracking is a simple client/server solution to log, track and share model metrics at scale. Using MLFlow makes sense both during the development of the model and also once the model is running in production.</p>
+<h2>Using MLFlow for model development</h2>
+<p>In this scenario, I’m using an ipython notebook and iterating on a model. I’m either reading training data from a files or straight from the database, training models, evaluating on test data, rinse and repeats potentially 100s of times, over days, weeks or months. With MLFlow, we can continuously track various metrics and artefacts of our models runs, such as:</p>
+<ul>
+<li>the current source code in the ipython notebook</li>
+<li>size/shape of the data we’re using for training</li>
+<li>various metrics and distributions of the training and test data</li>
+<li>model runtime and memory usage</li>
+<li>various plots</li>
+</ul>
+<p>This is a kind of raw versioning for model development.</p>
+<h2>Using MLFlow in production</h2>
+<p>In production can mean several things:</p>
+<ol>
+<li>Some models are batchy, and are re-trained at pre-specified intervals (eg. hourly, daily or weekly) on new data, and then emit their prediction for existing data into a table, which is then read out by other procsseses.</li>
+<li>Other models are re-trained at regular intervals like above, but then serve prediction requests in real-time, eg. over an HTTP API.</li>
+<li>In advanced use-cases models are also updated in real-time as new training data comes in, but this is not typical outside of advanced Internet companies.</li>
+</ol>
+<p>MLFlow Tracking is agnostic to the above, so it can be used in all scenarios.</p>
+<h2>Setting up MLFlow and the artifact gotcha</h2>
+<p>Setting up MLFlow is easy. Just create a new <code>venv</code> and <code>pip install mlflow</code>. You will need to <code>pip install mlflow</code> on both the server and all the clients that will be emitting mlflow tracking metrics. Remember that you can <code>!pip install mlflow</code> from ipython notebooks.</p>
+<p>Now, we can start the server, like:</p>
+<div class="highlight"><pre><span></span>mlflow server --backend-store-uri XXX --default-artifact-root YYY -h 0.0.0.0 -p 5000
+</pre></div>
+
+
+<p>What is <code>backend-store-uri</code> and <code>default-artifact-root</code>?</p>
+<p>We will use MLFlow for storing metrics like accuracy, essentially in a flat key-value manner. It will store these in the backend store, which can be a filesystem location or a database like postgresql. We will also send files to MLFlow for tracking, such as the source code currently running, or a plot we generated (eg. an ROC curve). These will be stored in artifact root, which has to be a filesystem or an S3 bucket.</p>
+<p>The big gotcha is that the MLFlow client library:</p>
+<ul>
+<li>when sending metrics, it sends those to the MLFlow server, which stores them in the backend store; the client does not access the backend store directly</li>
+<li>when sending artifacts, the MLFlow client library puts them directly into the artifact store, <strong>so both the client and server needs to have access to it!</strong> This is very unexpected because it goes against basic client/server principles. For this reason, although you can start up MLFlow by specifying a directory on the server as the artifact root, client calls to save artifacts will fail. <strong>You need to specify something like an S3 bucket, and both the client and server needs an AWS access key to read/write!</strong></li>
+</ul>
+<p>I have set up MLFlow to use the server's local filesystem for backend store and a shared (between server and clients) S3 bucket for artifact storage.</p>
+<p>Once the server is up and running, you can open it in your browser, you should see an empty page like this:</p>
+<p><img src="/images/mlflow0.png" alt="Empty MLFlow page." style="width: 600px;"/></p>
+<h2>Sending tracking data to MLFlow</h2>
+<p>Now we can send tracking data to the MLFlow server. Fundamentally the steps are:</p>
+<ul>
+<li>set up connection</li>
+<li>set the experiment (if the experiment doesn’t exist, it will get created); the experiment is essentially the project you’re working on</li>
+<li>open a new experiment run</li>
+<li>log params, metrics and artifacts</li>
+<li>check the results on the web console!</li>
+</ul>
+<p>In code:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">mlflow</span>
+
+<span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="s1">&#39;http://127.0.0.1:5000&#39;</span><span class="p">)</span>  <span class="c1"># set up connection</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">set_experiment</span><span class="p">(</span><span class="s1">&#39;test-experiment&#39;</span><span class="p">)</span>          <span class="c1"># set the experiment</span>
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>                          <span class="c1"># open new experiment run</span>
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">log_artifact</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;source code&#39;</span><span class="p">)</span>
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">log_param</span><span class="p">(</span><span class="s1">&#39;some parameter&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The experiment <code>test-experiment</code> will show up on the web console:</p>
+<p><img src="/images/mlflow1.png" alt="MLFlow experiment." style="width: 600px;"/></p>
+<p>And inside the experiment will be runs, selecting the latest one we will see our logged data:</p>
+<p><img src="/images/mlflow2.png" alt="MLFlow experiment contents." style="width: 600px;"/></p>
+<h2>Conclusion</h2>
+<p>This was just a quick introduction on how to set up MLFlow and how to get some initial output into it. Surprisingly, there is not much more handholding that you will get from MLFlow. Although there is experimental integration of MLFlow into common ML libraries such as SKL (<a href="https://www.mlflow.org/docs/latest/python_api/mlflow.sklearn.html">mlflow.sklearn</a>), Pytorch (<a href="https://www.mlflow.org/docs/latest/python_api/mlflow.pytorch.html">mlflow.pytorch</a>) and many others, most of the relevant metrics for your model you will have to log manually using the functions above: <code>log_artifact(), log_param(), log_metric()</code>. For example, to save an ROC curve, you will have to generate the plot using <code>pyplot</code>, save it to a <code>.png</code> file, and then save that file as an artifact. In later posts I plan to discuss useful patterns for MLFlow.</p>
+<p>Happy MLFlowing!</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/mlflow.html">mlflow</a>
+      <a href="/tag/tracking.html">tracking</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-1812620-2');
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Getting Started with MLFlow",
+  "headline": "Getting Started with MLFlow",
+  "datePublished": "2021-01-10 00:00:00+01:00",
+  "dateModified": "2021-01-10 00:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/getting-started-with-mlflow.html",
+  "description": "For the last few months I’ve been using MFlow in production, specifically its Tracking component. MLFlow is an open source project for lifecycle tracking and serving of ML models, coming out of Databricks. MLFlow is model agnostic, so you can use with SKLearn, XGBoost, Pytorch, Tensorflow, FBProphet, anything."
+}
+</script></body>
+</html>
