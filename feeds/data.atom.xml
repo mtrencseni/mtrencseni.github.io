@@ -30,7 +30,7 @@
 
 
 &lt;p&gt;What is &lt;code&gt;backend-store-uri&lt;/code&gt; and &lt;code&gt;default-artifact-root&lt;/code&gt;?&lt;/p&gt;
-&lt;p&gt;We will use MLFlow for storing metrics like accuracy, essentially in a flat key-value manner. It will store these in the backend store, which can be a filesystem location or a database like postgresql. We will also send files to MLFlow for tracking, such as the source code currently running, or a plot we generated (eg. an ROC curve). These will be stored in artifact root, which has to be a filesystem or an S3 bucket.&lt;/p&gt;
+&lt;p&gt;We will use MLFlow for storing metrics like accuracy, essentially in a flat key-value manner. It will store these in the backend store, which can be a filesystem location or a database like Postgresql. We will also send files to MLFlow for tracking, such as the source code currently running, or a plot we generated (eg. an ROC curve). These will be stored in artifact root, which has to be a filesystem or an S3 bucket.&lt;/p&gt;
 &lt;p&gt;The big gotcha is that the MLFlow client library:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;when sending metrics, it sends those to the MLFlow server, which stores them in the backend store; the client does not access the backend store directly&lt;/li&gt;
