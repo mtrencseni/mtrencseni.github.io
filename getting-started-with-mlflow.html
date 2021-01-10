@@ -87,7 +87,7 @@
   <div>
     <h2>Introduction</h2>
 <p>For the last few months I’ve been using <a href="https://github.com/mlflow/mlflow">MFlow</a> in production, specifically its <a href="https://www.mlflow.org/docs/latest/tracking.html">Tracking</a> component. MLFlow is an open source project for lifecycle tracking and serving of ML models, coming out of <a href="https://databricks.com/">Databricks</a>. MLFlow is model agnostic, so you can use with SKLearn, XGBoost, Pytorch, Tensorflow, FBProphet, anything. The best way to get an initial understanding of MLFlow Tracking is to watch the <a href="https://www.youtube.com/watch?v=859OxXrt_TI">first 25 minutes of this talk by Corey Zumar</a>, who works on MLFlow at Databricks.</p>
-<p><img src="/images/mlflow2.png" alt="MLFlow overview." style="width: 600px;"/></p>
+<p><img src="/images/mlflow-overview.png" alt="MLFlow overview." style="width: 600px;"/></p>
 <p>MLFlow Tracking is a simple client/server solution to log, track and share model metrics at scale. Using MLFlow makes sense both during the development of the model and also once the model is running in production.</p>
 <h2>Using MLFlow for model development</h2>
 <p>In this scenario, I’m using an ipython notebook and iterating on a model. I’m either reading training data from a files or straight from the database, training models, evaluating on test data, rinse and repeats potentially 100s of times, over days, weeks or months. With MLFlow, we can continuously track various metrics and artefacts of our models runs, such as:</p>
