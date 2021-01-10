@@ -42,11 +42,11 @@
 &lt;h2&gt;Sending tracking data to MLFlow&lt;/h2&gt;
 &lt;p&gt;Now we can send tracking data to the MLFlow server. Fundamentally the steps are:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;set up connection&lt;/li&gt;
-&lt;li&gt;set the experiment (if the experiment doesn’t exist, it will get created); the experiment is essentially the project you’re working on&lt;/li&gt;
-&lt;li&gt;open a new experiment run&lt;/li&gt;
-&lt;li&gt;log params, metrics and artifacts&lt;/li&gt;
-&lt;li&gt;check the results on the web console!&lt;/li&gt;
+&lt;li&gt;set up a &lt;strong&gt;connection&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;set the &lt;strong&gt;experiment&lt;/strong&gt;; if the experiment doesn’t exist, it will be created automatically (the experiment is essentially the project you’re working on)&lt;/li&gt;
+&lt;li&gt;open a new &lt;strong&gt;experiment run&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;log&lt;/strong&gt; params, metrics and artifacts&lt;/li&gt;
+&lt;li&gt;check the results on the &lt;strong&gt;web console&lt;/strong&gt;!&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;In code:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;os&lt;/span&gt;
