@@ -107,7 +107,7 @@
 <li>Other models are re-trained at regular intervals like above, but then <strong>serve prediction requests in real-time</strong>, eg. over an HTTP API.</li>
 <li>In advanced use-cases models are also updated in real-time as new training data comes in, but this is not typical outside of advanced Internet companies.</li>
 </ol>
-<p>MLFlow Tracking is agnostic to the above, so it can be used in all scenarios. Personally I'm using it in scenario #1 use-cases so far.</p>
+<p>MLFlow Tracking is agnostic to the above, so it can be used in all scenarios. Personally I'm using it in scenario #1 use-cases so far, from Airflow.</p>
 <h2>Setting up MLFlow and the artifact gotcha</h2>
 <p>Setting up MLFlow is easy. Just create a new <code>venv</code> and <code>pip install mlflow</code>. You will need to <code>pip install mlflow</code> on both the server and all the clients that will be emitting mlflow tracking metrics. Remember that you can <code>!pip install mlflow</code> from ipython notebooks.</p>
 <p>Now, we can start the server, like:</p>
