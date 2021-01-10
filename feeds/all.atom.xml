@@ -63,7 +63,7 @@
 
 &lt;p&gt;The experiment &lt;code&gt;test-experiment&lt;/code&gt; will show up on the web console:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/mlflow1.png" alt="MLFlow experiment." style="width: 600px;"/&gt;&lt;/p&gt;
-&lt;p&gt;And inside the experiment will be runs, selecting the latest one we will see our logged data:&lt;/p&gt;
+&lt;p&gt;Inside the experiment are the &lt;strong&gt;experiment runs&lt;/strong&gt;. Selecting the latest one we will see our logged data:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/mlflow2.png" alt="MLFlow experiment contents." style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;h2&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;This was just a quick introduction on how to set up MLFlow and how to get some initial output into it. Surprisingly, there is not much more handholding that you will get from MLFlow. Although there is experimental integration of MLFlow into common ML libraries such as SKL (&lt;a href="https://www.mlflow.org/docs/latest/python_api/mlflow.sklearn.html"&gt;mlflow.sklearn&lt;/a&gt;), Pytorch (&lt;a href="https://www.mlflow.org/docs/latest/python_api/mlflow.pytorch.html"&gt;mlflow.pytorch&lt;/a&gt;) and many others, most of the relevant metrics for your model you will have to log manually using the functions above: &lt;code&gt;log_artifact()&lt;/code&gt;, &lt;code&gt;log_param()&lt;/code&gt;, &lt;code&gt;log_metric()&lt;/code&gt;. For example, to save an ROC curve, you will have to generate the plot using &lt;code&gt;pyplot&lt;/code&gt;, save it to a &lt;code&gt;.png&lt;/code&gt; file, and then save that file as an artifact. In later posts I plan to discuss useful patterns for MLFlow.&lt;/p&gt;
