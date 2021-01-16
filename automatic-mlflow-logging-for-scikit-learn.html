@@ -122,7 +122,7 @@
 <li><code>normalize</code></li>
 </ul>
 <p>These are the parameters of the <a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html"><code>LinearRegression()</code> constuctor</a>. Since I didn't specify anything, the logged values are the default values.</p>
-<p>MLFlow logs the following training metrics, computed at the end of <code>model.fit()</code>:</p>
+<p>MLFlow logs the following <strong>training metrics</strong>, computed at the end of <code>model.fit()</code>:</p>
 <ul>
 <li><code>training_mae</code></li>
 <li><code>training_mse</code></li>
@@ -131,7 +131,7 @@
 <li><code>training_score</code></li>
 </ul>
 <p><img src="/images/mlflow_lr_params.png" alt="MLFlow LinearRegression params." style="width: 600px;"/></p>
-<p>Additionally, MLFlow logs the following artifacts:</p>
+<p>Additionally, MLFlow logs the following <strong>artifacts</strong>:</p>
 <ul>
 <li><code>MLModel</code>: MLFlow's environment descriptor, contains things like the Python and the SKL version</li>
 <li><code>conda.yaml</code>: another env descriptor, this one for Conda</li>

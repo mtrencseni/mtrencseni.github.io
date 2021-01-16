@@ -36,7 +36,7 @@
 &lt;li&gt;&lt;code&gt;normalize&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;These are the parameters of the &lt;a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html"&gt;&lt;code&gt;LinearRegression()&lt;/code&gt; constuctor&lt;/a&gt;. Since I didn't specify anything, the logged values are the default values.&lt;/p&gt;
-&lt;p&gt;MLFlow logs the following training metrics, computed at the end of &lt;code&gt;model.fit()&lt;/code&gt;:&lt;/p&gt;
+&lt;p&gt;MLFlow logs the following &lt;strong&gt;training metrics&lt;/strong&gt;, computed at the end of &lt;code&gt;model.fit()&lt;/code&gt;:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;code&gt;training_mae&lt;/code&gt;&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;training_mse&lt;/code&gt;&lt;/li&gt;
@@ -45,7 +45,7 @@
 &lt;li&gt;&lt;code&gt;training_score&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;img src="/images/mlflow_lr_params.png" alt="MLFlow LinearRegression params." style="width: 600px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Additionally, MLFlow logs the following artifacts:&lt;/p&gt;
+&lt;p&gt;Additionally, MLFlow logs the following &lt;strong&gt;artifacts&lt;/strong&gt;:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;code&gt;MLModel&lt;/code&gt;: MLFlow's environment descriptor, contains things like the Python and the SKL version&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;conda.yaml&lt;/code&gt;: another env descriptor, this one for Conda&lt;/li&gt;
