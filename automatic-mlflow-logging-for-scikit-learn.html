@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="google-site-verification" content="14dvQcWyDWHBo8aM0kld8XzEa6KypAzCQDz1_KPus9E" />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-1812620-2');
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+    styles: {
+    ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+    },
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+      displayMath: [['$$','$$'], ["\\[","\\]"]],
+      processEscapes: true,
+    }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">-->
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments/github.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Bytepawn - Marton Trencseni Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+<meta name="author" content="Marton Trencseni" />
+<meta name="description" content="I explore the automatic logging capabilities of MLFlow for Scikit Learn, and in the process find a bug in MLFlow, report it and write a pull request." />
+<meta name="keywords" content="mlflow, tracking">
+<meta property="og:site_name" content="Bytepawn - Marton Trencseni"/>
+<meta property="og:title" content="Automatic MLFlow logging for Scikit Learn"/>
+<meta property="og:description" content="I explore the automatic logging capabilities of MLFlow for Scikit Learn, and in the process find a bug in MLFlow, report it and write a pull request."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="/automatic-mlflow-logging-for-scikit-learn.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2021-01-15 00:00:00+01:00"/>
+<meta property="article:modified_time" content="2021-01-15 00:00:00+01:00"/>
+<meta property="article:author" content="/author/marton-trencseni.html">
+<meta property="article:section" content="Data"/>
+<meta property="article:tag" content="mlflow"/>
+<meta property="article:tag" content="tracking"/>
+<meta property="og:image" content="/images/mlflow_scatter.png"/>
+
+  <title>Bytepawn - Marton Trencseni &ndash; Automatic MLFlow logging for Scikit Learn</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="/">
+        <img src="/theme/img/profile.png" alt="" title="">
+      </a>
+      <!--<h2><a href="">Bytepawn - Marton Trencseni</a></h2>-->
+      <h2><a href="http://bytepawn.com">Bytepawn</a></h2>
+      <p></p>
+      <nav>
+        <ul class="list">
+          <li><a href="/">home</a></li>
+          <li><a href="https://github.com/mtrencseni">github</a></li>
+          <li><a href="https://www.linkedin.com/in/mtrencseni">linkedin</a></li>
+          <li><a href="http://arxiv.org/find/all/1/au:+trencseni/0/1/0/all/0/1">arxiv</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="automatic-mlflow-logging-for-scikit-learn">Automatic MLFlow logging for Scikit Learn</h1>
+    <p>Marton Trencseni - Fri 15 January 2021 - <a href="/category/data.html">Data</a></p>
+  </header>
+  <div>
+    <h2>Introduction</h2>
+<p>The <a href="http://bytepawn.com/getting-started-with-mlflow.html#getting-started-with-mlflow">previous post was about getting MLFlow up and running and emitting some simple logs</a> using <code>log_artifact()</code>, <code>log_param()</code>, <code>log_metric()</code>. In this post, I will look at the automatic logging capabilities of MLFlow, specifically for Scikit Learn. The relevant <a href="https://mlflow.org/docs/latest/tracking.html#scikit-learn-experimental">documentation is here</a>. As the documentation states, this is an experimental feature, and in fact while writing this blog post I ran into major bugs. If you're curious, read on. <a href="https://github.com/mtrencseni/playground/blob/master/Automatic%20MLFlow%20logging%20for%20SKL.ipynb">The source code is up on Github.</a></p>
+<h2>Autologging for regression</h2>
+<p>First, we have to turn on MLFlow itself and the autologging:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="s1">&#39;http://127.0.0.1:5000&#39;</span><span class="p">)</span>  <span class="c1"># set up connection</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">set_experiment</span><span class="p">(</span><span class="s1">&#39;test-experiment&#39;</span><span class="p">)</span>          <span class="c1"># set the experiment</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">sklearn</span><span class="o">.</span><span class="n">autolog</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Let's start with a regression model and see what kind of logging we get for free from MLFlow:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+
+<span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">num_points</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">num_points</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">num_points</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">10.0</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">e</span>
+    <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
+
+<span class="n">num_points</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="n">num_points</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+
+
+<p>MLFlow logs the following <strong>parameters</strong>:</p>
+<ul>
+<li><code>copy_X</code></li>
+<li><code>fit_intercept</code></li>
+<li><code>n_jobs</code></li>
+<li><code>normalize</code></li>
+</ul>
+<p>These are the parameters of the <a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html"><code>LinearRegression()</code> constuctor</a>. Since I didn't specify anything, the logged values are the default values.</p>
+<p>MLFlow logs the following training metrics, computed at the end of <code>model.fit()</code>:</p>
+<ul>
+<li><code>training_mae</code></li>
+<li><code>training_mse</code></li>
+<li><code>training_r2_score</code></li>
+<li><code>training_rmse</code></li>
+<li><code>training_score</code></li>
+</ul>
+<p><img src="/images/mlflow_lr_params.png" alt="MLFlow LinearRegression params." style="width: 600px;"/></p>
+<p>Additionally, MLFlow logs the following artifacts:</p>
+<ul>
+<li><code>MLModel</code>: MLFlow's environment descriptor, contains things like the Python and the SKL version</li>
+<li><code>conda.yaml</code>: another env descriptor, this one for Conda</li>
+<li><code>model.pkl</code>: the pickled model object</li>
+</ul>
+<p>However, there are some additional artifacts that make sense even for such a toy project:</p>
+<ul>
+<li>a scatterplot showing the data and the fit line</li>
+<li>the source code of the ipython notebook: for this we need some ipython magic, check the <a href="https://github.com/mtrencseni/playground/blob/master/Automatic%20MLFlow%20logging%20for%20SKL.ipynb">notebook how to accomplish this</a></li>
+</ul>
+<p><img src="/images/mlflow_lr_artifacts.png" alt="MLFlow LinearRegression artifacts." style="width: 600px;"/></p>
+<p>The improved version:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">mlflow_log</span><span class="p">():</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;scatter.png&#39;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">log_artifact</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;scatter plot with fit line&#39;</span><span class="p">)</span>
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">log_artifact</span><span class="p">(</span><span class="n">nb_full_path</span><span class="p">,</span> <span class="s1">&#39;notebook source&#39;</span><span class="p">)</span> 
+
+<span class="n">num_points</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="n">num_points</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+    <span class="n">mlflow_log</span><span class="p">()</span>
+</pre></div>
+
+
+<p>This now also logs the scatter plot and the source:</p>
+<p><img src="/images/mlflow_scatter.png" alt="MLFlow scatter plot." style="width: 600px;"/></p>
+<h2>Autologging for classification</h2>
+<p>Let's set up a similar toy problem for classification:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">num_points</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">num_points</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">num_points</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
+
+<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+
+<span class="n">num_points</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="n">num_points</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Similar to the regression case, MLFow logs the parameters of the model's constuctor, and the following metrics of the <code>fit()</code> training:</p>
+<ul>
+<li><code>training_accuracy_score</code></li>
+<li><code>training_f1_score</code></li>
+<li><code>training_log_loss</code></li>
+<li><code>training_precision_score</code></li>
+<li><code>training_recall_score</code></li>
+<li><code>training_score</code></li>
+</ul>
+<p><img src="/images/mlflow_logr_metrics.png" alt="MLFlow scatter plot." style="width: 600px;"/></p>
+<p>This time, we also get some nice artifact charts for free from MLFlow:</p>
+<ul>
+<li><code>training_confusion_matrix.png</code></li>
+<li><code>training_precision_recall_curve.png</code></li>
+<li><code>training_roc_curve.png</code></li>
+</ul>
+<p><img src="/images/mlflow_logr_artifacts.png" alt="MLFlow scatter plot." style="width: 600px;"/></p>
+<p>However, this is buggy! There's a bug in the MLFlow code, where it passes <code>y_pred</code> instead of <code>y_true</code> to the SKL drawing functions. So I filed a <a href="https://github.com/mlflow/mlflow/issues/3991">bug report</a>, and then a <a href="https://github.com/mlflow/mlflow/pull/3993">pull request</a> to fix the bug.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="/tag/mlflow.html">mlflow</a>
+      <a href="/tag/tracking.html">tracking</a>
+    </p>
+  </div>
+</article>
+
+    <footer>
+      <p>&copy; Marton Trencseni </p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p>    </footer>
+  </main>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-1812620-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-1812620-2');
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Automatic MLFlow logging for Scikit Learn",
+  "headline": "Automatic MLFlow logging for Scikit Learn",
+  "datePublished": "2021-01-15 00:00:00+01:00",
+  "dateModified": "2021-01-15 00:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Marton Trencseni",
+    "url": "/author/marton-trencseni.html"
+  },
+  "image": "{{ SITEURL }}/{{ THEME_STATIC_DIR }}/img/profile.png",
+  "url": "/automatic-mlflow-logging-for-scikit-learn.html",
+  "description": "I explore the automatic logging capabilities of MLFlow for Scikit Learn, and in the process find a bug in MLFlow, report it and write a pull request."
+}
+</script></body>
+</html>
