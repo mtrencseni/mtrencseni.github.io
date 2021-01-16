@@ -127,7 +127,7 @@
 &lt;/ul&gt;
 &lt;p&gt;&lt;img src="/images/mlflow_logr_artifacts.png" alt="MLFlow scatter plot." style="width: 300px;"/&gt;&lt;/p&gt;
 &lt;p&gt;However, this is buggy! There's a bug in the MLFlow code, where it passes &lt;code&gt;y_pred&lt;/code&gt; instead of &lt;code&gt;y_true&lt;/code&gt; to the SKL drawing functions. Because of this, the above 3 artifacts make it seem like the model has perfectly learned the training set. For example, &lt;code&gt;training_confusion_matrix.png&lt;/code&gt; always looks like this:&lt;/p&gt;
-&lt;p&gt;&lt;img src="/images/mlflow_training_confusion_matrix.png" alt="MLFlow scatter plot." style="width: 300px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/mlflow_training_confusion_matrix.png" alt="MLFlow scatter plot." style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;p&gt;So I filed a &lt;a href="https://github.com/mlflow/mlflow/issues/3991"&gt;bug report&lt;/a&gt;, and then a &lt;a href="https://github.com/mlflow/mlflow/pull/3993"&gt;pull request&lt;/a&gt; to fix the bug.&lt;/p&gt;
 &lt;h2&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;Clearly the automatic logging capabilities  are still experimental, but it's a great start. I will definitely turn on automatic logging for my production MLFlow models.&lt;/p&gt;
