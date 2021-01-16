@@ -142,7 +142,7 @@
 <li>a scatterplot showing the data and the fit line</li>
 <li>the source code of the ipython notebook: for this we need some ipython magic, check the <a href="https://github.com/mtrencseni/playground/blob/master/Automatic%20MLFlow%20logging%20for%20SKL.ipynb">notebook how to accomplish this</a></li>
 </ul>
-<p><img src="/images/mlflow_lr_artifacts.png" alt="MLFlow LinearRegression artifacts." style="width: 600px;"/></p>
+<p><img src="/images/mlflow_lr_artifacts.png" alt="MLFlow LinearRegression artifacts." style="width: 300px;"/></p>
 <p>The improved version:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
@@ -211,7 +211,7 @@
 <li><code>training_precision_recall_curve.png</code></li>
 <li><code>training_roc_curve.png</code></li>
 </ul>
-<p><img src="/images/mlflow_logr_artifacts.png" alt="MLFlow scatter plot." style="width: 600px;"/></p>
+<p><img src="/images/mlflow_logr_artifacts.png" alt="MLFlow scatter plot." style="width: 300px;"/></p>
 <p>However, this is buggy! There's a bug in the MLFlow code, where it passes <code>y_pred</code> instead of <code>y_true</code> to the SKL drawing functions. So I filed a <a href="https://github.com/mlflow/mlflow/issues/3991">bug report</a>, and then a <a href="https://github.com/mlflow/mlflow/pull/3993">pull request</a> to fix the bug.</p>
 <h2>Conclusion</h2>
 <p>Clearly the automatic logging capabilities  are still experimental, but it's a great start. I will definitely turn on automatic logging for my production MLFlow models.</p>

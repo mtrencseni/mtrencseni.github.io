@@ -56,7 +56,7 @@
 &lt;li&gt;a scatterplot showing the data and the fit line&lt;/li&gt;
 &lt;li&gt;the source code of the ipython notebook: for this we need some ipython magic, check the &lt;a href="https://github.com/mtrencseni/playground/blob/master/Automatic%20MLFlow%20logging%20for%20SKL.ipynb"&gt;notebook how to accomplish this&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src="/images/mlflow_lr_artifacts.png" alt="MLFlow LinearRegression artifacts." style="width: 600px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/mlflow_lr_artifacts.png" alt="MLFlow LinearRegression artifacts." style="width: 300px;"/&gt;&lt;/p&gt;
 &lt;p&gt;The improved version:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;plot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;plt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;figure&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;figsize&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
@@ -125,7 +125,7 @@
 &lt;li&gt;&lt;code&gt;training_precision_recall_curve.png&lt;/code&gt;&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;training_roc_curve.png&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src="/images/mlflow_logr_artifacts.png" alt="MLFlow scatter plot." style="width: 600px;"/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="/images/mlflow_logr_artifacts.png" alt="MLFlow scatter plot." style="width: 300px;"/&gt;&lt;/p&gt;
 &lt;p&gt;However, this is buggy! There's a bug in the MLFlow code, where it passes &lt;code&gt;y_pred&lt;/code&gt; instead of &lt;code&gt;y_true&lt;/code&gt; to the SKL drawing functions. So I filed a &lt;a href="https://github.com/mlflow/mlflow/issues/3991"&gt;bug report&lt;/a&gt;, and then a &lt;a href="https://github.com/mlflow/mlflow/pull/3993"&gt;pull request&lt;/a&gt; to fix the bug.&lt;/p&gt;
 &lt;h2&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;Clearly the automatic logging capabilities  are still experimental, but it's a great start. I will definitely turn on automatic logging for my production MLFlow models.&lt;/p&gt;
