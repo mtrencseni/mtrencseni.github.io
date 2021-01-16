@@ -10,7 +10,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Let's start with a regression model and see what kind of logging we get for free from MLFlow:&lt;/p&gt;
+&lt;p&gt;Let's start with a regression model and see what kind of logging we get from MLFlow:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;sklearn.linear_model&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;LinearRegression&lt;/span&gt;
 
