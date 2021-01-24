@@ -92,7 +92,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;In this Pytorch Lighning structure, it's now obvious when training starts and ends, and what a training step is. MLFlow autologging works, and we get the following logged. Note that logging of the metrics is not "free", we need to call &lt;code&gt;self.log()&lt;/code&gt; in the &lt;code&gt;LightningModule&lt;/code&gt;. This is because Pytorch Lightning doesn't know what kind of merics make sense for our model (eg. is it &lt;code&gt;nll_loss()&lt;/code&gt; or &lt;code&gt;cross_entropy()&lt;/code&gt;) and how to compute it).&lt;/p&gt;
+&lt;p&gt;In the Pytorch Lighning structure, it's now obvious when training starts and ends, and what a training step is. &lt;strong&gt;MLFlow autologging works.&lt;/strong&gt; Note that logging of the metrics is not "free", we need to call &lt;code&gt;self.log()&lt;/code&gt; in &lt;code&gt;training_step()&lt;/code&gt;. This is because the framework doesn't know what kind of merics make sense for our model (eg. is it &lt;code&gt;nll_loss()&lt;/code&gt; or &lt;code&gt;cross_entropy()&lt;/code&gt;) and how to compute it.&lt;/p&gt;
 &lt;p&gt;The parameters of the model:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/mlflow_pytorch_params.png" alt="MLFlow Pytorch parameters example." style="width: 300px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Various metrics, such as accuracy and loss logged for each epoch:&lt;/p&gt;
