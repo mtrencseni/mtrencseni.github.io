@@ -178,7 +178,7 @@
 </pre></div>
 
 
-<p>In the Pytorch Lighning structure, it's now obvious when training starts and ends, and what a training step is. <strong>MLFlow autologging works.</strong> Note that logging of the metrics is not "free", we need to call <code>self.log()</code> in <code>training_step()</code>. This is because the framework doesn't know what kind of merics make sense for our model (eg. is it <code>nll_loss()</code> or <code>cross_entropy()</code>) and how to compute it.</p>
+<p>In the Pytorch Lighning structure, it's now obvious when training starts and ends, and what a training step is. <strong>MLFlow autologging works.</strong> Note that logging of the metrics is not "free", we have to call <code>self.log()</code> in <code>training_step()</code>. This is because the framework doesn't know what kind of merics make sense for our model (eg. is it <code>nll_loss()</code> or <code>cross_entropy()</code>) and how to compute it.</p>
 <p>So what gets logged? The parameters of the model:</p>
 <p><img src="/images/mlflow_pytorch_params.png" alt="MLFlow Pytorch parameters example." style="width: 300px;"/></p>
 <p>Various metrics, such as accuracy and loss are logged for each epoch:</p>
