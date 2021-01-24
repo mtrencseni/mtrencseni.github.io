@@ -10,7 +10,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;The easiest thing to try is to take existing Pytorch code, and run it after the above MLFlow code ran. So let's take the &lt;a href="http://bytepawn.com/solving-cifar-10-with-pytorch-and-skl.html"&gt;MNIST code from a previous blog post&lt;/a&gt; (only showing relevant bits):&lt;/p&gt;
+&lt;p&gt;The easiest thing to try is to take existing Pytorch code, and run it after the above MLFlow code ran. So let's take the &lt;a href="http://bytepawn.com/solving-mnist-with-pytorch-and-skl.html"&gt;MNIST code from a previous blog post&lt;/a&gt; (only showing relevant bits):&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;CNN&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;nn&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Module&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
         &lt;span class="o"&gt;...&lt;/span&gt;
