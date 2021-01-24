@@ -132,8 +132,8 @@
 
 
 <p>However, <strong>this will not work</strong>! Nothing will show up in MLFlow after we run the above code.</p>
-<p>Why not? This is classic Pytorch code, where we control the training loop, in the approx. 10 lines of code in <code>train()</code>. MLFlow can't do any automatic logging, because it doesn't know where we're at in the training (or testing), so it doesn't know when or how to measure and emit metrics. For this, we need to transform the code so it's closer to Scikit Learn's <code>fit()</code> and <code>predict()</code>.</p>
-<p>This is what Pytorch Lightning gives us! Also, if you actually read the linked MLFlow for Pytorch documentation, it's there :)</p>
+<p>Why not? This is classic Pytorch code, where we control the training loop, in the approx. 10 lines of code in <code>train()</code>. MLFlow can't do any automatic logging, because it doesn't know where we're at in the training (or testing), so it doesn't know when or how to measure and emit metrics. For this, we need to transform the code so it's closer to Scikit Learn's <code>fit()</code> and <code>predict()</code> pattern.</p>
+<p>This is what <a href="https://www.pytorchlightning.ai/">Pytorch Lightning</a> gives us! Also, if you actually read the linked MLFlow for Pytorch documentation, it's there :)</p>
 <h2>Autologging for Pytorch Lightning code</h2>
 <p>Let's write a Pytorch Lighning version of the above code:</p>
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MNISTModel</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">LightningModule</span><span class="p">):</span>

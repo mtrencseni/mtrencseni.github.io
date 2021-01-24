@@ -46,8 +46,8 @@
 
 
 &lt;p&gt;However, &lt;strong&gt;this will not work&lt;/strong&gt;! Nothing will show up in MLFlow after we run the above code.&lt;/p&gt;
-&lt;p&gt;Why not? This is classic Pytorch code, where we control the training loop, in the approx. 10 lines of code in &lt;code&gt;train()&lt;/code&gt;. MLFlow can't do any automatic logging, because it doesn't know where we're at in the training (or testing), so it doesn't know when or how to measure and emit metrics. For this, we need to transform the code so it's closer to Scikit Learn's &lt;code&gt;fit()&lt;/code&gt; and &lt;code&gt;predict()&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;This is what Pytorch Lightning gives us! Also, if you actually read the linked MLFlow for Pytorch documentation, it's there :)&lt;/p&gt;
+&lt;p&gt;Why not? This is classic Pytorch code, where we control the training loop, in the approx. 10 lines of code in &lt;code&gt;train()&lt;/code&gt;. MLFlow can't do any automatic logging, because it doesn't know where we're at in the training (or testing), so it doesn't know when or how to measure and emit metrics. For this, we need to transform the code so it's closer to Scikit Learn's &lt;code&gt;fit()&lt;/code&gt; and &lt;code&gt;predict()&lt;/code&gt; pattern.&lt;/p&gt;
+&lt;p&gt;This is what &lt;a href="https://www.pytorchlightning.ai/"&gt;Pytorch Lightning&lt;/a&gt; gives us! Also, if you actually read the linked MLFlow for Pytorch documentation, it's there :)&lt;/p&gt;
 &lt;h2&gt;Autologging for Pytorch Lightning code&lt;/h2&gt;
 &lt;p&gt;Let's write a Pytorch Lighning version of the above code:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;MNISTModel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;pl&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;LightningModule&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
