@@ -86,9 +86,8 @@
   </header>
   <div>
     <h2>Introduction</h2>
-<p>In a <a href="http://bytepawn.com/getting-started-with-mlflow.html#getting-started-with-mlflow">previous post I looked at getting MLFlow up and running and emitting some simple logs</a> using <code>log_artifact()</code>, <code>log_param()</code>, <code>log_metric()</code>.</p>
-<p>Then I played around with automatic logging for Scikit Learn, and in the process even found some bugs in MLFlow, and fixed them.</p>
-<p>In this post, I will look at the <a href="http://bytepawn.com/automatic-mlflow-logging-for-scikit-learn.html">automatic logging capabilities of MLFlow, but this time for Pytorch</a>. The relevant <a href="https://mlflow.org/docs/latest/tracking.html#pytorch-experimental">documentation is here</a>. <a href="https://github.com/mtrencseni/pytorch-playground/blob/master/12-mlflow/MNIST%20Pytorch%20Lightning%20MLFlow.ipynb">The source code is up on Github.</a></p>
+<p>In a <a href="http://bytepawn.com/getting-started-with-mlflow.html#getting-started-with-mlflow">previous post I looked at getting MLFlow up and running and emitting some simple logs</a> using <code>log_artifact()</code>, <code>log_param()</code>, <code>log_metric()</code>. Then I played around with <a href="http://bytepawn.com/automatic-mlflow-logging-for-scikit-learn.html">automatic logging for Scikit Learn</a>, and in the process even found some bugs in MLFlow, and fixed them.</p>
+<p>In this post, I will look at the automatic logging capabilities of MLFlow, but this time for Pytorch. The relevant <a href="https://mlflow.org/docs/latest/tracking.html#pytorch-experimental">documentation is here</a>. <a href="https://github.com/mtrencseni/pytorch-playground/blob/master/12-mlflow/MNIST%20Pytorch%20Lightning%20MLFlow.ipynb">The source code is up on Github.</a></p>
 <h2>Autologging for classic Pytorch code</h2>
 <p>First, we have to turn on MLFlow itself and the autologging:</p>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
