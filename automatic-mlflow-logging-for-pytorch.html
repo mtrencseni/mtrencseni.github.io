@@ -179,16 +179,16 @@
 
 
 <p>In the Pytorch Lighning structure, it's now obvious when training starts and ends, and what a training step is. <strong>MLFlow autologging works.</strong> Note that logging of the metrics is not "free", we need to call <code>self.log()</code> in <code>training_step()</code>. This is because the framework doesn't know what kind of merics make sense for our model (eg. is it <code>nll_loss()</code> or <code>cross_entropy()</code>) and how to compute it.</p>
-<p>The parameters of the model:</p>
+<p>So what gets logged? The parameters of the model:</p>
 <p><img src="/images/mlflow_pytorch_params.png" alt="MLFlow Pytorch parameters example." style="width: 300px;"/></p>
-<p>Various metrics, such as accuracy and loss logged for each epoch:</p>
+<p>Various metrics, such as accuracy and loss are logged for each epoch:</p>
 <p><img src="/images/mlflow_pytorch_metrics.png" alt="MLFlow Pytorch metrics example." style="width: 300px;"/></p>
 <p>Showing loss per training epoch:</p>
 <p><img src="/images/mlflow_pytorch_loss.png" alt="MLFlow Pytorch loss example." style="width: 600px;"/></p>
-<p>Various artifacts, similar to the Scikit Learn case, such as environment description and the pickled model:</p>
+<p>Various artifacts, similar to the Scikit Learn case, such as the environment description and the pickled model:</p>
 <p><img src="/images/mlflow_pytorch_artifacts.png" alt="MLFlow Pytorch artifacts example." style="width: 600px;"/></p>
 <h2>Conclusion</h2>
-<p>Clearly the automatic logging capabilities are still experimental, but it's a great start. I will definitely turn on automatic logging for my production Pytorch models.</p>
+<p>The automatic logging capabilities are still experimental, but it's a great start. I will definitely turn on automatic logging for my production Pytorch models.</p>
 <p><strong>Happy MLFlowing!</strong></p>
   </div>
   <div class="tag-cloud">

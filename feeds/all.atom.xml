@@ -93,16 +93,16 @@
 
 
 &lt;p&gt;In the Pytorch Lighning structure, it's now obvious when training starts and ends, and what a training step is. &lt;strong&gt;MLFlow autologging works.&lt;/strong&gt; Note that logging of the metrics is not "free", we need to call &lt;code&gt;self.log()&lt;/code&gt; in &lt;code&gt;training_step()&lt;/code&gt;. This is because the framework doesn't know what kind of merics make sense for our model (eg. is it &lt;code&gt;nll_loss()&lt;/code&gt; or &lt;code&gt;cross_entropy()&lt;/code&gt;) and how to compute it.&lt;/p&gt;
-&lt;p&gt;The parameters of the model:&lt;/p&gt;
+&lt;p&gt;So what gets logged? The parameters of the model:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/mlflow_pytorch_params.png" alt="MLFlow Pytorch parameters example." style="width: 300px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Various metrics, such as accuracy and loss logged for each epoch:&lt;/p&gt;
+&lt;p&gt;Various metrics, such as accuracy and loss are logged for each epoch:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/mlflow_pytorch_metrics.png" alt="MLFlow Pytorch metrics example." style="width: 300px;"/&gt;&lt;/p&gt;
 &lt;p&gt;Showing loss per training epoch:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/mlflow_pytorch_loss.png" alt="MLFlow Pytorch loss example." style="width: 600px;"/&gt;&lt;/p&gt;
-&lt;p&gt;Various artifacts, similar to the Scikit Learn case, such as environment description and the pickled model:&lt;/p&gt;
+&lt;p&gt;Various artifacts, similar to the Scikit Learn case, such as the environment description and the pickled model:&lt;/p&gt;
 &lt;p&gt;&lt;img src="/images/mlflow_pytorch_artifacts.png" alt="MLFlow Pytorch artifacts example." style="width: 600px;"/&gt;&lt;/p&gt;
 &lt;h2&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;Clearly the automatic logging capabilities are still experimental, but it's a great start. I will definitely turn on automatic logging for my production Pytorch models.&lt;/p&gt;
+&lt;p&gt;The automatic logging capabilities are still experimental, but it's a great start. I will definitely turn on automatic logging for my production Pytorch models.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Happy MLFlowing!&lt;/strong&gt;&lt;/p&gt;</content><category term="mlflow"></category><category term="tracking"></category></entry><entry><title>Automatic MLFlow logging for Scikit Learn</title><link href="/automatic-mlflow-logging-for-scikit-learn.html" rel="alternate"></link><published>2021-01-15T00:00:00+01:00</published><updated>2021-01-15T00:00:00+01:00</updated><author><name>Marton Trencseni</name></author><id>tag:None,2021-01-15:/automatic-mlflow-logging-for-scikit-learn.html</id><summary type="html">&lt;p&gt;I explore the automatic logging capabilities of MLFlow for Scikit Learn. In the process I found a bug in MLFlow, reported it and wrote a pull request to fix it.&lt;br/&gt;&lt;br/&gt; &lt;img src="/images/mlflow_scatter.png" alt="MLFlow scatter plot." style="width: 400px;"/&gt;&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;The &lt;a href="http://bytepawn.com/getting-started-with-mlflow.html#getting-started-with-mlflow"&gt;previous post was about getting MLFlow up and running and emitting some simple logs&lt;/a&gt; using &lt;code&gt;log_artifact()&lt;/code&gt;, &lt;code&gt;log_param()&lt;/code&gt;, &lt;code&gt;log_metric()&lt;/code&gt;. In this post, I will look at the automatic logging capabilities of MLFlow, specifically for Scikit Learn. The relevant &lt;a href="https://mlflow.org/docs/latest/tracking.html#scikit-learn-experimental"&gt;documentation is here&lt;/a&gt;. As the documentation states, this is an experimental feature, and in fact while writing this blog post I ran into a bug. If you're curious, read on. &lt;a href="https://github.com/mtrencseni/playground/blob/master/Automatic%20MLFlow%20logging%20for%20SKL.ipynb"&gt;The source code is up on Github.&lt;/a&gt;&lt;/p&gt;
 &lt;h2&gt;Autologging for regression&lt;/h2&gt;
